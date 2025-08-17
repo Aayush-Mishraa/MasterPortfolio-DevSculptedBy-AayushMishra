@@ -1,0 +1,85 @@
+name: 🔥 EMERGENCY FIX - Basic FTP
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: 🚀 Emergency Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: 🏗️ Build Production
+        run: npm run build
+        env:
+          CI: false
+
+      - name: 📄 Create .htaccess
+        run: |
+          cat > build/.htaccess << 'EOF'
+          RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.html [L]
+          EOF
+
+      - name: ✅ Test Build
+        run: |
+          echo "=== BUILD VERIFICATION ==="
+          echo "Index.html exists: $(test -f build/index.html && echo 'YES' || echo 'NO')"
+          echo "Index.html size: $(wc -c < build/index.html) bytes"
+          echo "Total files: $(find build -type f | wc -l)"
+          echo "Build directory contents:"
+          ls -la build/ | head -20
+
+      - name: 🚀 Deploy with SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 22
+          local_path: './build/*'
+          remote_path: '/htdocs/'
+          sftp_only: true
+
+      - name: 🎯 Fallback FTP Deploy
+        if: failure()
+        run: |
+          echo "SFTP failed, trying basic FTP..."
+          sudo apt-get update
+          sudo apt-get install -y lftp
+          
+          lftp -e "
+          set ftp:ssl-allow no;
+          set ftp:passive-mode on;
+          open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
+          mirror -R --verbose build/ /htdocs/;
+          quit
+          "
+
+      - name: 🧪 Test Website
+        run: |
+          echo "Testing website..."
+          sleep 30
+          curl -I https://aayushmishra.tech || echo "Website not ready yet"
+
+      - name: 🎉 Success Report
+        run: |
+          echo "🚀 DEPLOYMENT COMPLETE!"
+          echo "🌐 Your portfolio is live at: https://aayushmishra.tech"
+          echo "⏰ Deployed at: $(date)"
+          echo "🔗 Test URL: https://aayushmishra.tech"

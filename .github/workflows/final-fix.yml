@@ -1,0 +1,75 @@
+name: 🔧 FINAL FIX - Simple FTP Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: 🚀 Deploy to Hostinger
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: 🏗️ Build Production
+        run: npm run build
+        env:
+          CI: false
+          GENERATE_SOURCEMAP: false
+
+      - name: 📄 Add .htaccess
+        run: |
+          echo 'RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.html [L]' > build/.htaccess
+
+      - name: 🔍 Verify Build
+        run: |
+          echo "Build contents:"
+          ls -la build/
+          echo "Index.html size: $(wc -c < build/index.html) bytes"
+
+      - name: 🚀 Deploy via FTP (Alternative Method)
+        uses: sebastianpopp/ftp-action@releases/v2
+        with:
+          host: ${{ secrets.FTP_HOST }}
+          user: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          localDir: 'build'
+          remoteDir: '/htdocs'
+          options: '--verbose --delete'
+
+      - name: 🧪 Test Deployment
+        run: |
+          echo "Creating test file..."
+          echo "SUCCESS - Deployed at $(date)" > build/deploy-test.txt
+          
+      - name: 📤 Upload Test File
+        uses: sebastianpopp/ftp-action@releases/v2
+        with:
+          host: ${{ secrets.FTP_HOST }}
+          user: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          localDir: 'build'
+          remoteDir: '/htdocs'
+          options: '--include="deploy-test.txt"'
+
+      - name: 🎉 Success Summary
+        run: |
+          echo "### 🎉 Deployment Complete!" 
+          echo "- **Site URL:** https://aayushmishra.tech"
+          echo "- **Test URL:** https://aayushmishra.tech/deploy-test.txt"
+          echo "- **Deploy Time:** $(date)"

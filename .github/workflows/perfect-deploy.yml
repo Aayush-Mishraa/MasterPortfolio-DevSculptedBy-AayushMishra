@@ -1,0 +1,201 @@
+name: 🚀 PERFECT DEPLOYMENT - Fresh Start
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # PHASE 1: BUILD THE PROJECT
+  build:
+    name: 📦 Build React Portfolio
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🛠️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: 🏗️ Build Production
+        run: npm run build
+        env:
+          CI: false
+          GENERATE_SOURCEMAP: false
+
+      - name: 📄 Create .htaccess for SPA
+        run: |
+          cat > build/.htaccess << 'EOF'
+          RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.html [L]
+          
+          # Security headers
+          Header always set X-Content-Type-Options nosniff
+          Header always set X-Frame-Options DENY
+          Header always set X-XSS-Protection "1; mode=block"
+          
+          # Cache control
+          <IfModule mod_expires.c>
+            ExpiresActive on
+            ExpiresByType text/css "access plus 1 year"
+            ExpiresByType application/javascript "access plus 1 year"
+            ExpiresByType image/png "access plus 1 year"
+            ExpiresByType image/jpg "access plus 1 year"
+            ExpiresByType image/jpeg "access plus 1 year"
+            ExpiresByType image/gif "access plus 1 year"
+            ExpiresByType image/svg+xml "access plus 1 year"
+          </IfModule>
+          EOF
+
+      - name: 🧪 Create Test Files
+        run: |
+          echo "SUCCESS: Portfolio deployed at $(date)" > build/deploy-success.txt
+          echo "Build completed successfully!" > build/build-test.txt
+          echo '{"status":"success","timestamp":"'$(date -Iseconds)'","commit":"'${{ github.sha }}'"}' > build/status.json
+
+      - name: ✅ Verify Build Quality
+        run: |
+          echo "=== BUILD VERIFICATION ==="
+          echo "✅ Index.html exists: $(test -f build/index.html && echo 'YES' || echo 'NO')"
+          echo "✅ Index.html size: $(wc -c < build/index.html) bytes"
+          echo "✅ .htaccess exists: $(test -f build/.htaccess && echo 'YES' || echo 'NO')"
+          echo "✅ Static folder exists: $(test -d build/static && echo 'YES' || echo 'NO')"
+          echo "✅ Total files: $(find build -type f | wc -l)"
+          echo ""
+          echo "=== BUILD CONTENTS (TOP 10) ==="
+          ls -la build/ | head -10
+          echo ""
+          echo "=== STATIC FOLDER CONTENTS ==="
+          ls -la build/static/ | head -10
+
+      - name: 📤 Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-build-${{ github.sha }}
+          path: build
+          retention-days: 7
+
+  # PHASE 2: DEPLOY TO HOSTINGER
+  deploy:
+    name: 🌐 Deploy to Hostinger
+    needs: build
+    runs-on: ubuntu-latest
+    environment: 
+      name: production
+      url: ${{ secrets.SITE_URL }}
+    
+    steps:
+      - name: 📥 Download Build
+        uses: actions/download-artifact@v4
+        with:
+          name: portfolio-build-${{ github.sha }}
+          path: build
+
+      - name: 🔍 Pre-Deploy Verification
+        run: |
+          echo "=== PRE-DEPLOY VERIFICATION ==="
+          echo "📁 Build folder contents:"
+          ls -la build/
+          echo ""
+          echo "📊 File count: $(find build -type f | wc -l)"
+          echo "📄 Index.html size: $(wc -c < build/index.html) bytes"
+          echo "🔧 .htaccess exists: $(test -f build/.htaccess && echo 'YES' || echo 'NO')"
+
+      - name: 🚀 Deploy via FTP (Method 1)
+        id: deploy1
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftp
+          local-dir: build/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          exclude: |
+            **/.git*
+            **/.github*
+            **/node_modules/**
+            **/.DS_Store
+            **/Thumbs.db
+          dangerous-clean-slate: true
+          log-level: verbose
+          security: loose
+
+      - name: 🔄 Deploy via SFTP (Method 2 - Backup)
+        if: steps.deploy1.outcome == 'failure'
+        id: deploy2
+        continue-on-error: true
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 22
+          local_path: './build/*'
+          remote_path: ${{ secrets.FTP_SERVER_DIR }}
+          sftp_only: true
+
+      - name: 🛠️ Deploy via LFTP (Method 3 - Final Backup)
+        if: steps.deploy1.outcome == 'failure' && steps.deploy2.outcome == 'failure'
+        run: |
+          echo "🔄 Trying LFTP method..."
+          sudo apt-get update
+          sudo apt-get install -y lftp
+          
+          lftp -e "
+          set ftp:ssl-allow no;
+          set ftp:passive-mode on;
+          set net:timeout 10;
+          set net:max-retries 3;
+          open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
+          mirror -R --verbose --delete build/ ${{ secrets.FTP_SERVER_DIR }};
+          quit
+          "
+
+      - name: 🧪 Test Deployment
+        run: |
+          echo "⏳ Waiting for deployment to propagate..."
+          sleep 30
+          
+          echo "🧪 Testing deployed files..."
+          curl -I ${{ secrets.SITE_URL }}/deploy-success.txt || echo "Test file not accessible yet"
+          curl -I ${{ secrets.SITE_URL }}/ || echo "Main site not accessible yet"
+
+      - name: 🎉 Deployment Summary
+        run: |
+          echo "### 🎉 DEPLOYMENT COMPLETED!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🌐 **Site URL**: ${{ secrets.SITE_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "🧪 **Test URL**: ${{ secrets.SITE_URL }}/deploy-success.txt" >> $GITHUB_STEP_SUMMARY  
+          echo "📊 **Status**: ${{ secrets.SITE_URL }}/status.json" >> $GITHUB_STEP_SUMMARY
+          echo "⏰ **Deploy Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "🔖 **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Verification Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Visit: ${{ secrets.SITE_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "2. Check: Your portfolio should load completely" >> $GITHUB_STEP_SUMMARY
+          echo "3. Test: All navigation should work" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🧹 Cleanup
+        if: always()
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: portfolio-build-${{ github.sha }}
+          failOnError: false

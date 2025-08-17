@@ -118,7 +118,7 @@ jobs:
           port: ${{ secrets.FTP_PORT }}
           protocol: ftps
           local-dir: build/
-          server-dir: /htdocs/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
           exclude: |
             **/.git*
             **/.github*
@@ -127,9 +127,7 @@ jobs:
             **/Thumbs.db
           dangerous-clean-slate: true
           log-level: verbose
-          security: loose
-          timeout: 600000
-          retry: 3
+          security: strict
 
       - name: 🎉 Deployment Summary
         run: |
