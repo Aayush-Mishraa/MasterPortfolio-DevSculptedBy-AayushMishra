@@ -1,0 +1,121 @@
+/* Rotating Roles Component Styles */
+
+.rotating-roles-container {
+  margin: 1rem 0;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.rotating-role {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.3;
+  transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+              transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateZ(0);
+  will-change: opacity, transform;
+  
+  /* Gradient text effect */
+  background: linear-gradient(135deg, #8B5CF6, #A855F7, #C084FC);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  /* Subtle glow effect */
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.3));
+}
+
+.rotating-role.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.rotating-role.hidden {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+}
+
+/* Enhanced animation for smooth transitions */
+@keyframes roleSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes roleSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+}
+
+/* Mobile responsive design */
+@media (max-width: 768px) {
+  .rotating-roles-container {
+    min-height: 50px;
+    margin: 0.5rem 0;
+  }
+  
+  .rotating-role {
+    font-size: clamp(1rem, 4vw, 1.4rem);
+    text-align: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .rotating-roles-container {
+    min-height: 45px;
+  }
+  
+  .rotating-role {
+    font-size: clamp(0.9rem, 4.5vw, 1.2rem);
+    line-height: 1.2;
+    padding: 0 0.5rem;
+  }
+}
+
+/* Dark theme compatibility */
+@media (prefers-color-scheme: dark) {
+  .rotating-role {
+    background: linear-gradient(135deg, #100833, #250e98, #735fcd);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* High contrast accessibility */
+@media (prefers-contrast: high) {
+  .rotating-role {
+    background: none;
+    -webkit-text-fill-color: inherit;
+    font-weight: 700;
+  }
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .rotating-role {
+    transition: none;
+    animation: none;
+  }
+  
+  .rotating-role.visible,
+  .rotating-role.hidden {
+    transform: none;
+  }
+}

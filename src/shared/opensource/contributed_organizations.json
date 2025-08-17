@@ -1,0 +1,52 @@
+{
+  "data": [
+    {
+      "id": "github",
+      "name": "GitHub",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
+      "website": "https://github.com"
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg",
+      "website": "https://google.com"
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg",
+      "website": "https://openai.com"
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+      "website": "https://python.org"
+    },
+    {
+      "id": "tensorflow",
+      "name": "TensorFlow",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg",
+      "website": "https://tensorflow.org"
+    },
+    {
+      "id": "meta",
+      "name": "Meta",
+      "logoUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg",
+      "website": "https://meta.com"
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoftsqlserver/microsoftsqlserver-plain.svg",
+      "website": "https://microsoft.com"
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
+      "website": "https://react.dev"
+    }
+  ]
+}

@@ -1,0 +1,129 @@
+.logo_wrapper {
+  height: 100vh;
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.logo_wrapper.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.logo_wrapper.fade-out {
+  animation: fadeOut 0.8s ease-in-out forwards;
+}
+
+.screen {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 100%;
+  animation: grow 5.5s ease-in-out forwards;
+}
+
+.screen.screen-exit {
+  animation: grow 5.5s ease-in-out forwards, exitAnimation 0.8s 5.5s ease-in-out forwards;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fade in animation for initial load */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Smooth fade out animation */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+}
+
+/* Main grow animation - smoother transitions */
+@keyframes grow {
+  0% {
+    transform: scale(0);
+    border-radius: 100%;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  15% {
+    transform: scale(1);
+    border-radius: 50%;
+  }
+  25% {
+    border-radius: 20%;
+    height: 100%;
+    width: 100%;
+  }
+  30% {
+    border-radius: 0%;
+    height: 100%;
+    width: 100%;
+  }
+  85% {
+    transform: scale(1);
+    border-radius: 0%;
+    height: 100%;
+    width: 100%;
+  }
+  100% {
+    transform: scale(1);
+    border-radius: 0%;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+#logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Ensure logo stays centered during all animations */
+.screen #logo {
+  animation: logoStable 6.3s ease-in-out forwards;
+}
+
+@keyframes logoStable {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  95% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+}

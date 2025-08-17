@@ -1,0 +1,24 @@
+import React, { Component } from "react";
+import Header from "../../components/header/Header";
+import Greeting from "../../containers/greeting/Greeting";
+import Skills from "../../containers/skills/Skills";
+import MagicBento from "../../components/MagicBento/MagicBento";
+import CreativeFooter from "../../components/CreativeFooter/CreativeFooter";
+import TopButton from "../../components/topButton/TopButton";
+
+class Home extends Component {
+  render() {
+    return (
+      <div>
+        <Header theme={this.props.theme} />
+        <Greeting theme={this.props.theme} />
+        <Skills theme={this.props.theme} />
+        <MagicBento theme={this.props.theme} />
+        <CreativeFooter theme={this.props.theme} />
+        <TopButton theme={this.props.theme} />
+      </div>
+    );
+  }
+}
+
+export default Home;

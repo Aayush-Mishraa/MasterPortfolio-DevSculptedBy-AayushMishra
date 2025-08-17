@@ -1,0 +1,317 @@
+.main {
+  width: 90%;
+  padding: 20px 10px;
+  margin: 0px auto;
+  margin-top: 4rem;
+}
+.greet-main {
+  width: 90%;
+  padding: 20px 10px;
+  margin: 0px auto;
+  margin-top: 2rem;
+}
+
+.gretting-main {
+  width: 90%;
+  padding: 20px 10px;
+  margin: 0px auto;
+}
+
+.greeting-main {
+  display: flex;
+}
+
+.greeting-main > * {
+  flex: 1;
+  margin-bottom: 30px;
+}
+.button-greeting-div {
+  display: flex;
+  margin-top: 20px;
+}
+
+/* Falling Text Section Styling */
+.falling-text-section {
+  position: relative;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  padding: 1.5rem;
+  margin: 2rem 0;
+  min-height: 200px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.falling-text-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+.falling-text-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 70% 80%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.falling-text-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+.greeting-text {
+  margin-top: 80px;
+  font-size: clamp(24px, 8vw, 70px);
+  line-height: 1.1;
+  font-family: "Google Sans Bold";
+  animation: fadeInUp 1s ease-out both;
+}
+
+.greeting-nickname {
+  font-size: clamp(14px, 2.5vw, 30px);
+  line-height: 1.2;
+  font-family: "Google Sans Bold Italic";
+  animation: fadeInUp 1.2s ease-out 0.5s both;
+  margin: 8px 0 15px 0;
+}
+
+.greeting-text-p {
+  font-size: clamp(14px, 3.5vw, 40px);
+  line-height: clamp(1.4, 1.6, 1.8);
+  margin-right: clamp(0px, 4vw, 40px);
+  font-family: "Google Sans Medium";
+  animation: fadeInUp 1.5s ease-out 0.3s both;
+}
+
+.greeting-image-div > * {
+  max-width: 100%;
+  height: auto;
+}
+
+.greeting-image-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Media Query */
+/* Large Desktop */
+@media (min-width: 1920px) {
+  .greeting-text {
+    font-size: 80px;
+    margin-top: 100px;
+  }
+  .greeting-nickname {
+    font-size: 35px;
+  }
+  .greeting-text-p {
+    font-size: 45px;
+  }
+}
+
+/* Desktop */
+@media (max-width: 1380px) {
+  .greeting-text {
+    font-size: clamp(40px, 6vw, 60px);
+  }
+  .greeting-nickname {
+    font-size: clamp(20px, 2.2vw, 28px);
+  }
+  .greeting-text-p {
+    font-size: clamp(18px, 2.8vw, 32px);
+  }
+}
+
+/* Medium Desktop / Large Tablet */
+@media (max-width: 1024px) {
+  .greeting-text {
+    font-size: clamp(32px, 5vw, 45px);
+    margin-top: 40px;
+  }
+  .greeting-nickname {
+    font-size: clamp(16px, 2vw, 24px);
+  }
+  .greeting-text-p {
+    font-size: clamp(16px, 2.5vw, 24px);
+    margin-right: 20px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .button-greeting-div {
+    justify-content: space-around;
+  }
+  .greeting-text {
+    font-size: clamp(28px, 6vw, 36px);
+    margin-top: 0px;
+    text-align: center;
+  }
+  .greeting-nickname {
+    font-size: clamp(14px, 3vw, 18px);
+    text-align: center;
+    line-height: 1.3;
+    margin: 8px auto 15px auto;
+    max-width: 90%;
+    animation: slideInLeft 1s ease-out 0.8s both;
+  }
+  .greeting-text-p {
+    font-size: clamp(14px, 3.2vw, 18px);
+    margin-right: 0px;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .greeting-main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Swap positions: ProfileCard first, then text content */
+  .greeting-text-div {
+    order: 2; /* Move text content (including falling text) to bottom */
+  }
+  
+  .greeting-image-div {
+    order: 1; /* Move ProfileCard to top */
+    margin-top: 20px;
+    margin-bottom: 2rem;
+  }
+  
+  /* Optimize falling text section for mobile */
+  .falling-text-section {
+    margin: 1.5rem 0 !important;
+    min-height: 120px !important;
+    padding: 1rem !important;
+  }
+
+  .portfolio-repo-btn-div {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+/* Large Mobile */
+@media (max-width: 600px) {
+  .greeting-text {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+  .greeting-nickname {
+    font-size: clamp(12px, 3.5vw, 16px);
+  }
+  .greeting-text-p {
+    font-size: clamp(13px, 3.8vw, 16px);
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .greet-main {
+    margin-top: 1rem;
+    padding: 15px 5px;
+  }
+  
+  /* Maintain swapped layout for small mobile */
+  .greeting-main {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .greeting-text-div {
+    order: 2; /* Keep text content at bottom */
+  }
+  
+  .greeting-image-div {
+    order: 1; /* Keep ProfileCard at top */
+    margin-top: 10px;
+    margin-bottom: 1.5rem;
+    padding: 15px 10px;
+  }
+  
+  .greeting-text {
+    font-size: clamp(20px, 8vw, 28px);
+  }
+  .greeting-nickname {
+    font-size: clamp(11px, 4vw, 14px);
+    line-height: 1.2;
+    margin: 5px auto 12px auto;
+    padding: 0 15px;
+  }
+  .greeting-text-p {
+    font-size: clamp(12px, 4.2vw, 15px);
+    line-height: 1.4;
+    padding: 0 10px;
+  }
+
+  /* Further optimize falling text for small mobile */
+  .falling-text-section {
+    margin: 1rem 0 !important;
+    min-height: 100px !important;
+    padding: 0.8rem !important;
+  }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+  .greeting-text {
+    font-size: clamp(18px, 9vw, 24px);
+  }
+  .greeting-nickname {
+    font-size: clamp(10px, 4.5vw, 12px);
+  }
+  .greeting-text-p {
+    font-size: clamp(11px, 4.8vw, 13px);
+  }
+}
+
+/* Animation Keyframes */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes typewriter {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
