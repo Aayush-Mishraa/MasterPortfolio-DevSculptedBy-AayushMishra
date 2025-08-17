@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: production
-      url: ${{ secrets.SITE_URL }}
+      url: https://aayushmishra.tech
     
     steps:
       - name: 📥 Download Build Artifact
@@ -130,7 +130,7 @@ jobs:
         run: |
           echo "### 🎉 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment:** Production" >> $GITHUB_STEP_SUMMARY
-          echo "- **Site URL:** ${{ secrets.SITE_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Site URL:** https://aayushmishra.tech" >> $GITHUB_STEP_SUMMARY
           echo "- **Deploy Time:** $(date)" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
