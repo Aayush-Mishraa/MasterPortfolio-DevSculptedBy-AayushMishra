@@ -160,4 +160,6 @@ MIT License © 2025 **Aayush Mishra**
 
 *Built with ❤️ by Aayush Mishra | QA Automation Engineer & Full Stack Developer*
 
+<!-- Auto-deployment active: August 17, 2025 -->
+
 </div>
