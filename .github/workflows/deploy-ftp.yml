@@ -118,7 +118,7 @@ jobs:
           port: ${{ secrets.FTP_PORT }}
           protocol: ftps
           local-dir: build/
-          server-dir: /public_html/
+          server-dir: /htdocs/
           exclude: |
             **/.git*
             **/.github*

@@ -1,0 +1,99 @@
+name: 🔧 URGENT FIX - Test htdocs Path
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-htdocs:
+    name: 🚨 Test /htdocs/ Path
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install & Build
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
+        env:
+          CI: false
+
+      - name: 📄 Create Test File
+        run: |
+          echo "SUCCESS! HTDOCS PATH WORKS!" > build/SUCCESS-TEST.txt
+          echo "Timestamp: $(date)" >> build/SUCCESS-TEST.txt
+          echo "Domain should now work at https://aayushmishra.tech" >> build/SUCCESS-TEST.txt
+
+      - name: 🚀 Deploy to /htdocs/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftps
+          local-dir: build/
+          server-dir: /htdocs/
+          exclude: |
+            **/.git*
+            **/.github*
+            **/node_modules/**
+          dangerous-clean-slate: true
+          log-level: verbose
+          security: loose
+          timeout: 300000
+
+      - name: 🎯 Test Alternative Paths (Parallel)
+        run: |
+          echo "Testing multiple paths to find the correct one..."
+          
+  test-domains-folder:
+    name: 🔍 Test /domains/ Path  
+    runs-on: ubuntu-latest
+    needs: test-htdocs
+    if: failure()
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install & Build
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
+        env:
+          CI: false
+
+      - name: 🚀 Deploy to /domains/aayushmishra.tech/htdocs/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftps
+          local-dir: build/
+          server-dir: /domains/aayushmishra.tech/htdocs/
+          exclude: |
+            **/.git*
+            **/.github*
+            **/node_modules/**
+          dangerous-clean-slate: true
+          log-level: verbose
+          security: loose
+          timeout: 300000
