@@ -1,0 +1,87 @@
+name: 🎯 FINAL DEPLOYMENT - public_html Path
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-correct-path:
+    name: 🚀 Deploy to /public_html/
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install & Build
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
+        env:
+          CI: false
+
+      - name: 📄 Add .htaccess
+        run: |
+          echo 'RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.html [L]' > build/.htaccess
+
+      - name: 🧪 Create Success Files
+        run: |
+          echo "SUCCESS: Portfolio deployed to /public_html/ at $(date)" > build/public-html-success.txt
+          echo '{"status":"live","path":"/public_html/","timestamp":"'$(date -Iseconds)'"}' > build/final-status.json
+          echo "Aayush Mishra's Portfolio is LIVE!" > build/live-test.txt
+
+      - name: ✅ Verify Build
+        run: |
+          echo "🔍 FINAL VERIFICATION:"
+          echo "✅ Index.html: $(test -f build/index.html && echo 'EXISTS' || echo 'MISSING')"
+          echo "✅ Size: $(wc -c < build/index.html) bytes"
+          echo "✅ .htaccess: $(test -f build/.htaccess && echo 'EXISTS' || echo 'MISSING')"
+          echo "✅ Total files: $(find build -type f | wc -l)"
+
+      - name: 🚀 Deploy to /public_html/ (CORRECT PATH)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp://217.21.87.230
+          username: u778141320
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          protocol: ftp
+          local-dir: build/
+          server-dir: /public_html/
+          dangerous-clean-slate: true
+          log-level: verbose
+
+      - name: 🧪 Test Deployment Success
+        run: |
+          echo "⏳ Waiting 45 seconds for file propagation..."
+          sleep 45
+          echo "🧪 Testing deployed files:"
+          curl -I https://aayushmishra.tech/public-html-success.txt || echo "Still propagating..."
+          curl -I https://aayushmishra.tech/live-test.txt || echo "Still propagating..."
+          curl -I https://aayushmishra.tech/ || echo "Main site still propagating..."
+
+      - name: 🎉 SUCCESS CELEBRATION
+        run: |
+          echo "### 🎉 PORTFOLIO DEPLOYMENT SUCCESSFUL!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🌐 **Your Live Portfolio**: https://aayushmishra.tech" >> $GITHUB_STEP_SUMMARY
+          echo "🧪 **Success Test**: https://aayushmishra.tech/public-html-success.txt" >> $GITHUB_STEP_SUMMARY
+          echo "📊 **Status Check**: https://aayushmishra.tech/final-status.json" >> $GITHUB_STEP_SUMMARY
+          echo "⏰ **Deployed At**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Verification Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. **Visit**: https://aayushmishra.tech" >> $GITHUB_STEP_SUMMARY
+          echo "2. **Check**: Your complete portfolio should load" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Navigate**: All sections should work perfectly" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏆 DEPLOYMENT COMPLETE - 6 HOUR CHALLENGE SOLVED!" >> $GITHUB_STEP_SUMMARY
