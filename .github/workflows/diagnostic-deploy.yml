@@ -1,0 +1,84 @@
+name: 🔍 Diagnostic Deployment - Multiple Paths
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_path:
+        description: 'Deployment path to try'
+        required: true
+        default: '/public_html/'
+        type: choice
+        options:
+        - '/public_html/'
+        - '/'
+        - '/domains/aayushmishra.tech/public_html/'
+        - '/public_html/aayushmishra.tech/'
+        - '/htdocs/'
+        - '/www/'
+
+jobs:
+  deploy-diagnostic:
+    name: 🔍 Test Deploy Path
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: 🏗️ Build Production
+        run: npm run build
+        env:
+          CI: false
+          GENERATE_SOURCEMAP: false
+
+      - name: 📄 Create Test Files
+        run: |
+          echo "DEPLOYMENT TEST SUCCESS - Path: ${{ github.event.inputs.deploy_path }}" > build/test-success.txt
+          echo "Timestamp: $(date)" >> build/test-success.txt
+          echo "If you can see this at https://aayushmishra.tech/test-success.txt then this path works!" >> build/test-success.txt
+          
+          # Create backup index.html if original doesn't work
+          if [ ! -f "build/index.html" ]; then
+            echo "<!DOCTYPE html><html><head><title>Deployment Test</title></head><body><h1>Deployment Working!</h1><p>Path: ${{ github.event.inputs.deploy_path }}</p></body></html>" > build/index.html
+          fi
+
+      - name: 🚀 Deploy to Test Path
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftps
+          local-dir: build/
+          server-dir: ${{ github.event.inputs.deploy_path }}
+          exclude: |
+            **/.git*
+            **/.github*
+            **/node_modules/**
+          dangerous-clean-slate: true
+          log-level: verbose
+          security: loose
+          timeout: 300000
+
+      - name: 📊 Test Results
+        run: |
+          echo "### 🔍 Diagnostic Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Path:** ${{ github.event.inputs.deploy_path }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test URL:** https://aayushmishra.tech/test-success.txt" >> $GITHUB_STEP_SUMMARY
+          echo "- **Main Site:** https://aayushmishra.tech" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Check if test file is accessible" >> $GITHUB_STEP_SUMMARY
+          echo "2. If successful, update main deployment to use this path" >> $GITHUB_STEP_SUMMARY
+          echo "3. If failed, try a different path option" >> $GITHUB_STEP_SUMMARY
