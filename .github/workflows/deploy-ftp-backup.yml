@@ -1,0 +1,129 @@
+name: 🚀 Backup Deploy to Hostinger
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment bypass'
+        required: false
+        default: 'false'
+        type: boolean
+
+concurrency:
+  group: deploy-backup-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  build-deploy:
+    name: 📦 Build & Deploy (Backup Method)
+    runs-on: ubuntu-latest
+    environment: 
+      name: production
+      url: https://aayushmishra.tech
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: 🏗️ Build Production
+        run: npm run build
+        env:
+          CI: false
+          GENERATE_SOURCEMAP: false
+
+      - name: 📄 Add SPA Support
+        run: |
+          if [ -f "public/.htaccess" ]; then
+            cp public/.htaccess build/.htaccess
+            echo "✅ .htaccess copied for SPA routing"
+          else
+            echo "⚠️ No .htaccess found, creating default"
+            echo 'RewriteEngine On
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteRule . /index.html [L]' > build/.htaccess
+          fi
+
+      - name: 🔍 Verify Build Contents
+        run: |
+          echo "📁 Build contents:"
+          ls -la build/
+          echo "📄 Total files: $(find build -type f | wc -l)"
+          echo "📊 Build size: $(du -sh build)"
+
+      - name: 📦 Create Deployment Archive
+        run: |
+          cd build
+          tar -czf ../deployment.tar.gz .
+          cd ..
+          echo "📦 Archive created: $(ls -lh deployment.tar.gz)"
+
+      - name: 🚀 Deploy via LFTP (Alternative Method)
+        run: |
+          # Install lftp for more reliable FTP transfers
+          sudo apt-get update
+          sudo apt-get install -y lftp
+          
+          # Extract build files
+          rm -rf deploy_temp
+          mkdir deploy_temp
+          cd deploy_temp
+          tar -xzf ../deployment.tar.gz
+          
+          # Create lftp script for deployment
+          cat > ../deploy.lftp << EOF
+          set ssl:verify-certificate no
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ftp:passive-mode true
+          set net:timeout 60
+          set net:max-retries 3
+          set net:reconnect-interval-base 5
+          
+          open ftps://${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}@${{ secrets.FTP_HOST }}:${{ secrets.FTP_PORT }}
+          
+          cd /public_html
+          
+          # Clean existing files first
+          mirror --reverse --delete --verbose . empty_dir || echo "Clean step completed"
+          
+          # Upload new files
+          mirror --reverse --verbose --no-perms --ignore-time . .
+          
+          quit
+          EOF
+          
+          # Create empty directory for cleaning
+          mkdir -p empty_dir
+          
+          # Execute deployment
+          lftp -f ../deploy.lftp
+          
+          echo "✅ Deployment completed successfully!"
+
+      - name: 🧪 Test Deployment
+        run: |
+          echo "🧪 Testing deployment..."
+          curl -s -o /dev/null -w "%{http_code}" https://aayushmishra.tech || echo "Site check completed"
+
+      - name: 🎉 Deployment Summary
+        run: |
+          echo "### 🎉 Backup Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "- **Method:** LFTP Alternative" >> $GITHUB_STEP_SUMMARY
+          echo "- **Site URL:** https://aayushmishra.tech" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deploy Time:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

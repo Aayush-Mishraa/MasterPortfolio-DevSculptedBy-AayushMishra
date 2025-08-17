@@ -127,6 +127,9 @@ jobs:
             **/Thumbs.db
           dangerous-clean-slate: true
           log-level: verbose
+          security: loose
+          timeout: 600000
+          retry: 3
 
       - name: 🎉 Deployment Summary
         run: |
