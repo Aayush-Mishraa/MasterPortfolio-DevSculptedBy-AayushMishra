@@ -106,6 +106,8 @@ jobs:
           echo "📁 Build contents:"
           ls -la build/
           echo "📄 Index.html exists: $(test -f build/index.html && echo 'Yes' || echo 'No')"
+          echo "📄 .htaccess exists: $(test -f build/.htaccess && echo 'Yes' || echo 'No')"
+          echo "📁 Total files: $(find build -type f | wc -l)"
 
       - name: 🚀 Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -116,7 +118,7 @@ jobs:
           port: ${{ secrets.FTP_PORT }}
           protocol: ftps
           local-dir: build/
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}/
+          server-dir: /public_html/
           exclude: |
             **/.git*
             **/.github*
@@ -124,7 +126,7 @@ jobs:
             **/.DS_Store
             **/Thumbs.db
           dangerous-clean-slate: true
-          log-level: minimal
+          log-level: verbose
 
       - name: 🎉 Deployment Summary
         run: |
