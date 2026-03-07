@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TestNG + Java Selenium — Aayush Mishra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Archivo+Black&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:   #080c08;
+  --dark:    #0d120d;
+  --panel:   #111811;
+  --surface: #161e16;
+  --border:  #1e2e1e;
+  --border2: #2a3e2a;
+  --green:   #22c55e;
+  --green2:  #16a34a;
+  --green3:  #4ade80;
+  --lime:    #a3e635;
+  --dim:     #2d4a2d;
+  --text:    #d4e8d4;
+  --muted:   #5a7a5a;
+  --faint:   #1e2e1e;
+  --amber:   #f59e0b;
+  --red:     #ef4444;
+  --mono:    'Space Mono', monospace;
+  --display: 'Archivo Black', sans-serif;
+  --serif:   'Libre Baskerville', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── SCANLINES ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── GRAIN ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ── CURSOR ── */
+#cur { position:fixed; width:12px; height:12px; border:2px solid var(--green); pointer-events:none; z-index:9997; transform:translate(-50%,-50%); transition:width .15s,height .15s; }
+#cur2 { position:fixed; width:4px; height:4px; background:var(--green); pointer-events:none; z-index:9997; transform:translate(-50%,-50%); border-radius:50%; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--black); }
+::-webkit-scrollbar-thumb { background: var(--green2); }
+
+/* ── TICKER ── */
+.ticker {
+  background: var(--green);
+  color: var(--black);
+  padding: 8px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  position: relative; z-index: 200;
+}
+.ticker-inner { display: inline-flex; animation: tick 32s linear infinite; }
+.ticker-inner span { padding: 0 32px; }
+.ticker-inner .sep { opacity: 0.4; padding: 0; }
+@keyframes tick { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 48px;
+  background: rgba(8,12,8,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { font-family: var(--display); font-size: 16px; color: var(--green); letter-spacing: 0.05em; text-decoration: none; }
+.nav-logo span { color: var(--text); }
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .2s; }
+.nav-links a:hover { color: var(--green); }
+.nav-badge { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--green2); color: var(--green); padding: 5px 14px; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  position: relative;
+  overflow: hidden;
+  padding-top: 0;
+}
+
+/* Matrix rain canvas */
+#matrixCanvas {
+  position: absolute; inset: 0;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-left {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 120px 56px 80px;
+  position: relative; z-index: 1;
+  border-right: 1px solid var(--border);
+}
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 32px;
+  animation: fadeUp .8s .1s both;
+}
+.hero-tag .blink { display: inline-block; width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+.hero-h1 {
+  font-family: var(--display);
+  font-size: clamp(52px, 7vw, 100px);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 8px;
+  animation: fadeUp .8s .2s both;
+}
+.hero-h1 .g { color: var(--green); }
+.hero-h1 .outline-g {
+  -webkit-text-stroke: 1.5px var(--green);
+  color: transparent;
+}
+
+.hero-ver {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 36px;
+  animation: fadeUp .8s .28s both;
+}
+.hero-ver span { color: var(--green); }
+
+.hero-desc {
+  font-size: 13px; color: var(--muted); line-height: 1.9;
+  max-width: 420px;
+  border-left: 2px solid var(--green2);
+  padding-left: 20px;
+  margin-bottom: 48px;
+  animation: fadeUp .8s .35s both;
+}
+
+.hero-ctas { display: flex; gap: 14px; animation: fadeUp .8s .45s both; }
+.btn-g {
+  background: var(--green); color: var(--black);
+  font-family: var(--mono); font-weight: 700;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 13px 28px; text-decoration: none; border: none; cursor: none;
+  transition: background .2s, transform .15s; display: inline-block;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+.btn-g:hover { background: var(--green3); transform: translateY(-2px); }
+.btn-go {
+  background: transparent; color: var(--green);
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 12px 28px; border: 1px solid var(--green2);
+  text-decoration: none; cursor: none;
+  transition: border-color .2s, background .2s; display: inline-block;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+.btn-go:hover { border-color: var(--green); background: rgba(34,197,94,0.06); }
+
+/* Hero right — live test dashboard */
+.hero-right {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 120px 56px 80px;
+  position: relative; z-index: 1;
+}
+.hero-panel-title {
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero-panel-title::before { content:''; flex: 1; height: 1px; background: var(--border); }
+.hero-panel-title::after { content:''; flex: 1; height: 1px; background: var(--border); }
+
+.test-suite {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 0;
+  margin-bottom: 16px;
+  animation: fadeUp .8s .3s both;
+}
+.ts-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.ts-name { font-size: 11px; color: var(--text); font-weight: 700; letter-spacing: 0.05em; }
+.ts-badge {
+  font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 2px; font-weight: 700;
+}
+.ts-badge.pass { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid var(--green2); }
+.ts-badge.fail { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.ts-badge.skip { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.ts-badge.run  { background: rgba(34,197,94,0.08); color: var(--green3); border: 1px solid var(--dim); animation: pulseBg 1.5s infinite; }
+@keyframes pulseBg { 0%,100%{background:rgba(34,197,94,0.08);} 50%{background:rgba(34,197,94,0.18);} }
+.ts-tests { padding: 8px 0; }
+.ts-test {
+  display: flex; align-items: center; gap: 12px;
+  padding: 6px 16px; font-size: 11px; color: var(--muted);
+  transition: background .15s; cursor: default;
+}
+.ts-test:hover { background: rgba(34,197,94,0.04); color: var(--text); }
+.ts-icon { font-size: 10px; width: 14px; text-align: center; }
+.ts-icon.p { color: var(--green); }
+.ts-icon.f { color: var(--red); }
+.ts-icon.s { color: var(--amber); }
+.ts-icon.r { color: var(--green3); animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ts-dur { margin-left: auto; font-size: 10px; color: var(--dim); }
+
+.hero-meta {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 2px; background: var(--border); margin-top: 8px;
+  animation: fadeUp .8s .5s both;
+}
+.hm-item { background: var(--panel); padding: 16px; text-align: center; }
+.hm-num { font-family: var(--display); font-size: 24px; color: var(--green); display: block; }
+.hm-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px);} to{opacity:1;transform:translateY(0);} }
+
+/* ── DIVIDER ── */
+.hr { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+/* ── SECTION ── */
+.sw { max-width: 1200px; margin: 0 auto; padding: 100px 56px; }
+.s-eyebrow {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 20px;
+}
+.s-eyebrow .num { color: var(--muted); opacity: 0.6; }
+.s-eyebrow::after { content:''; width: 40px; height: 1px; background: var(--green); opacity: 0.4; }
+.s-title {
+  font-family: var(--display);
+  font-size: clamp(40px,6vw,80px);
+  line-height: 0.92; letter-spacing: -0.01em;
+  color: var(--text); margin-bottom: 20px;
+}
+.s-title .g { color: var(--green); }
+.s-title .og { -webkit-text-stroke: 1.5px var(--green); color: transparent; }
+.s-intro {
+  font-family: var(--serif); font-style: italic;
+  font-size: 17px; color: var(--muted);
+  max-width: 560px; line-height: 1.7; margin-bottom: 60px;
+}
+
+/* ── WHAT IS TESTNG ── */
+.wt-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  background: var(--border);
+}
+.wt-main { background: var(--panel); padding: 52px; grid-column: 1; }
+.wt-main h3 { font-family: var(--serif); font-size: 24px; font-style: italic; color: var(--text); margin-bottom: 20px; }
+.wt-main p { font-size: 13px; color: var(--muted); line-height: 1.9; margin-bottom: 14px; }
+.wt-cards { display: flex; flex-direction: column; gap: 2px; background: var(--border); }
+.wt-card { background: var(--panel); padding: 28px 32px; border-left: 3px solid transparent; transition: border-color .2s, background .2s; cursor: default; }
+.wt-card:hover { border-left-color: var(--green); background: var(--surface); }
+.wt-card-icon { font-size: 18px; margin-bottom: 10px; }
+.wt-card-title { font-family: var(--serif); font-size: 14px; font-style: italic; color: var(--text); margin-bottom: 6px; }
+.wt-card-body { font-size: 11px; color: var(--muted); line-height: 1.7; }
+
+/* ── CODE BLOCK ── */
+.code-wrap {
+  background: var(--dark); border: 1px solid var(--border);
+  margin: 24px 0; overflow: hidden;
+  border-left: 3px solid var(--green2);
+  position: relative;
+}
+.code-wrap::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, var(--green), transparent);
+  opacity: 0.5;
+}
+.code-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px; border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.code-bar-dots { display: flex; gap: 6px; }
+.code-bar-dots span { width: 9px; height: 9px; border-radius: 50%; }
+.code-bar-dots span:nth-child(1){background:#ff5f57;}
+.code-bar-dots span:nth-child(2){background:#febc2e;}
+.code-bar-dots span:nth-child(3){background:#28c840;}
+.code-bar-file { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; }
+.code-body {
+  padding: 24px 22px; font-family: var(--mono); font-size: 12px;
+  line-height: 1.8; overflow-x: auto; color: #5a7a5a;
+}
+.code-body pre { white-space: pre; }
+.ck{color:#86efac;} .ca{color:#c084fc;} .cs{color:#fbbf24;} .cc{color:#2d4a2d;} .cn{color:#fb923c;} .cv{color:#d4e8d4;} .ct{color:#7dd3fc;} .cg{color:var(--green);}
+
+/* ── ARCHITECTURE / LAYERS ── */
+.layers-bg { background: var(--dark); padding: 100px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.layers-inner { max-width: 1200px; margin: 0 auto; padding: 0 56px; }
+.layers-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start;
+}
+.layer-flow { display: flex; flex-direction: column; gap: 0; }
+.lf-item {
+  display: flex; gap: 0; align-items: stretch;
+  cursor: default;
+}
+.lf-left { display: flex; flex-direction: column; align-items: center; width: 48px; flex-shrink: 0; }
+.lf-num {
+  width: 48px; height: 48px;
+  background: var(--panel); border: 1px solid var(--border2);
+  color: var(--green); font-family: var(--display); font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .2s, border-color .2s;
+  letter-spacing: 0.05em;
+}
+.lf-item:hover .lf-num { background: var(--green); color: var(--black); border-color: var(--green); }
+.lf-line { width: 1px; flex: 1; min-height: 16px; background: var(--border2); margin-left: 23px; }
+.lf-content { padding: 12px 24px 24px; flex: 1; }
+.lf-title { font-family: var(--display); font-size: 14px; color: var(--text); margin-bottom: 4px; letter-spacing: 0.03em; }
+.lf-desc { font-size: 11px; color: var(--muted); line-height: 1.7; }
+
+.layer-cards { display: flex; flex-direction: column; gap: 2px; background: var(--border); }
+.lc { background: var(--panel); padding: 32px 36px; border-top: 2px solid transparent; transition: border-color .2s, background .2s; cursor: default; }
+.lc:hover { border-top-color: var(--green); background: var(--surface); }
+.lc-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--green2); margin-bottom: 8px; }
+.lc-title { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--text); margin-bottom: 10px; }
+.lc-body { font-size: 12px; color: var(--muted); line-height: 1.8; }
+
+/* ── ANNOTATIONS SECTION ── */
+.annotation-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 2px;
+  background: var(--border);
+}
+.ann {
+  background: var(--panel); padding: 36px 32px;
+  position: relative; overflow: hidden;
+  transition: background .2s; cursor: default;
+}
+.ann::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--green);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .3s;
+}
+.ann:hover { background: var(--surface); }
+.ann:hover::after { transform: scaleX(1); }
+.ann-tag {
+  display: inline-block; background: rgba(34,197,94,0.1); border: 1px solid var(--green2);
+  color: var(--green); font-size: 12px; padding: 4px 12px; font-weight: 700;
+  margin-bottom: 16px; letter-spacing: 0.05em;
+}
+.ann-bg {
+  position: absolute; right: -10px; bottom: -10px;
+  font-family: var(--display); font-size: 80px; color: rgba(34,197,94,0.04);
+  line-height: 1; pointer-events: none; letter-spacing: 0.05em;
+}
+.ann-title { font-family: var(--serif); font-size: 16px; font-style: italic; color: var(--text); margin-bottom: 10px; }
+.ann-body { font-size: 11px; color: var(--muted); line-height: 1.8; }
+.ann-example { font-size: 10px; color: var(--green2); margin-top: 12px; font-style: italic; }
+
+/* ── TESTNG XML ── */
+.xml-section { background: var(--panel); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+/* ── INTERACTIVE RUNNER ── */
+.runner-bg { background: var(--dark); border-top: 1px solid var(--border); }
+.runner-header { background: var(--black); padding: 80px 56px 60px; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+.runner-header::before {
+  content: 'RUN';
+  position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+  font-family: var(--display); font-size: 200px; color: rgba(34,197,94,0.03);
+  line-height: 1; pointer-events: none; letter-spacing: 0.1em;
+}
+.runner-title { font-family: var(--display); font-size: clamp(44px,6vw,80px); color: var(--text); line-height: 0.9; margin-bottom: 16px; }
+.runner-title span { color: var(--green); }
+.runner-sub { font-size: 12px; color: var(--muted); max-width: 520px; line-height: 1.8; }
+.runner-body { padding: 56px; }
+
+.run-controls { display: flex; gap: 2px; margin-bottom: 24px; }
+.run-select {
+  flex: 1; background: var(--panel); border: 1px solid var(--border2);
+  color: var(--text); padding: 14px 18px; font-family: var(--mono); font-size: 12px;
+  outline: none; cursor: none; transition: border-color .2s;
+  appearance: none;
+}
+.run-select:focus { border-color: var(--green); }
+.run-input {
+  flex: 2; background: var(--panel); border: 1px solid var(--border2); border-left: none;
+  color: var(--text); padding: 14px 18px; font-family: var(--mono); font-size: 12px;
+  outline: none; cursor: none; transition: border-color .2s;
+}
+.run-input:focus { border-color: var(--green); }
+.run-input::placeholder { color: var(--muted); opacity: 0.5; }
+.run-btn {
+  background: var(--green); color: var(--black); border: none;
+  padding: 14px 32px; font-family: var(--mono); font-weight: 700;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  cursor: none; transition: background .2s; display: flex; align-items: center; gap: 10px;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+.run-btn:hover:not(:disabled) { background: var(--green3); }
+.run-btn:disabled { opacity: 0.5; }
+
+.quick-tests {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px;
+}
+.qt {
+  background: transparent; border: 1px solid var(--border2);
+  color: var(--muted); padding: 6px 16px; font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.06em; cursor: none;
+  transition: all .2s;
+}
+.qt:hover { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.04); }
+
+/* Terminal */
+.term-wrap { border: 1px solid var(--border2); border-left: 3px solid var(--green2); background: var(--black); }
+.term-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.term-bar-left { display: flex; align-items: center; gap: 12px; }
+.term-bar-dots { display: flex; gap: 5px; }
+.term-bar-dots span { width: 8px; height: 8px; border-radius: 50%; }
+.term-bar-dots span:nth-child(1){background:#ff5f57;}
+.term-bar-dots span:nth-child(2){background:#febc2e;}
+.term-bar-dots span:nth-child(3){background:#28c840;}
+.term-title { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; }
+.term-status { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--muted); }
+.ts-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background .3s; }
+.ts-dot.run { background: var(--green); animation: blink 0.7s infinite; }
+.ts-dot.ok  { background: var(--green); }
+.ts-dot.fail{ background: var(--red); }
+.term-body { padding: 20px 18px; font-family: var(--mono); font-size: 11.5px; line-height: 2; min-height: 280px; max-height: 380px; overflow-y: auto; }
+.tl { display: flex; gap: 14px; }
+.tl-time { color: rgba(34,197,94,0.2); min-width: 74px; }
+.tl-tag { min-width: 54px; font-weight: 700; }
+.tl-tag.INFO { color: #7dd3fc; }
+.tl-tag.PASS { color: var(--green); }
+.tl-tag.FAIL { color: var(--red); }
+.tl-tag.WARN { color: var(--amber); }
+.tl-tag.TEST { color: #c084fc; }
+.tl-tag.XML  { color: var(--lime); }
+.tl-msg { color: #2d4a2d; flex: 1; }
+
+/* Progress bar */
+.progress-wrap { margin-top: 16px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.08em; }
+.progress-bar { background: var(--panel); height: 4px; border: 1px solid var(--border); }
+.progress-fill { height: 100%; background: var(--green); width: 0%; transition: width .3s ease; }
+
+/* ── ANNOTATIONS DETAIL ── */
+.ann-detail-bg { background: var(--black); padding: 100px 0; border-top: 1px solid var(--border); }
+
+/* ── TESTNG VS JUNIT ── */
+.compare-bg { background: var(--dark); padding: 100px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.compare-wrap { max-width: 1200px; margin: 0 auto; padding: 0 56px; }
+.compare-heading { font-family: var(--display); font-size: clamp(44px,5.5vw,72px); color: var(--text); line-height: 0.9; margin-bottom: 60px; }
+.compare-heading span { color: var(--green); }
+.compare-grid { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; align-items: stretch; }
+.compare-col { border: 1px solid var(--border2); padding: 44px; }
+.compare-col.left { border-right: none; }
+.compare-col.right { border-left: none; border-color: var(--green2); }
+.compare-badge { display: inline-block; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; padding: 3px 10px; margin-bottom: 20px; border-radius: 2px; }
+.compare-col.left .compare-badge { background: rgba(255,255,255,0.04); color: var(--muted); border: 1px solid var(--border2); }
+.compare-col.right .compare-badge { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid var(--green2); }
+.compare-name { font-family: var(--serif); font-size: 20px; font-style: italic; color: var(--text); margin-bottom: 28px; }
+.compare-list { list-style: none; }
+.compare-list li { font-size: 12px; color: var(--muted); padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: flex-start; }
+.compare-list li:last-child { border-bottom: none; }
+.ci-x { color: #3d2020; font-size: 10px; margin-top: 3px; }
+.ci-c { color: var(--green); font-size: 10px; margin-top: 3px; }
+.compare-mid { display: flex; align-items: center; justify-content: center; border-top: 1px solid var(--border2); border-bottom: 1px solid var(--border2); }
+.compare-mid-text { font-family: var(--display); font-size: 28px; color: var(--green); letter-spacing: 0.1em; writing-mode: vertical-lr; }
+
+/* ── SETUP ── */
+.setup-bg { background: var(--black); padding: 100px 0; }
+.setup-inner { max-width: 1200px; margin: 0 auto; padding: 0 56px; }
+.setup-heading { font-family: var(--display); font-size: clamp(44px,5vw,72px); color: var(--text); line-height: 0.9; margin-bottom: 60px; }
+.setup-heading em { font-style: normal; color: var(--green); }
+.setup-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; background: var(--border); }
+.sc { background: var(--panel); padding: 32px 24px; transition: background .2s; cursor: default; }
+.sc:hover { background: var(--surface); }
+.sc-num { font-family: var(--display); font-size: 56px; color: rgba(34,197,94,0.1); line-height: 1; margin-bottom: 16px; letter-spacing: 0.05em; }
+.sc-title { font-family: var(--serif); font-size: 14px; font-style: italic; color: var(--text); margin-bottom: 10px; }
+.sc-desc { font-size: 11px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+.sc-cmd { background: rgba(34,197,94,0.05); border: 1px solid var(--border2); padding: 7px 10px; font-family: var(--mono); font-size: 10px; color: var(--green2); word-break: break-all; }
+
+/* ── BEST PRACTICES ── */
+.bp-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--border); }
+.bp { background: var(--panel); padding: 40px 32px; position: relative; overflow: hidden; transition: background .2s; cursor: default; }
+.bp:hover { background: var(--surface); }
+.bp-num { position: absolute; right: -8px; bottom: -8px; font-family: var(--display); font-size: 90px; color: rgba(34,197,94,0.04); line-height: 1; pointer-events: none; }
+.bp-icon { font-size: 22px; margin-bottom: 18px; }
+.bp-title { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--text); margin-bottom: 12px; }
+.bp-body { font-size: 12px; color: var(--muted); line-height: 1.8; }
+.bp-tag { display: inline-block; margin-top: 16px; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green); border-bottom: 1px solid var(--green2); padding-bottom: 2px; opacity: 0.7; }
+
+/* ── FOOTER ── */
+footer { background: var(--dark); border-top: 1px solid var(--border); padding: 72px 56px 40px; position: relative; overflow: hidden; }
+footer::before { content:'TESTNG'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-family:var(--display); font-size:180px; color:rgba(34,197,94,0.02); letter-spacing:0.1em; white-space:nowrap; pointer-events:none; }
+.footer-top { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 56px; padding-bottom: 48px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+.f-name { font-family: var(--display); font-size: 36px; color: var(--text); line-height: 1; margin-bottom: 6px; letter-spacing: 0.05em; }
+.f-name span { color: var(--green); }
+.f-role { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green2); margin-bottom: 16px; }
+.f-bio { font-size: 12px; color: var(--muted); line-height: 1.8; max-width: 240px; }
+.fc-title { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green); margin-bottom: 16px; }
+.fl { list-style: none; }
+.fl li { margin-bottom: 10px; }
+.fl a { font-size: 12px; color: var(--muted); text-decoration: none; transition: color .2s; display: flex; align-items: center; gap: 8px; }
+.fl a::before { content: '>'; font-size: 10px; opacity: 0.4; color: var(--green); }
+.fl a:hover { color: var(--green); }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: rgba(34,197,94,0.15); letter-spacing: 0.08em; }
+.tp { background: rgba(34,197,94,0.05); border: 1px solid var(--border2); padding: 3px 10px; font-size: 9px; letter-spacing: 0.08em; color: var(--muted); }
+
+/* ── SCROLL REVEAL ── */
+.sr { opacity:0; transform:translateY(24px); transition:opacity .6s cubic-bezier(.25,.46,.45,.94), transform .6s cubic-bezier(.25,.46,.45,.94); }
+.sr.v { opacity:1; transform:translateY(0); }
+.d1{transition-delay:.1s;} .d2{transition-delay:.2s;} .d3{transition-delay:.3s;}
+
+@media(max-width:900px){
+  #hero{grid-template-columns:1fr;}
+  .hero-right{display:none;}
+  nav{padding:14px 20px;}
+  .nav-links{display:none;}
+  .sw{padding:72px 24px;}
+  .wt-grid,.layers-grid,.compare-grid,.footer-top{grid-template-columns:1fr;}
+  .compare-mid{display:none;}
+  .annotation-grid,.bp-grid{grid-template-columns:1fr;}
+  .setup-grid{grid-template-columns:1fr 1fr;}
+  .hero-meta{grid-template-columns:repeat(2,1fr);}
+  .run-controls{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur2"></div>
+<canvas id="matrixCanvas"></canvas>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>TestNG</span><span class="sep"> ◆ </span>
+    <span>Java Selenium</span><span class="sep"> ◆ </span>
+    <span>Aayush Mishra</span><span class="sep"> ◆ </span>
+    <span>SDET</span><span class="sep"> ◆ </span>
+    <span>@Test @BeforeMethod @AfterMethod</span><span class="sep"> ◆ </span>
+    <span>Parallel Execution</span><span class="sep"> ◆ </span>
+    <span>Data Providers</span><span class="sep"> ◆ </span>
+    <span>Maven Integration</span><span class="sep"> ◆ </span>
+    <span>TestNG</span><span class="sep"> ◆ </span>
+    <span>Java Selenium</span><span class="sep"> ◆ </span>
+    <span>Aayush Mishra</span><span class="sep"> ◆ </span>
+    <span>SDET</span><span class="sep"> ◆ </span>
+    <span>@Test @BeforeMethod @AfterMethod</span><span class="sep"> ◆ </span>
+    <span>Parallel Execution</span><span class="sep"> ◆ </span>
+    <span>Data Providers</span><span class="sep"> ◆ </span>
+    <span>Maven Integration</span><span class="sep"> ◆ </span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#"><span>TESTNG</span> + SELENIUM</a>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#annotations">Annotations</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#runner">Test Runner</a></li>
+    <li><a href="#setup">Setup</a></li>
+  </ul>
+  <div class="nav-badge">Aayush Mishra · SDET</div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-tag"><span class="blink"></span>Java Testing Framework</div>
+    <h1 class="hero-h1">
+      <span class="g">TEST</span>NG<br>
+      <span class="outline-g">SELENIUM</span><br>
+      MASTERY
+    </h1>
+    <div class="hero-ver">Version <span>7.9.0</span> · Java 17+ · Selenium <span>4.x</span></div>
+    <p class="hero-desc">The complete guide to enterprise-grade test automation with TestNG and Selenium WebDriver. Annotations, parallel execution, data providers, and Maven integration — built by Aayush Mishra, SDET.</p>
+    <div class="hero-ctas">
+      <a href="#runner" class="btn-g">▶ Run Tests Now</a>
+      <a href="#annotations" class="btn-go">Explore Annotations</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-panel-title">Live Test Suite · LoginTests.java</div>
+    <div class="test-suite">
+      <div class="ts-header">
+        <span class="ts-name">LoginTests</span>
+        <span class="ts-badge run">RUNNING</span>
+      </div>
+      <div class="ts-tests">
+        <div class="ts-test"><span class="ts-icon p">✓</span> testValidLogin() <span class="ts-dur">0.42s</span></div>
+        <div class="ts-test"><span class="ts-icon p">✓</span> testInvalidPassword() <span class="ts-dur">0.38s</span></div>
+        <div class="ts-test"><span class="ts-icon p">✓</span> testEmptyCredentials() <span class="ts-dur">0.31s</span></div>
+        <div class="ts-test"><span class="ts-icon r">◌</span> testRememberMe() <span class="ts-dur">...</span></div>
+        <div class="ts-test"><span class="ts-icon s">–</span> testSSOLogin() <span class="ts-dur">skipped</span></div>
+      </div>
+    </div>
+    <div class="test-suite">
+      <div class="ts-header">
+        <span class="ts-name">SearchTests</span>
+        <span class="ts-badge pass">PASSED</span>
+      </div>
+      <div class="ts-tests">
+        <div class="ts-test"><span class="ts-icon p">✓</span> testSearchByKeyword() <span class="ts-dur">0.55s</span></div>
+        <div class="ts-test"><span class="ts-icon p">✓</span> testSearchFilters() <span class="ts-dur">0.62s</span></div>
+        <div class="ts-test"><span class="ts-icon f">✗</span> testSearchAutoComplete() <span class="ts-dur">1.2s</span></div>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div class="hm-item"><span class="hm-num">24</span><span class="hm-label">Tests</span></div>
+      <div class="hm-item"><span class="hm-num" style="color:var(--green)">21</span><span class="hm-label">Passed</span></div>
+      <div class="hm-item"><span class="hm-num" style="color:var(--red)">1</span><span class="hm-label">Failed</span></div>
+      <div class="hm-item"><span class="hm-num" style="color:var(--amber)">2</span><span class="hm-label">Skipped</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="hr">
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="sw sr">
+    <div class="s-eyebrow"><span class="num">01</span> What is TestNG</div>
+    <h2 class="s-title">TEST <span class="g">NEXT</span><br><span class="og">GENERATION.</span></h2>
+    <p class="s-intro">TestNG is a powerful Java testing framework inspired by JUnit and NUnit, designed for modern enterprise test automation at scale.</p>
+    <div class="wt-grid">
+      <div class="wt-main">
+        <h3>The framework that powers enterprise Java test automation.</h3>
+        <p>TestNG (Test Next Generation) was created by Cédric Beust to overcome JUnit's limitations. It introduces powerful features like annotations, data-driven testing, parallel execution, grouping, and dependency management — all essential for enterprise-scale Selenium automation.</p>
+        <p>When combined with Selenium WebDriver, TestNG becomes the backbone of professional QA pipelines — from simple smoke tests to complex cross-browser parallel regression suites running across 50+ test cases simultaneously.</p>
+        <p>Used by teams at Google, LinkedIn, and thousands of enterprise QA departments worldwide, TestNG integrates seamlessly with Maven, Jenkins, Allure Reports, and every major CI/CD platform.</p>
+        <div class="code-wrap" style="margin-top:32px;">
+          <div class="code-bar"><div class="code-bar-dots"><span></span><span></span><span></span></div><div class="code-bar-file">LoginTest.java</div></div>
+          <div class="code-body"><pre><span class="ck">import</span> <span class="ct">org.testng.annotations</span>.*;
+<span class="ck">import</span> <span class="ct">org.openqa.selenium</span>.*;
+<span class="ck">import</span> <span class="ct">org.openqa.selenium.chrome</span>.*;
+
+<span class="ck">public class</span> <span class="cg">LoginTest</span> {
+
+    <span class="ck">private</span> <span class="ct">WebDriver</span> <span class="cv">driver</span>;
+
+    <span class="ca">@BeforeMethod</span>
+    <span class="ck">public void</span> <span class="cg">setUp</span>() {
+        <span class="cv">driver</span> = <span class="ck">new</span> <span class="ct">ChromeDriver</span>();
+        <span class="cv">driver</span>.<span class="cg">get</span>(<span class="cs">"https://example.com/login"</span>);
+    }
+
+    <span class="ca">@Test</span>(<span class="cv">groups</span> = <span class="cs">"smoke"</span>, <span class="cv">priority</span> = <span class="cn">1</span>)
+    <span class="ck">public void</span> <span class="cg">testValidLogin</span>() {
+        <span class="cv">driver</span>.<span class="cg">findElement</span>(<span class="ct">By</span>.<span class="cg">id</span>(<span class="cs">"username"</span>)).<span class="cg">sendKeys</span>(<span class="cs">"admin"</span>);
+        <span class="cv">driver</span>.<span class="cg">findElement</span>(<span class="ct">By</span>.<span class="cg">id</span>(<span class="cs">"password"</span>)).<span class="cg">sendKeys</span>(<span class="cs">"secret"</span>);
+        <span class="cv">driver</span>.<span class="cg">findElement</span>(<span class="ct">By</span>.<span class="cg">id</span>(<span class="cs">"loginBtn"</span>)).<span class="cg">click</span>();
+        <span class="ct">Assert</span>.<span class="cg">assertTrue</span>(<span class="cv">driver</span>.<span class="cg">getTitle</span>().<span class="cg">contains</span>(<span class="cs">"Dashboard"</span>));
+    }
+
+    <span class="ca">@AfterMethod</span>
+    <span class="ck">public void</span> <span class="cg">tearDown</span>() {
+        <span class="cv">driver</span>.<span class="cg">quit</span>();
+    }
+}</pre></div>
+        </div>
+      </div>
+      <div class="wt-cards">
+        <div class="wt-card"><div class="wt-card-icon">🧪</div><div class="wt-card-title">Annotation-Driven</div><div class="wt-card-body">Replace verbose JUnit setup with clean, declarative annotations. @Test, @BeforeMethod, @AfterClass — every test lifecycle controlled with precision.</div></div>
+        <div class="wt-card"><div class="wt-card-icon">⚡</div><div class="wt-card-title">Parallel Execution</div><div class="wt-card-body">Run test suites, classes, or individual tests in parallel via testng.xml — cutting suite execution time from hours to minutes.</div></div>
+        <div class="wt-card"><div class="wt-card-icon">📊</div><div class="wt-card-title">Data Providers</div><div class="wt-card-body">Drive parameterized tests with @DataProvider — feed hundreds of data combinations to a single test method without code duplication.</div></div>
+        <div class="wt-card"><div class="wt-card-icon">🔗</div><div class="wt-card-title">Test Dependencies</div><div class="wt-card-body">Define test execution order and dependencies with dependsOnMethods — ensuring prerequisite tests pass before dependent ones run.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANNOTATIONS -->
+<section id="annotations" style="background:var(--dark);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="sw sr">
+    <div class="s-eyebrow"><span class="num">02</span> Core Annotations</div>
+    <h2 class="s-title"><span class="g">@</span>ANNOTATIONS<br><span class="og">DECODED.</span></h2>
+    <p class="s-intro">Every TestNG annotation explained — what it does, when to use it, and how it maps to the Selenium test lifecycle.</p>
+    <div class="annotation-grid">
+      <div class="ann"><div class="ann-bg">@T</div><div class="ann-tag">@Test</div><div class="ann-title">Marks a method as a test case</div><div class="ann-body">The core annotation. Any public method annotated with @Test becomes a test case. Supports priority, groups, enabled, expectedExceptions, timeOut, and dependsOnMethods parameters.</div><div class="ann-example">@Test(priority=1, groups="smoke", timeOut=5000)</div></div>
+      <div class="ann"><div class="ann-bg">@BS</div><div class="ann-tag">@BeforeSuite</div><div class="ann-title">Runs once before the entire suite</div><div class="ann-body">Perfect for global setup: initializing WebDriverManager, setting system properties, configuring logging, or establishing database connections used across all test classes.</div><div class="ann-example">@BeforeSuite — global driver config</div></div>
+      <div class="ann"><div class="ann-bg">@AS</div><div class="ann-tag">@AfterSuite</div><div class="ann-title">Runs once after the entire suite</div><div class="ann-body">Ideal for global teardown: generating final reports, closing database connections, sending Slack/email notifications, or archiving test artifacts to S3.</div><div class="ann-example">@AfterSuite — generate Allure report</div></div>
+      <div class="ann"><div class="ann-bg">@BC</div><div class="ann-tag">@BeforeClass</div><div class="ann-title">Runs once before any test in the class</div><div class="ann-body">Used to initialize class-level resources shared across all tests in a class — opening browser once per class instead of per test for performance optimization.</div><div class="ann-example">@BeforeClass — open browser once</div></div>
+      <div class="ann"><div class="ann-bg">@AC</div><div class="ann-tag">@AfterClass</div><div class="ann-title">Runs once after all tests in the class</div><div class="ann-body">Closes class-level resources: driver.quit() at class level, clearing test data inserted during the class, or generating class-level screenshots.</div><div class="ann-example">@AfterClass — driver.quit()</div></div>
+      <div class="ann"><div class="ann-bg">@BM</div><div class="ann-tag">@BeforeMethod</div><div class="ann-title">Runs before every test method</div><div class="ann-body">The most commonly used lifecycle hook. Creates fresh browser state before each test — navigating to start URL, clearing cookies, resetting application state.</div><div class="ann-example">@BeforeMethod — fresh browser state</div></div>
+      <div class="ann"><div class="ann-bg">@AM</div><div class="ann-tag">@AfterMethod</div><div class="ann-title">Runs after every test method</div><div class="ann-body">Takes screenshot on failure, closes popups, resets session state. Receives ITestResult parameter to check test status and trigger conditional teardown logic.</div><div class="ann-example">@AfterMethod — screenshot on failure</div></div>
+      <div class="ann"><div class="ann-bg">@DP</div><div class="ann-tag">@DataProvider</div><div class="ann-title">Supplies parameterized test data</div><div class="ann-body">Returns Object[][] to feed multiple data combinations to a single @Test method. Can be defined in a separate utility class and referenced by name across any test in the project.</div><div class="ann-example">@DataProvider(name="loginData")</div></div>
+      <div class="ann"><div class="ann-bg">@P</div><div class="ann-tag">@Parameters</div><div class="ann-title">Injects values from testng.xml</div><div class="ann-body">Reads parameter values defined in testng.xml at runtime — perfect for browser type, environment URL, username, and any config that varies between test runs or environments.</div><div class="ann-example">@Parameters({"browser","url"})</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<div class="layers-bg" id="architecture">
+  <div class="layers-inner">
+    <div class="s-eyebrow" style="color:var(--green);margin-bottom:20px;"><span class="num" style="color:var(--muted)">03</span> System Architecture</div>
+    <h2 class="s-title" style="margin-bottom:16px;">THE <span class="g">STACK</span><br><span class="og">EXPLAINED.</span></h2>
+    <p class="s-intro" style="margin-bottom:60px;">How TestNG, Selenium, Maven, and your CI/CD pipeline connect into a single enterprise test automation system.</p>
+    <div class="layers-grid">
+      <div class="layer-flow">
+        <div class="lf-item"><div class="lf-left"><div class="lf-num">01</div><div class="lf-line"></div></div><div class="lf-content"><div class="lf-title">Test Classes (Java)</div><div class="lf-desc">Your @Test methods, Page Object Model classes, and utility helpers written in Java</div></div></div>
+        <div class="lf-item"><div class="lf-left"><div class="lf-num">02</div><div class="lf-line"></div></div><div class="lf-content"><div class="lf-title">TestNG Framework</div><div class="lf-desc">Reads testng.xml, manages lifecycle hooks, executes tests in configured order/parallel</div></div></div>
+        <div class="lf-item"><div class="lf-left"><div class="lf-num">03</div><div class="lf-line"></div></div><div class="lf-content"><div class="lf-title">Selenium WebDriver</div><div class="lf-desc">Issues commands to browser drivers — ChromeDriver, GeckoDriver, EdgeDriver</div></div></div>
+        <div class="lf-item"><div class="lf-left"><div class="lf-num">04</div><div class="lf-line"></div></div><div class="lf-content"><div class="lf-title">WebDriverManager</div><div class="lf-desc">Automatically downloads and configures the correct browser driver binary</div></div></div>
+        <div class="lf-item"><div class="lf-left"><div class="lf-num">05</div><div class="lf-line"></div></div><div class="lf-content"><div class="lf-title">Browser (Chrome/Firefox)</div><div class="lf-desc">Real browser instance executing UI interactions against the target application</div></div></div>
+        <div class="lf-item"><div class="lf-left"><div class="lf-num">06</div><div class="lf-line"></div></div><div class="lf-content"><div class="lf-title">Maven + Surefire Plugin</div><div class="lf-desc">Builds project, resolves dependencies, triggers TestNG via mvn test</div></div></div>
+        <div class="lf-item"><div class="lf-left"><div class="lf-num">07</div><div class="lf-line"></div></div><div class="lf-content"><div class="lf-title">Allure / ExtentReports</div><div class="lf-desc">Generates rich HTML reports with screenshots, logs, and failure analysis</div></div></div>
+        <div class="lf-item"><div class="lf-left"><div class="lf-num">08</div></div><div class="lf-content"><div class="lf-title" style="color:var(--green)">Jenkins / GitHub Actions</div><div class="lf-desc">CI/CD pipeline trigger — runs full suite on every commit or PR</div></div></div>
+      </div>
+      <div class="layer-cards">
+        <div class="lc"><div class="lc-label">Layer 1–2 · Tests + TestNG</div><div class="lc-title">The Test Brain</div><div class="lc-body">Your Java test classes define the what. TestNG's engine reads testng.xml to determine the how — execution order, parallel threading, group filtering, and which lifecycle hooks fire around each test.</div></div>
+        <div class="lc"><div class="lc-label">Layer 3–5 · Selenium + Browser</div><div class="lc-title">The Automation Arm</div><div class="lc-body">Selenium WebDriver translates Java commands into browser-native DevTools Protocol (CDP) calls. WebDriverManager eliminates the manual driver download problem — it detects your browser version and fetches the matching driver automatically.</div></div>
+        <div class="lc"><div class="lc-label">Layer 6 · Maven Build</div><div class="lc-title">The Build System</div><div class="lc-body">Maven's pom.xml declares all dependencies (TestNG, Selenium, WebDriverManager, Allure). The maven-surefire-plugin reads your testng.xml during the test phase — making every build deterministic and portable across machines.</div></div>
+        <div class="lc"><div class="lc-label">Layer 7–8 · Reports + CI/CD</div><div class="lc-title">The Feedback Loop</div><div class="lc-body">Allure or ExtentReports generate interactive HTML reports with step-level screenshots, execution timelines, and failure stacks. Jenkins or GitHub Actions consume these reports, publish results, and gate PRs on test pass rate thresholds.</div></div>
+      </div>
+    </div>
+
+    <!-- testng.xml code -->
+    <div style="margin-top:64px;">
+      <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:20px;">testng.xml — Suite Configuration</div>
+      <div class="code-wrap" style="margin-top:0;">
+        <div class="code-bar"><div class="code-bar-dots"><span></span><span></span><span></span></div><div class="code-bar-file">testng.xml</div></div>
+        <div class="code-body"><pre><span class="cc">&lt;!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd"&gt;</span>
+
+<span class="cg">&lt;suite</span> <span class="cv">name</span>=<span class="cs">"RegressionSuite"</span> <span class="cv">parallel</span>=<span class="cs">"methods"</span> <span class="cv">thread-count</span>=<span class="cs">"4"</span><span class="cg">&gt;</span>
+
+    <span class="cc">&lt;!-- Global parameters available to all tests --&gt;</span>
+    <span class="cg">&lt;parameter</span> <span class="cv">name</span>=<span class="cs">"browser"</span>  <span class="cv">value</span>=<span class="cs">"chrome"</span>  <span class="cg">/&gt;</span>
+    <span class="cg">&lt;parameter</span> <span class="cv">name</span>=<span class="cs">"baseUrl"</span>  <span class="cv">value</span>=<span class="cs">"https://staging.app.com"</span>  <span class="cg">/&gt;</span>
+
+    <span class="cc">&lt;!-- Run smoke tests first --&gt;</span>
+    <span class="cg">&lt;test</span> <span class="cv">name</span>=<span class="cs">"SmokeTests"</span><span class="cg">&gt;</span>
+        <span class="cg">&lt;groups&gt;</span>
+            <span class="cg">&lt;run&gt;&lt;include</span> <span class="cv">name</span>=<span class="cs">"smoke"</span> <span class="cg">/&gt;&lt;/run&gt;</span>
+        <span class="cg">&lt;/groups&gt;</span>
+        <span class="cg">&lt;classes&gt;</span>
+            <span class="cg">&lt;class</span> <span class="cv">name</span>=<span class="cs">"tests.LoginTest"</span>   <span class="cg">/&gt;</span>
+            <span class="cg">&lt;class</span> <span class="cv">name</span>=<span class="cs">"tests.SearchTest"</span>  <span class="cg">/&gt;</span>
+        <span class="cg">&lt;/classes&gt;</span>
+    <span class="cg">&lt;/test&gt;</span>
+
+    <span class="cc">&lt;!-- Full regression in parallel --&gt;</span>
+    <span class="cg">&lt;test</span> <span class="cv">name</span>=<span class="cs">"RegressionTests"</span><span class="cg">&gt;</span>
+        <span class="cg">&lt;classes&gt;</span>
+            <span class="cg">&lt;class</span> <span class="cv">name</span>=<span class="cs">"tests.CheckoutTest"</span>  <span class="cg">/&gt;</span>
+            <span class="cg">&lt;class</span> <span class="cv">name</span>=<span class="cs">"tests.ProfileTest"</span>   <span class="cg">/&gt;</span>
+            <span class="cg">&lt;class</span> <span class="cv">name</span>=<span class="cs">"tests.PaymentTest"</span>   <span class="cg">/&gt;</span>
+        <span class="cg">&lt;/classes&gt;</span>
+    <span class="cg">&lt;/test&gt;</span>
+
+<span class="cg">&lt;/suite&gt;</span></pre></div>
+      </div>
+    </div>
+
+    <!-- DataProvider example -->
+    <div style="margin-top:40px;">
+      <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:20px;">@DataProvider — Parameterized Tests</div>
+      <div class="code-wrap" style="margin-top:0;">
+        <div class="code-bar"><div class="code-bar-dots"><span></span><span></span><span></span></div><div class="code-bar-file">LoginDataTest.java</div></div>
+        <div class="code-body"><pre><span class="ca">@DataProvider</span>(<span class="cv">name</span> = <span class="cs">"loginCredentials"</span>)
+<span class="ck">public</span> <span class="ct">Object</span>[][] <span class="cg">loginData</span>() {
+    <span class="ck">return new</span> <span class="ct">Object</span>[][] {
+        { <span class="cs">"admin@co.com"</span>,   <span class="cs">"Admin@123"</span>,  <span class="cv">true</span>  },  <span class="cc">// valid</span>
+        { <span class="cs">"user@co.com"</span>,    <span class="cs">"wrongPass"</span>,  <span class="cv">false</span> },  <span class="cc">// invalid pass</span>
+        { <span class="cs">""</span>,               <span class="cs">""</span>,           <span class="cv">false</span> },  <span class="cc">// empty fields</span>
+        { <span class="cs">"sql' OR '1'='1"</span>, <span class="cs">"anything"</span>,  <span class="cv">false</span> },  <span class="cc">// SQL injection</span>
+    };
+}
+
+<span class="ca">@Test</span>(<span class="cv">dataProvider</span> = <span class="cs">"loginCredentials"</span>)
+<span class="ck">public void</span> <span class="cg">testLogin</span>(<span class="ct">String</span> <span class="cv">email</span>, <span class="ct">String</span> <span class="cv">pass</span>, <span class="ck">boolean</span> <span class="cv">expected</span>) {
+    <span class="cc">// TestNG runs this method 4 times — once per data row</span>
+    <span class="cv">loginPage</span>.<span class="cg">login</span>(<span class="cv">email</span>, <span class="cv">pass</span>);
+    <span class="ct">Assert</span>.<span class="cg">assertEquals</span>(<span class="cv">loginPage</span>.<span class="cg">isLoggedIn</span>(), <span class="cv">expected</span>);
+}</pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE: TestNG vs JUnit -->
+<div class="compare-bg" id="compare">
+  <div class="compare-wrap">
+    <div class="s-eyebrow" style="color:var(--green);margin-bottom:20px;"><span class="num" style="color:var(--muted)">04</span> TestNG vs JUnit</div>
+    <h2 class="compare-heading">TESTNG<br><span>WINS.</span></h2>
+    <div class="compare-grid">
+      <div class="compare-col left">
+        <span class="compare-badge">Legacy</span>
+        <div class="compare-name">JUnit 5</div>
+        <ul class="compare-list">
+          <li><span class="ci-x">✕</span> No built-in parallel execution at method level</li>
+          <li><span class="ci-x">✕</span> No native data provider mechanism</li>
+          <li><span class="ci-x">✕</span> No test grouping/filtering out of the box</li>
+          <li><span class="ci-x">✕</span> No dependsOnMethods for test ordering</li>
+          <li><span class="ci-x">✕</span> No XML-driven suite configuration</li>
+          <li><span class="ci-x">✕</span> Limited reporting listeners</li>
+          <li><span class="ci-x">✕</span> No built-in retry failed tests support</li>
+        </ul>
+      </div>
+      <div class="compare-mid"><div class="compare-mid-text">VS</div></div>
+      <div class="compare-col right">
+        <span class="compare-badge">Preferred</span>
+        <div class="compare-name">TestNG 7.x</div>
+        <ul class="compare-list">
+          <li><span class="ci-c">✓</span> Native parallel at suite/class/method/test level</li>
+          <li><span class="ci-c">✓</span> @DataProvider for parameterized testing</li>
+          <li><span class="ci-c">✓</span> @Test(groups="smoke") for granular filtering</li>
+          <li><span class="ci-c">✓</span> dependsOnMethods and dependsOnGroups</li>
+          <li><span class="ci-c">✓</span> testng.xml for full suite orchestration</li>
+          <li><span class="ci-c">✓</span> ITestListener, IReporter custom hooks</li>
+          <li><span class="ci-c">✓</span> IRetryAnalyzer for flaky test management</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INTERACTIVE RUNNER -->
+<div class="runner-bg" id="runner">
+  <div class="runner-header">
+    <div class="s-eyebrow" style="color:var(--green);margin-bottom:20px;"><span class="num" style="color:var(--muted)">05</span> Interactive Runner</div>
+    <h2 class="runner-title">TEST<br><span>RUNNER.</span></h2>
+    <p class="runner-sub">Simulate running a TestNG test class. Select a test type, enter a class name, and watch the console output — exactly as you'd see in your IDE or CI pipeline.</p>
+  </div>
+  <div class="runner-body">
+    <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Test Configuration</div>
+    <div class="run-controls">
+      <select class="run-select" id="testType">
+        <option value="smoke">Smoke Tests</option>
+        <option value="regression">Regression Suite</option>
+        <option value="parallel">Parallel Execution</option>
+        <option value="dataprovider">DataProvider Tests</option>
+        <option value="dependency">Dependency Tests</option>
+      </select>
+      <input class="run-input" id="className" type="text" placeholder="e.g. LoginTest, SearchTest, CheckoutTest…" value="LoginTest"/>
+      <button class="run-btn" id="runBtn" onclick="runTests()">
+        <span id="rIcon">▶</span><span id="rText">Run TestNG</span>
+      </button>
+    </div>
+    <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Quick Scenarios</div>
+    <div class="quick-tests">
+      <button class="qt" onclick="qs('smoke','LoginTest')">@Test smoke suite</button>
+      <button class="qt" onclick="qs('parallel','SearchTest')">parallel methods</button>
+      <button class="qt" onclick="qs('dataprovider','LoginDataTest')">@DataProvider run</button>
+      <button class="qt" onclick="qs('regression','CheckoutTest')">full regression</button>
+      <button class="qt" onclick="qs('dependency','OrderFlowTest')">dependsOnMethods</button>
+    </div>
+    <div class="term-wrap">
+      <div class="term-bar">
+        <div class="term-bar-left">
+          <div class="term-bar-dots"><span></span><span></span><span></span></div>
+          <div class="term-title">testng-runner · console output</div>
+        </div>
+        <div class="term-status"><div class="ts-dot" id="tsDot"></div><span id="tsLabel">idle</span></div>
+      </div>
+      <div class="term-body" id="termBody">
+        <div class="tl"><span class="tl-time">00:00:00</span><span class="tl-tag INFO">INFO</span><span class="tl-msg">TestNG runner ready · Select a test type and click ▶ Run TestNG</span></div>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progLabel">0 / 0 tests</span><span id="progPct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="setup-bg" id="setup">
+  <div class="setup-inner">
+    <div class="s-eyebrow" style="color:var(--green);margin-bottom:20px;"><span class="num" style="color:var(--muted)">06</span> Setup Guide</div>
+    <h2 class="setup-heading">ZERO TO<br><em>RUNNING</em><br>IN MINUTES.</h2>
+    <div class="setup-grid">
+      <div class="sc"><div class="sc-num">01</div><div class="sc-title">Java 17 + Maven</div><div class="sc-desc">Install Java 17 JDK and Apache Maven. Verify installation in terminal.</div><div class="sc-cmd">java -version &amp;&amp; mvn -version</div></div>
+      <div class="sc"><div class="sc-num">02</div><div class="sc-title">Create Maven Project</div><div class="sc-desc">Generate a new Maven project with standard directory structure.</div><div class="sc-cmd">mvn archetype:generate -DgroupId=com.tests</div></div>
+      <div class="sc"><div class="sc-num">03</div><div class="sc-title">Add pom.xml Dependencies</div><div class="sc-desc">Add TestNG, Selenium, WebDriverManager to your pom.xml dependencies section.</div><div class="sc-cmd">testng 7.9.0 + selenium-java 4.x</div></div>
+      <div class="sc"><div class="sc-num">04</div><div class="sc-title">Configure Surefire Plugin</div><div class="sc-desc">Add maven-surefire-plugin pointing to your testng.xml in the build section.</div><div class="sc-cmd">&lt;suiteXmlFile&gt;testng.xml&lt;/suiteXmlFile&gt;</div></div>
+      <div class="sc"><div class="sc-num">05</div><div class="sc-title">Create testng.xml</div><div class="sc-desc">Define your test suite, parallel mode, thread count, and test classes.</div><div class="sc-cmd">parallel="methods" thread-count="4"</div></div>
+      <div class="sc"><div class="sc-num">06</div><div class="sc-title">Write First @Test</div><div class="sc-desc">Create a test class with @BeforeMethod, @Test, and @AfterMethod annotations.</div><div class="sc-cmd">src/test/java/tests/LoginTest.java</div></div>
+      <div class="sc"><div class="sc-num">07</div><div class="sc-title">Install ChromeDriver</div><div class="sc-desc">WebDriverManager handles this automatically — just add it as a dependency.</div><div class="sc-cmd">WebDriverManager.chromedriver().setup()</div></div>
+      <div class="sc"><div class="sc-num">08</div><div class="sc-title">Run Your Suite</div><div class="sc-desc">Execute the full suite via Maven. Reports generated in target/surefire-reports.</div><div class="sc-cmd">mvn clean test</div></div>
+    </div>
+
+    <!-- pom.xml -->
+    <div style="margin-top:56px;">
+      <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:20px;">pom.xml — Core Dependencies</div>
+      <div class="code-wrap" style="margin-top:0;">
+        <div class="code-bar"><div class="code-bar-dots"><span></span><span></span><span></span></div><div class="code-bar-file">pom.xml</div></div>
+        <div class="code-body"><pre><span class="cg">&lt;dependencies&gt;</span>
+
+    <span class="cc">&lt;!-- TestNG --&gt;</span>
+    <span class="cg">&lt;dependency&gt;</span>
+        <span class="cv">&lt;groupId&gt;</span>org.testng<span class="cv">&lt;/groupId&gt;</span>
+        <span class="cv">&lt;artifactId&gt;</span>testng<span class="cv">&lt;/artifactId&gt;</span>
+        <span class="cs">&lt;version&gt;7.9.0&lt;/version&gt;</span>
+    <span class="cg">&lt;/dependency&gt;</span>
+
+    <span class="cc">&lt;!-- Selenium WebDriver --&gt;</span>
+    <span class="cg">&lt;dependency&gt;</span>
+        <span class="cv">&lt;groupId&gt;</span>org.seleniumhq.selenium<span class="cv">&lt;/groupId&gt;</span>
+        <span class="cv">&lt;artifactId&gt;</span>selenium-java<span class="cv">&lt;/artifactId&gt;</span>
+        <span class="cs">&lt;version&gt;4.18.1&lt;/version&gt;</span>
+    <span class="cg">&lt;/dependency&gt;</span>
+
+    <span class="cc">&lt;!-- WebDriverManager (auto driver setup) --&gt;</span>
+    <span class="cg">&lt;dependency&gt;</span>
+        <span class="cv">&lt;groupId&gt;</span>io.github.bonigarcia<span class="cv">&lt;/groupId&gt;</span>
+        <span class="cv">&lt;artifactId&gt;</span>webdrivermanager<span class="cv">&lt;/artifactId&gt;</span>
+        <span class="cs">&lt;version&gt;5.7.0&lt;/version&gt;</span>
+    <span class="cg">&lt;/dependency&gt;</span>
+
+    <span class="cc">&lt;!-- Allure TestNG Reporter --&gt;</span>
+    <span class="cg">&lt;dependency&gt;</span>
+        <span class="cv">&lt;groupId&gt;</span>io.qameta.allure<span class="cv">&lt;/groupId&gt;</span>
+        <span class="cv">&lt;artifactId&gt;</span>allure-testng<span class="cv">&lt;/artifactId&gt;</span>
+        <span class="cs">&lt;version&gt;2.25.0&lt;/version&gt;</span>
+    <span class="cg">&lt;/dependency&gt;</span>
+
+<span class="cg">&lt;/dependencies&gt;</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BEST PRACTICES -->
+<section id="bestpractices" style="background:var(--dark);border-top:1px solid var(--border);">
+  <div class="sw sr">
+    <div class="s-eyebrow"><span class="num">07</span> Best Practices</div>
+    <h2 class="s-title">WRITE <span class="g">TESTS</span><br>THAT <span class="og">LAST.</span></h2>
+    <p class="s-intro">Production-grade TestNG patterns used by senior SDETs at top engineering teams worldwide.</p>
+    <div class="bp-grid">
+      <div class="bp sr d1"><div class="bp-num">01</div><div class="bp-icon">🏗️</div><div class="bp-title">Page Object Model</div><div class="bp-body">Never put locators in test methods. Every page gets its own class with @FindBy fields and action methods. Tests read like English — loginPage.login(user, pass) — not driver.findElement(By.id("usr")).</div><div class="bp-tag">Architecture</div></div>
+      <div class="bp sr d2"><div class="bp-num">02</div><div class="bp-icon">🧵</div><div class="bp-title">ThreadLocal WebDriver</div><div class="bp-body">For parallel execution, store WebDriver in ThreadLocal&lt;WebDriver&gt;. Each thread gets its own driver instance — preventing race conditions and test pollution when running methods in parallel.</div><div class="bp-tag">Parallel Safety</div></div>
+      <div class="bp sr d3"><div class="bp-num">03</div><div class="bp-icon">📸</div><div class="bp-title">Screenshot on Failure</div><div class="bp-body">Implement ITestListener and capture a screenshot in onTestFailure(). Attach it to Allure with @Attachment. Never let a test fail silently — always have visual evidence of what went wrong.</div><div class="bp-tag">Debugging</div></div>
+      <div class="bp sr"><div class="bp-num">04</div><div class="bp-icon">🔁</div><div class="bp-title">IRetryAnalyzer</div><div class="bp-body">Implement IRetryAnalyzer to retry flaky tests automatically (max 2 retries). Mark genuinely flaky tests with @Test(retryAnalyzer=RetryAnalyzer.class) rather than letting them block your CI pipeline.</div><div class="bp-tag">Stability</div></div>
+      <div class="bp sr d1"><div class="bp-num">05</div><div class="bp-icon">⏱️</div><div class="bp-title">Explicit Waits Only</div><div class="bp-body">Ban Thread.sleep() from your codebase. Use WebDriverWait with ExpectedConditions exclusively. Fluent waits with custom polling intervals for dynamic elements. Set a project-wide implicit wait of zero to avoid conflicts.</div><div class="bp-tag">Reliability</div></div>
+      <div class="bp sr d2"><div class="bp-num">06</div><div class="bp-icon">🏷️</div><div class="bp-title">Meaningful Test Groups</div><div class="bp-body">Tag every test with at least one group: "smoke", "regression", "api", "ui", "critical". Run only smoke tests on every commit, full regression nightly. testng.xml group filters make this effortless to configure per environment.</div><div class="bp-tag">Organisation</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="f-name">AAYUSH<br><span>MISHRA</span></div>
+      <div class="f-role">SDET · Java Test Automation Engineer</div>
+      <div class="f-bio">Building enterprise-grade test automation frameworks with Java, TestNG, and Selenium. Specializing in parallel execution, POM architecture, and CI/CD pipeline integration.</div>
+    </div>
+    <div>
+      <div class="fc-title">Navigation</div>
+      <ul class="fl">
+        <li><a href="#overview">What is TestNG</a></li>
+        <li><a href="#annotations">Core Annotations</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#compare">TestNG vs JUnit</a></li>
+        <li><a href="#runner">Interactive Runner</a></li>
+        <li><a href="#setup">Setup Guide</a></li>
+        <li><a href="#bestpractices">Best Practices</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="fc-title">Connect</div>
+      <ul class="fl">
+        <li><a href="#">GitHub</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Portfolio</a></li>
+        <li><a href="#">Email</a></li>
+      </ul>
+      <div style="margin-top:28px;">
+        <div class="fc-title">Stack</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
+          <span class="tp">TestNG 7.9</span>
+          <span class="tp">Selenium 4</span>
+          <span class="tp">Java 17</span>
+          <span class="tp">Maven</span>
+          <span class="tp">Allure</span>
+          <span class="tp">Jenkins</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Aayush Mishra · All rights reserved</span>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span>Built with</span>
+      <span class="tp">TestNG</span><span class="tp">Selenium WebDriver</span><span class="tp">Java</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* CURSOR */
+const cur = document.getElementById('cur');
+const cur2 = document.getElementById('cur2');
+let mx=0,my=0;
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+  cur2.style.left=mx+'px'; cur2.style.top=my+'px';
+});
+document.querySelectorAll('a,button,.wt-card,.ann,.lc,.bp,.sc,.ts-test').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='24px';cur.style.height='24px';});
+  el.addEventListener('mouseleave',()=>{cur.style.width='12px';cur.style.height='12px';});
+});
+
+/* MATRIX RAIN */
+const canvas = document.getElementById('matrixCanvas');
+const ctx = canvas.getContext('2d');
+canvas.style.position='fixed'; canvas.style.inset='0'; canvas.style.zIndex='0';
+function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+const chars = 'TESTNG@TEST@BEFORE@AFTER@DATAPROVIDER01テ자바SELENIUM<>{}();'.split('');
+const cols = Math.floor(window.innerWidth / 18);
+const drops = Array(cols).fill(1);
+function drawMatrix() {
+  ctx.fillStyle='rgba(8,12,8,0.05)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#22c55e';
+  ctx.font='13px "Space Mono",monospace';
+  drops.forEach((y,i)=>{
+    const c = chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(c, i*18, y*18);
+    if(y*18 > canvas.height && Math.random()>0.975) drops[i]=0;
+    drops[i]++;
+  });
+}
+setInterval(drawMatrix, 50);
+
+/* SCROLL REVEAL */
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('v'); obs.unobserve(e.target); }});
+},{threshold:0.08});
+document.querySelectorAll('.sr').forEach(el=>obs.observe(el));
+
+/* QUICK SELECT */
+function qs(type, name) {
+  document.getElementById('testType').value = type;
+  document.getElementById('className').value = name;
+  document.getElementById('className').focus();
+}
+
+/* TEST RUNNER */
+const termBody = document.getElementById('termBody');
+const tsDot = document.getElementById('tsDot');
+const tsLabel = document.getElementById('tsLabel');
+const progFill = document.getElementById('progFill');
+const progLabel = document.getElementById('progLabel');
+const progPct = document.getElementById('progPct');
+
+function setStatus(s,l){ tsDot.className='ts-dot '+s; tsLabel.textContent=l; }
+
+function addLine(tag,cls,msg,delay){
+  return new Promise(res=>setTimeout(()=>{
+    const t = new Date().toTimeString().split(' ')[0];
+    const d = document.createElement('div');
+    d.className='tl';
+    d.innerHTML=`<span class="tl-time">${t}</span><span class="tl-tag ${cls}">${tag}</span><span class="tl-msg">${msg}</span>`;
+    termBody.appendChild(d);
+    termBody.scrollTop=termBody.scrollHeight;
+    res();
+  },delay));
+}
+
+function setProgress(done, total) {
+  const pct = total > 0 ? Math.round((done/total)*100) : 0;
+  progFill.style.width = pct + '%';
+  progLabel.textContent = `${done} / ${total} tests`;
+  progPct.textContent = pct + '%';
+}
+
+function clearTerm(){ termBody.innerHTML=''; setProgress(0,0); }
+
+async function runTests() {
+  const btn = document.getElementById('runBtn');
+  const type = document.getElementById('testType').value;
+  const cls = document.getElementById('className').value.trim() || 'LoginTest';
+  btn.disabled=true;
+  document.getElementById('rIcon').textContent='◌';
+  document.getElementById('rText').textContent='Running…';
+  setStatus('run','executing'); clearTerm();
+
+  const configs = {
+    smoke:       { tests:['testValidLogin','testInvalidPassword','testPageTitle'], parallel:false, threads:1 },
+    regression:  { tests:['testValidLogin','testInvalidPassword','testForgotPassword','testRememberMe','testSSOLogin','testLogout'], parallel:false, threads:1 },
+    parallel:    { tests:['testSearch','testFilter','testPagination','testSort'], parallel:true, threads:4 },
+    dataprovider:{ tests:['testLogin[0]','testLogin[1]','testLogin[2]','testLogin[3]'], parallel:false, threads:1 },
+    dependency:  { tests:['testCreateOrder','testAddItems','testCheckout','testPayment'], parallel:false, threads:1 },
+  };
+  const cfg = configs[type] || configs.smoke;
+  const total = cfg.tests.length;
+
+  const steps = [
+    ['INFO','INFO',`[TestNG] Reading configuration from testng.xml…`,260],
+    ['INFO','INFO',`[TestNG] Suite: ${type==='smoke'?'SmokeTests':type==='parallel'?'ParallelTests':'RegressionSuite'}`,220],
+    cfg.parallel
+      ? ['INFO','INFO',`[TestNG] Parallel mode: METHODS · Thread count: ${cfg.threads}`,280]
+      : ['INFO','INFO',`[TestNG] Sequential execution mode`,220],
+    ['XML ','XML ',`[Maven] Surefire plugin · TestNG listener attached`,300],
+    ['INFO','INFO',`WebDriverManager: detecting Chrome version…`,400],
+    ['INFO','INFO',`WebDriverManager: driver found → chromedriver 121.0.6167.85`,320],
+    ['INFO','INFO',`[BeforeSuite] Global configuration loaded ✓`,280],
+    ['TEST','TEST',`[TestNG] Starting test class: ${cls}`,360],
+  ];
+
+  // per-test steps
+  const results = [];
+  cfg.tests.forEach((t,i) => {
+    const pass = !(type==='regression' && i===4) && !(type==='dataprovider' && i===1);
+    results.push(pass);
+    steps.push(['INFO','INFO',`[@BeforeMethod] Opening browser → navigating to baseUrl`,300]);
+    if(type==='dataprovider') steps.push(['INFO','INFO',`[@DataProvider] Injecting row ${i}: credentials set ${i}`,200]);
+    if(type==='dependency' && i>0) steps.push(['INFO','INFO',`[dependsOnMethods] Prerequisite "${cfg.tests[i-1]}" → PASSED ✓`,220]);
+    steps.push(['TEST','TEST',`[@Test] Running: ${t}()`,pass?320:260]);
+    if(pass) steps.push(['PASS','PASS',`PASSED → ${t} (${(Math.random()*.8+.2).toFixed(2)}s)`,pass?280:0]);
+    else steps.push(['FAIL','FAIL',`FAILED → ${t}: AssertionError – Expected true but was false`,300]);
+    steps.push(['INFO','INFO',`[@AfterMethod] ${pass?'Closing browser':'Screenshot captured → failure.png · Closing browser'}`,220]);
+  });
+
+  const passed = results.filter(Boolean).length;
+  const failed = results.filter(x=>!x).length;
+
+  steps.push(
+    ['INFO','INFO',`[AfterSuite] Generating test report…`,400],
+    ['INFO','INFO',`[Allure] Report available at: target/allure-report/index.html`,300],
+    ['INFO','INFO',`═══════════════════════════════════════`,200],
+    ['INFO','INFO',`Tests run: ${total}  Passed: ${passed}  Failed: ${failed}  Skipped: 0`,200],
+    ['INFO','INFO',`Total time: ${(total*0.45+0.8).toFixed(2)}s`,100],
+    [failed>0?'FAIL':'PASS', failed>0?'FAIL':'PASS',
+     failed>0 ? `BUILD FAILURE — ${failed} test(s) failed` : `BUILD SUCCESS — All tests passed ✓`, 100],
+  );
+
+  let delay=0, done=0;
+  for(const [tag,cls2,msg,wait] of steps){
+    await addLine(tag,cls2,msg,delay);
+    if(tag==='PASS'||tag==='FAIL'){ done++; setProgress(done,total); }
+    delay+=wait;
+  }
+
+  setTimeout(()=>{
+    setStatus(failed>0?'fail':'ok', failed>0?`${failed} failed`:'all passed');
+    btn.disabled=false;
+    document.getElementById('rIcon').textContent='▶';
+    document.getElementById('rText').textContent='Run TestNG';
+  }, delay);
+}
+
+document.getElementById('className').addEventListener('keydown',e=>{ if(e.key==='Enter') runTests(); });
+</script>
+</body>
+</html>

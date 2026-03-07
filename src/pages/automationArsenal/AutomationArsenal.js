@@ -34,6 +34,15 @@ export const automationTools = [
     isReady: false,
   },
   {
+    name: "TestNG",
+    category: "Java Test Framework",
+    description:
+      "Powerful Java test runner for suite orchestration, parallel execution, groups, dependencies, and rich Selenium reporting.",
+    image: "/tool-logos/selenium.svg",
+    docsPath: "/tools/testng-selenium.html",
+    isReady: true,
+  },
+  {
     name: "Postman",
     category: "API Testing",
     description:
