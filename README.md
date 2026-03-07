@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Portfolio Banner](https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=30&duration=3000&pause=1000&color=667EEA&center=true&vCenter=true&width=600&lines=QA+Automation+Engineer;Full+Stack+Developer;SDET+%7C+Test+Automation+Expert;DevOps+%26+CI%2FCD+Enthusiast)
+![Portfolio Banner](https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=30&duration=3000&pause=1000&color=667EEA&center=true&vCenter=true&width=600&lines=QA+Automation+Engineer;Full+Stack+QA;SDET+%7C+Test+Automation+Expert;DevOps+%26+CI%2FCD+Enthusiast)
 
 [![Portfolio](https://img.shields.io/badge/🌐_Portfolio-Live-667EEA?style=for-the-badge&logo=vercel)](https://aayushmishra.tech)
 [![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github)](https://github.com/Aayush-Mishraa)
