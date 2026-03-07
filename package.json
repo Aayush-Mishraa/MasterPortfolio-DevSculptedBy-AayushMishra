@@ -11,11 +11,11 @@
     "url": "git+https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra.git"
   },
   "scripts": {
-    "build": "react-scripts --openssl-legacy-provider build",
+    "build": "react-scripts build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -b gh-pages -d build",
     "eject": "react-scripts eject",
-    "start": "react-scripts --openssl-legacy-provider start",
+    "start": "react-scripts start",
     "test": "react-scripts test",
     "fetch-github-data": "node git_data_fetcher.mjs",
     "auto-refresh": "node auto-refresh.mjs"
