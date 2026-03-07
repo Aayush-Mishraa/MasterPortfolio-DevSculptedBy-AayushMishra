@@ -30,8 +30,6 @@ jobs:
       # Step 4: Build production app
       - name: Build React app
         run: npm run build
-        env:
-          NODE_OPTIONS: --openssl-legacy-provider
 
       # Step 5: Upload website files to Hostinger public_html via FTP
       # Uses incremental sync state to avoid unnecessary uploads where possible.
