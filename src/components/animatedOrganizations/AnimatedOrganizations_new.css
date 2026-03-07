@@ -1,0 +1,323 @@
+/* Enhanced Animated Organizations Styles */
+.animated-organizations-container {
+  padding: 60px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-organizations-header {
+  text-align: center;
+  margin-bottom: 50px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.organizations-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--theme-text, #2c3e50), var(--theme-highlight, #3498db));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.organizations-subtitle {
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  opacity: 0.8;
+  font-weight: 400;
+  color: var(--theme-secondaryText, #7f8c8d);
+}
+
+/* Right-to-Left Slider Container */
+.organizations-slider {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  margin: 40px 0;
+  mask: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+.organizations-track {
+  display: flex;
+  width: calc(300% + 60px);
+  animation: slideRightToLeft 30s linear infinite;
+  gap: 20px;
+}
+
+/* Pause animation on hover */
+.organizations-slider:hover .organizations-track {
+  animation-play-state: paused;
+}
+
+/* Organization Cards */
+.organization-card {
+  min-width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.organization-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(var(--theme-highlight-rgb, 52, 152, 219), 0.1) 0%, 
+    rgba(var(--theme-highlight-rgb, 52, 152, 219), 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 20px;
+}
+
+.organization-card:hover::before {
+  opacity: 1;
+}
+
+.organization-card:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-color: rgba(var(--theme-highlight-rgb, 52, 152, 219), 0.3);
+}
+
+.organization-logo-container {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.organization-card:hover .organization-logo-container {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.organization-logo {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  filter: brightness(0.9) contrast(1.1);
+  transition: all 0.3s ease;
+}
+
+.organization-card:hover .organization-logo {
+  filter: brightness(1.1) contrast(1.2);
+}
+
+.organization-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--theme-text, #2c3e50);
+  opacity: 0.9;
+  line-height: 1.2;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.organization-card:hover .organization-name {
+  opacity: 1;
+  color: var(--theme-highlight, #3498db);
+}
+
+/* Fallback for broken images */
+.logo-fallback {
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, var(--theme-highlight, #3498db), var(--theme-secondary, #95a5a6));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* Keyframe Animations */
+@keyframes slideRightToLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% / 3));
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .animated-organizations-container {
+    padding: 40px 15px;
+  }
+
+  .animated-organizations-header {
+    margin-bottom: 30px;
+  }
+
+  .organizations-title {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .organizations-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .organizations-track {
+    animation-duration: 25s; /* Slightly faster on mobile */
+    gap: 15px;
+  }
+
+  .organization-card {
+    min-width: 100px;
+    height: 100px;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .organization-logo-container {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 6px;
+    border-radius: 10px;
+  }
+
+  .organization-logo,
+  .logo-fallback {
+    width: 35px;
+    height: 35px;
+  }
+
+  .organization-name {
+    font-size: 0.7rem;
+  }
+
+  .logo-fallback {
+    font-size: 0.5rem;
+  }
+
+  .organizations-slider {
+    margin: 30px 0;
+    mask: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+  }
+}
+
+@media (max-width: 480px) {
+  .animated-organizations-container {
+    padding: 30px 10px;
+  }
+
+  .organizations-title {
+    font-size: 1.8rem;
+  }
+
+  .organizations-track {
+    animation-duration: 20s;
+    gap: 12px;
+  }
+
+  .organization-card {
+    min-width: 85px;
+    height: 85px;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .organization-logo-container {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+  }
+
+  .organization-logo,
+  .logo-fallback {
+    width: 28px;
+    height: 28px;
+  }
+
+  .organization-name {
+    font-size: 0.65rem;
+  }
+
+  .logo-fallback {
+    font-size: 0.45rem;
+  }
+}
+
+/* High Performance Optimizations */
+.organizations-track {
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.organization-card {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .organizations-track {
+    animation: none;
+  }
+  
+  .organization-card {
+    transition: none;
+  }
+  
+  .organization-card:hover {
+    transform: none;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .organization-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  .organization-logo-container {
+    background: rgba(255, 255, 255, 0.12);
+  }
+  
+  .organization-card:hover .organization-logo-container {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}

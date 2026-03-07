@@ -1,0 +1,100 @@
+{
+  "data": [
+    {
+      "id": "github",
+      "name": "GitHub",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
+      "website": "https://github.com"
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg",
+      "website": "https://google.com"
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoft/microsoft-original.svg",
+      "website": "https://microsoft.com"
+    },
+    {
+      "id": "aws",
+      "name": "AWS",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg",
+      "website": "https://aws.amazon.com"
+    },
+    {
+      "id": "docker",
+      "name": "Docker",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
+      "website": "https://docker.com"
+    },
+    {
+      "id": "kubernetes",
+      "name": "Kubernetes",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg",
+      "website": "https://kubernetes.io"
+    },
+    {
+      "id": "tensorflow",
+      "name": "TensorFlow",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg",
+      "website": "https://tensorflow.org"
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
+      "website": "https://react.dev"
+    },
+    {
+      "id": "nodejs",
+      "name": "Node.js",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+      "website": "https://nodejs.org"
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+      "website": "https://python.org"
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",
+      "website": "https://mongodb.com"
+    },
+    {
+      "id": "firebase",
+      "name": "Firebase",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg",
+      "website": "https://firebase.google.com"
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg",
+      "website": "https://redis.io"
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
+      "website": "https://postgresql.org"
+    },
+    {
+      "id": "nginx",
+      "name": "Nginx",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg",
+      "website": "https://nginx.org"
+    },
+    {
+      "id": "jenkins",
+      "name": "Jenkins",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jenkins/jenkins-original.svg",
+      "website": "https://jenkins.io"
+    }
+  ]
+}

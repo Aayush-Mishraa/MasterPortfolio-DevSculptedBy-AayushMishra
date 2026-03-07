@@ -1,0 +1,125 @@
+.achievement-heading {
+  font-size: 56px;
+  font-weight: 400;
+  line-height: normal;
+  margin: 0px;
+  color: var(--theme-dark, #001C55); /* Dark blue theme color */
+}
+.achievement-subtitle {
+  text-transform: uppercase;
+  margin: 0px;
+  margin-bottom: 50px;
+  color: var(--theme-secondaryText, #868e96);
+}
+.card-image {
+  height: 250px;
+  width: 250px;
+}
+
+.card-title {
+  color: var(--theme-dark, #001C55); /* Dark blue theme color */
+  font-size: 30px;
+  margin: 0px;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.card-subtitle {
+  color: var(--theme-secondaryText, #868e96);
+  font-size: 20px;
+}
+
+.certificate-card {
+  background: rgba(var(--theme-dark-rgb, 0, 28, 85), 0.05); /* Dark transparent background */
+  box-shadow: rgba(var(--theme-highlight-rgb, 166, 225, 250), 0.2) 0px 10px 30px -15px;
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(var(--theme-highlight-rgb, 166, 225, 250), 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.certificate-detail-div {
+  text-align: center;
+}
+
+.certificate-card:hover {
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 20px 30px -10px;
+}
+.certificate-image-div {
+  text-align: center;
+}
+.achievement-cards-div {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem 1rem;
+}
+.certificate-card-footer {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+.certificate-card-footer > p {
+  color: var(--theme-text, #333333);
+  cursor: pointer;
+  margin-right: 10px;
+  text-align: center;
+}
+.certificate-card-footer > p:hover {
+  color: var(--theme-highlight, #A6E1FA);
+}
+
+/* Dark theme adaptations for certificates */
+.dark-theme .card-title,
+.theme-materialDark .card-title,
+.theme-blackTheme .card-title,
+.theme-cyberpunk .card-title,
+.theme-oceanDepth .card-title,
+.theme-midnightPurple .card-title,
+.theme-neonGreen .card-title,
+.theme-darkOrange .card-title,
+.theme-crimsonDark .card-title,
+.theme-galaxy .card-title,
+.theme-nordDark .card-title,
+.theme-dracula .card-title,
+.theme-monochrome .card-title,
+.theme-amoled .card-title,
+.theme-midnight .card-title,
+.theme-neon .card-title {
+  color: var(--theme-text, #ffffff); /* Light text for dark themes */
+}
+
+.dark-theme .achievement-heading,
+.theme-materialDark .achievement-heading,
+.theme-blackTheme .achievement-heading,
+.theme-cyberpunk .achievement-heading,
+.theme-oceanDepth .achievement-heading,
+.theme-midnightPurple .achievement-heading,
+.theme-neonGreen .achievement-heading,
+.theme-darkOrange .achievement-heading,
+.theme-crimsonDark .achievement-heading,
+.theme-galaxy .achievement-heading,
+.theme-nordDark .achievement-heading,
+.theme-dracula .achievement-heading,
+.theme-monochrome .achievement-heading,
+.theme-amoled .achievement-heading,
+.theme-midnight .achievement-heading,
+.theme-neon .achievement-heading {
+  color: var(--theme-text, #ffffff); /* Light text for dark themes */
+}
+/* Media Query */
+@media (max-width: 1380px) {
+  .achievement-heading {
+    font-size: 40px;
+  }
+}
+@media (max-width: 768px) {
+  .achievement-heading {
+    font-size: 30px;
+    text-align: center;
+  }
+  .achievement-subtitle {
+    font-size: 16px;
+    line-height: normal;
+    text-align: center;
+  }
+}

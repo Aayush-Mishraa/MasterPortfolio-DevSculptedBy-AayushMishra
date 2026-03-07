@@ -1,0 +1,271 @@
+.automation-arsenal-main {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.arsenal-hero {
+  position: relative;
+  padding: 2.5rem 5% 1.2rem;
+  overflow: hidden;
+}
+
+.arsenal-hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 8% 10%, rgba(39, 174, 255, 0.16), transparent 36%),
+    radial-gradient(circle at 92% 20%, rgba(255, 115, 0, 0.11), transparent 34%),
+    linear-gradient(135deg, rgba(8, 45, 88, 0.06), rgba(15, 89, 168, 0.02));
+  pointer-events: none;
+}
+
+.arsenal-hero-content {
+  position: relative;
+  max-width: 880px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.arsenal-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.38rem 0.8rem;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-family: "Google Sans Medium";
+  letter-spacing: 0.2px;
+  background: rgba(255, 255, 255, 0.36);
+  backdrop-filter: blur(3px);
+}
+
+.arsenal-title {
+  margin: 0.9rem 0 0;
+  font-family: "Google Sans Medium";
+  font-weight: 700;
+  line-height: 1.1;
+  font-size: clamp(2rem, 4.1vw, 3.25rem);
+  letter-spacing: 0.2px;
+}
+
+.arsenal-subtitle {
+  margin: 0.95rem auto 0;
+  max-width: 700px;
+  font-family: "Google Sans Regular";
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  line-height: 1.7;
+}
+
+.arsenal-cards-section {
+  padding: 1.2rem 5% 3.1rem;
+}
+
+.arsenal-grid {
+  max-width: 1220px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+.arsenal-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 372px;
+  text-decoration: none;
+  border: 1px solid;
+  border-radius: 18px;
+  padding: 1.1rem;
+  box-shadow:
+    0 9px 22px rgba(0, 24, 56, 0.08),
+    0 1px 3px rgba(0, 24, 56, 0.06);
+  overflow: hidden;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.arsenal-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, rgba(166, 225, 250, 0.1), rgba(166, 225, 250, 0));
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+
+.arsenal-card:hover {
+  transform: translateY(-7px) scale(1.01);
+  box-shadow:
+    0 16px 34px rgba(0, 24, 56, 0.14),
+    0 4px 8px rgba(0, 24, 56, 0.1);
+}
+
+.arsenal-card:hover::before {
+  opacity: 1;
+}
+
+.arsenal-card-image-wrap {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.45));
+  border: 1px solid rgba(8, 45, 88, 0.08);
+  overflow: visible;
+  transition: transform 230ms ease;
+}
+
+.arsenal-card:hover .arsenal-card-image-wrap {
+  transform: scale(1.06);
+}
+
+.arsenal-card-image {
+  width: 100%;
+  height: 100%;
+  padding: 14px;
+  box-sizing: border-box;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 230ms ease;
+  image-rendering: auto;
+  display: block;
+}
+
+.arsenal-card:hover .arsenal-card-image {
+  transform: scale(1.08);
+}
+
+.arsenal-card-content {
+  margin-top: 0.95rem;
+  flex: 1;
+}
+
+.arsenal-category {
+  display: inline-block;
+  font-size: 0.75rem;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+  font-family: "Google Sans Medium";
+  font-weight: 700;
+}
+
+.arsenal-card-title {
+  margin: 0.52rem 0 0;
+  font-family: "Google Sans Medium";
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+.arsenal-card-description {
+  margin: 0.65rem 0 0;
+  font-family: "Google Sans Regular";
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.arsenal-card-footer {
+  margin-top: 1rem;
+  padding-top: 0.72rem;
+  border-top: 1px dashed rgba(0, 24, 56, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: "Google Sans Medium";
+  font-size: 0.84rem;
+}
+
+.arsenal-link-arrow {
+  transition: transform 180ms ease;
+}
+
+.arsenal-card.ready:hover .arsenal-link-arrow {
+  transform: translateX(3px);
+}
+
+.arsenal-card.coming-soon {
+  cursor: default;
+}
+
+@media (max-width: 1080px) {
+  .arsenal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .arsenal-hero {
+    padding-top: 2rem;
+  }
+
+  .arsenal-cards-section {
+    padding-top: 0.7rem;
+  }
+
+  .arsenal-grid {
+    grid-template-columns: 1fr;
+    gap: 0.95rem;
+  }
+
+  .arsenal-card {
+    min-height: 334px;
+    border-radius: 16px;
+  }
+
+  .arsenal-card-image-wrap {
+    width: 108px;
+    height: 108px;
+    border-radius: 16px;
+  }
+
+  .arsenal-card-image {
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+  }
+}
+
+.dark-theme .arsenal-card,
+.theme-materialDark .arsenal-card,
+.theme-blackTheme .arsenal-card,
+.theme-cyberpunk .arsenal-card,
+.theme-oceanDepth .arsenal-card,
+.theme-midnightPurple .arsenal-card,
+.theme-neonGreen .arsenal-card,
+.theme-darkOrange .arsenal-card,
+.theme-crimsonDark .arsenal-card,
+.theme-galaxy .arsenal-card,
+.theme-nordDark .arsenal-card,
+.theme-dracula .arsenal-card,
+.theme-monochrome .arsenal-card,
+.theme-amoled .arsenal-card,
+.theme-midnight .arsenal-card,
+.theme-neon .arsenal-card {
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.24),
+    0 1px 4px rgba(0, 0, 0, 0.24);
+}
+
+.dark-theme .arsenal-card-image-wrap,
+.theme-materialDark .arsenal-card-image-wrap,
+.theme-blackTheme .arsenal-card-image-wrap,
+.theme-cyberpunk .arsenal-card-image-wrap,
+.theme-oceanDepth .arsenal-card-image-wrap,
+.theme-midnightPurple .arsenal-card-image-wrap,
+.theme-neonGreen .arsenal-card-image-wrap,
+.theme-darkOrange .arsenal-card-image-wrap,
+.theme-crimsonDark .arsenal-card-image-wrap,
+.theme-galaxy .arsenal-card-image-wrap,
+.theme-nordDark .arsenal-card-image-wrap,
+.theme-dracula .arsenal-card-image-wrap,
+.theme-monochrome .arsenal-card-image-wrap,
+.theme-amoled .arsenal-card-image-wrap,
+.theme-midnight .arsenal-card-image-wrap,
+.theme-neon .arsenal-card-image-wrap {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.07));
+  border-color: rgba(255, 255, 255, 0.12);
+}

@@ -1,0 +1,515 @@
+/* Enhanced Repositories Section Styles */
+.repositories-section {
+  margin: 60px 0;
+  padding: 0 20px;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeInUp 0.8s ease-out;
+  position: relative;
+}
+
+.repositories-section::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(180deg, transparent 0%, rgba(102, 126, 234, 0.02) 100%);
+  pointer-events: none;
+}
+
+.repositories-header-div {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: slideInFromTop 0.6s ease-out;
+  position: relative;
+}
+
+.repositories-header {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  font-family: "Google Sans Medium", sans-serif;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textGlow 2s ease-in-out infinite alternate;
+  position: relative;
+}
+
+.repositories-header::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 2px;
+  animation: expandLine 0.8s ease-out 0.5s both;
+}
+
+.repositories-subtitle {
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
+  line-height: 1.6;
+  font-family: "Google Sans Regular", sans-serif;
+  margin-bottom: 0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeIn 0.6s ease-out 0.3s both;
+}
+
+/* Enhanced Controls */
+.repositories-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 40px;
+  animation: slideInFromBottom 0.6s ease-out 0.2s both;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  padding: 25px;
+  border-radius: 20px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.search-sort-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Enhanced Repository Grid */
+.repositories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 25px;
+  margin: 30px 0;
+  animation: fadeInGrid 0.8s ease-out 0.4s both;
+  position: relative;
+}
+
+.repositories-grid::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(45deg, 
+    rgba(102, 126, 234, 0.05) 0%, 
+    transparent 25%, 
+    rgba(118, 75, 162, 0.05) 50%, 
+    transparent 75%, 
+    rgba(102, 126, 234, 0.05) 100%);
+  border-radius: 15px;
+  z-index: -1;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 1s both;
+}
+
+.repositories-grid.loading {
+  opacity: 0.6;
+  pointer-events: none;
+  transform: scale(0.98);
+  transition: all 0.3s ease;
+}
+
+.repositories-grid > div {
+  animation: slideUpStagger 0.6s ease-out both;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.repositories-grid > div:hover {
+  transform: translateY(-5px);
+}
+
+/* Enhanced Buttons */
+.repo-toggle-btn {
+  padding: 12px 24px;
+  margin: 0 8px;
+  border: 2px solid;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: "Google Sans Medium", sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.repo-toggle-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.repo-toggle-btn:hover::before {
+  left: 100%;
+}
+
+.repo-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.repo-toggle-btn:active {
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
+/* Enhanced Input and Select Styles */
+.repositories-controls input,
+.repositories-controls select {
+  padding: 12px 18px;
+  border: 2px solid;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-family: "Google Sans Regular", sans-serif;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  min-width: 220px;
+  position: relative;
+}
+
+.repositories-controls input:focus,
+.repositories-controls select:focus {
+  outline: none;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-width: 2px;
+}
+
+.repositories-controls input::placeholder {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.repositories-controls input:focus::placeholder {
+  opacity: 0.5;
+}
+
+/* Enhanced Messages */
+.no-repos-message {
+  text-align: center;
+  margin: 60px 0;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.no-repos-message p {
+  font-size: 1.1rem;
+  font-family: "Google Sans Regular", sans-serif;
+  margin: 0;
+}
+
+.view-all-repos {
+  margin-top: 40px;
+  text-align: center;
+  animation: fadeIn 0.6s ease-out 0.3s both;
+}
+
+.view-all-repos button {
+  padding: 15px 30px;
+  border: 2px solid;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  font-family: "Google Sans Medium", sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.view-all-repos button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.view-all-repos button:hover::before {
+  left: 100%;
+}
+
+.view-all-repos button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 1380px) {
+  .repositories-header {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+  }
+  
+  .repositories-subtitle {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+  }
+  
+  .repositories-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .repositories-section {
+    padding: 0 15px;
+    margin: 40px 0;
+  }
+  
+  .repositories-controls {
+    padding: 20px;
+    gap: 15px;
+  }
+  
+  .repositories-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 18px;
+  }
+  
+  .search-sort-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+  
+  .repositories-controls input,
+  .repositories-controls select {
+    width: 100%;
+    max-width: 320px;
+    min-width: unset;
+  }
+  
+  .control-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .repo-toggle-btn {
+    padding: 10px 20px;
+    margin: 0 5px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .repositories-section {
+    padding: 0 10px;
+    margin: 30px 0;
+  }
+  
+  .repositories-header {
+    font-size: 24px;
+  }
+  
+  .repositories-subtitle {
+    font-size: 13px;
+    padding: 0 10px;
+  }
+  
+  .repositories-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .repositories-controls {
+    padding: 15px;
+  }
+  
+  .control-row {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .search-sort-row {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .search-sort-row input,
+  .search-sort-row select {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .repo-toggle-btn {
+    width: 100%;
+    max-width: 280px;
+    margin: 0;
+  }
+  
+  .repositories-controls input,
+  .repositories-controls select {
+    max-width: 280px;
+  }
+}
+
+/* Keyframe Animations */
+@keyframes fadeInUp {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromTop {
+  0% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInGrid {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUpStagger {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes textGlow {
+  0% {
+    text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+  }
+  100% {
+    text-shadow: 0 0 20px rgba(118, 75, 162, 0.8), 0 0 30px rgba(102, 126, 234, 0.6);
+  }
+}
+
+@keyframes expandLine {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 60px;
+  }
+}
+
+/* Enhanced Visual Effects */
+.repositories-section::after {
+  content: '';
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(0deg, transparent 0%, rgba(102, 126, 234, 0.02) 100%);
+  pointer-events: none;
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .repositories-controls {
+    border: 2px solid;
+  }
+  
+  .repo-toggle-btn,
+  .repositories-controls input,
+  .repositories-controls select {
+    border-width: 3px;
+  }
+}
+
+/* Focus Indicators */
+.repo-toggle-btn:focus,
+.repositories-controls input:focus,
+.repositories-controls select:focus,
+.view-all-repos button:focus {
+  outline: 3px solid rgba(102, 126, 234, 0.5);
+  outline-offset: 2px;
+}

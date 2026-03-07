@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Act — AI Browser Agents · Aayush Mishra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:    #0a0a08;
+  --paper:  #f4f0e8;
+  --cream:  #ede9df;
+  --warm:   #e8e2d4;
+  --sand:   #d4ccb8;
+  --stone:  #8a8070;
+  --rust:   #c8410a;
+  --rust2:  #e05a20;
+  --gold:   #c9a84c;
+  --deep:   #1a1a14;
+  --mid:    #3d3830;
+  --light-ink: #5a5448;
+  --mono: 'DM Mono', monospace;
+  --display: 'Bebas Neue', sans-serif;
+  --serif: 'Fraunces', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  cursor: none;
+  overflow-x: hidden;
+}
+#cursor {
+  position: fixed; width: 10px; height: 10px;
+  background: var(--rust); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: width .2s, height .2s;
+  mix-blend-mode: multiply;
+}
+#cursor-ring {
+  position: fixed; width: 36px; height: 36px;
+  border: 1.5px solid var(--rust); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: width .25s, height .25s, opacity .2s;
+  opacity: 0.5;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9000; opacity: 1;
+}
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--rust); }
+
+/* MARQUEE */
+.marquee-strip {
+  background: var(--rust); color: var(--paper);
+  padding: 9px 0; overflow: hidden; white-space: nowrap;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  position: relative; z-index: 200;
+}
+.marquee-inner { display: inline-flex; animation: marquee 28s linear infinite; }
+.marquee-inner span { padding: 0 36px; opacity: 0.85; }
+.marquee-inner .sep { opacity: 0.4; padding: 0; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 48px; mix-blend-mode: multiply;
+}
+.nav-logo { font-family: var(--display); font-size: 22px; letter-spacing: 0.12em; color: var(--ink); text-decoration: none; }
+.nav-logo em { font-style: normal; color: var(--rust); }
+.nav-right { display: flex; align-items: center; gap: 32px; }
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid); text-decoration: none; transition: color .2s; }
+.nav-links a:hover { color: var(--rust); }
+.nav-tag { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rust); border: 1px solid var(--rust); padding: 5px 12px; border-radius: 2px; }
+
+/* HERO */
+#hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; position: relative; overflow: hidden; }
+.hero-left {
+  background: var(--ink); display: flex; flex-direction: column;
+  justify-content: flex-end; padding: 80px 56px 64px; position: relative; overflow: hidden;
+}
+.hero-left::before {
+  content: ''; position: absolute; top: -20%; right: -10%;
+  width: 420px; height: 420px;
+  background-image: radial-gradient(circle, rgba(200,65,10,0.18) 1px, transparent 1px);
+  background-size: 18px 18px; border-radius: 50%; transform: rotate(15deg);
+}
+.hero-eyebrow {
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--rust2); margin-bottom: 28px;
+  display: flex; align-items: center; gap: 16px;
+  animation: fadeInUp 1s 0.1s both;
+}
+.hero-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--rust2); }
+.hero-h1 {
+  font-family: var(--display);
+  font-size: clamp(80px, 10vw, 140px);
+  line-height: 0.88; letter-spacing: 0.04em; color: var(--paper);
+  margin-bottom: 48px; animation: fadeInUp 1s 0.2s both;
+}
+.hero-h1 .accent-line { display: block; -webkit-text-stroke: 1px var(--rust); color: transparent; }
+.hero-h1 .solid-line { display: block; }
+.hero-desc {
+  font-family: var(--mono); font-size: 12px; color: var(--stone);
+  line-height: 1.9; max-width: 340px;
+  border-left: 2px solid var(--rust); padding-left: 20px;
+  animation: fadeInUp 1s 0.35s both;
+}
+.hero-ctas { display: flex; gap: 16px; margin-top: 48px; animation: fadeInUp 1s 0.45s both; }
+.btn-a {
+  background: var(--rust); color: var(--paper); font-family: var(--mono);
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 13px 28px; text-decoration: none; border: none; cursor: none;
+  transition: background .2s, transform .15s; display: inline-block;
+}
+.btn-a:hover { background: var(--rust2); transform: translateY(-2px); }
+.btn-b {
+  background: transparent; color: var(--sand); font-family: var(--mono);
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 12px 28px; border: 1px solid rgba(255,255,255,0.15);
+  text-decoration: none; cursor: none; transition: border-color .2s, color .2s; display: inline-block;
+}
+.btn-b:hover { border-color: var(--rust); color: var(--rust2); }
+.hero-right {
+  background: var(--cream); display: flex; flex-direction: column;
+  justify-content: center; padding: 100px 56px 64px; position: relative;
+  border-left: 1px solid var(--sand);
+}
+.hero-right::before {
+  content: 'NOVA ACT'; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) rotate(-90deg);
+  font-family: var(--display); font-size: 120px; color: rgba(0,0,0,0.03);
+  letter-spacing: 0.1em; white-space: nowrap; pointer-events: none;
+}
+.hero-stat-list { list-style: none; }
+.hero-stat-item {
+  display: flex; align-items: baseline; gap: 20px;
+  padding: 28px 0; border-bottom: 1px solid var(--sand);
+  animation: fadeInRight 0.8s both;
+}
+.hero-stat-item:nth-child(1) { animation-delay:.3s; }
+.hero-stat-item:nth-child(2) { animation-delay:.45s; }
+.hero-stat-item:nth-child(3) { animation-delay:.6s; }
+.hero-stat-item:nth-child(4) { animation-delay:.75s; border-bottom:none; }
+.stat-big { font-family: var(--display); font-size: 56px; line-height: 1; color: var(--rust); letter-spacing: 0.02em; min-width: 100px; }
+.stat-label { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--ink); font-style: italic; display: block; margin-bottom: 4px; }
+.stat-sub { font-size: 11px; color: var(--stone); letter-spacing: 0.06em; }
+@keyframes fadeInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeInRight { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+
+/* SECTION CHROME */
+.sw { max-width: 1200px; margin: 0 auto; padding: 120px 56px; }
+.sw.narrow { max-width: 900px; }
+.s-label { display: flex; align-items: center; gap: 14px; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--rust); margin-bottom: 20px; }
+.s-label-num { color: var(--stone); opacity: 0.6; }
+.s-label::after { content: ''; flex: 1; max-width: 60px; height: 1px; background: var(--rust); opacity: 0.4; }
+.s-title { font-family: var(--display); font-size: clamp(48px,7vw,88px); line-height: 0.9; letter-spacing: 0.04em; color: var(--ink); margin-bottom: 20px; }
+.s-title .hl { color: var(--rust); }
+.s-title .outline { -webkit-text-stroke: 1.5px var(--ink); color: transparent; }
+.s-intro { font-family: var(--serif); font-size: 18px; font-weight: 300; font-style: italic; color: var(--light-ink); max-width: 560px; line-height: 1.6; margin-bottom: 64px; }
+.hr-full { border: none; border-top: 1px solid var(--sand); margin: 0; }
+
+/* OVERVIEW */
+.overview-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 2px; background: var(--sand); border: 1px solid var(--sand); }
+.overview-main { background: var(--paper); padding: 56px; }
+.overview-main h3 { font-family: var(--serif); font-size: 28px; font-weight: 700; font-style: italic; color: var(--ink); margin-bottom: 20px; line-height: 1.2; }
+.overview-main p { font-size: 13px; color: var(--mid); line-height: 1.9; margin-bottom: 16px; }
+.overview-side { background: var(--cream); display: flex; flex-direction: column; gap: 2px; }
+.osi { background: var(--paper); padding: 32px; flex: 1; transition: background .2s; }
+.osi:hover { background: var(--warm); }
+.osi-icon { font-size: 22px; margin-bottom: 12px; }
+.osi-title { font-family: var(--serif); font-size: 15px; font-weight: 700; font-style: italic; color: var(--ink); margin-bottom: 8px; }
+.osi-body { font-size: 11px; color: var(--stone); line-height: 1.8; }
+
+/* SHIFT */
+.shift-bg { background: var(--ink); padding: 100px 0; }
+.shift-wrap { max-width: 1200px; margin: 0 auto; padding: 0 56px; }
+.shift-heading { font-family: var(--display); font-size: clamp(48px,6vw,80px); letter-spacing: 0.04em; color: var(--paper); line-height: 0.9; margin-bottom: 64px; }
+.shift-heading span { color: var(--rust); }
+.shift-grid { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; align-items: stretch; }
+.shift-col { border: 1px solid rgba(255,255,255,0.08); padding: 48px; }
+.shift-col.left { border-right: none; }
+.shift-col.right { border-left: none; border-color: rgba(200,65,10,0.3); }
+.shift-badge { display: inline-block; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; padding: 4px 12px; margin-bottom: 24px; border-radius: 2px; }
+.shift-col.left .shift-badge { background: rgba(255,255,255,0.06); color: var(--stone); }
+.shift-col.right .shift-badge { background: rgba(200,65,10,0.15); color: var(--rust2); }
+.shift-col-title { font-family: var(--serif); font-size: 22px; font-weight: 700; font-style: italic; color: var(--paper); margin-bottom: 32px; }
+.shift-items { list-style: none; }
+.shift-items li { font-size: 12px; color: var(--stone); padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 14px; align-items: flex-start; }
+.shift-items li:last-child { border-bottom: none; }
+.si-x { color: #5a3030; font-size: 10px; margin-top: 3px; }
+.si-c { color: var(--rust); font-size: 10px; margin-top: 3px; }
+.shift-mid { display: flex; align-items: center; justify-content: center; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); }
+.shift-mid-inner { font-family: var(--display); font-size: 32px; color: var(--rust); letter-spacing: 0.1em; writing-mode: vertical-lr; }
+
+/* ARCHITECTURE */
+.arch-split { display: grid; grid-template-columns: 340px 1fr; gap: 80px; align-items: start; }
+.arch-flow-item { display: flex; gap: 20px; align-items: stretch; }
+.arch-flow-left { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+.arch-flow-num { width: 36px; height: 36px; background: var(--ink); color: var(--paper); font-family: var(--display); font-size: 14px; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; transition: background .2s; }
+.arch-flow-item:hover .arch-flow-num { background: var(--rust); }
+.arch-flow-line { width: 1px; flex: 1; min-height: 20px; background: var(--sand); }
+.arch-flow-content { padding: 8px 0 28px; flex: 1; }
+.arch-flow-title { font-family: var(--serif); font-size: 14px; font-weight: 700; font-style: italic; color: var(--ink); margin-bottom: 4px; }
+.arch-flow-desc { font-size: 11px; color: var(--stone); line-height: 1.7; }
+.arch-cards { display: flex; flex-direction: column; gap: 2px; background: var(--sand); }
+.arch-card { background: var(--paper); padding: 36px 40px; border-left: 3px solid transparent; transition: border-color .2s, background .2s; cursor: default; }
+.arch-card:hover { border-left-color: var(--rust); background: var(--cream); }
+.arch-card-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rust); margin-bottom: 10px; }
+.arch-card-title { font-family: var(--serif); font-size: 18px; font-weight: 700; font-style: italic; color: var(--ink); margin-bottom: 10px; }
+.arch-card-body { font-size: 12px; color: var(--mid); line-height: 1.8; }
+
+/* AGENT LOOP */
+.loop-bg { background: var(--deep); padding: 100px 0; position: relative; overflow: hidden; }
+.loop-bg::before { content: 'LOOP'; position: absolute; bottom: -20px; right: -20px; font-family: var(--display); font-size: 300px; color: rgba(255,255,255,0.015); letter-spacing: 0.05em; line-height: 1; pointer-events: none; }
+.loop-inner { max-width: 1200px; margin: 0 auto; padding: 0 56px; }
+.loop-heading { font-family: var(--display); font-size: clamp(44px,5vw,72px); letter-spacing: 0.04em; color: var(--paper); line-height: 0.9; margin-bottom: 64px; }
+.loop-heading span { color: var(--rust); }
+.loop-steps { display: grid; grid-template-columns: repeat(5,1fr); gap: 2px; background: rgba(255,255,255,0.06); margin-bottom: 60px; }
+.loop-step { background: var(--deep); padding: 40px 28px; text-align: center; position: relative; transition: background .2s; cursor: default; }
+.loop-step:hover { background: rgba(200,65,10,0.08); }
+.loop-step::after { content: '›'; position: absolute; right: -11px; top: 50%; transform: translateY(-50%); color: var(--rust); font-size: 18px; z-index: 2; }
+.loop-step:last-child::after { display: none; }
+.loop-num { font-family: var(--display); font-size: 48px; color: rgba(200,65,10,0.15); line-height: 1; margin-bottom: 16px; letter-spacing: 0.05em; }
+.loop-step-icon { font-size: 24px; margin-bottom: 14px; }
+.loop-step-title { font-family: var(--serif); font-size: 13px; font-weight: 700; font-style: italic; color: var(--paper); margin-bottom: 8px; }
+.loop-step-desc { font-size: 10px; color: var(--stone); line-height: 1.7; }
+
+/* CODE */
+.code-wrap { background: var(--ink); overflow: hidden; margin: 28px 0; border-left: 3px solid var(--rust); }
+.code-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); }
+.code-bar-dots { display: flex; gap: 6px; }
+.code-bar-dots span { width: 9px; height: 9px; border-radius: 50%; }
+.code-bar-dots span:nth-child(1) { background: #ff5f57; }
+.code-bar-dots span:nth-child(2) { background: #febc2e; }
+.code-bar-dots span:nth-child(3) { background: #28c840; }
+.code-bar-file { font-size: 10px; color: var(--stone); letter-spacing: 0.08em; font-family: var(--mono); }
+.code-content { padding: 28px; font-family: var(--mono); font-size: 12px; line-height: 1.8; overflow-x: auto; color: #a8a090; }
+.code-content pre { white-space: pre; }
+.ck { color: #c084fc; } .cf { color: #7dd3fc; } .cs { color: #86efac; } .cc { color: #3d3830; } .cn { color: #fb923c; } .cv { color: #e8e2d4; }
+
+/* PLAYGROUND */
+.pg-header { background: var(--ink); padding: 80px 56px 60px; position: relative; overflow: hidden; }
+.pg-header::after { content: ''; position: absolute; bottom: 0; left: 56px; right: 56px; height: 1px; background: linear-gradient(90deg, var(--rust), transparent); }
+.pg-title { font-family: var(--display); font-size: clamp(44px,6vw,80px); letter-spacing: 0.04em; color: var(--paper); line-height: 0.9; margin-bottom: 20px; }
+.pg-sub { font-size: 12px; color: var(--stone); max-width: 500px; line-height: 1.8; }
+.pg-body { padding: 56px; background: var(--cream); }
+.pg-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--stone); margin-bottom: 10px; }
+.pg-row { display: flex; gap: 2px; margin-bottom: 20px; }
+.pg-input { flex: 1; background: var(--ink); color: var(--paper); border: none; padding: 16px 20px; font-family: var(--mono); font-size: 13px; outline: none; cursor: none; transition: box-shadow .2s; }
+.pg-input:focus { box-shadow: inset 0 0 0 1px var(--rust); }
+.pg-input::placeholder { color: var(--stone); opacity: 0.5; }
+.pg-run { background: var(--rust); color: var(--paper); border: none; padding: 16px 32px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; cursor: none; transition: background .2s; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.pg-run:hover:not(:disabled) { background: var(--rust2); }
+.pg-run:disabled { opacity: 0.5; }
+.pg-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 36px; }
+.pg-preset { background: transparent; border: 1px solid var(--sand); color: var(--mid); padding: 6px 16px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; cursor: none; transition: all .2s; }
+.pg-preset:hover { border-color: var(--rust); color: var(--rust); background: rgba(200,65,10,0.05); }
+.terminal-wrap { background: var(--ink); border-left: 3px solid var(--rust); }
+.terminal-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.terminal-title { font-size: 10px; color: var(--stone); letter-spacing: 0.1em; }
+.terminal-status { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--stone); }
+.t-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--stone); transition: background .3s; }
+.t-dot.run { background: var(--gold); animation: blink .8s infinite; }
+.t-dot.ok { background: #22c55e; }
+.t-dot.err { background: #ef4444; }
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+.terminal-body { padding: 24px; font-family: var(--mono); font-size: 11.5px; line-height: 2; min-height: 260px; max-height: 340px; overflow-y: auto; }
+.t-line { display: flex; gap: 16px; }
+.t-time { color: rgba(90,84,72,0.5); min-width: 72px; }
+.t-tag { font-weight: 500; min-width: 56px; }
+.t-INF { color: #7dd3fc; } .t-ACT { color: #c084fc; } .t-OK { color: #86efac; } .t-WRN { color: var(--gold); } .t-ERR { color: #f87171; }
+.t-msg { color: #6b6456; flex: 1; }
+
+/* IMPLEMENTATION */
+.impl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--sand); }
+.impl-left { background: var(--paper); padding: 56px; }
+.impl-right { background: var(--cream); padding: 56px; }
+.tree-block { background: var(--ink); padding: 32px 28px; font-family: var(--mono); font-size: 12px; line-height: 2.2; border-left: 3px solid var(--gold); }
+.tr { color: var(--paper); font-family: var(--display); font-size: 15px; letter-spacing: 0.08em; }
+.tf { color: #7dd3fc; } .td { color: rgba(90,84,72,0.5); margin-left: 6px; font-size: 10px; } .tk { color: var(--stone); }
+.col-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rust); margin-bottom: 20px; }
+
+/* STEPS */
+.steps-bg { background: var(--ink); padding: 100px 0; }
+.steps-inner { max-width: 1200px; margin: 0 auto; padding: 0 56px; }
+.steps-heading { font-family: var(--display); font-size: clamp(44px,5vw,72px); letter-spacing: 0.04em; color: var(--paper); line-height: 0.9; margin-bottom: 64px; }
+.steps-heading em { font-style: normal; color: var(--rust); }
+.steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; background: rgba(255,255,255,0.05); }
+.step-card { background: #0d0d0a; padding: 36px 28px; transition: background .2s; cursor: default; }
+.step-card:hover { background: rgba(200,65,10,0.06); }
+.step-num { font-family: var(--display); font-size: 60px; color: rgba(200,65,10,0.12); line-height: 1; margin-bottom: 20px; letter-spacing: 0.05em; }
+.step-title { font-family: var(--serif); font-size: 15px; font-weight: 700; font-style: italic; color: var(--paper); margin-bottom: 12px; }
+.step-desc { font-size: 11px; color: var(--stone); line-height: 1.7; margin-bottom: 14px; }
+.step-cmd { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); padding: 8px 12px; font-family: var(--mono); font-size: 10px; color: var(--rust2); border-radius: 2px; word-break: break-all; }
+
+/* BENEFITS */
+.benefits-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--sand); }
+.benefit { background: var(--paper); padding: 48px 40px; position: relative; overflow: hidden; transition: background .2s; cursor: default; }
+.benefit:hover { background: var(--cream); }
+.benefit-bg-num { position: absolute; bottom: -16px; right: -8px; font-family: var(--display); font-size: 100px; color: rgba(0,0,0,0.04); line-height: 1; pointer-events: none; }
+.benefit-icon { font-size: 24px; margin-bottom: 20px; }
+.benefit-title { font-family: var(--serif); font-size: 19px; font-weight: 700; font-style: italic; color: var(--ink); margin-bottom: 14px; line-height: 1.2; }
+.benefit-body { font-size: 12px; color: var(--mid); line-height: 1.8; }
+.benefit-tag { display: inline-block; margin-top: 20px; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--rust); border-bottom: 1px solid var(--rust); padding-bottom: 2px; opacity: 0.7; }
+
+/* FUTURE */
+.future-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 80px; align-items: start; }
+.future-intro h3 { font-family: var(--serif); font-size: 28px; font-weight: 700; font-style: italic; color: var(--ink); line-height: 1.2; margin-bottom: 20px; }
+.future-intro p { font-size: 12px; color: var(--stone); line-height: 1.9; }
+.future-cards { display: flex; flex-direction: column; gap: 2px; background: var(--sand); }
+.future-card { background: var(--paper); padding: 28px 36px; display: flex; gap: 24px; align-items: flex-start; transition: background .2s, padding-left .2s; cursor: default; border-left: 3px solid transparent; }
+.future-card:hover { background: var(--cream); border-left-color: var(--rust); padding-left: 40px; }
+.fc-icon { font-size: 20px; padding-top: 2px; flex-shrink: 0; }
+.fc-title { font-family: var(--serif); font-size: 15px; font-weight: 700; font-style: italic; color: var(--ink); margin-bottom: 6px; }
+.fc-body { font-size: 11px; color: var(--mid); line-height: 1.7; }
+
+/* FOOTER */
+footer { background: var(--ink); padding: 80px 56px 48px; position: relative; overflow: hidden; }
+footer::before { content: 'AAYUSH'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: var(--display); font-size: 200px; color: rgba(255,255,255,0.015); letter-spacing: 0.1em; white-space: nowrap; pointer-events: none; }
+.footer-top { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 56px; padding-bottom: 56px; border-bottom: 1px solid rgba(255,255,255,0.07); margin-bottom: 40px; }
+.f-name { font-family: var(--display); font-size: 42px; letter-spacing: 0.08em; color: var(--paper); line-height: 1; margin-bottom: 6px; }
+.f-role { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rust2); margin-bottom: 20px; }
+.f-bio { font-size: 12px; color: var(--stone); line-height: 1.8; max-width: 240px; }
+.footer-col-title { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rust); margin-bottom: 20px; }
+.fl { list-style: none; }
+.fl li { margin-bottom: 12px; }
+.fl a { font-size: 12px; color: var(--stone); text-decoration: none; transition: color .2s; display: flex; align-items: center; gap: 8px; }
+.fl a::before { content: '→'; font-size: 10px; opacity: 0.4; }
+.fl a:hover { color: var(--paper); }
+.fl a:hover::before { opacity: 1; color: var(--rust); }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: rgba(90,84,72,0.35); letter-spacing: 0.08em; }
+.tech-pill { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); padding: 3px 10px; border-radius: 2px; font-size: 9px; letter-spacing: 0.08em; color: var(--stone); }
+
+/* REVEAL */
+.sr { opacity: 0; transform: translateY(28px); transition: opacity .7s cubic-bezier(.25,.46,.45,.94), transform .7s cubic-bezier(.25,.46,.45,.94); }
+.sr.vis { opacity: 1; transform: translateY(0); }
+.sr-d1 { transition-delay: .1s; } .sr-d2 { transition-delay: .2s; } .sr-d3 { transition-delay: .3s; }
+
+@media (max-width: 900px) {
+  #hero { grid-template-columns: 1fr; }
+  .hero-right { display: none; }
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .sw { padding: 80px 24px; }
+  .shift-grid { grid-template-columns: 1fr; }
+  .shift-mid { display: none; }
+  .arch-split { grid-template-columns: 1fr; }
+  .loop-steps { grid-template-columns: 1fr 1fr; }
+  .impl-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: 1fr 1fr; }
+  .benefits-grid { grid-template-columns: 1fr; }
+  .future-layout { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; gap: 40px; }
+  .footer-bottom { flex-direction: column; gap: 16px; }
+  .overview-layout { grid-template-columns: 1fr; }
+  .pg-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span>Amazon Nova Act</span><span class="sep">◆</span>
+    <span>AI Browser Automation</span><span class="sep">◆</span>
+    <span>Aayush Mishra</span><span class="sep">◆</span>
+    <span>SDET · AI-Driven Testing</span><span class="sep">◆</span>
+    <span>Natural Language → Browser Control</span><span class="sep">◆</span>
+    <span>FastAPI + Playwright + AWS Bedrock</span><span class="sep">◆</span>
+    <span>Self-Healing Automation</span><span class="sep">◆</span>
+    <span>Amazon Nova Act</span><span class="sep">◆</span>
+    <span>AI Browser Automation</span><span class="sep">◆</span>
+    <span>Aayush Mishra</span><span class="sep">◆</span>
+    <span>SDET · AI-Driven Testing</span><span class="sep">◆</span>
+    <span>Natural Language → Browser Control</span><span class="sep">◆</span>
+    <span>FastAPI + Playwright + AWS Bedrock</span><span class="sep">◆</span>
+    <span>Self-Healing Automation</span><span class="sep">◆</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#"><em>NOVA</em>ACT</a>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#playground">Playground</a></li>
+      <li><a href="#implementation">Build</a></li>
+      <li><a href="#setup">Setup</a></li>
+    </ul>
+    <div class="nav-tag">Aayush Mishra · SDET</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Amazon Nova Act · 2024</div>
+    <h1 class="hero-h1">
+      <span class="solid-line">BROW&shy;SER</span>
+      <span class="solid-line">AGENTS</span>
+      <span class="accent-line">THAT THINK</span>
+    </h1>
+    <p class="hero-desc">AI-driven browser automation that understands intent, not selectors. No XPath. No CSS queries. Just natural language — and a Nova LLM reasoning through every step like a senior QA engineer.</p>
+    <div class="hero-ctas">
+      <a href="#playground" class="btn-a">▶ Try the Playground</a>
+      <a href="#architecture" class="btn-b">Explore Architecture</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <ul class="hero-stat-list">
+      <li class="hero-stat-item">
+        <div class="stat-big">NL</div>
+        <div><span class="stat-label">Natural Language Input</span><span class="stat-sub">Plain English → browser commands</span></div>
+      </li>
+      <li class="hero-stat-item">
+        <div class="stat-big">0×</div>
+        <div><span class="stat-label">Selector Maintenance</span><span class="stat-sub">No XPath, CSS, or brittle locators</span></div>
+      </li>
+      <li class="hero-stat-item">
+        <div class="stat-big">∞</div>
+        <div><span class="stat-label">Self-Healing Tests</span><span class="stat-sub">AI adapts to every UI change</span></div>
+      </li>
+      <li class="hero-stat-item">
+        <div class="stat-big">AWS</div>
+        <div><span class="stat-label">Powered by Bedrock</span><span class="stat-sub">Nova LLM · Vision + Language model</span></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<hr class="hr-full">
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="sw sr">
+    <div class="s-label"><span class="s-label-num">01</span> What is Nova Act</div>
+    <h2 class="s-title">The <span class="hl">AI</span> that <span class="outline">drives</span> your browser.</h2>
+    <p class="s-intro">Nova Act is Amazon's agent SDK that converts plain-English instructions into real browser actions — powered by a multimodal LLM that sees, reasons, and acts.</p>
+    <div class="overview-layout">
+      <div class="overview-main">
+        <h3>From instruction to action — without writing a single selector.</h3>
+        <p>Traditional automation (Selenium, Playwright scripts, Cypress) requires engineers to write brittle locators that break on every UI change. Maintaining them costs more than writing them. Nova Act eliminates this entirely.</p>
+        <p>Instead, you describe what you want in plain English: <em style="color:var(--rust);font-style:italic;">"Open amazon.com, search for laptop, filter by 4 stars."</em> The Nova LLM interprets the intent, decomposes it into atomic steps, and executes each one via Playwright against a real Chromium browser.</p>
+        <p>After every action, the agent captures a screenshot + DOM snapshot, reasons about the result, and decides the next move. It's not a script. It's an autonomous agent that thinks.</p>
+        <div class="code-wrap" style="margin-top:32px;">
+          <div class="code-bar"><div class="code-bar-dots"><span></span><span></span><span></span></div><div class="code-bar-file">nova_act_hello.py</div></div>
+          <div class="code-content"><pre><span class="ck">from</span> <span class="cf">nova_act</span> <span class="ck">import</span> <span class="cv">NovaAct</span>
+
+<span class="cc"># That's it. One line. The agent handles everything else.</span>
+<span class="ck">with</span> <span class="cf">NovaAct</span>(<span class="cv">starting_page</span>=<span class="cs">"https://amazon.com"</span>) <span class="ck">as</span> <span class="cv">nova</span>:
+    <span class="cv">nova</span>.<span class="cf">act</span>(<span class="cs">"Search for laptop and click the first result"</span>)</pre></div>
+        </div>
+      </div>
+      <div class="overview-side">
+        <div class="osi"><div class="osi-icon">🧠</div><div class="osi-title">LLM Reasoning</div><div class="osi-body">Nova LLM receives screenshot + DOM and reasons about which element to interact with — no selectors needed at any step.</div></div>
+        <div class="osi"><div class="osi-icon">🔄</div><div class="osi-title">Observation Loop</div><div class="osi-body">After every action, the agent observes the new page state before planning its next move — adapting dynamically to any result.</div></div>
+        <div class="osi"><div class="osi-icon">🎭</div><div class="osi-title">Playwright Core</div><div class="osi-body">Real Chromium automation under the hood. Full JS execution, network access, multi-tab support.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARADIGM SHIFT -->
+<div class="shift-bg" id="shift">
+  <div class="shift-wrap">
+    <div class="s-label" style="color:var(--rust2);margin-bottom:20px;"><span class="s-label-num" style="color:var(--stone)">02</span> Paradigm Shift</div>
+    <h2 class="shift-heading">THE<br><span>GREAT SHIFT</span><br>IN TESTING.</h2>
+    <div class="shift-grid">
+      <div class="shift-col left">
+        <span class="shift-badge">Legacy</span>
+        <div class="shift-col-title">Selenium / Playwright Scripts / Cypress</div>
+        <ul class="shift-items">
+          <li><span class="si-x">✕</span> CSS selectors &amp; XPath required for every element</li>
+          <li><span class="si-x">✕</span> Breaks on every UI refactor or class rename</li>
+          <li><span class="si-x">✕</span> Manual script authoring by senior engineers only</li>
+          <li><span class="si-x">✕</span> High maintenance cost — tests rot over time</li>
+          <li><span class="si-x">✕</span> Zero contextual or semantic understanding</li>
+          <li><span class="si-x">✕</span> Business users cannot write or read test cases</li>
+          <li><span class="si-x">✕</span> Flaky timing issues and brittle explicit waits</li>
+        </ul>
+      </div>
+      <div class="shift-mid"><div class="shift-mid-inner">→</div></div>
+      <div class="shift-col right">
+        <span class="shift-badge">AI-Native</span>
+        <div class="shift-col-title">Amazon Nova Act · Agent SDK</div>
+        <ul class="shift-items">
+          <li><span class="si-c">✓</span> Plain English instructions — no selectors ever</li>
+          <li><span class="si-c">✓</span> Self-heals automatically when UI changes</li>
+          <li><span class="si-c">✓</span> Anyone can write tests — no code required</li>
+          <li><span class="si-c">✓</span> Near-zero maintenance — AI adapts each run</li>
+          <li><span class="si-c">✓</span> Semantic + visual page understanding</li>
+          <li><span class="si-c">✓</span> PMs and QAs can own test scenarios</li>
+          <li><span class="si-c">✓</span> Intelligent waits — agent knows when to proceed</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="sw sr">
+    <div class="s-label"><span class="s-label-num">03</span> System Architecture</div>
+    <h2 class="s-title">Nine <span class="hl">layers</span>,<br>one <span class="outline">thought.</span></h2>
+    <p class="s-intro">From browser input to AI reasoning to Playwright execution — the complete request lifecycle of a Nova Act agent session.</p>
+    <div class="arch-split">
+      <div class="arch-flow">
+        <div class="arch-flow-item"><div class="arch-flow-left"><div class="arch-flow-num">1</div><div class="arch-flow-line"></div></div><div class="arch-flow-content"><div class="arch-flow-title">User Interface</div><div class="arch-flow-desc">HTML/CSS/JS — instruction input, real-time log display</div></div></div>
+        <div class="arch-flow-item"><div class="arch-flow-left"><div class="arch-flow-num">2</div><div class="arch-flow-line"></div></div><div class="arch-flow-content"><div class="arch-flow-title">FastAPI Backend</div><div class="arch-flow-desc">Python server — POST endpoint, validation, async runner</div></div></div>
+        <div class="arch-flow-item"><div class="arch-flow-left"><div class="arch-flow-num">3</div><div class="arch-flow-line"></div></div><div class="arch-flow-content"><div class="arch-flow-title">Nova Act SDK</div><div class="arch-flow-desc">Core Python SDK — session management, agent lifecycle</div></div></div>
+        <div class="arch-flow-item"><div class="arch-flow-left"><div class="arch-flow-num">4</div><div class="arch-flow-line"></div></div><div class="arch-flow-content"><div class="arch-flow-title">Nova LLM (Bedrock)</div><div class="arch-flow-desc">Amazon's vision-language model — intent interpretation</div></div></div>
+        <div class="arch-flow-item"><div class="arch-flow-left"><div class="arch-flow-num">5</div><div class="arch-flow-line"></div></div><div class="arch-flow-content"><div class="arch-flow-title">Agent Planner</div><div class="arch-flow-desc">Decomposes goal → ordered atomic action sequence</div></div></div>
+        <div class="arch-flow-item"><div class="arch-flow-left"><div class="arch-flow-num">6</div><div class="arch-flow-line"></div></div><div class="arch-flow-content"><div class="arch-flow-title">Browser Controller</div><div class="arch-flow-desc">Routes commands to Playwright executor</div></div></div>
+        <div class="arch-flow-item"><div class="arch-flow-left"><div class="arch-flow-num">7</div><div class="arch-flow-line"></div></div><div class="arch-flow-content"><div class="arch-flow-title">Playwright Engine</div><div class="arch-flow-desc">Real Chromium — click, fill, navigate, scroll, wait</div></div></div>
+        <div class="arch-flow-item"><div class="arch-flow-left"><div class="arch-flow-num">8</div><div class="arch-flow-line"></div></div><div class="arch-flow-content"><div class="arch-flow-title">Target Web App</div><div class="arch-flow-desc">The live site being automated</div></div></div>
+        <div class="arch-flow-item"><div class="arch-flow-left"><div class="arch-flow-num" style="background:var(--rust)">9</div></div><div class="arch-flow-content"><div class="arch-flow-title" style="color:var(--rust)">Logs + Results</div><div class="arch-flow-desc">Streamed to UI · archived to S3</div></div></div>
+      </div>
+      <div class="arch-cards">
+        <div class="arch-card"><div class="arch-card-label">Layer 1–2 · Frontend + API</div><div class="arch-card-title">The Entry Gate</div><div class="arch-card-body">The browser UI accepts plain-English instructions and sends them via HTTP POST to FastAPI. The server validates the payload, extracts the instruction and starting URL, then spawns an async Nova Act session — streaming logs back to the client in near real-time.</div></div>
+        <div class="arch-card"><div class="arch-card-label">Layer 3–4 · SDK + LLM</div><div class="arch-card-title">The Intelligence Core</div><div class="arch-card-body">The Nova Act SDK initializes a browser session and sends the instruction to Amazon's Nova LLM via AWS Bedrock. The multimodal model receives the instruction alongside a screenshot and DOM snapshot — reasoning about intent like a senior QA engineer reading a test brief.</div></div>
+        <div class="arch-card"><div class="arch-card-label">Layer 5–7 · Planner + Browser</div><div class="arch-card-title">The Execution Engine</div><div class="arch-card-body">The agent planner converts LLM output into a typed action sequence: navigate → click → fill → press Enter. Each action maps to a Playwright API call against a real Chromium instance. After each step, a new screenshot is captured and fed back to the LLM — closing the observe-reason-act loop.</div></div>
+        <div class="arch-card"><div class="arch-card-label">Layer 8–9 · Target + Output</div><div class="arch-card-title">Results &amp; Observability</div><div class="arch-card-body">Execution logs, screenshots, action traces, and final page URL are returned to the frontend and optionally archived to Amazon S3. Each session produces a full audit trail — perfect for CI/CD gates, QA reports, or debugging complex agent behaviour.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENT LOOP -->
+<div class="loop-bg" id="internals">
+  <div class="loop-inner">
+    <div class="s-label" style="color:var(--rust2);margin-bottom:20px;"><span class="s-label-num" style="color:var(--stone)">04</span> Agent Internals</div>
+    <h2 class="loop-heading">THE AGENT<br><span>THINKS.</span></h2>
+    <div class="loop-steps">
+      <div class="loop-step"><div class="loop-num">01</div><div class="loop-step-icon">📝</div><div class="loop-step-title">Instruction</div><div class="loop-step-desc">Plain English task received and tokenized by Nova LLM</div></div>
+      <div class="loop-step"><div class="loop-num">02</div><div class="loop-step-icon">🧠</div><div class="loop-step-title">LLM Reasons</div><div class="loop-step-desc">Screenshot + DOM analyzed — intent resolved, next action chosen</div></div>
+      <div class="loop-step"><div class="loop-num">03</div><div class="loop-step-icon">📋</div><div class="loop-step-title">Plan Action</div><div class="loop-step-desc">Atomic typed command generated — click, fill, navigate, scroll</div></div>
+      <div class="loop-step"><div class="loop-num">04</div><div class="loop-step-icon">🖱️</div><div class="loop-step-title">Execute</div><div class="loop-step-desc">Playwright fires the command in real Chromium browser</div></div>
+      <div class="loop-step"><div class="loop-num">05</div><div class="loop-step-icon">👁️</div><div class="loop-step-title">Observe ↺</div><div class="loop-step-desc">New screenshot captured → loop repeats until goal complete</div></div>
+    </div>
+    <div class="code-wrap">
+      <div class="code-bar"><div class="code-bar-dots"><span></span><span></span><span></span></div><div class="code-bar-file">agent_loop_concept.py</div></div>
+      <div class="code-content"><pre><span class="cc"># Conceptual model of Nova Act's internal observe-reason-act loop</span>
+
+<span class="ck">def</span> <span class="cf">agent_loop</span>(<span class="cv">instruction</span>: <span class="cv">str</span>, <span class="cv">browser</span>) -> <span class="cv">Result</span>:
+    <span class="cv">goal_achieved</span> = <span class="ck">False</span>
+    <span class="cv">actions_taken</span> = []
+
+    <span class="ck">while not</span> <span class="cv">goal_achieved</span>:
+        <span class="cc"># ① OBSERVE — capture current page state</span>
+        <span class="cv">screenshot</span> = <span class="cv">browser</span>.<span class="cf">screenshot</span>()
+        <span class="cv">dom_tree</span>   = <span class="cv">browser</span>.<span class="cf">accessibility_tree</span>()
+
+        <span class="cc"># ② REASON — LLM decides next action</span>
+        <span class="cv">decision</span> = <span class="cv">nova_llm</span>.<span class="cf">reason</span>(
+            <span class="cv">instruction</span>=<span class="cv">instruction</span>,
+            <span class="cv">screenshot</span>=<span class="cv">screenshot</span>,
+            <span class="cv">dom</span>=<span class="cv">dom_tree</span>,
+            <span class="cv">history</span>=<span class="cv">actions_taken</span>
+        )
+
+        <span class="ck">if</span> <span class="cv">decision</span>.<span class="cv">type</span> == <span class="cs">"done"</span>:
+            <span class="ck">break</span>
+
+        <span class="cc"># ③ ACT — Playwright executes the command</span>
+        <span class="cv">browser</span>.<span class="cf">execute</span>(<span class="cv">decision</span>.<span class="cv">action</span>)
+        <span class="cv">actions_taken</span>.<span class="cf">append</span>(<span class="cv">decision</span>.<span class="cv">action</span>)
+
+    <span class="ck">return</span> <span class="cf">Result</span>(<span class="cv">actions</span>=<span class="cv">actions_taken</span>, <span class="cv">status</span>=<span class="cs">"success"</span>)</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYGROUND -->
+<section id="playground" style="background:var(--cream);border-top:1px solid var(--sand);border-bottom:1px solid var(--sand);">
+  <div class="pg-header">
+    <div class="s-label" style="color:var(--rust2);margin-bottom:20px;"><span class="s-label-num" style="color:var(--stone)">05</span> Interactive Demo</div>
+    <h2 class="pg-title">AGENT<br>PLAYGROUND.</h2>
+    <p class="pg-sub">Type any automation task in natural language. Watch the Nova Act agent reason through it — step by step, action by action. <span style="color:var(--rust2);">Connect your FastAPI backend for live browser execution.</span></p>
+  </div>
+  <div class="pg-body">
+    <div class="pg-label">Agent Instruction</div>
+    <div class="pg-row">
+      <input class="pg-input" id="agentInput" type="text" placeholder="e.g. Open amazon.com and search for laptop…" value="Open amazon.com and search for laptop"/>
+      <button class="pg-run" id="runBtn" onclick="runAgent()"><span id="runIcon">▶</span><span id="runText">Execute Agent</span></button>
+    </div>
+    <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--stone);margin-bottom:10px;">Quick Presets</div>
+    <div class="pg-presets">
+      <button class="pg-preset" onclick="sp('Open google.com and search for Playwright automation tutorial')">google search</button>
+      <button class="pg-preset" onclick="sp('Go to github.com and find trending Python repositories')">github trending</button>
+      <button class="pg-preset" onclick="sp('Navigate to wikipedia.org and search for Artificial Intelligence')">wikipedia lookup</button>
+      <button class="pg-preset" onclick="sp('Open amazon.com, search for headphones, filter by 4 stars and above')">amazon + filter</button>
+      <button class="pg-preset" onclick="sp('Go to news.ycombinator.com and list the top 5 headlines')">HN headlines</button>
+      <button class="pg-preset" onclick="sp('Open youtube.com and search for Nova Act AWS demo')">youtube search</button>
+    </div>
+    <div class="terminal-wrap">
+      <div class="terminal-bar">
+        <div class="terminal-title">nova-act · agent session log</div>
+        <div class="terminal-status"><div class="t-dot" id="tDot"></div><span id="tStatus">idle</span></div>
+      </div>
+      <div class="terminal-body" id="terminal">
+        <div class="t-line"><span class="t-time">00:00:00</span><span class="t-tag t-INF">INF</span><span class="t-msg">Nova Act agent initialized · Awaiting instruction · Press ▶ to begin</span></div>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding:18px 24px;background:rgba(201,168,76,0.06);border-left:3px solid var(--gold);font-size:11px;color:var(--stone);line-height:1.8;">
+      <strong style="color:var(--gold);letter-spacing:.08em;">⚠ REGION NOTE</strong> — The Nova Act visual Playground may be unavailable in certain regions (India included). Use the <strong style="color:var(--mid)">Nova Act Python SDK</strong> directly via CLI for full functionality. This demo simulates the agent reasoning flow end-to-end.
+    </div>
+  </div>
+</section>
+
+<!-- IMPLEMENTATION -->
+<section id="implementation">
+  <div class="sw sr">
+    <div class="s-label"><span class="s-label-num">06</span> My Implementation</div>
+    <h2 class="s-title">HOW I <span class="hl">BUILT</span><br>THIS <span class="outline">PROJECT.</span></h2>
+    <p class="s-intro">A FastAPI backend orchestrating Nova Act sessions, served through a minimal Jinja2 frontend — connected to AWS Bedrock via IAM credentials.</p>
+  </div>
+  <div class="impl-grid">
+    <div class="impl-left">
+      <div class="col-label">Project Structure</div>
+      <div class="tree-block">
+        <div class="tr">nova-act-web-agent/</div>
+        <div>│</div>
+        <div>├── <span class="tf">app.py</span><span class="td">← FastAPI + Nova Act runner</span></div>
+        <div>├── <span class="tf">templates/</span></div>
+        <div>│   └── <span class="tf">index.html</span><span class="td">← Jinja2 frontend</span></div>
+        <div>├── <span class="tf">static/</span></div>
+        <div>│   └── <span class="tf">style.css</span><span class="td">← Stylesheet</span></div>
+        <div>└── <span class="tk">requirements.txt</span><span class="td">← Python deps</span></div>
+      </div>
+      <div class="col-label" style="margin-top:36px;">Requirements</div>
+      <div class="code-wrap" style="margin-top:0;">
+        <div class="code-bar"><div class="code-bar-dots"><span></span><span></span><span></span></div><div class="code-bar-file">requirements.txt</div></div>
+        <div class="code-content"><pre><span class="cv">fastapi</span><span class="cc">==0.110.0</span>
+<span class="cv">uvicorn</span><span class="cc">==0.29.0</span>
+<span class="cv">nova-act</span><span class="cc">>=0.1.0</span>
+<span class="cv">playwright</span><span class="cc">>=1.44.0</span>
+<span class="cv">jinja2</span><span class="cc">==3.1.4</span>
+<span class="cv">boto3</span><span class="cc">>=1.34.0    </span><span class="cc"># S3 logging</span>
+<span class="cv">pydantic</span><span class="cc">==2.7.1</span></pre></div>
+      </div>
+    </div>
+    <div class="impl-right">
+      <div class="col-label">Backend — app.py</div>
+      <div class="code-wrap" style="margin-top:0;">
+        <div class="code-bar"><div class="code-bar-dots"><span></span><span></span><span></span></div><div class="code-bar-file">app.py</div></div>
+        <div class="code-content"><pre><span class="ck">from</span> <span class="cf">fastapi</span> <span class="ck">import</span> <span class="cv">FastAPI</span>, <span class="cv">Request</span>
+<span class="ck">from</span> <span class="cf">fastapi.templating</span> <span class="ck">import</span> <span class="cv">Jinja2Templates</span>
+<span class="ck">from</span> <span class="cf">fastapi.responses</span> <span class="ck">import</span> <span class="cv">JSONResponse</span>
+<span class="ck">from</span> <span class="cf">pydantic</span> <span class="ck">import</span> <span class="cv">BaseModel</span>
+<span class="ck">from</span> <span class="cf">nova_act</span> <span class="ck">import</span> <span class="cv">NovaAct</span>
+<span class="ck">import</span> <span class="cv">uvicorn</span>
+
+<span class="cv">app</span> = <span class="cf">FastAPI</span>(<span class="cv">title</span>=<span class="cs">"Nova Act Web Agent"</span>)
+<span class="cv">templates</span> = <span class="cf">Jinja2Templates</span>(<span class="cv">directory</span>=<span class="cs">"templates"</span>)
+
+<span class="ck">class</span> <span class="cf">AgentRequest</span>(<span class="cv">BaseModel</span>):
+    <span class="cv">instruction</span>: <span class="cv">str</span>
+    <span class="cv">starting_page</span>: <span class="cv">str</span> = <span class="cs">"https://google.com"</span>
+
+<span class="cc">@app.get("/")</span>
+<span class="ck">async def</span> <span class="cf">index</span>(<span class="cv">request</span>: <span class="cv">Request</span>):
+    <span class="ck">return</span> <span class="cv">templates</span>.<span class="cf">TemplateResponse</span>(
+        <span class="cs">"index.html"</span>, {<span class="cs">"request"</span>: <span class="cv">request</span>}
+    )
+
+<span class="cc">@app.post("/run-agent")</span>
+<span class="ck">async def</span> <span class="cf">run_agent</span>(<span class="cv">body</span>: <span class="cv">AgentRequest</span>):
+    <span class="ck">try</span>:
+        <span class="ck">with</span> <span class="cf">NovaAct</span>(
+            <span class="cv">starting_page</span>=<span class="cv">body</span>.<span class="cv">starting_page</span>,
+            <span class="cv">logs_directory</span>=<span class="cs">"./logs"</span>
+        ) <span class="ck">as</span> <span class="cv">nova</span>:
+            <span class="cv">result</span> = <span class="cv">nova</span>.<span class="cf">act</span>(<span class="cv">body</span>.<span class="cv">instruction</span>)
+        <span class="ck">return</span> <span class="cf">JSONResponse</span>({
+            <span class="cs">"status"</span>:  <span class="cs">"success"</span>,
+            <span class="cs">"actions"</span>: <span class="cv">result</span>.<span class="cv">actions_taken</span>,
+            <span class="cs">"url"</span>:     <span class="cv">result</span>.<span class="cv">final_url</span>,
+        })
+    <span class="ck">except</span> <span class="cv">Exception</span> <span class="ck">as</span> <span class="cv">e</span>:
+        <span class="ck">return</span> <span class="cf">JSONResponse</span>(
+            {<span class="cs">"status"</span>: <span class="cs">"error"</span>, <span class="cs">"message"</span>: <span class="cf">str</span>(<span class="cv">e</span>)},
+            <span class="cv">status_code</span>=<span class="cn">500</span>
+        )
+
+<span class="ck">if</span> <span class="cv">__name__</span> == <span class="cs">"__main__"</span>:
+    <span class="cf">uvicorn</span>.<span class="cf">run</span>(<span class="cv">app</span>, <span class="cv">host</span>=<span class="cs">"0.0.0.0"</span>, <span class="cv">port</span>=<span class="cn">8000</span>)</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SETUP -->
+<div class="steps-bg" id="setup">
+  <div class="steps-inner">
+    <div class="s-label" style="color:var(--rust2);margin-bottom:20px;"><span class="s-label-num" style="color:var(--stone)">07</span> Setup Guide</div>
+    <h2 class="steps-heading">UP AND<br>RUNNING IN<br><em>MINUTES.</em></h2>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">01</div><div class="step-title">Create Virtual Environment</div><div class="step-desc">Isolate dependencies in a clean Python environment before installing anything.</div><div class="step-cmd">python -m venv venv &amp;&amp; source venv/bin/activate</div></div>
+      <div class="step-card"><div class="step-num">02</div><div class="step-title">Install Dependencies</div><div class="step-desc">Install FastAPI, Nova Act SDK, Playwright, and all Python packages.</div><div class="step-cmd">pip install -r requirements.txt</div></div>
+      <div class="step-card"><div class="step-num">03</div><div class="step-title">Install Playwright</div><div class="step-desc">Download the Chromium browser binary that Nova Act will control.</div><div class="step-cmd">playwright install chromium</div></div>
+      <div class="step-card"><div class="step-num">04</div><div class="step-title">Create IAM User</div><div class="step-desc">AWS Console → IAM → Create User → Attach AmazonBedrockFullAccess → generate Access Key.</div><div class="step-cmd">AWS Console · IAM · Bedrock Access</div></div>
+      <div class="step-card"><div class="step-num">05</div><div class="step-title">Configure AWS Credentials</div><div class="step-desc">Set your AWS access key and secret — Nova Act uses Bedrock via these credentials.</div><div class="step-cmd">aws configure</div></div>
+      <div class="step-card"><div class="step-num">06</div><div class="step-title">Start FastAPI Server</div><div class="step-desc">Launch the backend in development mode with hot reload enabled.</div><div class="step-cmd">uvicorn app:app --reload --port 8000</div></div>
+      <div class="step-card"><div class="step-num">07</div><div class="step-title">Open in Browser</div><div class="step-desc">Navigate to the local server, type an instruction, click Execute Agent.</div><div class="step-cmd">http://localhost:8000</div></div>
+      <div class="step-card"><div class="step-num">08</div><div class="step-title">Run Your First Agent</div><div class="step-desc">Type any instruction in plain English and watch the Nova Act agent execute it live.</div><div class="step-cmd">"Search for laptop on amazon.com"</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BENEFITS -->
+<section id="benefits">
+  <div class="sw sr">
+    <div class="s-label"><span class="s-label-num">08</span> Why AI Automation</div>
+    <h2 class="s-title">THE CASE<br>FOR <span class="hl">AGENTS.</span></h2>
+    <p class="s-intro">Six fundamental advantages of replacing selector-based scripts with an AI agent that thinks, adapts, and heals.</p>
+  </div>
+  <div style="max-width:1200px;margin:0 auto;padding:0 56px 120px;">
+    <div class="benefits-grid">
+      <div class="benefit sr sr-d1"><div class="benefit-bg-num">01</div><div class="benefit-icon">⚡</div><div class="benefit-title">Zero Selector Maintenance</div><div class="benefit-body">No more updating XPath and CSS selectors every sprint. The AI finds elements by semantic meaning and visual appearance — surviving any UI refactor automatically.</div><div class="benefit-tag">Core Advantage</div></div>
+      <div class="benefit sr sr-d2"><div class="benefit-bg-num">02</div><div class="benefit-icon">✍️</div><div class="benefit-title">Plain English Test Scenarios</div><div class="benefit-body">Business analysts, product managers, and QAs can author complete test cases in plain English. No Gherkin syntax, no code review, no engineering bottleneck.</div><div class="benefit-tag">Accessibility</div></div>
+      <div class="benefit sr sr-d3"><div class="benefit-bg-num">03</div><div class="benefit-icon">🔧</div><div class="benefit-title">Self-Healing Behaviour</div><div class="benefit-body">When a page changes, the agent adapts its interaction strategy in real-time instead of failing with NoSuchElementException. Fewer broken pipelines. No more 2 AM pager alerts.</div><div class="benefit-tag">Resilience</div></div>
+      <div class="benefit sr"><div class="benefit-bg-num">04</div><div class="benefit-icon">🚀</div><div class="benefit-title">10× Faster Test Authoring</div><div class="benefit-body">What takes hours of selector debugging reduces to a single sentence. Dramatically compresses time-to-coverage for new features in fast-moving sprint environments.</div><div class="benefit-tag">Velocity</div></div>
+      <div class="benefit sr sr-d1"><div class="benefit-bg-num">05</div><div class="benefit-icon">🤖</div><div class="benefit-title">AI-Assisted QA Pipelines</div><div class="benefit-body">Pair Nova Act with an LLM that generates test cases from requirements docs. Close the loop from spec → test generation → execution → report — entirely autonomously.</div><div class="benefit-tag">AI Workflow</div></div>
+      <div class="benefit sr sr-d2"><div class="benefit-bg-num">06</div><div class="benefit-icon">🌐</div><div class="benefit-title">Democratised Quality</div><div class="benefit-body">SDET teams are no longer bottlenecks. Any team member who can describe a user flow in English can create and run automated tests — making quality a shared responsibility.</div><div class="benefit-tag">Team Scale</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FUTURE -->
+<section id="future" style="background:var(--cream);border-top:1px solid var(--sand);">
+  <div class="sw sr">
+    <div class="s-label"><span class="s-label-num">09</span> Future Extensions</div>
+    <h2 class="s-title">WHAT'S <span class="outline">NEXT.</span></h2>
+    <div class="future-layout">
+      <div class="future-intro">
+        <h3>Where this project goes from here.</h3>
+        <p>From autonomous CI/CD gates to multi-agent orchestration — the next evolution of AI-driven QA is already taking shape. These are the extensions I'm building toward.</p>
+        <div style="margin-top:32px;padding:24px;background:var(--paper);border:1px solid var(--sand);">
+          <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--rust);margin-bottom:12px;">Built with</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="background:var(--ink);color:var(--paper);padding:4px 12px;font-size:10px;letter-spacing:.08em;">Python</span>
+            <span style="background:var(--ink);color:var(--paper);padding:4px 12px;font-size:10px;letter-spacing:.08em;">FastAPI</span>
+            <span style="background:var(--ink);color:var(--paper);padding:4px 12px;font-size:10px;letter-spacing:.08em;">Nova Act SDK</span>
+            <span style="background:var(--rust);color:var(--paper);padding:4px 12px;font-size:10px;letter-spacing:.08em;">AWS Bedrock</span>
+            <span style="background:var(--ink);color:var(--paper);padding:4px 12px;font-size:10px;letter-spacing:.08em;">Playwright</span>
+            <span style="background:var(--ink);color:var(--paper);padding:4px 12px;font-size:10px;letter-spacing:.08em;">Amazon S3</span>
+          </div>
+        </div>
+      </div>
+      <div class="future-cards">
+        <div class="future-card"><div class="fc-icon">🔧</div><div><div class="fc-title">Self-Healing Test Suites</div><div class="fc-body">When a test fails, an LLM analyzes the failure, proposes a fix, and applies it automatically — creating a continuously self-maintaining test corpus with minimal human intervention.</div></div></div>
+        <div class="future-card"><div class="fc-icon">✨</div><div><div class="fc-title">AI-Generated Test Cases</div><div class="fc-body">Feed product requirements to an LLM that auto-generates comprehensive test scenarios, edge cases, and acceptance criteria — then executes them immediately via Nova Act.</div></div></div>
+        <div class="future-card"><div class="fc-icon">👁️</div><div><div class="fc-title">Visual Regression Testing</div><div class="fc-body">Combine Nova Act screenshots with a vision model to detect unintended visual changes across releases — pixel-perfect diffing powered by AI semantic understanding.</div></div></div>
+        <div class="future-card"><div class="fc-icon">🚀</div><div><div class="fc-title">CI/CD Automation Gates</div><div class="fc-body">Embed Nova Act agents in GitHub Actions or Jenkins pipelines — autonomous QA gates that run, evaluate, and block merges before every production deploy.</div></div></div>
+        <div class="future-card"><div class="fc-icon">🕸️</div><div><div class="fc-title">Multi-Agent Orchestration</div><div class="fc-body">Deploy parallel specialized agents coordinated by a supervisor for full E2E coverage at scale — checkout agent, search agent, auth agent all running simultaneously.</div></div></div>
+        <div class="future-card"><div class="fc-icon">📱</div><div><div class="fc-title">Mobile + API Coverage</div><div class="fc-body">Extend the architecture to Appium for mobile browsers and REST API contract testing — one unified AI agent layer across web, mobile, and API surfaces.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="f-name">AAYUSH<br>MISHRA</div>
+      <div class="f-role">SDET · AI-Driven Automation Engineer</div>
+      <div class="f-bio">Building next-generation AI-powered testing pipelines. Specializing in autonomous browser agents, self-healing test suites, and LLM-integrated QA workflows.</div>
+    </div>
+    <div>
+      <div class="footer-col-title">Navigation</div>
+      <ul class="fl">
+        <li><a href="#overview">What is Nova Act</a></li>
+        <li><a href="#shift">Paradigm Shift</a></li>
+        <li><a href="#architecture">System Architecture</a></li>
+        <li><a href="#internals">Agent Internals</a></li>
+        <li><a href="#playground">Playground Demo</a></li>
+        <li><a href="#implementation">Implementation</a></li>
+        <li><a href="#setup">Setup Guide</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Connect</div>
+      <ul class="fl">
+        <li><a href="#">GitHub</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Portfolio</a></li>
+        <li><a href="#">Email</a></li>
+        <li><a href="#">Twitter / X</a></li>
+      </ul>
+      <div style="margin-top:32px;">
+        <div class="footer-col-title">Stack</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
+          <span class="tech-pill">Nova Act</span><span class="tech-pill">FastAPI</span><span class="tech-pill">Playwright</span><span class="tech-pill">AWS Bedrock</span><span class="tech-pill">Python</span><span class="tech-pill">S3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Aayush Mishra · All rights reserved</span>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span>Crafted with precision</span>
+      <span class="tech-pill">Nova Act SDK</span><span class="tech-pill">FastAPI</span><span class="tech-pill">Playwright</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* CURSOR */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx+'px'; cursor.style.top = my+'px';
+});
+(function animRing() {
+  rx += (mx-rx)*0.12; ry += (my-ry)*0.12;
+  ring.style.left = rx+'px'; ring.style.top = ry+'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('a, button, .arch-card, .benefit, .future-card, .step-card, .loop-step, .osi').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.width='20px'; cursor.style.height='20px'; ring.style.width='50px'; ring.style.height='50px'; ring.style.opacity='0.3'; });
+  el.addEventListener('mouseleave', () => { cursor.style.width='10px'; cursor.style.height='10px'; ring.style.width='36px'; ring.style.height='36px'; ring.style.opacity='0.5'; });
+});
+
+/* SCROLL REVEAL */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); }});
+}, {threshold:0.08});
+document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+
+/* PLAYGROUND */
+function sp(t) { document.getElementById('agentInput').value = t; document.getElementById('agentInput').focus(); }
+
+const terminal = document.getElementById('terminal');
+const tDot = document.getElementById('tDot');
+const tStatus = document.getElementById('tStatus');
+
+function setTs(s,l) { tDot.className='t-dot '+s; tStatus.textContent=l; }
+
+function addLine(tag, cls, msg, delay) {
+  return new Promise(res => setTimeout(() => {
+    const t = new Date().toTimeString().split(' ')[0];
+    const d = document.createElement('div');
+    d.className = 't-line';
+    d.innerHTML = `<span class="t-time">${t}</span><span class="t-tag t-${cls}">${tag}</span><span class="t-msg">${msg}</span>`;
+    terminal.appendChild(d);
+    terminal.scrollTop = terminal.scrollHeight;
+    res();
+  }, delay));
+}
+
+function clearT() { terminal.innerHTML = ''; }
+
+async function runAgent() {
+  const input = document.getElementById('agentInput');
+  const btn = document.getElementById('runBtn');
+  const instr = input.value.trim();
+  if (!instr) { input.focus(); return; }
+  btn.disabled=true;
+  document.getElementById('runIcon').textContent='◌';
+  document.getElementById('runText').textContent='Running…';
+  setTs('run','executing'); clearT();
+
+  const url = (() => {
+    const m = instr.match(/(amazon|google|github|wikipedia|ycombinator|youtube)/i);
+    if (!m) return 'https://google.com';
+    return {amazon:'https://amazon.com',google:'https://google.com',github:'https://github.com',wikipedia:'https://wikipedia.org',ycombinator:'https://news.ycombinator.com',youtube:'https://youtube.com'}[m[1].toLowerCase()]||'https://google.com';
+  })();
+
+  const isSearch = /search/i.test(instr);
+  const isFilter = /filter/i.test(instr);
+  const isExtract = /list|headlines|find|trending/i.test(instr);
+  const query = instr.match(/(?:search for|search|find)\s+(.+?)(?:\s+and|\s+filter|\s+on|$)/i)?.[1]||'query';
+
+  const steps = [
+    ['INF','INF',`Nova Act SDK initializing agent session…`,280],
+    ['INF','INF',`AWS Bedrock credentials verified ✓`,360],
+    ['ACT','ACT',`Launching Chromium browser (headless=true)`,500],
+    ['INF','INF',`Browser PID 14872 — ready`,280],
+    ['ACT','ACT',`page.goto("${url}")`,700],
+    ['INF','INF',`Page loaded — capturing accessibility tree + screenshot`,500],
+    ['INF','INF',`Nova LLM receiving: "${instr.slice(0,60)}${instr.length>60?'…':''}"`,380],
+    ['INF','INF',`LLM reasoning: resolving intent, identifying target entities…`,900],
+    ['ACT','ACT',`Agent planner: generating atomic action sequence`,500],
+  ];
+
+  if (isSearch && isFilter) {
+    steps.push(
+      ['ACT','ACT',`Step 1/4 — locate search input (role=searchbox)`,550],
+      ['OK ','OK',`Element grounded — confidence 0.96`,320],
+      ['ACT','ACT',`Step 2/4 — page.fill(searchbox, "${query}")`,400],
+      ['ACT','ACT',`Step 3/4 — page.press("Enter") → awaiting navigation`,700],
+      ['OK ','OK',`Search results loaded — ${Math.floor(Math.random()*800+200)} results`,350],
+      ['ACT','ACT',`Step 4/4 — locating filter panel "Customer Review"`,650],
+      ['OK ','OK',`Filter element found — clicking "4 Stars & Up"`,400],
+      ['OK ','OK',`Filter applied — page re-rendered with refined results`,400],
+    );
+  } else if (isSearch) {
+    steps.push(
+      ['ACT','ACT',`Step 1/3 — locate search input via accessibility tree`,550],
+      ['OK ','OK',`Element grounded — [role=searchbox] — confidence 0.97`,320],
+      ['ACT','ACT',`Step 2/3 — page.fill(searchbox, "${query}")`,400],
+      ['ACT','ACT',`Step 3/3 — page.press("Enter") → awaiting navigation`,700],
+      ['OK ','OK',`Results page loaded — ${Math.floor(Math.random()*900+100)} items found`,350],
+    );
+  } else if (isExtract) {
+    steps.push(
+      ['ACT','ACT',`Step 1/2 — scanning DOM for list container elements`,600],
+      ['OK ','OK',`Found ${Math.floor(Math.random()*20+10)} candidate items in main list`,380],
+      ['ACT','ACT',`Step 2/2 — LLM extracting and ranking top items`,750],
+      ['OK ','OK',`Extraction complete — structured data returned`,300],
+    );
+  } else {
+    steps.push(
+      ['ACT','ACT',`Step 1/2 — analyzing page structure and primary CTA`,600],
+      ['OK ','OK',`Target element identified — confidence 0.93`,380],
+      ['ACT','ACT',`Step 2/2 — executing interaction`,500],
+      ['OK ','OK',`Action completed successfully`,300],
+    );
+  }
+
+  steps.push(
+    ['INF','INF',`Observing final page state…`,380],
+    ['INF','INF',`Screenshot archived → logs/session_${Date.now()}.png`,300],
+    ['OK ','OK',`✓ Task completed — goal achieved`,200],
+    ['INF','INF',`Execution: ${(Math.random()*3+1.8).toFixed(2)}s · Actions: ${isFilter?4:isExtract?2:3} · Status: SUCCESS`,100],
+    ['INF','INF',`Browser session closed · Logs saved`,100],
+  );
+
+  let delay = 0;
+  for (const [tag,cls,msg,wait] of steps) {
+    await addLine(tag,cls,msg,delay);
+    delay += wait;
+  }
+  setTimeout(() => {
+    setTs('ok','completed');
+    btn.disabled=false;
+    document.getElementById('runIcon').textContent='▶';
+    document.getElementById('runText').textContent='Execute Agent';
+  }, delay);
+}
+
+document.getElementById('agentInput').addEventListener('keydown', e => { if(e.key==='Enter') runAgent(); });
+</script>
+</body>
+</html>

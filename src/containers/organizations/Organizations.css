@@ -1,0 +1,296 @@
+/* Enhanced Organizations Section */
+#organizations {
+  padding: 4rem 0;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+#organizations::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(180deg, rgba(102, 126, 234, 0.03) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.organizations-header-div {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  position: relative;
+  animation: slideInFromTop 0.8s ease-out;
+}
+
+.organizations-header {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.1;
+  font-family: "Google Sans Medium", sans-serif;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textGlow 2s ease-in-out infinite alternate;
+  position: relative;
+}
+
+.organizations-header::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 2px;
+  animation: expandLine 0.8s ease-out 0.5s both;
+}
+
+/* Enhanced Organization Cards */
+.organizations-container {
+  padding: 0 20px;
+  animation: fadeInUp 0.8s ease-out 0.3s both;
+}
+
+.organizations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin: 30px 0;
+  animation: fadeInGrid 0.8s ease-out 0.5s both;
+}
+
+.organization-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  border-radius: 20px;
+  padding: 25px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.organization-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.05), transparent);
+  transition: left 0.6s;
+}
+
+.organization-card:hover::before {
+  left: 100%;
+}
+
+.organization-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border-color: rgba(102, 126, 234, 0.2);
+}
+
+.organization-logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  border: 3px solid rgba(102, 126, 234, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.organization-card:hover .organization-logo {
+  border-color: rgba(102, 126, 234, 0.3);
+  transform: scale(1.05);
+}
+
+.organization-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-family: "Google Sans Medium", sans-serif;
+  margin-bottom: 10px;
+  transition: color 0.3s ease;
+}
+
+.organization-description {
+  font-size: 0.9rem;
+  font-family: "Google Sans Regular", sans-serif;
+  line-height: 1.5;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.organization-card:hover .organization-description {
+  opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 1380px) {
+  .organizations-header {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+  }
+  
+  .organizations-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  #organizations {
+    padding: 2rem 0;
+  }
+  
+  .organizations-header-div {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .organizations-container {
+    padding: 0 15px;
+  }
+  
+  .organizations-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+  }
+  
+  .organization-card {
+    padding: 20px;
+  }
+  
+  .organization-logo {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 15px;
+  }
+  
+  .organization-name {
+    font-size: 1.1rem;
+  }
+  
+  .organization-description {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #organizations {
+    padding: 1.5rem 0;
+  }
+  
+  .organizations-container {
+    padding: 0 10px;
+  }
+  
+  .organizations-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .organization-card {
+    padding: 18px;
+  }
+  
+  .organization-logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 12px;
+  }
+  
+  .organization-name {
+    font-size: 1rem;
+  }
+}
+  
+/* Keyframe Animations */
+@keyframes slideInFromTop {
+  0% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInGrid {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes textGlow {
+  0% {
+    text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+  }
+  100% {
+    text-shadow: 0 0 20px rgba(118, 75, 162, 0.8), 0 0 30px rgba(102, 126, 234, 0.6);
+  }
+}
+
+@keyframes expandLine {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 80px;
+  }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .organization-card {
+    border-width: 2px;
+  }
+  
+  .organization-logo {
+    border-width: 4px;
+  }
+}
+
+/* Focus Indicators */
+.organization-card:focus {
+  outline: 3px solid rgba(102, 126, 234, 0.5);
+  outline-offset: 2px;
+}

@@ -1,0 +1,342 @@
+/* AnimatedOrganizations.css */
+
+.animated-organizations-container {
+  width: 100%;
+  padding: 40px 20px;
+  background: var(--theme-body, #EDF9FE);
+  overflow: hidden;
+  position: relative;
+  margin: 40px 0;
+}
+
+.animated-organizations-header {
+  text-align: center;
+  margin-bottom: 50px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.organizations-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: var(--theme-text, #001C55);
+  background: linear-gradient(135deg, var(--theme-text, #001C55), var(--theme-highlight, #A6E1FA));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'Google Sans', sans-serif;
+}
+
+.organizations-subtitle {
+  font-size: 1.1rem;
+  color: var(--theme-secondary, #868e96);
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.organizations-slider {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+  background: linear-gradient(
+    45deg,
+    rgba(var(--theme-highlight-rgb, 166, 225, 250), 0.05),
+    rgba(var(--theme-dark-rgb, 0, 28, 85), 0.05)
+  );
+  border-radius: 20px;
+  padding: 30px 0;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(var(--theme-highlight-rgb, 166, 225, 250), 0.2);
+}
+
+.organizations-track {
+  display: flex;
+  animation: slideRightToLeft 25s linear infinite;
+  gap: 30px;
+  width: fit-content;
+}
+
+@keyframes slideRightToLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+.organization-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  height: 140px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.organization-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(var(--theme-highlight-rgb, 166, 225, 250), 0.1),
+    transparent
+  );
+  transform: rotate(45deg);
+  transition: all 0.6s ease;
+  opacity: 0;
+}
+
+.organization-card:hover::before {
+  opacity: 1;
+  animation: shimmer 1.5s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+.organization-card:hover {
+  transform: translateY(-8px) scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--theme-highlight, #A6E1FA);
+  box-shadow: 
+    0 20px 40px rgba(var(--theme-dark-rgb, 0, 28, 85), 0.15),
+    0 0 0 1px rgba(var(--theme-highlight-rgb, 166, 225, 250), 0.3);
+}
+
+.organization-logo-container {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.tech-logo-svg {
+  width: 100%;
+  height: 100%;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.organization-card:hover .tech-logo-svg {
+  transform: scale(1.1);
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
+}
+
+.logo-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--theme-highlight, #A6E1FA), var(--theme-dark, #001C55));
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.organization-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--theme-text, #001C55);
+  opacity: 0.9;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.organization-card:hover .organization-name {
+  opacity: 1;
+  color: var(--theme-text, #001C55);
+  font-weight: 700;
+}
+
+/* Pause animation on hover */
+.organizations-slider:hover .organizations-track {
+  animation-play-state: paused;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .animated-organizations-container {
+    padding: 30px 15px;
+    margin: 30px 0;
+  }
+
+  .animated-organizations-header {
+    margin-bottom: 40px;
+  }
+
+  .organizations-title {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+
+  .organizations-subtitle {
+    font-size: 1rem;
+    padding: 0 10px;
+  }
+
+  .organizations-slider {
+    padding: 25px 0;
+    border-radius: 15px;
+  }
+
+  .organizations-track {
+    gap: 20px;
+  }
+
+  .organization-card {
+    min-width: 140px;
+    height: 120px;
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .organization-logo-container {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+  }
+
+  .logo-placeholder {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    border-radius: 10px;
+  }
+
+  .organization-name {
+    font-size: 0.8rem;
+  }
+
+  .organization-card:hover {
+    transform: translateY(-5px) scale(1.03);
+  }
+}
+
+@media (max-width: 480px) {
+  .animated-organizations-container {
+    padding: 25px 10px;
+    margin: 25px 0;
+  }
+
+  .organizations-title {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+
+  .organizations-subtitle {
+    font-size: 0.9rem;
+    padding: 0 5px;
+  }
+
+  .organizations-slider {
+    padding: 20px 0;
+    border-radius: 12px;
+  }
+
+  .organizations-track {
+    gap: 15px;
+    animation: slideRightToLeft 30s linear infinite;
+  }
+
+  .organization-card {
+    min-width: 120px;
+    height: 100px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .organization-logo-container {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+  }
+
+  .logo-placeholder {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+  }
+
+  .organization-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .organization-card:hover {
+    transform: translateY(-3px) scale(1.02);
+  }
+}
+
+/* Dark theme support */
+.dark-theme .organization-card,
+.theme-materialDark .organization-card,
+.theme-cyberpunk .organization-card,
+.theme-blackTheme .organization-card,
+.theme-oceanDepth .organization-card,
+.theme-midnightPurple .organization-card,
+.theme-neonGreen .organization-card,
+.theme-darkOrange .organization-card,
+.theme-crimsonDark .organization-card,
+.theme-galaxy .organization-card,
+.theme-nordDark .organization-card,
+.theme-dracula .organization-card,
+.theme-monochrome .organization-card,
+.theme-amoled .organization-card,
+.theme-midnight .organization-card,
+.theme-neon .organization-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .organization-card:hover,
+.theme-materialDark .organization-card:hover,
+.theme-cyberpunk .organization-card:hover,
+.theme-blackTheme .organization-card:hover,
+.theme-oceanDepth .organization-card:hover,
+.theme-midnightPurple .organization-card:hover,
+.theme-neonGreen .organization-card:hover,
+.theme-darkOrange .organization-card:hover,
+.theme-crimsonDark .organization-card:hover,
+.theme-galaxy .organization-card:hover,
+.theme-nordDark .organization-card:hover,
+.theme-dracula .organization-card:hover,
+.theme-monochrome .organization-card:hover,
+.theme-amoled .organization-card:hover,
+.theme-midnight .organization-card:hover,
+.theme-neon .organization-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--theme-highlight, #A6E1FA);
+}

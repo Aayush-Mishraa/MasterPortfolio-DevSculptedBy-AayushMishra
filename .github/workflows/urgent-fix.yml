@@ -1,0 +1,50 @@
+name: 🚀 Manual Deploy - Urgent Fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_message:
+        description: 'Deployment message'
+        required: true
+        default: 'Manual deployment with urgent fixes'
+        type: string
+      skip_build:
+        description: 'Skip build and deploy existing files'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  manual-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v3
+
+    - name: 📦 Deploy manually edited files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: ${{ secrets.FTP_PORT }}
+        server-dir: ${{ secrets.FTP_SERVER_DIR }}
+        local-dir: ./build/
+        state-name: manual-deploy-sync.json
+        dry-run: false
+        log-level: verbose
+        exclude: |
+          node_modules/**
+          src/**
+          public/**
+          .git/**
+          .github/**
+          *.md
+          package*.json
+
+    - name: ✅ Deployment Summary
+      run: |
+        echo "🚀 Manual deployment completed!"
+        echo "📦 Deployed manually edited files"
+        echo "🌐 Site URL: ${{ secrets.SITE_URL }}"
+        echo "📝 Message: ${{ github.event.inputs.deploy_message }}"

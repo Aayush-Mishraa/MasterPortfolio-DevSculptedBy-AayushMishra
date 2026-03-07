@@ -1,0 +1,117 @@
+/* Experience Timeline Section */
+.modern-experience-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding: 0.5rem 0 1rem;
+}
+
+.timeline-section {
+  position: relative;
+}
+
+.timeline-section-header {
+  display: block;
+  margin-bottom: 1.2rem;
+}
+
+.section-info {
+  min-width: 0;
+}
+
+.section-title {
+  margin: 0;
+  font-size: clamp(1.25rem, 1.7vw, 1.55rem);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.section-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 0.32rem;
+}
+
+.experience-count {
+  font-size: 0.86rem;
+  line-height: 1.35;
+  font-weight: 600;
+  opacity: 0.86;
+  white-space: nowrap;
+}
+
+.section-line {
+  height: 2px;
+  width: min(220px, 32vw);
+  border-radius: 999px;
+  opacity: 0.88;
+}
+
+.timeline-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .timeline-section,
+  .timeline-cards-grid {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .modern-experience-timeline {
+    gap: 2.4rem;
+  }
+
+  .timeline-section-header {
+    margin-bottom: 1rem;
+  }
+
+  .section-line {
+    width: min(180px, 38vw);
+  }
+
+  .timeline-cards-grid {
+    gap: 1rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 680px) {
+  .modern-experience-timeline {
+    gap: 2rem;
+  }
+
+  .timeline-section-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-size: 1.18rem;
+  }
+
+  .section-meta {
+    width: 100%;
+    gap: 0.6rem;
+  }
+
+  .experience-count {
+    font-size: 0.8rem;
+  }
+
+  .section-line {
+    flex: 1;
+    width: auto;
+  }
+
+  .timeline-cards-grid {
+    gap: 0.85rem;
+  }
+}

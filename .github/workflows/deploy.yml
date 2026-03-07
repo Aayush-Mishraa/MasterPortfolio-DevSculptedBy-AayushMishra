@@ -1,0 +1,52 @@
+name: Deploy Static Website to Hostinger
+
+on:
+  # Trigger deployment automatically on every push to main
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: FTP Deploy to Hostinger
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository source code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Upload website files to Hostinger public_html via FTP
+      # Uses incremental sync state to avoid unnecessary uploads where possible.
+      - name: Deploy files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+
+          # Deploy from the repository root (entire project folder)
+          local-dir: ./
+
+          # Hostinger web root
+          server-dir: /public_html/
+
+          # Keep remote files that are not in local repo (safer default)
+          dangerous-clean-slate: false
+
+          # Sync state file helps reduce unnecessary uploads
+          state-name: .ftp-deploy-sync-state.json
+
+          # Exclude files/folders that should never be deployed
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/.vscode/**
+            **/.idea/**
+            **/.env*
+            **/coverage/**
+            **/*.md
+            **/*.ps1
+            **/*.bat
+            **/hostinger-deployment*.zip

@@ -1,0 +1,194 @@
+.simple-chroma-grid {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 320px);
+  grid-auto-rows: auto;
+  justify-content: center;
+  gap: 2rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+
+  --x: 50%;
+  --y: 50%;
+  --r: 220px;
+}
+
+@media (max-width: 1124px) {
+  .simple-chroma-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 320px));
+    gap: 1.5rem 1rem;
+    padding: 1.5rem 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .simple-chroma-grid {
+    grid-template-columns: 320px;
+    gap: 2rem;
+    padding: 2rem 1rem;
+  }
+}
+
+.simple-chroma-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  height: 420px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #333;
+  transition: all 0.3s ease;
+  background: var(--card-gradient);
+
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --spotlight-color: rgba(255, 255, 255, 0.3);
+}
+
+.simple-chroma-card:hover {
+  border-color: var(--card-border);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.simple-chroma-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--mouse-x) var(--mouse-y),
+      var(--spotlight-color),
+      transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 2;
+}
+
+.simple-chroma-card:hover::before {
+  opacity: 1;
+}
+
+.simple-chroma-img-wrapper {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  margin: 15px 15px 10px 15px;
+  border-radius: 15px;
+  transition: background 0.3s ease;
+}
+
+.simple-chroma-img-wrapper img {
+  width: auto;
+  height: auto;
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 10px;
+  filter: brightness(1.1) contrast(1.1);
+}
+
+.simple-chroma-info {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 15px;
+  color: #fff;
+  font-family: "Google Sans Regular", system-ui, sans-serif;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.simple-chroma-info .cert-body-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  color: #fff;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.simple-chroma-info .name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  color: #fff;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.simple-chroma-info .role {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin: 0 0 8px 0;
+  font-style: italic;
+  text-align: center;
+}
+
+.simple-chroma-info .handle {
+  font-size: 0.8rem;
+  color: #aaa;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin: 0 0 8px 0;
+}
+
+.simple-chroma-info .location {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: auto;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.simple-chroma-card:hover .location {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.simple-chroma-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  backdrop-filter: grayscale(0.8) brightness(0.9);
+  -webkit-backdrop-filter: grayscale(0.8) brightness(0.9);
+  background: rgba(0, 0, 0, 0.001);
+  
+  mask-image: radial-gradient(circle var(--r) at var(--x) var(--y),
+      transparent 0%,
+      transparent 15%,
+      rgba(0, 0, 0, 0.10) 30%,
+      rgba(0, 0, 0, 0.22) 45%,
+      rgba(0, 0, 0, 0.35) 60%,
+      rgba(0, 0, 0, 0.50) 75%,
+      rgba(0, 0, 0, 0.68) 88%,
+      white 100%);
+  -webkit-mask-image: radial-gradient(circle var(--r) at var(--x) var(--y),
+      transparent 0%,
+      transparent 15%,
+      rgba(0, 0, 0, 0.10) 30%,
+      rgba(0, 0, 0, 0.22) 45%,
+      rgba(0, 0, 0, 0.35) 60%,
+      rgba(0, 0, 0, 0.50) 75%,
+      rgba(0, 0, 0, 0.68) 88%,
+      white 100%);
+}

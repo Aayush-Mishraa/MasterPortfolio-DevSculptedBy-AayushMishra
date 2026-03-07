@@ -1,0 +1,52 @@
+{
+  "data": [
+    {
+      "name": "Google",
+      "logo_path": "google_logo.png",
+      "description": "Technology giant focusing on internet-related services and products",
+      "website": "https://www.google.com"
+    },
+    {
+      "name": "Microsoft", 
+      "logo_path": "microsoft_logo.png",
+      "description": "Multinational technology corporation",
+      "website": "https://www.microsoft.com"
+    },
+    {
+      "name": "GitHub",
+      "logo_path": "github_logo.png",
+      "description": "Development platform for version control and collaboration", 
+      "website": "https://github.com"
+    },
+    {
+      "name": "Amazon Web Services",
+      "logo_path": "aws_logo.png",
+      "description": "Cloud computing platform and services",
+      "website": "https://aws.amazon.com"
+    },
+    {
+      "name": "Docker",
+      "logo_path": "docker_logo.png",
+      "description": "Containerization platform",
+      "website": "https://www.docker.com"
+    },
+    {
+      "name": "React",
+      "logo_path": "react_logo.png",
+      "description": "JavaScript library for building user interfaces",
+      "website": "https://reactjs.org"
+    },
+    {
+      "name": "Node.js",
+      "logo_path": "nodejs_logo.png",
+      "description": "JavaScript runtime built on Chrome's V8 engine",
+      "website": "https://nodejs.org"
+    },
+    {
+      "name": "Python",
+      "logo_path": "python_logo.png",
+      "description": "Programming language for general-purpose programming",
+      "website": "https://www.python.org"
+    }
+  ]
+}
