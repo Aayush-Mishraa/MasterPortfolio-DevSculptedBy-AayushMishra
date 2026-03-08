@@ -37,7 +37,21 @@ jobs:
       # Uses incremental sync state to avoid unnecessary uploads where possible.
       - name: Resolve FTP host to IPv4
         run: |
-          FTP_SERVER_RAW="${{ secrets.FTP_SERVER }}"
+          FTP_SERVER_RAW="${{ secrets.FTP_HOST }}"
+
+          if [ -z "$FTP_SERVER_RAW" ]; then
+            FTP_SERVER_RAW="${{ secrets.FTP_SERVER }}"
+          fi
+
+          if [ -z "$FTP_SERVER_RAW" ]; then
+            echo "FTP host is missing. Set FTP_HOST (preferred) or FTP_SERVER in repository secrets."
+            exit 1
+          fi
+
+          FTP_PORT_EFFECTIVE="${{ secrets.FTP_PORT }}"
+          if [ -z "$FTP_PORT_EFFECTIVE" ]; then
+            FTP_PORT_EFFECTIVE="21"
+          fi
 
           if echo "$FTP_SERVER_RAW" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
             FTP_SERVER_IPV4="$FTP_SERVER_RAW"
@@ -51,7 +65,16 @@ jobs:
           fi
 
           echo "Using FTP IPv4 endpoint: $FTP_SERVER_IPV4"
+          echo "Using FTP port: $FTP_PORT_EFFECTIVE"
+
+          # Validate TCP reachability early to fail with a clearer error.
+          if ! timeout 8 bash -c "cat < /dev/null > /dev/tcp/$FTP_SERVER_IPV4/$FTP_PORT_EFFECTIVE"; then
+            echo "Unable to connect to FTP endpoint $FTP_SERVER_IPV4:$FTP_PORT_EFFECTIVE from runner."
+            exit 1
+          fi
+
           echo "FTP_SERVER_IPV4=$FTP_SERVER_IPV4" >> $GITHUB_ENV
+          echo "FTP_PORT_EFFECTIVE=$FTP_PORT_EFFECTIVE" >> $GITHUB_ENV
 
       - name: Deploy files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -59,7 +82,7 @@ jobs:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
+          port: ${{ env.FTP_PORT_EFFECTIVE }}
           protocol: ftps
           
           # Deploy from the build folder (production files)
@@ -96,7 +119,7 @@ jobs:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
+          port: ${{ env.FTP_PORT_EFFECTIVE }}
           protocol: ftps
           local-dir: ./contentmanagementsystem/
           server-dir: /public_html/contentmanagementsystem/
@@ -110,7 +133,7 @@ jobs:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
+          port: ${{ env.FTP_PORT_EFFECTIVE }}
           protocol: ftps
           local-dir: ./prestashopecommerce/
           server-dir: /public_html/prestashopecommerce/
@@ -124,7 +147,7 @@ jobs:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
+          port: ${{ env.FTP_PORT_EFFECTIVE }}
           protocol: ftps
           local-dir: ./ecommerceautomation/
           server-dir: /public_html/ecommerceautomation/
