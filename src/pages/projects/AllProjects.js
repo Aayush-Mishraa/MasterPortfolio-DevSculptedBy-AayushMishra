@@ -484,6 +484,7 @@ class AllProjects extends Component {
   // Animate dashboard counters after React has rendered updated GitHub data
   animateCounters = () => {
     this.clearCounterAnimations();
+    const { githubDashboard } = this.state;
 
     requestAnimationFrame(() => {
       this.counterStartTimeout = setTimeout(() => {
