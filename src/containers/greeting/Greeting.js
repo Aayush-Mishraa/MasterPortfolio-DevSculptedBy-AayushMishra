@@ -1,51 +1,95 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Greeting.css";
 import SocialMedia from "../../components/socialMedia/SocialMedia";
 import Button from "../../components/button/Button";
 import { greeting } from "../../portfolio";
 import { Fade } from "react-reveal";
+import { Link } from "react-router-dom";
 import ProfileCard from "../../components/profileCard/ProfileCard";
 import ShinyText from "../../components/shinyText/ShinyText";
-import SimpleFallingText from "../../components/FallingText/SimpleFallingText";
 import RotatingRoles from "../../components/RotatingRoles/RotatingRoles";
+
+const AUTOMATION_TOOL_NAMES = [
+  "AWS Services",
+  "Playwright",
+  "Nova Act",
+  "Browser Use",
+  "Selenium",
+  "MCP Server",
+  "Generative AI",
+  "LLM Models",
+  "AI Test Bedrock",
+  "API Testing",
+  "CI/CD",
+  "Jenkins"
+];
 
 export default function Greeting(props) {
   const theme = props.theme;
+  const [activeToolIndex, setActiveToolIndex] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setActiveToolIndex(
+        (currentIndex) => (currentIndex + 1) % AUTOMATION_TOOL_NAMES.length
+      );
+    }, 1700);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <Fade bottom duration={2000} distance="40px">
       <div className="greet-main" id="greeting">
         <div className="greeting-main">
           <div className="greeting-text-div">
             <div>
-              <ShinyText 
+              <ShinyText
                 text={greeting.title}
                 disabled={false}
                 speed={3}
                 className="greeting-text"
                 style={{ color: theme.text }}
               />
-              
+
               {/* Dynamic Rotating Roles without parentheses */}
               <RotatingRoles theme={theme} />
-              
+
               <p
                 className="greeting-text-p subTitle"
                 style={{ color: theme.secondaryText }}
               >
                 {greeting.subTitle}
               </p>
-              
-              {/* QA/SDET Skills Falling Text Animation */}
-              <div className="falling-text-section" style={{ margin: "2rem 0", minHeight: "200px" }}>
-                <SimpleFallingText
-                  text="Quality Assurance Expert • Test Automation Engineer • Selenium WebDriver • Playwright Testing • Cypress E2E • API Testing • CI/CD Integration • Performance Testing • Jenkins • GitHub Actions • Docker • TypeScript • JavaScript • Java • Python • RestAssured • TestNG • JUnit • Agile Testing • SDET Professional"
-                  fontSize="1.1rem"
-                  trigger="hover"
-                  delay={300}
-                  animationDuration={4000}
-                />
+
+              <div className="automation-arsenal-cta-wrap">
+                <Link
+                  to="/automation-arsenal"
+                  className="automation-arsenal-cta"
+                  aria-label="Open Automation Arsenal page"
+                >
+                  <span className="cta-chip">Hot</span>
+                  <span className="cta-text">
+                    <span className="cta-label">Enter Automation Arsenal:</span>
+                    <span className="cta-tools-viewport" aria-hidden="true">
+                      <span
+                        key={activeToolIndex}
+                        className={`cta-tool cta-path-${activeToolIndex % 4}`}
+                      >
+                        {AUTOMATION_TOOL_NAMES[activeToolIndex]}
+                      </span>
+                    </span>
+                  </span>
+                  <span className="cta-arrow" aria-hidden="true">-&gt;</span>
+                </Link>
+                <p
+                  className="automation-arsenal-cta-note"
+                  style={{ color: theme.secondaryText }}
+                >
+                  Explore testing frameworks, live tools, and automation demos.
+                </p>
               </div>
-              
+
               <SocialMedia theme={theme} />
               <div className="portfolio-repo-btn-div">
                 <Button

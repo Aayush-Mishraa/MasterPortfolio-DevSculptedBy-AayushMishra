@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)file:///C:/Users/aayus/Downloads/github-actions%20(2).html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚙️ GitHub Actions CI/CD — Aayush Mishra · SDET</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./⚙️ GitHub Actions CI_CD — Aayush Mishra · SDET_files/css2" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0e0c0a;
+  --bg2:    #141210;
+  --bg3:    #1a1714;
+  --card:   #1e1b18;
+  --lift:   #252119;
+  --border: rgba(255,255,255,0.07);
+  --border2:rgba(255,100,0,0.25);
+  --orange: #ff6400;
+  --orange2:#ff8533;
+  --orange3:#ffaa66;
+  --red:    #e53e00;
+  --amber:  #f5a623;
+  --green:  #22c55e;
+  --blue:   #3b82f6;
+  --white:  #f5f0e8;
+  --off:    #c8bfaf;
+  --muted:  #6b6255;
+  --faint:  #2a2520;
+  --display:'Syne',sans-serif;
+  --body:   'DM Sans',sans-serif;
+  --mono:   'Fira Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--body);overflow-x:hidden;cursor:none}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--orange),var(--red));border-radius:2px}
+
+/* CURSOR */
+#cdot,#cring{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#cdot{width:8px;height:8px;background:var(--orange);border-radius:50%;box-shadow:0 0 12px var(--orange)}
+#cring{width:36px;height:36px;border:2px solid var(--orange);border-radius:0;transform:translate(-50%,-50%) rotate(45deg);transition:all .18s cubic-bezier(.25,.46,.45,.94);opacity:.7}
+body.hov #cring{width:52px;height:52px;border-color:var(--amber);opacity:1}
+body.hov #cdot{background:var(--amber);box-shadow:0 0 20px var(--amber)}
+
+/* DIAGONAL GRID BG */
+.bg-diag{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-diag::before{content:'';position:absolute;inset:-200px;
+  background:repeating-linear-gradient(45deg,rgba(255,100,0,0.025) 0px,rgba(255,100,0,0.025) 1px,transparent 1px,transparent 48px);
+  animation:diagDrift 30s linear infinite}
+.bg-diag::after{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 80% 20%,rgba(255,100,0,.06) 0%,transparent 70%)}
+@keyframes diagDrift{from{transform:translate(0,0)}to{transform:translate(48px,48px)}}
+
+/* NOISE */
+body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* TICKER */
+.ticker{position:relative;z-index:100;overflow:hidden;padding:9px 0;white-space:nowrap;background:var(--orange);border-bottom:3px solid var(--red)}
+.tick-i{display:inline-flex;animation:tickR 32s linear infinite}
+.tick-i span{padding:0 24px;font-family:var(--display);font-size:11px;letter-spacing:.14em;color:#fff;text-transform:uppercase;font-weight:700}
+.tick-sep{color:rgba(255,255,255,.4);padding:0 !important}
+@keyframes tickR{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:16px 56px;background:rgba(14,12,10,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--display);font-size:18px;letter-spacing:.04em;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:10px;font-weight:800;transition:color .2s}
+.nav-logo:hover{color:var(--orange)}
+.nav-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--orange),var(--red));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;font-weight:700;transition:color .2s;font-family:var(--display)}
+.nav-links a:hover{color:var(--orange)}
+.nav-pill{background:transparent;border:1.5px solid var(--border2);color:var(--orange);font-size:11px;font-weight:700;padding:6px 16px;border-radius:4px;letter-spacing:.08em;font-family:var(--display)}
+
+/* ═══════ HERO ═══════ */
+#hero{position:relative;z-index:2;min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr;padding-top:60px;overflow:hidden}
+
+/* Big number watermark */
+.hero-watermark{position:absolute;right:-40px;top:50%;transform:translateY(-50%);font-family:var(--display);font-size:420px;font-weight:800;color:rgba(255,100,0,0.03);line-height:1;pointer-events:none;letter-spacing:-.05em;user-select:none}
+
+.hero-l{display:flex;flex-direction:column;justify-content:center;padding:80px 56px 80px 64px;position:relative}
+
+/* Orange accent line */
+.hero-l::before{content:'';position:absolute;left:0;top:80px;bottom:80px;width:3px;background:linear-gradient(180deg,transparent,var(--orange),var(--red),transparent)}
+
+.hero-label{display:inline-flex;align-items:center;gap:10px;margin-bottom:24px;animation:fadeU .6s .05s both}
+.label-pill{background:rgba(255,100,0,.12);border:1.5px solid var(--border2);color:var(--orange);font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:5px 14px;border-radius:3px}
+.label-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+.hero-h1{font-family:var(--display);font-size:clamp(60px,8.5vw,120px);line-height:.88;font-weight:800;letter-spacing:-.01em;margin-bottom:8px;animation:fadeU .6s .1s both}
+.h1a{display:block;color:var(--white)}
+.h1b{display:block;background:linear-gradient(90deg,var(--orange),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.h1c{display:block;color:transparent;-webkit-text-stroke:2.5px var(--white);opacity:.2}
+
+.hero-sub{font-size:15px;color:var(--off);line-height:1.8;max-width:440px;margin-bottom:40px;font-weight:400;animation:fadeU .6s .2s both}
+.hero-sub strong{color:var(--orange2)}
+
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;animation:fadeU .6s .3s both}
+.btn-solid{background:var(--orange);color:#fff;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:14px 28px;border:none;border-radius:4px;cursor:none;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(255,100,0,.35)}
+.btn-solid:hover{background:var(--red);transform:translateY(-2px);box-shadow:0 8px 36px rgba(255,100,0,.5)}
+.btn-outline{background:transparent;color:var(--white);font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:13px 28px;border:1.5px solid var(--border);border-radius:4px;cursor:none;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-outline:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-2px)}
+
+/* Status bar */
+.hero-status{display:flex;gap:0;margin-top:48px;border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:fadeU .6s .4s both}
+.hst{flex:1;padding:16px 20px;border-right:1px solid var(--border);transition:background .2s;cursor:default}
+.hst:last-child{border-right:none}
+.hst:hover{background:rgba(255,100,0,.06)}
+.hst-val{font-family:var(--display);font-size:26px;font-weight:800;display:block;line-height:1}
+.hst-val.o{color:var(--orange)}.hst-val.g{color:var(--green)}.hst-val.a{color:var(--amber)}.hst-val.w{color:var(--white)}
+.hst-key{font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-top:4px;font-family:var(--display)}
+
+/* HERO RIGHT — workflow diagram */
+.hero-r{display:flex;align-items:center;justify-content:center;padding:100px 56px 80px 32px;position:relative}
+.workflow-card{width:100%;max-width:460px;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,100,0,.08);animation:fadeU .7s .15s both,floatY 6s ease-in-out infinite}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.wf-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border)}
+.wf-dots{display:flex;gap:6px}
+.wf-dots span{width:11px;height:11px;border-radius:50%}
+.wf-dots span:nth-child(1){background:#ff5f57}.wf-dots span:nth-child(2){background:#febc2e}.wf-dots span:nth-child(3){background:#28c840}
+.wf-file{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.wf-branch{font-size:10px;color:var(--green);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:2px 10px;border-radius:3px;font-family:var(--mono);font-weight:500}
+.wf-body{padding:16px}
+.wf-jobs{display:flex;flex-direction:column;gap:8px}
+.job{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid var(--border);transition:background .2s}
+.job-icon{font-size:16px;width:28px;text-align:center}
+.job-info{flex:1}
+.job-name{font-family:var(--display);font-size:13px;font-weight:700;color:var(--white);margin-bottom:2px}
+.job-sub{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.job-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;font-family:var(--mono);white-space:nowrap}
+.j-run{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.2);animation:runPulse 1.5s infinite}
+.j-pass{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.j-queue{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+@keyframes runPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.wf-conn{display:flex;align-items:center;gap:6px;padding:2px 14px}
+.conn-line{flex:1;height:1px;border-top:1px dashed rgba(255,100,0,.2)}
+.conn-arrow{color:var(--orange);font-size:10px;opacity:.4}
+.wf-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:rgba(255,255,255,.02);border-top:1px solid var(--border);font-family:var(--mono);font-size:10px}
+.wf-trigger{color:var(--muted)}.wf-time{color:var(--orange);font-weight:500}
+
+@keyframes fadeU{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═════ SECTION BASE ═════ */
+.sw{max-width:1200px;margin:0 auto;padding:96px 56px;position:relative;z-index:2}
+.s-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(255,100,0,.08);border:1.5px solid var(--border2);border-radius:3px;padding:4px 14px;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);font-family:var(--display);margin-bottom:20px}
+.big-t{font-family:var(--display);font-size:clamp(48px,6.5vw,88px);line-height:.9;font-weight:800;color:var(--white);margin-bottom:20px;letter-spacing:-.01em}
+.go{background:linear-gradient(90deg,var(--orange),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gr{background:linear-gradient(90deg,var(--red),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gg{background:linear-gradient(90deg,var(--green),#86efac);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gw{-webkit-text-stroke:2.5px var(--orange);color:transparent}
+.s-intro{font-size:15px;color:var(--off);max-width:560px;line-height:1.85;margin-bottom:56px;font-weight:400}
+
+/* CODE */
+.cblock{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin:20px 0;transition:border-color .2s,box-shadow .2s}
+.cblock:hover{border-color:var(--border2);box-shadow:0 8px 32px rgba(255,100,0,.08)}
+.cb-bar{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:rgba(255,255,255,.025);border-bottom:1px solid var(--border)}
+.cb-dots{display:flex;gap:5px}
+.cb-dots span{width:10px;height:10px;border-radius:50%}
+.cb-dots span:nth-child(1){background:#ff5f57}.cb-dots span:nth-child(2){background:#febc2e}.cb-dots span:nth-child(3){background:#28c840}
+.cb-file{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.cb-lang{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,100,0,.12);border:1px solid var(--border2);color:var(--orange);padding:2px 10px;border-radius:3px;font-family:var(--display)}
+.cb-body{padding:20px 22px;font-family:var(--mono);font-size:12.5px;line-height:1.9;overflow-x:auto}
+.cb-body pre{white-space:pre}
+.ky{color:#fb923c}.fn{color:#67e8f9}.st{color:#86efac}.cm{color:#3a3228}.wh{color:var(--white)}.num{color:var(--amber)}.kw{color:#f472b6}
+
+/* ═════ WHAT SECTION ═════ */
+.what-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+.why-cards{display:flex;flex-direction:column;gap:12px}
+.wc{background:var(--card);border:1px solid var(--border);border-left:3px solid transparent;padding:20px 24px;display:flex;gap:16px;align-items:flex-start;transition:all .25s;cursor:default}
+.wc:hover{border-left-color:var(--orange);background:var(--lift);transform:translateX(6px)}
+.wc-ico{width:40px;height:40px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform .2s}
+.wc:hover .wc-ico{transform:scale(1.1) rotate(-5deg)}
+.wco{background:rgba(255,100,0,.12);border:1px solid var(--border2)}
+.wcg{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2)}
+.wca{background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2)}
+.wcb{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2)}
+.wc-t{font-family:var(--display);font-weight:700;font-size:14px;color:var(--white);margin-bottom:4px}
+.wc-d{font-size:12px;color:var(--muted);line-height:1.7}
+
+/* ═════ PIPELINE SECTION ═════ */
+.pipeline-bg{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.pipe-steps{display:grid;grid-template-columns:repeat(6,1fr);gap:0;position:relative;margin-bottom:40px}
+.pipe-steps::before{content:'';position:absolute;top:32px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--orange),var(--amber),var(--green));z-index:0}
+.ps{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 8px;position:relative;z-index:1;cursor:default}
+.ps-ico{width:64px;height:64px;border-radius:50%;background:var(--card);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;transition:all .3s;position:relative}
+.ps-ico::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--amber));opacity:0;transition:opacity .3s;z-index:-1}
+.ps:hover .ps-ico{border-color:var(--orange);box-shadow:0 0 32px rgba(255,100,0,.3);transform:scale(1.1)}
+.ps:hover .ps-ico::after{opacity:1}
+.ps-step{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px;font-family:var(--display)}
+.ps-name{font-family:var(--display);font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px}
+.ps-desc{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* ═════ TRIGGERS SECTION ═════ */
+.trig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tcard{background:var(--card);border:1px solid var(--border);padding:28px 24px;transition:all .25s;cursor:default;position:relative;overflow:hidden}
+.tcard::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--orange),var(--amber));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.tcard:hover::before{transform:scaleX(1)}
+.tcard:hover{border-color:var(--border2);background:var(--lift);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.tc-ico{font-size:28px;margin-bottom:16px}
+.tc-title{font-family:var(--display);font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px}
+.tc-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+.tc-code{font-family:var(--mono);font-size:10.5px;color:var(--orange);background:rgba(255,100,0,.07);border:1px solid var(--border);padding:8px 12px;border-radius:4px;display:block;word-break:break-all}
+
+/* ═════ INTERACTIVE RUNNER ═════ */
+.runner-bg{background:var(--bg);border-top:1px solid var(--border)}
+.runner-top{background:linear-gradient(135deg,rgba(255,100,0,.08),rgba(229,62,0,.05));border-bottom:1px solid rgba(255,100,0,.12);padding:72px 64px 52px;position:relative;overflow:hidden}
+.runner-top::after{content:'⚙';position:absolute;right:32px;bottom:-40px;font-size:280px;opacity:.025;pointer-events:none;line-height:1}
+.runner-title{font-family:var(--display);font-size:clamp(40px,5.5vw,72px);line-height:.9;font-weight:800;color:var(--white);margin-bottom:14px}
+.runner-sub{font-size:14px;color:var(--muted);max-width:560px;line-height:1.8}
+
+.runner-body{padding:48px 64px}
+.rlbl{font-family:var(--display);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px}
+.rctrl{display:flex;gap:12px;margin-bottom:20px}
+.rsel{background:var(--card);border:1px solid var(--border2);color:var(--white);padding:12px 16px;font-family:var(--display);font-size:13px;font-weight:600;outline:none;cursor:none;border-radius:4px;transition:border-color .2s;min-width:200px;appearance:none}
+.rsel:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,100,0,.15)}
+.rinp{flex:1;background:var(--card);border:1px solid var(--border);color:var(--white);padding:12px 16px;font-family:var(--mono);font-size:12px;outline:none;cursor:none;border-radius:4px;transition:border-color .2s}
+.rinp:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,100,0,.1)}
+.rinp::placeholder{color:var(--muted)}
+.rbtn{background:var(--orange);color:#fff;border:none;padding:12px 26px;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:none;border-radius:4px;transition:all .2s;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(255,100,0,.3);white-space:nowrap}
+.rbtn:hover:not(:disabled){background:var(--red);transform:translateY(-2px);box-shadow:0 6px 32px rgba(255,100,0,.5)}
+.rbtn:disabled{opacity:.4}
+
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.ptag{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;font-weight:500;cursor:none;transition:all .2s;border-radius:3px}
+.ptag:hover{border-color:var(--border2);color:var(--orange);background:rgba(255,100,0,.06)}
+
+/* Terminal */
+.term{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:rgba(255,255,255,.025);border-bottom:1px solid var(--border)}
+.tbar-l{display:flex;align-items:center;gap:12px}
+.tdots{display:flex;gap:6px}
+.tdots span{width:10px;height:10px;border-radius:50%}
+.tdots span:nth-child(1){background:#ff5f57}.tdots span:nth-child(2){background:#febc2e}.tdots span:nth-child(3){background:#28c840}
+.tname{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.tstat{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:background .3s}
+.sdot.run{background:var(--amber);animation:blinkA .8s infinite}
+.sdot.ok{background:var(--green)}.sdot.fail{background:var(--red)}
+@keyframes blinkA{0%,100%{opacity:1}50%{opacity:.3}}
+.tbody{padding:16px 20px;font-family:var(--mono);font-size:11.5px;line-height:2;min-height:280px;max-height:360px;overflow-y:auto}
+.tbody::-webkit-scrollbar{width:3px}
+.tbody::-webkit-scrollbar-thumb{background:rgba(255,100,0,.25)}
+.trow{display:flex;gap:12px}
+.tts{color:rgba(255,100,0,.2);min-width:76px;font-size:10px}
+.ttag{min-width:60px;font-weight:700;font-size:10px;font-family:var(--display);letter-spacing:.06em}
+.ttag.RUN{color:var(--blue)}.ttag.PASS{color:var(--green)}.ttag.FAIL{color:var(--red)}.ttag.WARN{color:var(--amber)}.ttag.INFO{color:var(--orange3)}.ttag.STEP{color:#c084fc}
+.tmsg{color:rgba(255,100,0,.3);flex:1;font-size:11px}
+.pwrap{margin-top:16px}
+.prow{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:7px}
+.ptrack{background:var(--card);border:1px solid var(--border);border-radius:3px;height:5px;overflow:hidden}
+.pfill{height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--amber),var(--green));border-radius:3px;transition:width .4s ease;box-shadow:0 0 12px rgba(255,100,0,.4)}
+
+/* Pipeline graph */
+.pipe-graph{position:relative;height:290px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:4px}
+#edgeCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.graph-nodes{position:absolute;inset:0}
+.gnode{transition:filter .3s}
+.gnode-inner{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);min-width:82px;text-align:center;transition:all .3s;position:relative}
+.gnode-badge{position:absolute;top:-7px;right:-7px;width:17px;height:17px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid var(--bg);background:var(--faint);color:var(--muted)}
+.gnode.running .gnode-inner{border-color:var(--amber);box-shadow:0 0 18px rgba(245,166,35,.35);animation:nodeGlow 1s ease-in-out infinite alternate}
+.gnode.running .gnode-badge{background:var(--amber);color:#000;animation:spin .5s linear infinite}
+.gnode.success .gnode-inner{border-color:var(--green);box-shadow:0 0 14px rgba(34,197,94,.2)}
+.gnode.success .gnode-badge{background:var(--green);color:#000}
+.gnode.failure .gnode-inner{border-color:var(--red);box-shadow:0 0 18px rgba(229,62,0,.3);animation:nodeShake .4s ease-in-out}
+.gnode.failure .gnode-badge{background:var(--red);color:#fff}
+.gnode.queued .gnode-inner{opacity:.45}
+@keyframes nodeGlow{from{box-shadow:0 0 12px rgba(245,166,35,.2)}to{box-shadow:0 0 26px rgba(245,166,35,.55)}}
+@keyframes nodeShake{0%,100%{transform:translate(-50%,-50%)}25%{transform:translate(calc(-50% - 4px),-50%)}75%{transform:translate(calc(-50% + 4px),-50%)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.gnode-icon{font-size:18px;line-height:1}
+.gnode-name{font-family:var(--display);font-size:10px;font-weight:700;color:var(--white)}
+.gnode-sub{font-size:9px;color:var(--muted);font-family:var(--mono);line-height:1.2}
+
+/* Summary badges */
+#runSummary{flex-wrap:wrap}
+.sum-badge{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:4px;font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.06em;border:1px solid;animation:fadeU .4s both}
+.sb-pass{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green)}
+.sb-fail{background:rgba(229,62,0,.1);border-color:rgba(229,62,0,.3);color:var(--red)}
+.sb-time{background:rgba(255,100,0,.08);border-color:var(--border2);color:var(--orange)}
+.sb-art{background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.2);color:#06b6d4}
+
+/* ═════ GITHUB LIVE SECTION ═════ */
+.gh-bg{background:var(--bg3);border-top:1px solid var(--border)}
+.gh-input-row{display:flex;gap:12px;margin-bottom:32px;align-items:flex-end}
+.gh-input-group{display:flex;flex-direction:column;gap:8px;flex:1}
+.gh-label{font-family:var(--display);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.gh-input{background:var(--card);border:1px solid var(--border2);color:var(--white);padding:12px 16px;font-family:var(--mono);font-size:13px;font-weight:600;outline:none;border-radius:4px;transition:all .2s;width:100%}
+.gh-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,100,0,.12)}
+.gh-input::placeholder{color:var(--muted)}
+.gh-fetch-btn{background:var(--orange);color:#fff;border:none;padding:12px 28px;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:none;border-radius:4px;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(255,100,0,.3);height:48px}
+.gh-fetch-btn:hover:not(:disabled){background:var(--red);transform:translateY(-2px)}
+.gh-fetch-btn:disabled{opacity:.4;cursor:default}
+
+/* Profile card */
+.gh-profile{display:flex;gap:24px;align-items:center;background:var(--card);border:1px solid var(--border2);border-radius:6px;padding:24px 28px;margin-bottom:32px}
+.gh-avatar{width:72px;height:72px;border-radius:50%;border:2px solid var(--border2);object-fit:cover}
+.gh-avatar-ph{width:72px;height:72px;border-radius:50%;border:2px solid var(--border);background:var(--lift);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.gh-profile-info{flex:1}
+.gh-profile-name{font-family:var(--display);font-size:20px;font-weight:800;color:var(--white);margin-bottom:4px}
+.gh-profile-handle{font-family:var(--mono);font-size:12px;color:var(--orange);margin-bottom:8px}
+.gh-profile-bio{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.gh-profile-stats{display:flex;gap:20px}
+.gh-pstat{text-align:center}
+.gh-pstat-n{font-family:var(--display);font-size:18px;font-weight:800;color:var(--white);display:block}
+.gh-pstat-l{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:var(--display)}
+
+/* Repo grid */
+.gh-section-title{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.gh-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.repo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px}
+.repo-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px 20px 16px;transition:all .25s;cursor:default;position:relative;overflow:hidden}
+.repo-card:hover{border-color:var(--border2);background:var(--lift);transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.3)}
+.repo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),var(--amber));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.repo-card:hover::before{transform:scaleX(1)}
+.repo-name{font-family:var(--display);font-size:14px;font-weight:700;color:var(--orange);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.repo-name a{color:inherit;text-decoration:none}
+.repo-name a:hover{text-decoration:underline}
+.repo-desc{font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:14px;min-height:36px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.repo-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.repo-lang{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--off);font-weight:600}
+.lang-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.repo-stars{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.repo-updated{font-size:10px;color:var(--muted);margin-left:auto;font-family:var(--mono)}
+.repo-topics{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.repo-topic{font-size:10px;color:var(--blue);background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);padding:2px 8px;border-radius:10px;font-family:var(--mono)}
+
+/* Commits list */
+.commits-list{display:flex;flex-direction:column;gap:8px;margin-bottom:32px}
+.commit-row{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px 18px;display:flex;align-items:center;gap:14px;transition:all .2s;cursor:default}
+.commit-row:hover{border-color:var(--border2);background:var(--lift)}
+.commit-sha{font-family:var(--mono);font-size:11px;color:var(--orange);min-width:64px;letter-spacing:.04em}
+.commit-msg{flex:1;font-size:12.5px;color:var(--white);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.commit-author{font-size:11px;color:var(--muted);min-width:100px;text-align:right;font-family:var(--mono)}
+.commit-time{font-size:10px;color:var(--muted);min-width:80px;text-align:right;font-family:var(--mono)}
+
+/* Workflow runs */
+.runs-list{display:flex;flex-direction:column;gap:8px;margin-bottom:32px}
+.run-row{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px 18px;display:flex;align-items:center;gap:14px;transition:all .2s;cursor:default}
+.run-row:hover{border-color:var(--border2);background:var(--lift)}
+.run-status{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.rs-success{background:var(--green)}.rs-failure{background:var(--red)}.rs-running{background:var(--amber);animation:blinkA .9s infinite}
+.run-name{flex:1;font-size:13px;font-weight:700;color:var(--white);font-family:var(--display)}
+.run-branch{font-family:var(--mono);font-size:10px;color:var(--blue);background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.15);padding:2px 8px;border-radius:3px}
+.run-dur{font-size:11px;color:var(--muted);font-family:var(--mono);min-width:60px;text-align:right}
+.run-time{font-size:10px;color:var(--muted);font-family:var(--mono);min-width:90px;text-align:right}
+
+/* Error / empty states */
+.gh-error{background:rgba(229,62,0,.08);border:1px solid rgba(229,62,0,.25);border-radius:4px;padding:16px 20px;font-size:13px;color:var(--red);font-family:var(--mono);display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.gh-empty{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+.gh-loading{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;padding:20px 0}
+.spin{animation:spinI .8s linear infinite;display:inline-block;font-size:18px}
+@keyframes spinI{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.gh-token-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6;font-family:var(--mono)}
+.gh-token-note a{color:var(--orange);text-decoration:none}
+.gh-token-note a:hover{text-decoration:underline}
+.gh-results{display:none}
+.gh-results.show{display:block}
+
+/* ═════ PLAYGROUND ═════ */
+.runner-bg{background:var(--bg);border-top:1px solid var(--border)}
+.runner-top{background:linear-gradient(135deg,rgba(255,100,0,.08),rgba(229,62,0,.05));border-bottom:1px solid rgba(255,100,0,.12);padding:72px 64px 52px;position:relative;overflow:hidden}
+.runner-top::after{content:'⚙';position:absolute;right:32px;bottom:-40px;font-size:280px;opacity:.025;pointer-events:none;line-height:1}
+.runner-title{font-family:var(--display);font-size:clamp(40px,5.5vw,72px);line-height:.9;font-weight:800;color:var(--white);margin-bottom:14px}
+.runner-sub{font-size:14px;color:var(--muted);max-width:560px;line-height:1.8}
+
+.pg-wrap{display:grid;grid-template-columns:400px 1fr;gap:0;min-height:700px}
+.pg-left{padding:32px 28px;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto}
+.pg-right{padding:32px 28px;background:var(--bg);display:flex;flex-direction:column}
+.pg-section-label{font-family:var(--display);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* Scenario grid */
+.pg-scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sc-btn{background:var(--card);border:1px solid var(--border);padding:12px 14px;border-radius:6px;cursor:none;transition:all .2s;text-align:left;display:flex;flex-direction:column;gap:3px;position:relative;overflow:hidden}
+.sc-btn::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),var(--amber));transform:scaleX(0);transform-origin:left;transition:transform .25s}
+.sc-btn:hover::before,.sc-btn.active::before{transform:scaleX(1)}
+.sc-btn:hover{border-color:var(--border2);background:var(--lift)}
+.sc-btn.active{border-color:var(--orange);background:rgba(255,100,0,.08)}
+.sc-icon{font-size:20px;line-height:1;margin-bottom:4px}
+.sc-name{font-family:var(--display);font-size:12px;font-weight:700;color:var(--white);letter-spacing:.03em}
+.sc-desc{font-size:10px;color:var(--muted);font-family:var(--mono)}
+
+/* YAML viewer */
+.yaml-viewer{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px 16px;font-family:var(--mono);font-size:11px;line-height:1.8;max-height:320px;overflow-y:auto;transition:border-color .2s}
+.yaml-viewer::-webkit-scrollbar{width:3px}
+.yaml-viewer::-webkit-scrollbar-thumb{background:var(--border2)}
+.yaml-viewer pre{white-space:pre-wrap;word-break:break-word}
+
+/* Pipeline graph */
+.pipe-graph{position:relative;height:280px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:4px}
+#edgeCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.graph-nodes{position:absolute;inset:0}
+.gnode{position:absolute;transform:translate(-50%,-50%);cursor:default;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.gnode-inner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);min-width:90px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+.gnode-inner::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;border-radius:8px}
+.gnode.queued .gnode-inner{border-color:var(--border);opacity:.5}
+.gnode.running .gnode-inner{border-color:var(--amber);box-shadow:0 0 20px rgba(245,166,35,.3),0 0 40px rgba(245,166,35,.1);animation:nodeGlow 1.2s ease-in-out infinite alternate}
+.gnode.running .gnode-inner::before{background:rgba(245,166,35,.06);opacity:1}
+.gnode.success .gnode-inner{border-color:var(--green);box-shadow:0 0 16px rgba(34,197,94,.2)}
+.gnode.success .gnode-inner::before{background:rgba(34,197,94,.05);opacity:1}
+.gnode.failure .gnode-inner{border-color:var(--red);box-shadow:0 0 16px rgba(229,62,0,.25);animation:nodeShake .4s ease-in-out}
+.gnode.failure .gnode-inner::before{background:rgba(229,62,0,.06);opacity:1}
+.gnode.skipped .gnode-inner{opacity:.35}
+@keyframes nodeGlow{from{box-shadow:0 0 16px rgba(245,166,35,.2)}to{box-shadow:0 0 28px rgba(245,166,35,.5)}}
+@keyframes nodeShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.gnode-icon{font-size:20px;line-height:1}
+.gnode-name{font-family:var(--display);font-size:11px;font-weight:700;color:var(--white);letter-spacing:.03em}
+.gnode-sub{font-size:9px;color:var(--muted);font-family:var(--mono);line-height:1.3}
+.gnode-badge{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700;border:1.5px solid var(--bg)}
+.gnode.running .gnode-badge{background:var(--amber);color:#000;animation:spinB .6s linear infinite}
+.gnode.success .gnode-badge{background:var(--green);color:#000}
+.gnode.failure .gnode-badge{background:var(--red);color:#fff}
+.gnode.queued .gnode-badge{background:var(--faint);color:var(--muted)}
+@keyframes spinB{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* Progress particles on edges */
+.edge-particle{position:absolute;width:8px;height:8px;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);box-shadow:0 0 8px currentColor}
+
+/* Terminal */
+.pg-terminal{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:220px}
+.tbody{padding:14px 18px;font-family:var(--mono);font-size:11px;line-height:1.9;overflow-y:auto;flex:1;max-height:260px}
+.tbody::-webkit-scrollbar{width:3px}
+.tbody::-webkit-scrollbar-thumb{background:rgba(255,100,0,.2)}
+.trow{display:flex;gap:10px}
+.tts{color:rgba(255,100,0,.2);min-width:72px;font-size:10px}
+.ttag{min-width:52px;font-weight:700;font-size:10px;font-family:var(--display);letter-spacing:.06em}
+.ttag.RUN{color:var(--blue)}.ttag.PASS{color:var(--green)}.ttag.FAIL{color:var(--red)}.ttag.WARN{color:var(--amber)}.ttag.INFO{color:var(--orange3)}.ttag.STEP{color:#c084fc}.ttag.ART{color:#06b6d4}.ttag.GATE{color:var(--orange)}
+.tmsg{color:rgba(255,100,0,.3);flex:1;font-size:11px}
+
+/* Summary badges */
+#runSummary{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.sum-badge{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:4px;font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.06em;border:1px solid;animation:fadeU .4s both}
+.sb-pass{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--green)}
+.sb-fail{background:rgba(229,62,0,.1);border-color:rgba(229,62,0,.3);color:var(--red)}
+.sb-time{background:rgba(255,100,0,.08);border-color:var(--border2);color:var(--orange)}
+.sb-art{background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.2);color:#06b6d4}
+
+/* ═════ SETUP SECTION ═════ */
+.setup-bg{background:var(--bg2);border-top:1px solid var(--border)}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.scard{background:var(--card);border:1px solid var(--border);padding:28px 22px;transition:all .25s;cursor:default;position:relative;overflow:hidden}
+.scard::after{content:attr(data-n);position:absolute;right:-8px;bottom:-12px;font-family:var(--display);font-size:64px;font-weight:800;color:rgba(255,100,0,.06);line-height:1;pointer-events:none}
+.scard:hover{border-color:var(--border2);background:var(--lift);transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.sc-n{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);margin-bottom:14px;opacity:.7}
+.sc-t{font-family:var(--display);font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px}
+.sc-d{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:14px}
+.sc-cmd{font-family:var(--mono);font-size:10.5px;color:var(--orange);background:rgba(255,100,0,.06);border:1px solid var(--border);padding:7px 12px;border-radius:3px;word-break:break-all;display:block}
+
+/* ═════ BEST PRACTICES ═════ */
+.bpgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.bcard{background:var(--card);border:1px solid var(--border);padding:32px 28px;transition:all .25s;cursor:default;position:relative;overflow:hidden}
+.bcard:hover{border-color:var(--border2);background:var(--lift);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.bc-ico{font-size:32px;margin-bottom:16px;display:inline-block;transition:transform .3s}
+.bcard:hover .bc-ico{transform:scale(1.2) rotate(-6deg)}
+.bc-t{font-family:var(--display);font-size:16px;font-weight:700;color:var(--white);margin-bottom:10px}
+.bc-d{font-size:12.5px;color:var(--muted);line-height:1.8}
+.bc-tag{display:inline-block;margin-top:14px;font-family:var(--display);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:3px 12px;border-radius:3px}
+.bco{background:rgba(255,100,0,.1);color:var(--orange)}
+.bcg{background:rgba(34,197,94,.1);color:var(--green)}
+.bca{background:rgba(245,166,35,.1);color:var(--amber)}
+
+/* ═════ FOOTER ═════ */
+footer{background:var(--bg);border-top:2px solid var(--orange);padding:72px 64px 44px;position:relative;z-index:2;overflow:hidden}
+footer::before{content:'CI/CD';position:absolute;bottom:-20px;right:-10px;font-family:var(--display);font-size:180px;font-weight:800;color:rgba(255,100,0,.025);letter-spacing:-.02em;pointer-events:none}
+.fgrid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:64px;margin-bottom:48px;padding-bottom:44px;border-bottom:1px solid var(--border)}
+.fname{font-family:var(--display);font-size:34px;font-weight:800;line-height:1;margin-bottom:6px;color:var(--white)}
+.frole{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);font-weight:700;font-family:var(--display);margin-bottom:14px}
+.fbio{font-size:13px;color:var(--muted);line-height:1.8;max-width:270px}
+.ftch{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.ftc{background:rgba(255,255,255,.04);border:1px solid var(--border);padding:4px 12px;font-size:11px;color:var(--muted);font-weight:600;font-family:var(--display);letter-spacing:.04em}
+.fch{font-family:var(--display);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);font-weight:700;margin-bottom:18px}
+.flinks{list-style:none}
+.flinks li{margin-bottom:10px}
+.flinks a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;display:flex;align-items:center;gap:8px}
+.flinks a:hover{color:var(--orange)}
+.flinks a::before{content:'—';color:var(--orange);opacity:.3;font-size:10px;font-family:var(--display)}
+.flinks a:hover::before{opacity:1}
+.fbot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.12);letter-spacing:.08em;font-family:var(--display);font-weight:700}
+
+/* SCROLL REVEAL */
+.sr{opacity:0;transform:translateY(28px);transition:opacity .65s cubic-bezier(.25,.46,.45,.94),transform .65s cubic-bezier(.25,.46,.45,.94)}
+.sr.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.07s}.d2{transition-delay:.14s}.d3{transition-delay:.21s}.d4{transition-delay:.28s}.d5{transition-delay:.35s}.d6{transition-delay:.42s}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  #hero{grid-template-columns:1fr}.hero-r{display:none}
+  nav{padding:12px 20px}.nav-links{display:none}
+  .sw{padding:60px 24px}
+  .what-grid{grid-template-columns:1fr}
+  .pipe-steps{grid-template-columns:repeat(3,1fr);gap:24px}
+  .pipe-steps::before{display:none}
+  .trig-grid,.bpgrid{grid-template-columns:1fr 1fr}
+  .sgrid{grid-template-columns:1fr 1fr}
+  .fgrid{grid-template-columns:1fr;gap:36px}
+  .fbot{flex-direction:column;gap:12px;text-align:center}
+  .hero-status{flex-direction:column}
+  .rctrl{flex-direction:column}
+  .runner-body,.runner-top{padding-left:24px;padding-right:24px}
+}
+</style>
+</head>
+<body class="">
+<div class="bg-diag"></div>
+<div id="cdot" style="left: 1654px; top: 528px;"></div><div id="cring" style="left: 1654px; top: 528px;"></div>
+
+<!-- TICKER -->
+<div class="ticker"><div class="tick-i">
+  <span>⚙️ GitHub Actions</span><span class="tick-sep"> // </span><span>CI/CD Pipeline</span><span class="tick-sep"> // </span><span>Aayush Mishra · SDET</span><span class="tick-sep"> // </span><span>on: push · pull_request · schedule</span><span class="tick-sep"> // </span><span>Build → Test → Report → Deploy</span><span class="tick-sep"> // </span><span>Parallel Jobs · Matrix Strategy · Artifacts</span><span class="tick-sep"> // </span>
+  <span>⚙️ GitHub Actions</span><span class="tick-sep"> // </span><span>CI/CD Pipeline</span><span class="tick-sep"> // </span><span>Aayush Mishra · SDET</span><span class="tick-sep"> // </span><span>on: push · pull_request · schedule</span><span class="tick-sep"> // </span><span>Build → Test → Report → Deploy</span><span class="tick-sep"> // </span><span>Parallel Jobs · Matrix Strategy · Artifacts</span><span class="tick-sep"> // </span>
+</div></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#">
+    <div class="nav-logo-icon">⚙️</div>
+    GITHUB ACTIONS
+  </a>
+  <ul class="nav-links">
+    <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#overview">Overview</a></li>
+    <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#pipeline">Pipeline</a></li>
+    <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#triggers">Triggers</a></li>
+    <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#runner">Runner</a></li>
+    <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#github-live">Live Repos</a></li>
+    <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#setup">Setup</a></li>
+  </ul>
+  <div class="nav-pill">Aayush Mishra · SDET</div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-watermark">CI</div>
+  <div class="hero-l">
+    <div class="hero-label">
+      <span class="label-pill">CI/CD</span>
+      <span class="label-dot"></span>
+      <span style="font-size:11px;color:var(--muted);font-family:var(--display);letter-spacing:.12em;text-transform:uppercase;font-weight:700">Pipeline Active</span>
+    </div>
+    <h1 class="hero-h1">
+      <span class="h1a">AUTOMATE</span>
+      <span class="h1b">EVERY</span>
+      <span class="h1c">PIPELINE.</span>
+    </h1>
+    <p class="hero-sub"><strong>GitHub Actions</strong> is Microsoft's native CI/CD platform — built directly into GitHub. Define pipelines as YAML workflows that trigger on push, PR, schedule, or any event. Build, test, report and deploy — all automated.</p>
+    <div class="hero-btns">
+      <a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#runner" class="btn-solid">⚙ Simulate Pipeline</a>
+      <a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#pipeline" class="btn-outline">View Workflow →</a>
+    </div>
+    <div class="hero-status">
+      <div class="hst"><span class="hst-val o">YAML</span><span class="hst-key">Config Format</span></div>
+      <div class="hst"><span class="hst-val g">Free</span><span class="hst-key">Public Repos</span></div>
+      <div class="hst"><span class="hst-val a">20+</span><span class="hst-key">Trigger Events</span></div>
+      <div class="hst"><span class="hst-val w">∞</span><span class="hst-key">Parallel Jobs</span></div>
+    </div>
+  </div>
+
+  <div class="hero-r">
+    <div class="workflow-card">
+      <div class="wf-header">
+        <div class="wf-dots"><span></span><span></span><span></span></div>
+        <div class="wf-file">.github/workflows/ci.yml</div>
+        <div class="wf-branch">main</div>
+      </div>
+      <div class="wf-body">
+        <div class="wf-jobs">
+          <div class="job">
+            <div class="job-icon">🔨</div>
+            <div class="job-info"><div class="job-name">Build &amp; Compile</div><div class="job-sub">ubuntu-latest · node 20</div></div>
+            <span class="job-badge j-pass">✓ passed</span>
+          </div>
+          <div class="wf-conn"><div class="conn-line"></div><div class="conn-arrow">▼</div><div class="conn-line"></div></div>
+          <div class="job">
+            <div class="job-icon">🧪</div>
+            <div class="job-info"><div class="job-name">Playwright Tests</div><div class="job-sub">chromium · firefox · webkit</div></div>
+            <span class="job-badge j-run">● running</span>
+          </div>
+          <div class="wf-conn"><div class="conn-line"></div><div class="conn-arrow">▼</div><div class="conn-line"></div></div>
+          <div class="job">
+            <div class="job-icon">📊</div>
+            <div class="job-info"><div class="job-name">Upload Reports</div><div class="job-sub">playwright-report → artifacts</div></div>
+            <span class="job-badge j-queue">queued</span>
+          </div>
+          <div class="wf-conn"><div class="conn-line"></div><div class="conn-arrow">▼</div><div class="conn-line"></div></div>
+          <div class="job">
+            <div class="job-icon">🚀</div>
+            <div class="job-info"><div class="job-name">Deploy to Staging</div><div class="job-sub">on: main branch only</div></div>
+            <span class="job-badge j-queue">queued</span>
+          </div>
+        </div>
+      </div>
+      <div class="wf-footer">
+        <span class="wf-trigger">trigger: push → main</span>
+        <span class="wf-time">⏱ 2m 14s elapsed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OVERVIEW -->
+<section id="overview">
+<div class="sw sr vis">
+  <div class="s-eyebrow">✦ 01 · What is GitHub Actions</div>
+  <h2 class="big-t">Zero-config<br><span class="go">CI/CD</span><br>built into <span class="gw">GitHub.</span></h2>
+  <p class="s-intro">GitHub Actions lives inside your repository. No external CI server. No separate login. Define your entire pipeline in a YAML file and GitHub runs it automatically on any event you choose.</p>
+  <div class="what-grid">
+    <div>
+      <p style="font-size:14px;color:var(--off);line-height:1.9;margin-bottom:16px">Before Actions, teams juggled Jenkins, CircleCI, Travis and separate deployment scripts. Every tool had its own auth, config format and UI. Context-switching was constant.</p>
+      <p style="font-size:14px;color:var(--off);line-height:1.9;margin-bottom:32px">GitHub Actions unifies everything: the code, the pipeline, the secrets, the artifacts and the deployment — all in one place. Push a commit, and your entire CI/CD chain kicks off automatically. <strong style="color:var(--orange)">No setup, no servers, no separate tools.</strong></p>
+      <div class="cblock">
+        <div class="cb-bar"><div class="cb-dots"><span></span><span></span><span></span></div><div class="cb-file">.github/workflows/ci.yml</div><div class="cb-lang">YAML</div></div>
+        <div class="cb-body"><pre><span class="ky">name</span><span class="wh">:</span> <span class="st">Playwright CI</span>
+
+<span class="ky">on</span><span class="wh">:</span>
+  <span class="ky">push</span><span class="wh">:</span>
+    <span class="ky">branches</span><span class="wh">: [</span><span class="st">main</span><span class="wh">,</span> <span class="st">develop</span><span class="wh">]</span>
+  <span class="ky">pull_request</span><span class="wh">:</span>
+    <span class="ky">branches</span><span class="wh">: [</span><span class="st">main</span><span class="wh">]</span>
+
+<span class="ky">jobs</span><span class="wh">:</span>
+  <span class="ky">test</span><span class="wh">:</span>
+    <span class="ky">runs-on</span><span class="wh">:</span> <span class="st">ubuntu-latest</span>
+    <span class="ky">steps</span><span class="wh">:</span>
+      <span class="wh">-</span> <span class="ky">uses</span><span class="wh">:</span> <span class="st">actions/checkout@v4</span>
+      <span class="wh">-</span> <span class="ky">uses</span><span class="wh">:</span> <span class="st">actions/setup-node@v4</span>
+        <span class="ky">with</span><span class="wh">:</span>
+          <span class="ky">node-version</span><span class="wh">:</span> <span class="num">20</span>
+      <span class="wh">-</span> <span class="ky">run</span><span class="wh">:</span> <span class="st">npm ci</span>
+      <span class="wh">-</span> <span class="ky">run</span><span class="wh">:</span> <span class="st">npx playwright install --with-deps</span>
+      <span class="wh">-</span> <span class="ky">run</span><span class="wh">:</span> <span class="st">npx playwright test</span>
+      <span class="wh">-</span> <span class="ky">uses</span><span class="wh">:</span> <span class="st">actions/upload-artifact@v4</span>
+        <span class="ky">if</span><span class="wh">:</span> <span class="st">always()</span>
+        <span class="ky">with</span><span class="wh">:</span>
+          <span class="ky">name</span><span class="wh">:</span> <span class="st">playwright-report</span>
+          <span class="ky">path</span><span class="wh">:</span> <span class="st">playwright-report/</span></pre></div>
+      </div>
+    </div>
+    <div class="why-cards">
+      <div class="wc sr d1 vis"><div class="wc-ico wco">📦</div><div><div class="wc-t">Native GitHub Integration</div><div class="wc-d">Lives in your repo. Uses GitHub secrets. Status checks block PRs. No external service, no separate login — everything is already where your code lives.</div></div></div>
+      <div class="wc sr d2 vis"><div class="wc-ico wcg">🌐</div><div><div class="wc-t">Matrix Strategy</div><div class="wc-d">Run your tests across multiple Node versions, OS types or browsers in parallel automatically. One config, N combinations — all running simultaneously.</div></div></div>
+      <div class="wc sr d3 vis"><div class="wc-ico wca">📊</div><div><div class="wc-t">Artifacts &amp; Reports</div><div class="wc-d">Upload Playwright reports, screenshots and trace files as artifacts. Downloadable from the Actions UI for up to 90 days — no external storage needed.</div></div></div>
+      <div class="wc sr d4 vis"><div class="wc-ico wcb">🔒</div><div><div class="wc-t">Secrets Management</div><div class="wc-d">Store API keys, credentials and tokens as encrypted repository secrets. Reference them in YAML as ${{ secrets.MY_KEY }} — never in code.</div></div></div>
+      <div class="wc sr vis"><div class="wc-ico wco">🔁</div><div><div class="wc-t">Reusable Workflows</div><div class="wc-d">Define a workflow once, call it from multiple repositories using workflow_call. Share CI logic across your entire org without duplication.</div></div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- PIPELINE VISUALIZER -->
+<div class="pipeline-bg" id="pipeline">
+<div class="sw sr vis">
+  <div class="s-eyebrow">✦ 02 · CI/CD Pipeline</div>
+  <h2 class="big-t">Six stages.<br><span class="gr">One commit</span> triggers all.</h2>
+  <p class="s-intro">Every push to your repository sets this pipeline in motion — automatically, in sequence, in minutes.</p>
+  <div class="pipe-steps">
+    <div class="ps sr d1 vis">
+      <div class="ps-ico">📤</div>
+      <div class="ps-step">Stage 01</div>
+      <div class="ps-name">git push</div>
+      <div class="ps-desc">Developer pushes code to branch — workflow triggers instantly</div>
+    </div>
+    <div class="ps sr d2 vis">
+      <div class="ps-ico">🔨</div>
+      <div class="ps-step">Stage 02</div>
+      <div class="ps-name">Build</div>
+      <div class="ps-desc">npm ci, TypeScript compile, dependency resolution</div>
+    </div>
+    <div class="ps sr d3 vis">
+      <div class="ps-ico">🧪</div>
+      <div class="ps-step">Stage 03</div>
+      <div class="ps-name">Test</div>
+      <div class="ps-desc">Playwright E2E across chromium, firefox, webkit in parallel</div>
+    </div>
+    <div class="ps sr d4 vis">
+      <div class="ps-ico">📊</div>
+      <div class="ps-step">Stage 04</div>
+      <div class="ps-name">Report</div>
+      <div class="ps-desc">Upload traces, screenshots and HTML report as artifacts</div>
+    </div>
+    <div class="ps sr d5 vis">
+      <div class="ps-ico">✅</div>
+      <div class="ps-step">Stage 05</div>
+      <div class="ps-name">Gate</div>
+      <div class="ps-desc">PR status check blocks merge if any tests failed</div>
+    </div>
+    <div class="ps sr d6 vis">
+      <div class="ps-ico">🚀</div>
+      <div class="ps-step">Stage 06</div>
+      <div class="ps-name">Deploy</div>
+      <div class="ps-desc">Auto-deploy to staging on main branch pass — zero manual steps</div>
+    </div>
+  </div>
+
+  <!-- Matrix workflow YAML -->
+  <div style="margin-top:56px" class="sr vis">
+    <div class="s-eyebrow" style="margin-bottom:20px">✦ Matrix Strategy — Cross-Browser</div>
+    <div class="cblock">
+      <div class="cb-bar"><div class="cb-dots"><span></span><span></span><span></span></div><div class="cb-file">.github/workflows/cross-browser.yml</div><div class="cb-lang">YAML</div></div>
+      <div class="cb-body"><pre><span class="ky">jobs</span><span class="wh">:</span>
+  <span class="ky">playwright</span><span class="wh">:</span>
+    <span class="ky">name</span><span class="wh">:</span> <span class="st">Playwright (${{ matrix.browser }})</span>
+    <span class="ky">runs-on</span><span class="wh">:</span> <span class="st">ubuntu-latest</span>
+    <span class="ky">strategy</span><span class="wh">:</span>
+      <span class="ky">fail-fast</span><span class="wh">:</span> <span class="kw">false</span>          <span class="cm"># don't cancel others on one failure</span>
+      <span class="ky">matrix</span><span class="wh">:</span>
+        <span class="ky">browser</span><span class="wh">: [</span><span class="st">chromium</span><span class="wh">,</span> <span class="st">firefox</span><span class="wh">,</span> <span class="st">webkit</span><span class="wh">]</span>
+    <span class="ky">steps</span><span class="wh">:</span>
+      <span class="wh">-</span> <span class="ky">uses</span><span class="wh">:</span> <span class="st">actions/checkout@v4</span>
+      <span class="wh">-</span> <span class="ky">run</span><span class="wh">:</span> <span class="st">npm ci</span>
+      <span class="wh">-</span> <span class="ky">run</span><span class="wh">:</span> <span class="st">npx playwright install ${{ matrix.browser }} --with-deps</span>
+      <span class="wh">-</span> <span class="ky">run</span><span class="wh">:</span> <span class="st">npx playwright test --project=${{ matrix.browser }}</span>
+        <span class="ky">env</span><span class="wh">:</span>
+          <span class="ky">BASE_URL</span><span class="wh">:</span> <span class="st">${{ secrets.STAGING_URL }}</span>
+          <span class="ky">TEST_USER</span><span class="wh">:</span> <span class="st">${{ secrets.TEST_USER }}</span>
+          <span class="ky">TEST_PASS</span><span class="wh">:</span> <span class="st">${{ secrets.TEST_PASS }}</span>
+      <span class="wh">-</span> <span class="ky">uses</span><span class="wh">:</span> <span class="st">actions/upload-artifact@v4</span>
+        <span class="ky">if</span><span class="wh">:</span> <span class="st">failure()</span>          <span class="cm"># only upload on fail</span>
+        <span class="ky">with</span><span class="wh">:</span>
+          <span class="ky">name</span><span class="wh">:</span> <span class="st">traces-${{ matrix.browser }}</span>
+          <span class="ky">path</span><span class="wh">:</span> <span class="st">test-results/</span></pre></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TRIGGERS -->
+<section id="triggers">
+<div class="sw sr vis">
+  <div class="s-eyebrow">✦ 03 · Workflow Triggers</div>
+  <h2 class="big-t">Trigger on<br><span class="gg">anything.</span></h2>
+  <p class="s-intro">GitHub Actions supports 20+ trigger events. Here are the ones every SDET uses daily to automate test execution.</p>
+  <div class="trig-grid">
+    <div class="tcard sr d1 vis">
+      <div class="tc-ico">📤</div>
+      <div class="tc-title">on: push</div>
+      <div class="tc-desc">Run tests every time code is pushed to a branch. Gate quality at every single commit before it reaches main.</div>
+      <code class="tc-code">on:
+  push:
+    branches: [main, develop]</code>
+    </div>
+    <div class="tcard sr d2 vis">
+      <div class="tc-ico">🔀</div>
+      <div class="tc-title">on: pull_request</div>
+      <div class="tc-desc">Run tests on every PR. Block merges with required status checks — no broken code gets into main, ever.</div>
+      <code class="tc-code">on:
+  pull_request:
+    branches: [main]</code>
+    </div>
+    <div class="tcard sr d3 vis">
+      <div class="tc-ico">⏰</div>
+      <div class="tc-title">on: schedule</div>
+      <div class="tc-desc">Run regression suites nightly on a cron schedule. Catch issues introduced by external API changes or data drift.</div>
+      <code class="tc-code">on:
+  schedule:
+    - cron: '0 2 * * *'</code>
+    </div>
+    <div class="tcard sr vis">
+      <div class="tc-ico">🖱️</div>
+      <div class="tc-title">on: workflow_dispatch</div>
+      <div class="tc-desc">Manually trigger a workflow from the GitHub UI with custom inputs. Perfect for on-demand regression runs.</div>
+      <code class="tc-code">on:
+  workflow_dispatch:
+    inputs:
+      environment: staging</code>
+    </div>
+    <div class="tcard sr d1 vis">
+      <div class="tc-ico">🏷️</div>
+      <div class="tc-title">on: release</div>
+      <div class="tc-desc">Trigger full regression suite automatically when a release tag is created. Quality gate before every production deploy.</div>
+      <code class="tc-code">on:
+  release:
+    types: [published]</code>
+    </div>
+    <div class="tcard sr d2 vis">
+      <div class="tc-ico">🔁</div>
+      <div class="tc-title">on: workflow_call</div>
+      <div class="tc-desc">Allow another workflow to call this one as a reusable job. Share test pipelines across multiple repositories without duplication.</div>
+      <code class="tc-code">on:
+  workflow_call:
+    inputs:
+      url: {type: string}</code>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- INTERACTIVE PLAYGROUND -->
+<div class="runner-bg" id="runner">
+  <div class="runner-top">
+    <div class="s-eyebrow">✦ 04 · Workflow Execution Playground</div>
+    <h2 class="runner-title">⚙️ <span style="background:linear-gradient(90deg,var(--orange),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Build &amp; Run</span> any Pipeline.</h2>
+    <p class="runner-sub">Choose a workflow preset or build your own. Watch the animated pipeline graph execute in real-time — parallel jobs, dependencies, matrix expansions, artifacts and status gates all visualised live.</p>
+  </div>
+
+  <div class="pg-wrap">
+
+    <!-- LEFT: scenario picker + YAML -->
+    <div class="pg-left">
+      <div class="pg-section-label">Choose Workflow</div>
+      <div class="pg-scenario-grid" id="scenarioGrid">
+        <button class="sc-btn active" data-sc="playwright" onclick="selectScenario(this)">
+          <span class="sc-icon">🧪</span>
+          <span class="sc-name">Playwright E2E</span>
+          <span class="sc-desc">3-browser matrix</span>
+        </button>
+        <button class="sc-btn" data-sc="pr_gate" onclick="selectScenario(this)">
+          <span class="sc-icon">🔀</span>
+          <span class="sc-name">PR Quality Gate</span>
+          <span class="sc-desc">lint + test + review</span>
+        </button>
+        <button class="sc-btn" data-sc="deploy" onclick="selectScenario(this)">
+          <span class="sc-icon">🚀</span>
+          <span class="sc-name">Deploy Pipeline</span>
+          <span class="sc-desc">build → stage → prod</span>
+        </button>
+        <button class="sc-btn" data-sc="nightly" onclick="selectScenario(this)">
+          <span class="sc-icon">🌙</span>
+          <span class="sc-name">Nightly Regression</span>
+          <span class="sc-desc">full suite + report</span>
+        </button>
+        <button class="sc-btn" data-sc="security" onclick="selectScenario(this)">
+          <span class="sc-icon">🔒</span>
+          <span class="sc-name">Security Scan</span>
+          <span class="sc-desc">SAST + deps + secrets</span>
+        </button>
+        <button class="sc-btn" data-sc="fail_recover" onclick="selectScenario(this)">
+          <span class="sc-icon">💥</span>
+          <span class="sc-name">Fail &amp; Recover</span>
+          <span class="sc-desc">retry + notify</span>
+        </button>
+      </div>
+
+      <div class="pg-section-label" style="margin-top:20px">Workflow YAML <span id="yamlFileName" style="color:var(--orange);font-size:10px;margin-left:8px;font-family:var(--mono)">.github/workflows/playwright.yml</span></div>
+      <div class="yaml-viewer" id="yamlViewer"><pre><span style="color:#fb923c">name</span><span style="color:#f5f0e8">:</span> <span style="color:#86efac">playwright</span> <span style="color:#3a3228"># push → main / develop</span>
+
+<span style="color:#fb923c">on</span>:
+  <span style="color:#fb923c">push</span>: { <span style="color:#fb923c">branches</span>: [<span style="color:#86efac">main</span>] }
+
+<span style="color:#fb923c">jobs</span>:
+  <span style="color:#fb923c">t</span>:
+    <span style="color:#fb923c">runs-on</span>: <span style="color:#86efac">ubuntu-latest</span>
+    <span style="color:#fb923c">steps</span>:
+      <span style="color:#3a3228"># Received push event · branch: main · Run #7203 queued</span>
+  <span style="color:#fb923c">setup</span>:
+    <span style="color:#fb923c">runs-on</span>: <span style="color:#86efac">ubuntu-latest</span>
+    <span style="color:#fb923c">steps</span>:
+      <span style="color:#3a3228"># actions/checkout@v4 · HEAD sha: a3f9c12 · actions/setup-node@v4 · node 20.11.0</span>
+  <span style="color:#fb923c">chrome</span>:
+    <span style="color:#fb923c">needs</span>: [<span style="color:#86efac">setup</span>]
+    <span style="color:#3a3228"># runs in parallel with sibling jobs</span>
+    <span style="color:#fb923c">runs-on</span>: <span style="color:#86efac">ubuntu-latest</span>
+    <span style="color:#fb923c">steps</span>:
+      <span style="color:#3a3228"># npx playwright install chromium --with-deps · Browser: Chromium 124.0.6367.60</span>
+  <span style="color:#fb923c">firefox</span>:
+    <span style="color:#fb923c">needs</span>: [<span style="color:#86efac">setup</span>]
+    <span style="color:#3a3228"># runs in parallel with sibling jobs</span>
+    <span style="color:#fb923c">runs-on</span>: <span style="color:#86efac">ubuntu-latest</span>
+    <span style="color:#fb923c">steps</span>:
+      <span style="color:#3a3228"># npx playwright install firefox --with-deps · Browser: Firefox 125.0</span>
+  <span style="color:#fb923c">webkit</span>:
+    <span style="color:#fb923c">needs</span>: [<span style="color:#86efac">setup</span>]
+    <span style="color:#3a3228"># runs in parallel with sibling jobs</span>
+    <span style="color:#fb923c">runs-on</span>: <span style="color:#86efac">ubuntu-latest</span>
+    <span style="color:#fb923c">steps</span>:
+      <span style="color:#3a3228"># npx playwright install webkit --with-deps · Browser: WebKit 17.4</span>
+  <span style="color:#fb923c">report</span>:
+    <span style="color:#fb923c">needs</span>: [<span style="color:#86efac">chrome</span>, <span style="color:#86efac">firefox</span>, <span style="color:#86efac">webkit</span>]
+    <span style="color:#fb923c">runs-on</span>: <span style="color:#86efac">ubuntu-latest</span>
+    <span style="color:#fb923c">steps</span>:
+      <span style="color:#3a3228"># Merging reports from 3 matrix jobs... · Generating HTML report (playwright-report/)</span>
+  <span style="color:#fb923c">gate</span>:
+    <span style="color:#fb923c">needs</span>: [<span style="color:#86efac">report</span>]
+    <span style="color:#fb923c">runs-on</span>: <span style="color:#86efac">ubuntu-latest</span>
+    <span style="color:#fb923c">steps</span>:
+      <span style="color:#3a3228"># All required jobs passed ✓ · github/checks: playwright / test → success</span></pre></div>
+
+      <div style="display:flex;gap:10px;margin-top:16px;align-items:center">
+        <button class="rbtn" id="runBtn" onclick="runPlayground()">
+          <span id="rIcon">▶</span><span id="rText">Execute Workflow</span>
+        </button>
+        <button class="rbtn" style="background:var(--faint);border:1px solid var(--border2);color:var(--orange);box-shadow:none" onclick="resetPlayground()">↺ Reset</button>
+        <div id="wf-elapsed" style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: animated pipeline graph + terminal -->
+    <div class="pg-right">
+      <div class="pg-section-label">Live Execution Graph <span id="graphStatus" style="color:var(--muted);font-size:10px;margin-left:8px;font-family:var(--mono)"></span></div>
+      <div class="pipe-graph" id="pipeGraph">
+        <canvas id="edgeCanvas"></canvas>
+        <div class="graph-nodes" id="graphNodes"><div class="gnode queued" id="gn-t" style="position: absolute; left: 8%; top: 50%; transform: translate(-50%, -50%);"><div class="gnode-inner">
+      <span class="gnode-badge" id="gb-t">·</span>
+      <span class="gnode-icon">📤</span>
+      <span class="gnode-name">Triggered</span>
+      <span class="gnode-sub">push → main</span>
+    </div></div><div class="gnode queued" id="gn-setup" style="position: absolute; left: 26%; top: 50%; transform: translate(-50%, -50%);"><div class="gnode-inner">
+      <span class="gnode-badge" id="gb-setup">·</span>
+      <span class="gnode-icon">📦</span>
+      <span class="gnode-name">Setup</span>
+      <span class="gnode-sub">checkout + npm ci</span>
+    </div></div><div class="gnode queued" id="gn-chrome" style="position: absolute; left: 50%; top: 18%; transform: translate(-50%, -50%);"><div class="gnode-inner">
+      <span class="gnode-badge" id="gb-chrome">·</span>
+      <span class="gnode-icon">🔵</span>
+      <span class="gnode-name">Chromium</span>
+      <span class="gnode-sub">matrix · 14 tests</span>
+    </div></div><div class="gnode queued" id="gn-firefox" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"><div class="gnode-inner">
+      <span class="gnode-badge" id="gb-firefox">·</span>
+      <span class="gnode-icon">🦊</span>
+      <span class="gnode-name">Firefox</span>
+      <span class="gnode-sub">matrix · 14 tests</span>
+    </div></div><div class="gnode queued" id="gn-webkit" style="position: absolute; left: 50%; top: 82%; transform: translate(-50%, -50%);"><div class="gnode-inner">
+      <span class="gnode-badge" id="gb-webkit">·</span>
+      <span class="gnode-icon">🧭</span>
+      <span class="gnode-name">WebKit</span>
+      <span class="gnode-sub">matrix · 14 tests</span>
+    </div></div><div class="gnode queued" id="gn-report" style="position: absolute; left: 74%; top: 50%; transform: translate(-50%, -50%);"><div class="gnode-inner">
+      <span class="gnode-badge" id="gb-report">·</span>
+      <span class="gnode-icon">📊</span>
+      <span class="gnode-name">Report</span>
+      <span class="gnode-sub">HTML + artifacts</span>
+    </div></div><div class="gnode queued" id="gn-gate" style="position: absolute; left: 90%; top: 50%; transform: translate(-50%, -50%);"><div class="gnode-inner">
+      <span class="gnode-badge" id="gb-gate">·</span>
+      <span class="gnode-icon">✅</span>
+      <span class="gnode-name">PR Gate</span>
+      <span class="gnode-sub">status check passed</span>
+    </div></div></div>
+      </div>
+
+      <div class="pg-section-label" style="margin-top:16px">Execution Log <span id="logStats" style="color:var(--muted);font-size:10px;font-family:var(--mono)"></span></div>
+      <div class="pg-terminal">
+        <div class="tbar">
+          <div class="tbar-l">
+            <div class="tdots"><span></span><span></span><span></span></div>
+            <div class="tname" id="termTitle">github-actions · idle</div>
+          </div>
+          <div class="tstat"><div class="sdot" id="sdot"></div><span id="slabel">idle</span></div>
+        </div>
+        <div class="tbody" id="tbody">
+          <div class="trow"><span class="tts">00:00:00</span><span class="ttag INFO">INFO</span><span class="tmsg">Playground ready — pick a scenario and click ▶ Execute Workflow</span></div>
+        </div>
+      </div>
+
+      <!-- Overall progress -->
+      <div class="pwrap" style="margin-top:12px">
+        <div class="prow">
+          <span id="ptxt">0 / 0 jobs</span>
+          <span id="ppct">0%</span>
+        </div>
+        <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+      </div>
+
+      <!-- Summary badges (shown after run) -->
+      <div id="runSummary" style="display:none;margin-top:16px;display:flex;gap:10px;flex-wrap:wrap"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- GITHUB LIVE -->
+<div class="gh-bg" id="github-live">
+<div class="sw sr vis">
+  <div class="s-eyebrow">✦ 05 · Live GitHub Data</div>
+  <h2 class="big-t">Your <span class="go">real repos.</span><br>Real <span class="gw">commits.</span></h2>
+  <p class="s-intro">Enter your GitHub username (and optionally a Personal Access Token for private repos &amp; workflow runs). Data is fetched live from the GitHub API — nothing stored.</p>
+
+  <div class="gh-input-row">
+    <div class="gh-input-group" style="max-width:260px">
+      <label class="gh-label">GitHub Username</label>
+      <input class="gh-input" id="ghUser" type="text" placeholder="e.g. aayushmishra" autocomplete="off">
+    </div>
+    <div class="gh-input-group">
+      <label class="gh-label">Personal Access Token <span style="color:var(--muted);font-size:9px">(optional — for workflow runs + private repos)</span></label>
+      <input class="gh-input" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    </div>
+    <button class="gh-fetch-btn" id="ghFetchBtn" onclick="fetchGitHub()">
+      <span id="ghBtnIcon">⬇</span><span id="ghBtnText">Fetch Data</span>
+    </button>
+  </div>
+  <p class="gh-token-note">🔒 Token is used only in your browser for this session — never sent to any server. Generate one at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a> with <code>repo</code> + <code>workflow</code> scopes.</p>
+
+  <div id="ghError" style="display: none; margin-top: 20px;"><span style="font-size:18px">⚠</span> Please enter a GitHub username.</div>
+  <div id="ghResults" class="gh-results show">
+
+    <!-- Profile -->
+    <div style="margin-top:36px">
+      <div class="gh-section-title">GitHub Profile</div>
+      <div class="gh-profile" id="ghProfile">
+    <img class="gh-avatar" src="./⚙️ GitHub Actions CI_CD — Aayush Mishra · SDET_files/89012492" alt="Aayush-Mishraa" onerror="this.outerHTML=&#39;&lt;div class=gh-avatar-ph&gt;👤&lt;/div&gt;&#39;">
+    <div class="gh-profile-info">
+      <div class="gh-profile-name">Aayush Mishra</div>
+      <div class="gh-profile-handle">@Aayush-Mishraa</div>
+      <div class="gh-profile-bio">I actively participate in the data science community, sharing my knowledge, insights, and code snippets on GitHub. I contribute to open-source projects</div>
+      <div class="gh-profile-stats">
+        <div class="gh-pstat"><span class="gh-pstat-n">33</span><span class="gh-pstat-l">Repos</span></div>
+        <div class="gh-pstat"><span class="gh-pstat-n">2</span><span class="gh-pstat-l">Followers</span></div>
+        <div class="gh-pstat"><span class="gh-pstat-n">11</span><span class="gh-pstat-l">Following</span></div>
+        
+      </div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">🏢 Keywords Studios</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">📍 Bangalore | Gurgaon | Hyderabad </div>
+      <div style="font-size:11px;margin-bottom:6px"><a href="https://www.aayushmishra.tech/" target="_blank" style="color:var(--orange);text-decoration:none">🔗 Website</a></div>
+      <a href="https://github.com/Aayush-Mishraa" target="_blank" style="display:inline-block;margin-top:8px;background:var(--orange);color:#fff;font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:3px;text-decoration:none">View on GitHub ↗</a>
+    </div></div>
+    </div>
+
+    <!-- Repos -->
+    <div style="margin-top:32px">
+      <div class="gh-section-title">Public Repositories <span id="repoCount" style="font-size:11px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400;font-family:var(--mono)">(12 shown)</span></div>
+      <div class="repo-grid" id="repoGrid"><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/DOINGTESTING" target="_blank">DOINGTESTING</a></div>
+      <div class="repo-desc"><span style="opacity:.4">No description</span></div>
+      
+      <div class="repo-meta">
+        
+        <span class="repo-stars">⭐ 0</span>
+        
+        <span class="repo-updated">18m ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra" target="_blank">MasterPortfolio-DevSculptedBy-AayushMishra</a></div>
+      <div class="repo-desc">Personal portfolio showcasing automation projects, AI testing tools, and software engineering work.</div>
+      <div class="repo-topics"><span class="repo-topic">html-css-javascript</span><span class="repo-topic">js</span><span class="repo-topic">nodejs</span></div>
+      <div class="repo-meta">
+        <span class="repo-lang"><span class="lang-dot" style="background:#f7df1e"></span>JavaScript</span>
+        <span class="repo-stars">⭐ 2</span>
+        
+        <span class="repo-updated">12h ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/AI-Agent-Test-Using-Amazon-Nova-Act" target="_blank">AI-Agent-Test-Using-Amazon-Nova-Act</a></div>
+      <div class="repo-desc">An AI-powered web test automation framework built using Amazon Nova Act.  This project demonstrates how Large Language Models can autonomously execute end-to-end UI test scenarios using natural language instructions.</div>
+      <div class="repo-topics"><span class="repo-topic">aws</span><span class="repo-topic">aws-s3</span><span class="repo-topic">bedrock</span></div>
+      <div class="repo-meta">
+        <span class="repo-lang"><span class="lang-dot" style="background:#3572a5"></span>Python</span>
+        <span class="repo-stars">⭐ 1</span>
+        
+        <span class="repo-updated">17h ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/FullStack-E-Commerce-Testing" target="_blank">FullStack-E-Commerce-Testing</a></div>
+      <div class="repo-desc">Production-style End-to-End E-commerce Automation Framework using Playwright for UI and API testing. Covers real-world flows like authentication, product search, cart management, checkout, order validation, and API verification. Built with scalable POM architecture and CI/CD-ready setup. 🔗 https://aayushmishra.tech/ecommerceautomation/</div>
+      <div class="repo-topics"><span class="repo-topic">allure-report</span><span class="repo-topic">playwright</span><span class="repo-topic">typescript</span></div>
+      <div class="repo-meta">
+        
+        <span class="repo-stars">⭐ 1</span>
+        
+        <span class="repo-updated">23h ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/playwright-automation-scenarios-ts-js" target="_blank">playwright-automation-scenarios-ts-js</a></div>
+      <div class="repo-desc">Comprehensive Playwright automation repository covering UI, API, and real-world scenarios from basic to advanced, with auth handling, network monitoring, data-driven testing, reusable utilities, and E2E flows.</div>
+      <div class="repo-topics"><span class="repo-topic">javascript</span><span class="repo-topic">playwright</span><span class="repo-topic">test-automation</span></div>
+      <div class="repo-meta">
+        <span class="repo-lang"><span class="lang-dot" style="background:#3178c6"></span>TypeScript</span>
+        <span class="repo-stars">⭐ 1</span>
+        
+        <span class="repo-updated">7d ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/Phoenix-Inwarranty-Flow-API-Tests-" target="_blank">Phoenix-Inwarranty-Flow-API-Tests-</a></div>
+      <div class="repo-desc">Phoenix In-Warranty Flow Automation validates APIs for managing warranty claims and service requests for mobiles, laptops, and accessories. It covers customer request creation, service provider assignment, device tracking, and status updates to ensure reliability, accuracy, and smooth service workflows.</div>
+      <div class="repo-topics"><span class="repo-topic">actions</span><span class="repo-topic">aws-ec2</span><span class="repo-topic">github</span></div>
+      <div class="repo-meta">
+        
+        <span class="repo-stars">⭐ 2</span>
+        
+        <span class="repo-updated">7d ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/API-Automation-Framework-Playwright" target="_blank">API-Automation-Framework-Playwright</a></div>
+      <div class="repo-desc">Scalable API automation framework using Playwright (JavaScript) with reusable request utilities, environment configuration, parallel execution, schema validation, and CI/CD-ready setup. Designed following clean architecture principles.</div>
+      <div class="repo-topics"><span class="repo-topic">api</span><span class="repo-topic">javascript</span><span class="repo-topic">jsonpath</span></div>
+      <div class="repo-meta">
+        <span class="repo-lang"><span class="lang-dot" style="background:#3178c6"></span>TypeScript</span>
+        <span class="repo-stars">⭐ 1</span>
+        
+        <span class="repo-updated">10d ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/Playwright-With-Cucumber-Using-JS" target="_blank">Playwright-With-Cucumber-Using-JS</a></div>
+      <div class="repo-desc">Playwright + Cucumber BDD end-to-end test automation framework using POM for maintainability. Supports parallel execution, retries, auto-screenshots on failure, and Cucumber HTML &amp; Allure reports. Covers e-commerce UI flows (login, cart, checkout, validations) across Chromium, Firefox, and WebKit.</div>
+      <div class="repo-topics"><span class="repo-topic">cucumber-js</span><span class="repo-topic">playwright</span></div>
+      <div class="repo-meta">
+        <span class="repo-lang"><span class="lang-dot" style="background:#f7df1e"></span>JavaScript</span>
+        <span class="repo-stars">⭐ 1</span>
+        
+        <span class="repo-updated">10d ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/Excel-NodeJs-Read-Write-Logic" target="_blank">Excel-NodeJs-Read-Write-Logic</a></div>
+      <div class="repo-desc">Node.js library for dynamic Excel file manipulation - search, read, write, and replace values with flexible row/column operations</div>
+      <div class="repo-topics"><span class="repo-topic">exceljs</span><span class="repo-topic">javascript</span><span class="repo-topic">nodejs</span></div>
+      <div class="repo-meta">
+        <span class="repo-lang"><span class="lang-dot" style="background:#f7df1e"></span>JavaScript</span>
+        <span class="repo-stars">⭐ 1</span>
+        
+        <span class="repo-updated">18d ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/Aayush-mishraa" target="_blank">Aayush-mishraa</a></div>
+      <div class="repo-desc">Aayush</div>
+      
+      <div class="repo-meta">
+        
+        <span class="repo-stars">⭐ 3</span>
+        
+        <span class="repo-updated">2mo ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/evening5clk" target="_blank">evening5clk</a><span style="font-size:9px;color:var(--muted);margin-left:8px;font-family:var(--mono)">forked</span></div>
+      <div class="repo-desc"><span style="opacity:.4">No description</span></div>
+      
+      <div class="repo-meta">
+        
+        <span class="repo-stars">⭐ 2</span>
+        
+        <span class="repo-updated">2mo ago</span>
+      </div>
+    </div><div class="repo-card">
+      <div class="repo-name"><a href="https://github.com/Aayush-Mishraa/DSA-Bootcamp-Java" target="_blank">DSA-Bootcamp-Java</a><span style="font-size:9px;color:var(--muted);margin-left:8px;font-family:var(--mono)">forked</span></div>
+      <div class="repo-desc">This repository consists of the code samples, assignments, and notes for the Java Data Structures &amp; Algorithms bootcamp of Community Classroom.</div>
+      
+      <div class="repo-meta">
+        
+        <span class="repo-stars">⭐ 2</span>
+        
+        <span class="repo-updated">2mo ago</span>
+      </div>
+    </div></div>
+    </div>
+
+    <!-- Recent Commits from most recent repo -->
+    <div style="margin-top:32px" id="commitsSection">
+      <div class="gh-section-title">Recent Commits <span id="commitsRepoLabel" style="font-size:11px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400;font-family:var(--mono)">— Aayush-Mishraa/DOINGTESTING</span></div>
+      <div class="commits-list" id="commitsList"></div>
+    </div>
+
+    <!-- Workflow Runs -->
+    <div style="margin-top:32px" id="runsSection">
+      <div class="gh-section-title">Recent Workflow Runs <span id="runsRepoLabel" style="font-size:11px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400;font-family:var(--mono)"></span></div>
+      <div class="runs-list" id="runsList"></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- SETUP -->
+<div class="setup-bg" id="setup">
+<div class="sw sr vis">
+  <div class="s-eyebrow">✦ 06 · Setup Guide</div>
+  <h2 class="big-t">From zero to<br><span class="go">pipeline</span> in 5 minutes.</h2>
+  <p class="s-intro">Create a YAML file in .github/workflows/ and GitHub detects it automatically. No external tool installation, no CI server setup.</p>
+  <div class="sgrid">
+    <div class="scard sr d1 vis" data-n="01"><div class="sc-n">Step 01</div><div class="sc-t">Create Workflow Dir</div><div class="sc-d">Create the .github/workflows/ directory in your repository root. GitHub detects all .yml files here automatically.</div><code class="sc-cmd">mkdir -p .github/workflows</code></div>
+    <div class="scard sr d2 vis" data-n="02"><div class="sc-n">Step 02</div><div class="sc-t">Create Workflow File</div><div class="sc-d">Create ci.yml inside the workflows directory. This defines your entire pipeline in YAML format.</div><code class="sc-cmd">.github/workflows/ci.yml</code></div>
+    <div class="scard sr d3 vis" data-n="03"><div class="sc-n">Step 03</div><div class="sc-t">Define Triggers</div><div class="sc-d">Set the on: block to specify when the workflow runs — push, pull_request, schedule or manual dispatch.</div><code class="sc-cmd">on: push / pull_request / schedule</code></div>
+    <div class="scard sr d4 vis" data-n="04"><div class="sc-n">Step 04</div><div class="sc-t">Configure Jobs</div><div class="sc-d">Define one or more jobs under jobs:. Each job runs on a fresh virtual machine — ubuntu-latest, windows or macos.</div><code class="sc-cmd">jobs: test: runs-on: ubuntu-latest</code></div>
+    <div class="scard sr vis" data-n="05"><div class="sc-n">Step 05</div><div class="sc-t">Add Secrets</div><div class="sc-d">Store credentials in Settings → Secrets. Reference as ${{ secrets.MY_KEY }} in your YAML — never hardcode credentials.</div><code class="sc-cmd">secrets.BASE_URL / secrets.TEST_PASS</code></div>
+    <div class="scard sr d1 vis" data-n="06"><div class="sc-n">Step 06</div><div class="sc-t">Install Playwright</div><div class="sc-d">Add the npx playwright install --with-deps step. This downloads browsers on the runner automatically every time.</div><code class="sc-cmd">npx playwright install --with-deps</code></div>
+    <div class="scard sr d2 vis" data-n="07"><div class="sc-n">Step 07</div><div class="sc-t">Upload Artifacts</div><div class="sc-d">Use actions/upload-artifact@v4 to save playwright-report/ as a downloadable artifact after every run.</div><code class="sc-cmd">actions/upload-artifact@v4</code></div>
+    <div class="scard sr d3 vis" data-n="08"><div class="sc-n">Step 08</div><div class="sc-t">Enable Required Checks</div><div class="sc-d">In Settings → Branches, add your workflow as a required status check. PRs cannot merge if tests fail.</div><code class="sc-cmd">Settings → Branches → Protection Rules</code></div>
+  </div>
+</div>
+</div>
+
+<!-- BEST PRACTICES -->
+<section style="background:var(--bg);border-top:1px solid var(--border)">
+<div class="sw sr vis">
+  <div class="s-eyebrow">✦ 07 · Best Practices</div>
+  <h2 class="big-t">Pipelines that<br><span class="go">never slow</span> you down.</h2>
+  <p class="s-intro">The patterns that keep CI pipelines fast, reliable and maintainable as your test suite grows.</p>
+  <div class="bpgrid">
+    <div class="bcard sr d1"><div class="bc-ico">⚡</div><div class="bc-t">Cache node_modules</div><div class="bc-d">Use actions/cache@v4 to cache node_modules and Playwright browser binaries between runs. Cuts pipeline time from 4 minutes to under 90 seconds on warm cache.</div><span class="bc-tag bco">Performance</span></div>
+    <div class="bcard sr d2"><div class="bc-ico">💥</div><div class="bc-t">fail-fast: false</div><div class="bc-d">In matrix jobs, always set fail-fast: false. If Safari tests fail, you still want to see Firefox and Chrome results — don't cancel the whole matrix on one failure.</div><span class="bc-tag bcg">Reliability</span></div>
+    <div class="bcard sr d3"><div class="bc-ico">📁</div><div class="bc-t">Always Upload Artifacts</div><div class="bc-d">Use if: always() on upload-artifact steps. Even when tests fail, you need the Playwright trace and HTML report to debug. A report that only uploads on pass is useless.</div><span class="bc-tag bca">Debugging</span></div>
+    <div class="bcard sr"><div class="bc-ico">🔒</div><div class="bc-t">Never Hardcode Secrets</div><div class="bc-d">All credentials, URLs and tokens go in repository secrets or environment secrets. Reference as ${{ secrets.KEY }}. Rotate credentials regularly and restrict access by environment.</div><span class="bc-tag bco">Security</span></div>
+    <div class="bcard sr d1"><div class="bc-ico">🔁</div><div class="bc-t">Reusable Workflows</div><div class="bc-d">Extract your Playwright test job into a reusable workflow with workflow_call. Call it from every repository in your org — one source of truth for your CI logic.</div><span class="bc-tag bcg">Architecture</span></div>
+    <div class="bcard sr d2"><div class="bc-ico">🌿</div><div class="bc-t">Concurrency Groups</div><div class="bc-d">Use concurrency: group: ${{ github.workflow }}-${{ github.ref }} with cancel-in-progress: true. Cancels old runs when new commits push to the same branch — saves runner minutes.</div><span class="bc-tag bca">Efficiency</span></div>
+  </div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fgrid">
+    <div>
+      <div class="fname">AAYUSH MISHRA</div>
+      <div class="frole">SDET · CI/CD Automation Engineer</div>
+      <div class="fbio">Building world-class test automation pipelines with GitHub Actions, Playwright, TestNG and AI-driven tools. Expert in zero-downtime CI/CD for scalable QA infrastructure.</div>
+      <div class="ftch"><span class="ftc">GitHub Actions</span><span class="ftc">Playwright</span><span class="ftc">TestNG</span><span class="ftc">Nova Act</span><span class="ftc">YAML</span><span class="ftc">Docker</span></div>
+    </div>
+    <div>
+      <div class="fch">Navigation</div>
+      <ul class="flinks">
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#overview">What is GitHub Actions</a></li>
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#pipeline">CI/CD Pipeline</a></li>
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#triggers">Workflow Triggers</a></li>
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#runner">Pipeline Simulator</a></li>
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#setup">Setup Guide</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="fch">Also By Aayush</div>
+      <ul class="flinks">
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#">Playwright E2E Testing</a></li>
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#">TestNG + Java Selenium</a></li>
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#">Nova Act — AI Browser Agents</a></li>
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#">GitHub Portfolio</a></li>
+        <li><a href="file:///C:/Users/aayus/Downloads/github-actions%20(2).html#">LinkedIn</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="fbot">
+    <span>© 2024 Aayush Mishra · SDET · All rights reserved</span>
+    <div class="ftch"><span class="ftc">GitHub Actions</span><span class="ftc">YAML</span><span class="ftc">Ubuntu Latest</span></div>
+  </div>
+</footer>
+
+<script>
+
+// ═══════════════════════════════
+// GITHUB LIVE DATA FETCHER
+// ═══════════════════════════════
+const LANG_COLORS = {
+  JavaScript:'#f7df1e',TypeScript:'#3178c6',Python:'#3572a5',Java:'#b07219',
+  HTML:'#e34c26',CSS:'#563d7c','C#':'#178600',Go:'#00add8',Rust:'#dea584',
+  Ruby:'#701516',Swift:'#f05138',Kotlin:'#a97bff',Shell:'#89e051',
+  Dockerfile:'#384d54',YAML:'#cb171e',Vue:'#41b883',React:'#61dafb',
+};
+
+function ghHeaders(token){
+  const h={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+  if(token) h['Authorization']=`Bearer ${token}`;
+  return h;
+}
+
+function timeAgo(dateStr){
+  const d=new Date(dateStr), now=new Date(), diff=Math.floor((now-d)/1000);
+  if(diff<60) return diff+'s ago';
+  if(diff<3600) return Math.floor(diff/60)+'m ago';
+  if(diff<86400) return Math.floor(diff/3600)+'h ago';
+  if(diff<2592000) return Math.floor(diff/86400)+'d ago';
+  return Math.floor(diff/2592000)+'mo ago';
+}
+
+function showGhError(msg){
+  const el=document.getElementById('ghError');
+  el.style.display='flex';
+  el.innerHTML=`<span style="font-size:18px">⚠</span> ${msg}`;
+}
+
+function setFetching(on){
+  const btn=document.getElementById('ghFetchBtn');
+  btn.disabled=on;
+  document.getElementById('ghBtnIcon').textContent=on?'◌':'⬇';
+  document.getElementById('ghBtnText').textContent=on?'Fetching…':'Fetch Data';
+}
+
+async function fetchGitHub(){
+  const user=document.getElementById('ghUser').value.trim();
+  const token=document.getElementById('ghToken').value.trim();
+  if(!user){showGhError('Please enter a GitHub username.');return;}
+
+  document.getElementById('ghError').style.display='none';
+  document.getElementById('ghResults').classList.remove('show');
+  setFetching(true);
+
+  try{
+    // 1. Fetch profile
+    const profileRes=await fetch(`https://api.github.com/users/${encodeURIComponent(user)}`,{headers:ghHeaders(token)});
+    if(!profileRes.ok){
+      if(profileRes.status===404) throw new Error(`User "${user}" not found on GitHub.`);
+      if(profileRes.status===401) throw new Error('Invalid or expired token. Check your Personal Access Token.');
+      if(profileRes.status===403) throw new Error('API rate limit hit. Add a token to increase your limit.');
+      throw new Error(`GitHub API error: ${profileRes.status}`);
+    }
+    const profile=await profileRes.json();
+
+    // 2. Fetch repos
+    const reposRes=await fetch(`https://api.github.com/users/${encodeURIComponent(user)}/repos?sort=updated&per_page=12&type=public`,{headers:ghHeaders(token)});
+    const repos=reposRes.ok ? await reposRes.json() : [];
+
+    // 3. Render profile
+    renderProfile(profile);
+
+    // 4. Render repos
+    renderRepos(repos);
+
+    // 5. Fetch commits from most recently updated repo
+    if(repos.length>0){
+      const topRepo=repos[0];
+      document.getElementById('commitsRepoLabel').textContent=`— ${topRepo.full_name}`;
+      const commitsRes=await fetch(`https://api.github.com/repos/${topRepo.full_name}/commits?per_page=8`,{headers:ghHeaders(token)});
+      if(commitsRes.ok){
+        const commits=await commitsRes.json();
+        renderCommits(commits,topRepo);
+      }
+
+      // 6. Fetch workflow runs (needs token usually)
+      if(token){
+        const runsRes=await fetch(`https://api.github.com/repos/${topRepo.full_name}/actions/runs?per_page=8`,{headers:ghHeaders(token)});
+        if(runsRes.ok){
+          const runsData=await runsRes.json();
+          if(runsData.workflow_runs && runsData.workflow_runs.length>0){
+            document.getElementById('runsSection').style.display='block';
+            document.getElementById('runsRepoLabel').textContent=`— ${topRepo.full_name}`;
+            renderRuns(runsData.workflow_runs);
+          }
+        }
+      }
+    }
+
+    document.getElementById('ghResults').classList.add('show');
+
+  }catch(e){
+    showGhError(e.message);
+  }finally{
+    setFetching(false);
+  }
+}
+
+function renderProfile(p){
+  const el=document.getElementById('ghProfile');
+  el.innerHTML=`
+    <img class="gh-avatar" src="${p.avatar_url}" alt="${p.login}" onerror="this.outerHTML='<div class=gh-avatar-ph>👤</div>'"/>
+    <div class="gh-profile-info">
+      <div class="gh-profile-name">${p.name||p.login}</div>
+      <div class="gh-profile-handle">@${p.login}</div>
+      ${p.bio?`<div class="gh-profile-bio">${p.bio}</div>`:''}
+      <div class="gh-profile-stats">
+        <div class="gh-pstat"><span class="gh-pstat-n">${p.public_repos}</span><span class="gh-pstat-l">Repos</span></div>
+        <div class="gh-pstat"><span class="gh-pstat-n">${p.followers}</span><span class="gh-pstat-l">Followers</span></div>
+        <div class="gh-pstat"><span class="gh-pstat-n">${p.following}</span><span class="gh-pstat-l">Following</span></div>
+        ${p.public_gists?`<div class="gh-pstat"><span class="gh-pstat-n">${p.public_gists}</span><span class="gh-pstat-l">Gists</span></div>`:''}
+      </div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      ${p.company?`<div style="font-size:11px;color:var(--muted);margin-bottom:6px">🏢 ${p.company}</div>`:''}
+      ${p.location?`<div style="font-size:11px;color:var(--muted);margin-bottom:6px">📍 ${p.location}</div>`:''}
+      ${p.blog?`<div style="font-size:11px;margin-bottom:6px"><a href="${p.blog.startsWith('http')?p.blog:'https://'+p.blog}" target="_blank" style="color:var(--orange);text-decoration:none">🔗 Website</a></div>`:''}
+      <a href="https://github.com/${p.login}" target="_blank" style="display:inline-block;margin-top:8px;background:var(--orange);color:#fff;font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:3px;text-decoration:none">View on GitHub ↗</a>
+    </div>`;
+}
+
+function renderRepos(repos){
+  const grid=document.getElementById('repoGrid');
+  document.getElementById('repoCount').textContent=`(${repos.length} shown)`;
+  if(!repos.length){grid.innerHTML='<div class="gh-empty">No public repositories found.</div>';return;}
+  grid.innerHTML=repos.map(r=>{
+    const lang=r.language||'';
+    const color=LANG_COLORS[lang]||'#6b6255';
+    const topics=(r.topics||[]).slice(0,3).map(t=>`<span class="repo-topic">${t}</span>`).join('');
+    return `<div class="repo-card">
+      <div class="repo-name"><a href="${r.html_url}" target="_blank">${r.name}</a>${r.fork?'<span style="font-size:9px;color:var(--muted);margin-left:8px;font-family:var(--mono)">forked</span>':''}</div>
+      <div class="repo-desc">${r.description||'<span style="opacity:.4">No description</span>'}</div>
+      ${topics?`<div class="repo-topics">${topics}</div>`:''}
+      <div class="repo-meta">
+        ${lang?`<span class="repo-lang"><span class="lang-dot" style="background:${color}"></span>${lang}</span>`:''}
+        <span class="repo-stars">⭐ ${r.stargazers_count}</span>
+        ${r.forks_count?`<span class="repo-stars" style="color:var(--muted)">🍴 ${r.forks_count}</span>`:''}
+        <span class="repo-updated">${timeAgo(r.updated_at)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCommits(commits, repo){
+  const list=document.getElementById('commitsList');
+  if(!commits.length){list.innerHTML='<div class="gh-empty">No commits found.</div>';return;}
+  list.innerHTML=commits.map(c=>{
+    const sha=c.sha.slice(0,7);
+    const msg=(c.commit.message||'').split('\n')[0].slice(0,72);
+    const author=c.commit.author?.name||c.author?.login||'unknown';
+    const time=timeAgo(c.commit.author?.date||'');
+    return `<div class="commit-row">
+      <a href="${c.html_url}" target="_blank" style="text-decoration:none"><span class="commit-sha">${sha}</span></a>
+      <span class="commit-msg" title="${c.commit.message}">${msg}</span>
+      <span class="commit-author">@${author.slice(0,16)}</span>
+      <span class="commit-time">${time}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderRuns(runs){
+  const list=document.getElementById('runsList');
+  list.innerHTML=runs.map(r=>{
+    const statusClass=r.conclusion==='success'?'rs-success':r.conclusion==='failure'?'rs-failure':'rs-running';
+    const icon=r.conclusion==='success'?'✓':r.conclusion==='failure'?'✗':'●';
+    const iconColor=r.conclusion==='success'?'var(--green)':r.conclusion==='failure'?'var(--red)':'var(--amber)';
+    const dur=r.updated_at&&r.created_at?Math.round((new Date(r.updated_at)-new Date(r.created_at))/1000)+'s':'—';
+    return `<div class="run-row">
+      <div class="run-status ${statusClass}"></div>
+      <span style="font-size:13px;color:${iconColor};font-weight:700;min-width:16px">${icon}</span>
+      <span class="run-name">${r.name||r.workflow_id}</span>
+      <span class="run-branch">${(r.head_branch||'').slice(0,20)}</span>
+      <a href="${r.html_url}" target="_blank" style="font-size:10px;color:var(--orange);text-decoration:none;font-family:var(--mono)">View ↗</a>
+      <span class="run-dur">⏱ ${dur}</span>
+      <span class="run-time">${timeAgo(r.created_at)}</span>
+    </div>`;
+  }).join('');
+}
+
+// allow Enter key on username
+document.getElementById('ghUser').addEventListener('keydown',e=>{if(e.key==='Enter')fetchGitHub();});
+
+const cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cdot.style.left=mx+'px';cdot.style.top=my+'px';});
+(function loop(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;cring.style.left=rx+'px';cring.style.top=ry+'px';requestAnimationFrame(loop);})();
+document.querySelectorAll('a,button,.wc,.tcard,.bcard,.scard,.ps,.hst').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'));
+});
+
+// SCROLL REVEAL
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}}),{threshold:.07});
+document.querySelectorAll('.sr').forEach(el=>obs.observe(el));
+
+// ═══════════════════════════════════════════════════
+// WORKFLOW EXECUTION PLAYGROUND ENGINE
+// ═══════════════════════════════════════════════════
+
+const SCENARIOS = {
+  playwright:{
+    file:'.github/workflows/playwright.yml',
+    trigger:'push → main / develop',
+    nodes:[
+      {id:'t',icon:'📤',name:'Triggered',sub:'push → main',x:8,y:50},
+      {id:'setup',icon:'📦',name:'Setup',sub:'checkout + npm ci',x:26,y:50,deps:['t']},
+      {id:'chrome',icon:'🔵',name:'Chromium',sub:'matrix · 14 tests',x:50,y:18,deps:['setup'],parallel:true},
+      {id:'firefox',icon:'🦊',name:'Firefox',sub:'matrix · 14 tests',x:50,y:50,deps:['setup'],parallel:true},
+      {id:'webkit',icon:'🧭',name:'WebKit',sub:'matrix · 14 tests',x:50,y:82,deps:['setup'],parallel:true},
+      {id:'report',icon:'📊',name:'Report',sub:'HTML + artifacts',x:74,y:50,deps:['chrome','firefox','webkit']},
+      {id:'gate',icon:'✅',name:'PR Gate',sub:'status check passed',x:90,y:50,deps:['report']},
+    ],
+    jobs:[
+      {id:'t',name:'Workflow triggered',dur:500,steps:['Received push event · branch: main','Run #'+Math.floor(Math.random()*9000+1000)+' queued','Evaluating job graph...']},
+      {id:'setup',name:'Setup',dur:2200,steps:['actions/checkout@v4 · HEAD sha: a3f9c12','actions/setup-node@v4 · node 20.11.0','npm ci · cache restored (2.1s)','node_modules: 847 packages installed']},
+      {id:'chrome',name:'Test · chromium',dur:3800,parallel:true,steps:['npx playwright install chromium --with-deps','Browser: Chromium 124.0.6367.60','npx playwright test --project=chromium','Running 14 tests across 3 workers...','✓ login.spec.ts (3 tests) · 2.1s','✓ checkout.spec.ts (5 tests) · 4.8s','✓ search.spec.ts (6 tests) · 3.9s','✓ 14 passed · 0 failed · 38.2s']},
+      {id:'firefox',name:'Test · firefox',dur:4100,parallel:true,steps:['npx playwright install firefox --with-deps','Browser: Firefox 125.0','npx playwright test --project=firefox','Running 14 tests across 3 workers...','✓ login.spec.ts (3 tests) · 2.4s','✓ checkout.spec.ts (5 tests) · 5.1s','✓ search.spec.ts (6 tests) · 4.3s','✓ 14 passed · 0 failed · 41.7s']},
+      {id:'webkit',name:'Test · webkit',dur:4400,parallel:true,steps:['npx playwright install webkit --with-deps','Browser: WebKit 17.4','npx playwright test --project=webkit','Running 14 tests across 3 workers...','✓ login.spec.ts (3 tests) · 2.8s','✓ checkout.spec.ts (5 tests) · 5.6s','✓ search.spec.ts (6 tests) · 4.9s','✓ 14 passed · 0 failed · 44.3s']},
+      {id:'report',name:'Upload artifacts',dur:1400,steps:['Merging reports from 3 matrix jobs...','Generating HTML report (playwright-report/)','actions/upload-artifact@v4','  name: playwright-report','  size: 2.3 MB · expires in 30 days','Artifact URL: actions/runs/1234/artifacts/5678']},
+      {id:'gate',name:'PR status check',dur:400,steps:['All required jobs passed ✓','github/checks: playwright / test → success','PR #42 merge unblocked','🎉 42/42 tests passed across 3 browsers']},
+    ],
+    artifacts:['playwright-report (2.3MB)','test-results.json'],
+    totalTime:'3m 14s',
+  },
+
+  pr_gate:{
+    file:'.github/workflows/pr-gate.yml',
+    trigger:'pull_request → main',
+    nodes:[
+      {id:'t',icon:'🔀',name:'PR #42',sub:'pull_request opened',x:8,y:50},
+      {id:'lint',icon:'🔍',name:'Lint',sub:'ESLint + TypeScript',x:32,y:20,deps:['t'],parallel:true},
+      {id:'test',icon:'🧪',name:'Tests',sub:'68 tests · 4 workers',x:32,y:50,deps:['t'],parallel:true},
+      {id:'build',icon:'🔨',name:'Build Check',sub:'bundle size < 200KB',x:32,y:80,deps:['t'],parallel:true},
+      {id:'gate',icon:'🚦',name:'Quality Gate',sub:'all checks required',x:66,y:50,deps:['lint','test','build']},
+      {id:'merge',icon:'✅',name:'Merge Ready',sub:'PR approved',x:88,y:50,deps:['gate']},
+    ],
+    jobs:[
+      {id:'t',name:'PR event received',dur:400,steps:['PR #42: "feat: add login tests" opened','Author: aayush-mishra · base: main','Starting 3 parallel quality checks...']},
+      {id:'lint',name:'Lint & Type-check',dur:2000,parallel:true,steps:['npm run lint','ESLint v8 · scanning 124 files...','✓ 0 errors · 2 warnings (non-blocking)','npm run type-check','TypeScript 5.4 · strict mode','✓ No type errors found · 1.8s']},
+      {id:'test',name:'Playwright tests',dur:3200,parallel:true,steps:['npx playwright test --workers=4','Running 22 test files in parallel...','✓ auth/ (12 tests) · 18.2s','✓ cart/ (24 tests) · 22.4s','✓ search/ (18 tests) · 19.8s','✓ checkout/ (14 tests) · 21.1s','✓ 68/68 passed · 0 failed · 52.3s']},
+      {id:'build',name:'Build + bundle size',dur:2400,parallel:true,steps:['npm run build','Vite 5.2 · building for production...','dist/index.html · 2.4KB','dist/assets/main.js · 138.2KB ✓ (< 200KB)','dist/assets/main.css · 24.1KB','✓ Bundle size check passed']},
+      {id:'gate',name:'Quality gate',dur:700,steps:['Evaluating required checks...','✓ Lint: passed (2 warnings)','✓ Tests: 68/68 passed','✓ Build: 138KB < 200KB limit','All required checks passed ✓']},
+      {id:'merge',name:'PR approved',dur:400,steps:['github/status: pr-gate → success','Posting summary comment on PR #42','Branch protection satisfied','🔓 PR #42 is ready to merge']},
+    ],
+    artifacts:['bundle-stats.json','test-results.json'],
+    totalTime:'1m 52s',
+  },
+
+  deploy:{
+    file:'.github/workflows/deploy.yml',
+    trigger:'release v1.4.2 published',
+    nodes:[
+      {id:'t',icon:'🏷️',name:'Release',sub:'v1.4.2 published',x:6,y:50},
+      {id:'build',icon:'🔨',name:'Build',sub:'npm run build',x:22,y:50,deps:['t']},
+      {id:'smoke',icon:'💨',name:'Smoke Tests',sub:'@smoke · 8 critical',x:40,y:50,deps:['build']},
+      {id:'staging',icon:'🌍',name:'→ Staging',sub:'environment approval',x:58,y:50,deps:['smoke']},
+      {id:'e2e',icon:'🧪',name:'Post-deploy E2E',sub:'staging validation',x:72,y:30,deps:['staging'],parallel:true},
+      {id:'prod',icon:'🚀',name:'→ Production',sub:'rolling deploy',x:86,y:50,deps:['staging']},
+    ],
+    jobs:[
+      {id:'t',name:'Release event',dur:400,steps:['Release v1.4.2 published · tag: v1.4.2','Changelog: 3 features, 7 bug fixes','Triggering deploy pipeline...']},
+      {id:'build',name:'Build production assets',dur:2800,steps:['npm ci · installing dependencies','npm run build -- --mode production','Vite production build complete:','  dist/ total: 2.1MB','  main.js: 138KB (gzipped: 41KB)','actions/upload-artifact@v4 → build-dist (2.1MB)']},
+      {id:'smoke',name:'Smoke tests',dur:2000,steps:['npx playwright test --grep @smoke','Running 8 critical smoke tests...','✓ homepage loads · 0.8s','✓ login flow · 1.2s','✓ checkout opens · 0.9s','✓ API health check · 0.3s','✓ 8/8 smoke tests passed · 12.4s']},
+      {id:'staging',name:'Deploy to staging',dur:2600,steps:['Environment: staging · waiting for approval...','✓ Approved by: aayush-mishra','./scripts/deploy.sh staging v1.4.2','Uploading 2.1MB to staging CDN...','Health check: https://staging.app.com → 200 OK','✓ Staging deploy complete · v1.4.2 live']},
+      {id:'e2e',name:'Staging E2E validation',dur:2200,parallel:true,steps:['npx playwright test --base-url=https://staging.app.com','Running full regression on staging...','✓ 94/94 tests passed · 2m 18s','Staging environment verified ✓']},
+      {id:'prod',name:'Deploy to production',dur:3200,steps:['Environment: production · waiting for approval...','✓ Approved by: aayush-mishra','Rolling deploy: 1/3 instances updated...','Rolling deploy: 2/3 instances updated...','Rolling deploy: 3/3 instances updated ✓','Health check: https://app.com → 200 OK','🚀 v1.4.2 is LIVE in production!']},
+    ],
+    artifacts:['build-dist (2.1MB)','smoke-results.json','staging-e2e-report.html'],
+    totalTime:'5m 08s',
+  },
+
+  nightly:{
+    file:'.github/workflows/nightly.yml',
+    trigger:'cron · 02:00 UTC daily',
+    nodes:[
+      {id:'t',icon:'⏰',name:'Cron 02:00',sub:'schedule trigger',x:7,y:50},
+      {id:'r1',icon:'🔵',name:'chrome/stg',sub:'94 tests',x:30,y:12,deps:['t'],parallel:true},
+      {id:'r2',icon:'🧭',name:'webkit/stg',sub:'94 tests',x:30,y:37,deps:['t'],parallel:true},
+      {id:'r3',icon:'🔵',name:'chrome/prod',sub:'94 tests',x:30,y:63,deps:['t'],parallel:true},
+      {id:'r4',icon:'🧭',name:'webkit/prod',sub:'94 tests',x:30,y:88,deps:['t'],parallel:true},
+      {id:'cov',icon:'📈',name:'Coverage',sub:'merge + report',x:60,y:50,deps:['r1','r2','r3','r4']},
+      {id:'notify',icon:'🔔',name:'Slack Alert',sub:'always() · team',x:82,y:50,deps:['cov']},
+    ],
+    jobs:[
+      {id:'t',name:'Nightly cron fired',dur:400,steps:['Cron schedule: 0 2 * * * (02:00 UTC)','Matrix: 2 envs × 2 browsers = 4 parallel jobs','Queuing matrix expansion...']},
+      {id:'r1',name:'chromium / staging',dur:5800,parallel:true,steps:['BASE_URL: https://staging.app.com','npx playwright test --project=chromium','Running 94 tests (full regression)...','✓ auth/ 18 tests · 24.1s','✓ cart/ 22 tests · 31.4s','✓ search/ 28 tests · 38.2s','✓ admin/ 26 tests · 35.7s','✓ 94/94 passed · 2m 14s']},
+      {id:'r2',name:'webkit / staging',dur:6200,parallel:true,steps:['BASE_URL: https://staging.app.com','npx playwright test --project=webkit','Running 94 tests (full regression)...','✓ 94/94 passed · 2m 38s']},
+      {id:'r3',name:'chromium / production',dur:5600,parallel:true,steps:['BASE_URL: https://app.com','npx playwright test --project=chromium','Running 94 tests on production...','✓ 94/94 passed · 2m 11s']},
+      {id:'r4',name:'webkit / production',dur:6000,parallel:true,steps:['BASE_URL: https://app.com','npx playwright test --project=webkit','Running 94 tests on production...','✓ 94/94 passed · 2m 35s']},
+      {id:'cov',name:'Coverage report',dur:2200,steps:['Collecting results from 4 matrix jobs (376 total tests)...','Merging coverage data...','Total coverage: 87.3% (+0.4% vs yesterday)','Lines: 91.2% · Branches: 83.4% · Functions: 89.1%','Generating HTML coverage report...','actions/upload-artifact@v4 → coverage-report (1.8MB)']},
+      {id:'notify',name:'Slack notification',dur:700,steps:['Building nightly summary...','✅ Nightly: 376/376 tests passed (4 matrix jobs)','Coverage: 87.3% · Time: 8m 22s','slackapi/slack-github-action → #qa-nightly','🔔 Notification sent to #qa-nightly']},
+    ],
+    artifacts:['nightly-report.html (4.2MB)','coverage-report.html (1.8MB)','playwright-traces.zip'],
+    totalTime:'8m 22s',
+  },
+
+  security:{
+    file:'.github/workflows/security.yml',
+    trigger:'push → main + weekly cron',
+    nodes:[
+      {id:'t',icon:'🔒',name:'Scan Start',sub:'push + weekly',x:8,y:50},
+      {id:'sast',icon:'🔬',name:'CodeQL SAST',sub:'JS/TS analysis',x:32,y:20,deps:['t'],parallel:true},
+      {id:'deps',icon:'📦',name:'Dep Audit',sub:'npm + Snyk',x:32,y:50,deps:['t'],parallel:true},
+      {id:'secrets',icon:'🗝️',name:'Secrets Scan',sub:'TruffleHog',x:32,y:80,deps:['t'],parallel:true},
+      {id:'gate',icon:'🚦',name:'Security Gate',sub:'all scans pass',x:66,y:50,deps:['sast','deps','secrets']},
+      {id:'sarif',icon:'📋',name:'SARIF Upload',sub:'GitHub Security tab',x:86,y:50,deps:['gate']},
+    ],
+    jobs:[
+      {id:'t',name:'Security scan triggered',dur:400,steps:['Weekly cron: 0 6 * * 1 (Monday 06:00)','Starting 3 parallel security scans...','Scanning commit: a3f9c12 → main']},
+      {id:'sast',name:'CodeQL SAST',dur:5200,parallel:true,steps:['github/codeql-action/init@v3','Language: javascript-typescript','Building CodeQL database...','Analyzing: 312 files · 48,241 LOC','Running 2,847 security queries...','CWE-79 (XSS): 0 issues','CWE-89 (SQLi): 0 issues','CWE-94 (Code Injection): 0 issues','✓ CodeQL: 0 high/critical findings']},
+      {id:'deps',name:'Dependency audit',dur:3600,parallel:true,steps:['npm audit --audit-level=high','Checking 847 packages (direct + transitive)...','npm audit: 0 critical · 0 high · 2 medium','snyk/actions/node@master','Snyk scan: 2 medium vulnerabilities found','  → Auto-PR #43 opened to update deps','✓ Audit passed (threshold: high)']},
+      {id:'secrets',name:'TruffleHog secrets scan',dur:2800,parallel:true,steps:['trufflesecurity/trufflehog@main','Scanning entire git history (312 commits)...','Checking for: API keys, tokens, passwords, certs','Pattern matches evaluated: 14,820','False positives filtered: 0','✓ No secrets detected in repository']},
+      {id:'gate',name:'Security gate',dur:600,steps:['Evaluating all security scan results...','✓ SAST: 0 high/critical issues','✓ Dependencies: 0 critical vulnerabilities','✓ Secrets: none detected','Security posture: PASS ✅']},
+      {id:'sarif',name:'Upload security report',dur:800,steps:['Uploading CodeQL results as SARIF...','github/codeql-action/upload-sarif@v3','Results available in Security → Code scanning','Creating GitHub Advanced Security dashboard entry','✓ Security report published']},
+    ],
+    artifacts:['codeql-results.sarif','snyk-report.json','security-summary.pdf'],
+    totalTime:'6m 18s',
+  },
+
+  fail_recover:{
+    file:'.github/workflows/ci-retry.yml',
+    trigger:'push → main (with flaky tests)',
+    nodes:[
+      {id:'t',icon:'📤',name:'Push',sub:'on: push → main',x:7,y:50},
+      {id:'test',icon:'🧪',name:'Tests',sub:'initial run · FAILS',x:26,y:50,deps:['t'],willFail:true},
+      {id:'retry',icon:'🔄',name:'Retry ×2',sub:'if: failure()',x:48,y:50,deps:['test'],willFail:true},
+      {id:'traces',icon:'📸',name:'Traces',sub:'if: always()',x:70,y:28,deps:['retry'],parallel:true},
+      {id:'issue',icon:'🐛',name:'Create Issue',sub:'if: failure()',x:70,y:72,deps:['retry'],parallel:true},
+      {id:'done',icon:'🔔',name:'Notified',sub:'team alerted',x:88,y:50,deps:['traces','issue']},
+    ],
+    jobs:[
+      {id:'t',name:'Push event',dur:400,steps:['Push: 3 files changed · branch: main','Author: aayush-mishra','Starting CI run...']},
+      {id:'test',name:'Initial test run → FAILS',dur:3200,fail:true,steps:['npx playwright test --workers=4','Running 68 tests...','✓ auth/ (12 tests) · 18.2s','✓ cart/ (24 tests) · 22.4s','FAIL checkout.spec.ts:48','  Error: Timeout 30000ms exceeded','  waiting for locator(\'[data-testid="confirm-btn"]\')','✗ 3 tests failed · 65 passed','continue-on-error: true → proceeding...']},
+      {id:'retry',name:'Retry with --retries=2 → STILL FAILS',dur:5200,fail:true,steps:['Condition: if: failure() → TRUE','npx playwright test --retries=2','Re-running 3 failed tests...','Retry 1/2: checkout.spec.ts:48 → still fails','  screenshot captured: retry-1.png','Retry 2/2: checkout.spec.ts:48 → still fails','  screenshot captured: retry-2.png','  trace captured: trace.zip','✗ 1 test still failing after 2 retries']},
+      {id:'traces',name:'Upload failure traces',dur:1600,parallel:true,steps:['Condition: if: always() → TRUE','Collecting 3 failure traces...','  checkout.spec.ts trace: 3.2MB','  Screenshots: 4 files · 1.4MB','  Video: retry-run.webm · 2.1MB','actions/upload-artifact@v4 → failure-artifacts (6.7MB)','✓ Artifacts available for 7 days']},
+      {id:'issue',name:'Auto-create GitHub Issue',dur:1400,parallel:true,steps:['Condition: if: failure() → TRUE','gh issue create \\','  --title "CI Failure: checkout.spec.ts:48" \\','  --label "bug,ci-failure" \\','  --assignee "@aayush-mishra"','Issue #44 created · assigned · labeled','✓ Team notified via GitHub notification']},
+      {id:'done',name:'Failure fully handled',dur:400,steps:['Artifacts uploaded ✓','Issue #44 created ✓','Workflow status: FAILURE (expected)','Team can debug using: traces + issue + videos','Run: npx playwright show-trace failure-artifacts/trace.zip']},
+    ],
+    artifacts:['failure-artifacts (6.7MB)','test-results.json','videos/retry-run.webm'],
+    totalTime:'2m 44s',
+    overallFail:true,
+  },
+};
+
+let currentSc = 'playwright';
+let isRunning = false;
+let elapsedTimer = null;
+let particles = [];
+let rafId = null;
+let nodeStates = {};
+
+// ── Graph ──────────────────────────────────────────
+function getCenter(id) {
+  const el = document.getElementById('gn-'+id);
+  if (!el) return null;
+  const parent = document.getElementById('edgeCanvas').parentElement;
+  const pr = parent.getBoundingClientRect();
+  const er = el.getBoundingClientRect();
+  return { x: er.left - pr.left + er.width/2, y: er.top - pr.top + er.height/2 };
+}
+
+function drawEdges() {
+  const canvas = document.getElementById('edgeCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const sc = SCENARIOS[currentSc];
+  const W = canvas.parentElement.clientWidth;
+  const H = canvas.parentElement.clientHeight;
+  canvas.width = W; canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+
+  sc.nodes.forEach(n => {
+    (n.deps || []).forEach(dep => {
+      const from = getCenter(dep);
+      const to = getCenter(n.id);
+      if (!from || !to) return;
+      const fs = nodeStates[dep] || 'queued';
+      const ts = nodeStates[n.id] || 'queued';
+      let color = 'rgba(255,255,255,0.05)';
+      let dash = [4,4]; let lw = 1;
+      if (fs === 'running') { color = 'rgba(245,166,35,0.6)'; dash = []; lw = 2; }
+      else if (fs === 'success') { color = 'rgba(34,197,94,0.5)'; dash = []; lw = 1.5; }
+      else if (fs === 'failure') { color = 'rgba(229,62,0,0.5)'; dash = []; lw = 1.5; }
+      else if (fs === 'queued' && ts === 'queued') { color = 'rgba(255,255,255,0.04)'; }
+
+      const mx = (from.x + to.x) / 2;
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.bezierCurveTo(mx, from.y, mx, to.y, to.x, to.y);
+      ctx.strokeStyle = color; ctx.lineWidth = lw;
+      ctx.setLineDash(dash); ctx.stroke(); ctx.setLineDash([]);
+
+      if (fs !== 'queued') {
+        const angle = Math.atan2(to.y - from.y, to.x - from.x);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(to.x - 10*Math.cos(angle) + 4*Math.sin(angle), to.y - 10*Math.sin(angle) - 4*Math.cos(angle));
+        ctx.lineTo(to.x - 7*Math.cos(angle), to.y - 7*Math.sin(angle));
+        ctx.lineTo(to.x - 10*Math.cos(angle) - 4*Math.sin(angle), to.y - 10*Math.sin(angle) + 4*Math.cos(angle));
+        ctx.closePath(); ctx.fill();
+      }
+    });
+  });
+
+  // Draw particles
+  particles = particles.filter(p => p.t < 1);
+  particles.forEach(p => {
+    p.t += p.speed;
+    const t = p.t;
+    const mx = (p.fx + p.tx) / 2;
+    const x = (1-t)**3*p.fx + 3*(1-t)**2*t*mx + 3*(1-t)*t**2*mx + t**3*p.tx;
+    const y = (1-t)**3*p.fy + 3*(1-t)**2*t*p.fy + 3*(1-t)*t**2*p.ty + t**3*p.ty;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, (1-p.t)*2.5);
+    ctx.fillStyle = p.color; ctx.shadowColor = p.color; ctx.shadowBlur = 10;
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+}
+
+function spawnParticles(fromId, toId, color, count=3) {
+  const from = getCenter(fromId), to = getCenter(toId);
+  if (!from || !to) return;
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => particles.push({
+      fx:from.x, fy:from.y, tx:to.x, ty:to.y,
+      t: 0, speed: 0.007 + Math.random()*0.006, color
+    }), i * 200);
+  }
+}
+
+function animLoop() {
+  drawEdges();
+  rafId = requestAnimationFrame(animLoop);
+}
+
+function buildGraph() {
+  const sc = SCENARIOS[currentSc];
+  const container = document.getElementById('graphNodes');
+  container.innerHTML = '';
+  nodeStates = {};
+  sc.nodes.forEach(n => {
+    nodeStates[n.id] = 'queued';
+    const el = document.createElement('div');
+    el.className = 'gnode queued';
+    el.id = 'gn-' + n.id;
+    el.style.cssText = `position:absolute;left:${n.x}%;top:${n.y}%;transform:translate(-50%,-50%)`;
+    el.innerHTML = `<div class="gnode-inner">
+      <span class="gnode-badge" id="gb-${n.id}">·</span>
+      <span class="gnode-icon">${n.icon}</span>
+      <span class="gnode-name">${n.name}</span>
+      <span class="gnode-sub">${n.sub}</span>
+    </div>`;
+    container.appendChild(el);
+  });
+}
+
+function setNode(id, state) {
+  const el = document.getElementById('gn-'+id);
+  const badge = document.getElementById('gb-'+id);
+  if (!el) return;
+  el.className = 'gnode ' + state;
+  nodeStates[id] = state;
+  const icons = {running:'◌',success:'✓',failure:'✗',queued:'·',skipped:'—'};
+  if (badge) badge.textContent = icons[state] || '·';
+}
+
+// ── Terminal ──────────────────────────────────────
+function setS(s,l){ document.getElementById('sdot').className='sdot '+s; document.getElementById('slabel').textContent=l; }
+function setP(d,t){ const p=t>0?Math.round(d/t*100):0; document.getElementById('pfill').style.width=p+'%'; document.getElementById('ptxt').textContent=d+' / '+t+' jobs'; document.getElementById('ppct').textContent=p+'%'; }
+
+function log(tag, cls, msg, delay) {
+  return new Promise(r => setTimeout(() => {
+    const tb = document.getElementById('tbody');
+    const t = new Date().toTimeString().slice(0,8);
+    const row = document.createElement('div');
+    row.className = 'trow';
+    row.innerHTML = `<span class="tts">${t}</span><span class="ttag ${cls}">${tag}</span><span class="tmsg">${msg}</span>`;
+    tb.appendChild(row);
+    tb.scrollTop = tb.scrollHeight;
+    r();
+  }, delay));
+}
+
+// ── Scenario switching ─────────────────────────────
+function selectScenario(btn) {
+  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentSc = btn.dataset.sc;
+  loadScenario();
+  resetPlayground();
+}
+
+function loadScenario() {
+  const sc = SCENARIOS[currentSc];
+  document.getElementById('yamlFileName').textContent = sc.file;
+  document.getElementById('yamlViewer').innerHTML = buildYaml(sc);
+  buildGraph();
+}
+
+function buildYaml(sc) {
+  const Y = (k,v) => `<span style="color:#fb923c">${k}</span><span style="color:#f5f0e8">:</span> <span style="color:#86efac">${v}</span>`;
+  const C = s => `<span style="color:#3a3228">${s}</span>`;
+  const K = s => `<span style="color:#fb923c">${s}</span>`;
+  const V = s => `<span style="color:#86efac">${s}</span>`;
+  const jobs = sc.jobs.map(j => {
+    const deps = sc.nodes.find(n=>n.id===j.id)?.deps?.filter(d=>d!=='t') || [];
+    const needsLine = deps.length ? `\n    ${K('needs')}: [${deps.map(d=>V(d)).join(', ')}]` : '';
+    const parallelLine = j.parallel ? `\n    ${C('# runs in parallel with sibling jobs')}` : '';
+    const failLine = j.fail ? `\n    ${K('continue-on-error')}: <span style="color:#f472b6">true</span>` : '';
+    return `\n  ${K(j.id.replace(/-/g,'_'))}:${needsLine}${parallelLine}\n    ${K('runs-on')}: ${V('ubuntu-latest')}${failLine}\n    ${K('steps')}:\n      ${C('# '+j.steps.slice(0,2).join(' · '))}`;
+  }).join('');
+  return `<pre>${Y('name', sc.file.split('/').pop().replace('.yml',''))} ${C('# '+sc.trigger)}\n\n${K('on')}:\n  ${K('push')}: { ${K('branches')}: [${V('main')}] }\n\n${K('jobs')}:${jobs}</pre>`;
+}
+
+// ── Reset ─────────────────────────────────────────
+function resetPlayground() {
+  isRunning = false;
+  clearInterval(elapsedTimer);
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  particles = [];
+  document.getElementById('wf-elapsed').textContent = '';
+  const btn = document.getElementById('runBtn');
+  btn.disabled = false;
+  document.getElementById('rIcon').textContent = '▶';
+  document.getElementById('rText').textContent = 'Execute Workflow';
+  setS('','idle');
+  setP(0,0);
+  document.getElementById('tbody').innerHTML = '<div class="trow"><span class="tts">--:--:--</span><span class="ttag INFO">INFO</span><span class="tmsg">Ready — select a workflow above and click ▶ Execute</span></div>';
+  document.getElementById('runSummary').style.display='none';
+  document.getElementById('runSummary').innerHTML='';
+  document.getElementById('logStats').textContent='';
+  document.getElementById('graphStatus').textContent='';
+  document.getElementById('termTitle').textContent='github-actions · idle';
+  buildGraph();
+  drawEdges();
+}
+
+// ── Main execution engine ─────────────────────────
+async function runPlayground() {
+  if (isRunning) return;
+  isRunning = true;
+  const sc = SCENARIOS[currentSc];
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  document.getElementById('rIcon').textContent = '◌';
+  document.getElementById('rText').textContent = 'Running…';
+  document.getElementById('tbody').innerHTML = '';
+  document.getElementById('runSummary').style.display = 'none';
+  document.getElementById('graphStatus').textContent = '● executing';
+  document.getElementById('termTitle').textContent = sc.file;
+  setS('run','running'); setP(0, sc.jobs.length);
+  particles = [];
+
+  // Start animation loop
+  if (rafId) cancelAnimationFrame(rafId);
+  animLoop();
+
+  // Elapsed timer
+  const startMs = Date.now();
+  elapsedTimer = setInterval(() => {
+    const s = Math.floor((Date.now()-startMs)/1000);
+    document.getElementById('wf-elapsed').textContent = `⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  }, 500);
+
+  let delay = 0;
+  let passed = 0, failed = 0;
+
+  // Header
+  await log('INFO','INFO', `Workflow run #${Math.floor(Math.random()*9000+1000)} · ${sc.trigger}`, delay); delay+=160;
+  await log('INFO','INFO', `File: ${sc.file}`, delay); delay+=130;
+  await log('INFO','INFO', `Runner: ubuntu-latest · GitHub-hosted · 7GB RAM`, delay); delay+=150;
+  await log('INFO','INFO', ``, delay); delay+=60;
+
+  // Build execution waves (topological, grouping parallel siblings)
+  const nodeMap = Object.fromEntries(sc.nodes.map(n=>[n.id,n]));
+  const executed = new Set();
+  const jobMap = Object.fromEntries(sc.jobs.map(j=>[j.id,j]));
+  const remaining = [...sc.jobs];
+
+  while (remaining.length) {
+    // Find next wave: jobs whose deps are all done
+    const wave = remaining.filter(j => {
+      const deps = nodeMap[j.id]?.deps || [];
+      return deps.every(d => executed.has(d));
+    });
+    if (!wave.length) break;
+
+    // Remove wave from remaining
+    wave.forEach(j => remaining.splice(remaining.indexOf(j), 1));
+
+    if (wave.length > 1) {
+      await log('INFO','INFO', `⚡ Parallel wave: ${wave.map(j=>j.name.split(' ')[0]).join(' + ')}`, delay); delay+=180;
+    }
+
+    // Spawn particles for each job in wave
+    wave.forEach(j => {
+      (nodeMap[j.id]?.deps || []).forEach(dep => {
+        setTimeout(() => spawnParticles(dep, j.id, 'rgba(245,166,35,0.9)', 4), delay);
+      });
+      setTimeout(() => setNode(j.id, 'running'), delay + 200);
+    });
+
+    // Stagger log output for parallel jobs slightly, but converge timing
+    const waveDur = Math.max(...wave.map(j => j.dur || 2000));
+    let jobDelay = delay + 300;
+
+    for (const [wi, job] of wave.entries()) {
+      const stagger = wave.length > 1 ? wi * 160 : 0;
+      await log('STEP','STEP', `▶ JOB [${job.id}] ${job.name}`, jobDelay + stagger);
+      let d = jobDelay + stagger + 240;
+
+      for (const step of (job.steps || [])) {
+        const tag = step.startsWith('✓') ? 'PASS' : step.startsWith('✗') || step.includes('FAIL') ? 'FAIL' : step.startsWith('actions/') ? 'ART' : 'RUN';
+        const cls = tag;
+        await log(tag, cls, `  ${step}`, d);
+        d += 300 + Math.random()*180;
+      }
+
+      const resultDelay = jobDelay + stagger + job.dur - 300;
+      if (job.fail) {
+        await log('FAIL','FAIL', `  ✗ ${job.name} → exit code 1`, resultDelay);
+        setTimeout(() => {
+          setNode(job.id, 'failure');
+          (nodeMap[job.id]?.deps||[]).forEach(dep => spawnParticles(dep, job.id, 'rgba(229,62,0,0.8)', 3));
+        }, resultDelay);
+        failed++;
+      } else {
+        const dur = ((job.dur||2000)/1000).toFixed(1);
+        await log('PASS','PASS', `  ✓ ${job.name} · ${dur}s`, resultDelay);
+        setTimeout(() => {
+          setNode(job.id, 'success');
+          (nodeMap[job.id]?.deps||[]).forEach(dep => spawnParticles(dep, job.id, 'rgba(34,197,94,0.9)', 5));
+          // Also send particles forward
+          sc.nodes.forEach(n => {
+            if ((n.deps||[]).includes(job.id)) spawnParticles(job.id, n.id, 'rgba(255,166,0,0.7)', 2);
+          });
+        }, resultDelay + 100);
+        passed++;
+      }
+
+      executed.add(job.id);
+    }
+
+    delay += waveDur + 500;
+    setP(executed.size, sc.jobs.length);
+    await log('INFO','INFO', ``, delay); delay+=60;
+  }
+
+  // Artifacts
+  if (sc.artifacts?.length) {
+    for (const art of sc.artifacts) {
+      await log('ART','ART', `📦 ${art}`, delay); delay+=180;
+    }
+    delay+=120;
+  }
+
+  // Final verdict
+  const overallFail = sc.overallFail || failed > 0;
+  if (overallFail) {
+    await log('FAIL','FAIL', `❌ Workflow FAILED — ${failed} job(s) failed`, delay); delay+=120;
+    await log('GATE','GATE', `🚫 PR merge blocked · fix failures to proceed`, delay);
+    setS('fail','failed'); document.getElementById('graphStatus').textContent = '❌ failed';
+  } else {
+    await log('PASS','PASS', `✅ All ${passed} jobs passed · ${sc.totalTime}`, delay); delay+=120;
+    await log('GATE','GATE', `✓ Status check passed · PR merge unblocked`, delay);
+    setS('ok','passed ✓'); document.getElementById('graphStatus').textContent = '✓ passed';
+  }
+
+  document.getElementById('logStats').textContent = `${passed+failed} jobs · ${sc.totalTime}`;
+  clearInterval(elapsedTimer);
+
+  // Summary badges
+  setTimeout(() => {
+    const el = document.getElementById('runSummary');
+    el.style.display = 'flex';
+    el.innerHTML = [
+      passed ? `<div class="sum-badge sb-pass">✓ ${passed} passed</div>` : '',
+      failed ? `<div class="sum-badge sb-fail">✗ ${failed} failed</div>` : '',
+      `<div class="sum-badge sb-time">⏱ ${sc.totalTime}</div>`,
+      sc.artifacts?.length ? `<div class="sum-badge sb-art">📦 ${sc.artifacts.length} artifact${sc.artifacts.length>1?'s':''}</div>` : '',
+    ].join('');
+    btn.disabled = false;
+    document.getElementById('rIcon').textContent = '↺';
+    document.getElementById('rText').textContent = 'Run Again';
+    isRunning = false;
+  }, delay + 500);
+}
+
+// Init
+window.addEventListener('load', () => { loadScenario(); });
+window.addEventListener('resize', drawEdges);
+</script>
+
+
+</body></html>

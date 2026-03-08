@@ -84,7 +84,7 @@ export default class ProjectsImg extends Component {
           points="491.81 203.17 561.89 294.68 634.08 202.74"
           fill="none"
           stroke={theme.text}
-          stroke-miterlimit="10"
+          strokeMiterlimit="10"
         />
         <rect
           x="508.37"

@@ -7,6 +7,20 @@ export default function AutomationArsenalPreview(props) {
   const { theme } = props;
   const featuredTools = automationTools;
 
+  const getToolHref = (tool) =>
+    tool.isReady && tool.docsPath ? tool.docsPath : "/automation-arsenal";
+
+  const handleToolClick = (event, tool) => {
+    if (!tool.isReady || !tool.docsPath) {
+      event.preventDefault();
+      window.location.assign("/automation-arsenal");
+      return;
+    }
+
+    event.preventDefault();
+    window.location.assign(tool.docsPath);
+  };
+
   return (
     <section
       className="home-arsenal-section"
@@ -39,7 +53,8 @@ export default function AutomationArsenalPreview(props) {
           {featuredTools.map((tool, index) => (
             <Fade key={tool.name} bottom duration={700} delay={90 + index * 70} distance="16px">
               <a
-                href={tool.isReady ? tool.docsPath : "/automation-arsenal"}
+                href={getToolHref(tool)}
+                onClick={(event) => handleToolClick(event, tool)}
                 className={`home-arsenal-card ${tool.isReady ? "ready" : "coming-soon"}`}
                 style={{
                   background: theme.body,

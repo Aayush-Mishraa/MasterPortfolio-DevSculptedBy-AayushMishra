@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎭 Playwright — Aayush Mishra · SDET</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0612; --bg2:#110d1e; --bg3:#160f28; --card:#1a1330; --lift:#211844;
+  --pink:#ff2d78; --pink2:#ff6ba8; --teal:#00e5cc; --teal2:#5ffaed;
+  --yellow:#ffe94d; --orange:#ff7c2a; --purple:#b44dff; --lime:#a3ff47;
+  --blue:#4d9fff; --white:#f0eaff; --muted:#6b5f8a;
+  --border:rgba(255,45,120,0.15);
+  --display:'Boogaloo',cursive; --body:'Nunito',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--body);overflow-x:hidden;cursor:none}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--pink),var(--teal));border-radius:3px}
+
+/* CURSOR */
+#cdot,#cring{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);border-radius:50%}
+#cdot{width:10px;height:10px;background:var(--yellow);box-shadow:0 0 16px var(--yellow)}
+#cring{width:44px;height:44px;border:2px solid var(--pink);box-shadow:0 0 20px rgba(255,45,120,.3);transition:all .15s cubic-bezier(.34,1.56,.64,1)}
+body.hov #cring{width:62px;height:62px;border-color:var(--teal)}
+body.hov #cdot{background:var(--teal);transform:translate(-50%,-50%) scale(1.8)}
+
+/* BG BLOBS */
+.blob{position:fixed;border-radius:40% 60% 70% 30%/40% 50% 60% 50%;filter:blur(70px);pointer-events:none;z-index:0;opacity:.1;animation:blobM 10s ease-in-out infinite alternate}
+.b1{width:500px;height:500px;background:var(--pink);top:-120px;left:-120px}
+.b2{width:380px;height:380px;background:var(--teal);bottom:-100px;right:-100px;animation-delay:-5s}
+.b3{width:280px;height:280px;background:var(--purple);top:45%;left:55%;animation-delay:-3s}
+@keyframes blobM{0%{border-radius:40% 60% 70% 30%/40% 50% 60% 50%;transform:rotate(0) scale(1)}100%{border-radius:60% 40% 30% 70%/50% 60% 40% 50%;transform:rotate(15deg) scale(1.08)}}
+
+/* CONFETTI CANVAS */
+#cvs{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+/* TICKER */
+.ticker{position:relative;z-index:100;overflow:hidden;padding:10px 0;white-space:nowrap;background:var(--pink);border-bottom:3px solid var(--yellow)}
+.tick-inner{display:inline-flex;animation:tickR 30s linear infinite}
+.tick-inner span{padding:0 22px;font-family:var(--display);font-size:12px;letter-spacing:.1em;color:#fff;text-transform:uppercase}
+.sep{color:rgba(255,255,255,.4);padding:0 !important}
+@keyframes tickR{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:14px 48px;background:rgba(10,6,18,.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--display);font-size:22px;background:linear-gradient(135deg,var(--pink),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;transition:transform .2s;display:inline-block}
+.nav-logo:hover{transform:rotate(-3deg) scale(1.05)}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;font-weight:800;transition:color .2s}
+.nav-links a:hover{color:var(--yellow)}
+.nav-badge{background:linear-gradient(135deg,var(--pink),var(--orange));color:#fff;font-size:11px;font-weight:800;padding:7px 18px;border-radius:999px;letter-spacing:.04em}
+
+/* HERO */
+#hero{position:relative;z-index:2;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;padding-top:60px;overflow:hidden}
+#hero::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(255,45,120,.18) 1.5px,transparent 1.5px);background-size:36px 36px;animation:dotS 20s linear infinite}
+@keyframes dotS{from{background-position:0 0}to{background-position:36px 36px}}
+
+.hero-l{display:flex;flex-direction:column;justify-content:center;padding:80px 56px 80px 64px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(255,233,77,.1);border:2px solid var(--yellow);border-radius:999px;padding:6px 16px 6px 10px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--yellow);margin-bottom:24px;animation:fadeU .6s .05s both}
+.eyebrow-dot{width:22px;height:22px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:12px;animation:spin 4s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.h1{font-family:var(--display);font-size:clamp(68px,9.5vw,130px);line-height:.88;letter-spacing:.01em;margin-bottom:16px;animation:fadeU .6s .1s both}
+.l1{display:block;color:var(--white)}
+.l2{display:block;background:linear-gradient(90deg,var(--pink),var(--orange),var(--yellow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200%;animation:gM 3s ease infinite}
+.l3{display:block;-webkit-text-stroke:3px var(--teal);color:transparent}
+@keyframes gM{0%,100%{background-position:0%}50%{background-position:100%}}
+
+.hero-desc{font-size:15px;color:var(--muted);font-weight:600;line-height:1.8;max-width:420px;margin-bottom:36px;animation:fadeU .6s .2s both}
+.hero-desc strong{color:var(--pink2)}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;animation:fadeU .6s .3s both}
+
+.btn-main{background:linear-gradient(135deg,var(--pink),var(--orange));color:#fff;font-family:var(--body);font-weight:900;font-size:14px;letter-spacing:.04em;padding:15px 32px;border:none;border-radius:16px;cursor:none;text-decoration:none;transition:all .2s;box-shadow:0 6px 28px rgba(255,45,120,.45);display:inline-flex;align-items:center;gap:8px;position:relative;overflow:hidden}
+.btn-main::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .4s}
+.btn-main:hover::before{left:100%}
+.btn-main:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 10px 40px rgba(255,45,120,.6)}
+
+.btn-ghost{background:rgba(0,229,204,.08);color:var(--teal);font-family:var(--body);font-weight:800;font-size:14px;padding:14px 30px;border:2px solid var(--teal);border-radius:16px;cursor:none;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-ghost:hover{background:rgba(0,229,204,.15);transform:translateY(-3px);box-shadow:0 6px 28px rgba(0,229,204,.25)}
+
+.hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:44px;animation:fadeU .6s .4s both}
+.hs{background:var(--card);border:2px solid rgba(255,233,77,.15);border-radius:18px;padding:16px 12px;text-align:center;transition:all .25s cubic-bezier(.34,1.56,.64,1);cursor:default}
+.hs:hover{transform:translateY(-8px) rotate(-2deg);border-color:var(--yellow);box-shadow:0 12px 32px rgba(255,233,77,.2)}
+.hs-n{font-family:var(--display);font-size:34px;display:block;line-height:1}
+.hs-n.p{color:var(--pink)}.hs-n.t{color:var(--teal)}.hs-n.y{color:var(--yellow)}.hs-n.l{color:var(--lime)}
+.hs-l{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
+
+/* HERO RIGHT — code card */
+.hero-r{display:flex;align-items:center;justify-content:center;padding:100px 48px 80px 24px;position:relative}
+.code-showcase{width:100%;max-width:500px;position:relative;animation:fadeU .7s .15s both}
+.code-showcase::before{content:'';position:absolute;inset:-3px;background:linear-gradient(135deg,var(--pink),var(--teal),var(--yellow),var(--purple),var(--pink));background-size:400%;border-radius:22px;z-index:-1;animation:rbBorder 4s linear infinite,bob 5s ease-in-out infinite}
+@keyframes rbBorder{from{background-position:0%}to{background-position:400%}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-10px) rotate(.5deg)}66%{transform:translateY(-5px) rotate(-.5deg)}}
+.ci{background:var(--bg2);border-radius:20px;overflow:hidden;animation:bob 5s ease-in-out infinite}
+.ci-top{display:flex;align-items:center;gap:12px;padding:13px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.07)}
+.dots{display:flex;gap:7px}
+.dots span{width:12px;height:12px;border-radius:50%}
+.dots span:nth-child(1){background:#ff5f57}.dots span:nth-child(2){background:#febc2e}.dots span:nth-child(3){background:#28c840}
+.ci-file{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.ci-badge{margin-left:auto;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:linear-gradient(135deg,var(--pink),var(--orange));color:#fff;padding:3px 10px;border-radius:8px}
+.ci-code{padding:20px 24px;font-family:var(--mono);font-size:12px;line-height:2}
+.ci-code pre{white-space:pre}
+.kw{color:#ff79c6}.fn{color:var(--teal)}.str{color:#f1fa8c}.cm{color:#3a3560}.wh{color:var(--white)}.num{color:var(--orange)}
+.ci-bottom{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:rgba(0,229,204,.06);border-top:1px solid rgba(0,229,204,.12);font-family:var(--mono);font-size:11px}
+.ci-pass{color:var(--lime);font-weight:700;display:flex;align-items:center;gap:7px}
+.ci-pass::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--lime);animation:glow 1.5s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(163,255,71,.5)}50%{box-shadow:0 0 0 8px rgba(163,255,71,0)}}
+@keyframes fadeU{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* FEATURE STRIP */
+.strip{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border-top:2px solid rgba(255,45,120,.2);border-bottom:2px solid rgba(0,229,204,.2)}
+.si{padding:36px 28px;border-right:1px solid rgba(255,255,255,.06);transition:background .25s;cursor:default}
+.si:last-child{border-right:none}
+.si:hover{background:rgba(255,45,120,.06)}
+.si-icon{font-size:36px;margin-bottom:14px;display:inline-block;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.si:hover .si-icon{transform:scale(1.3) rotate(-10deg)}
+.si-title{font-family:var(--display);font-size:20px;color:var(--white);margin-bottom:8px}
+.si-desc{font-size:12px;color:var(--muted);line-height:1.7;font-weight:600}
+.stag{display:inline-block;margin-top:12px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 12px;border-radius:8px}
+.tp{background:rgba(255,45,120,.15);color:var(--pink2)}
+.tt{background:rgba(0,229,204,.1);color:var(--teal)}
+.ty{background:rgba(255,233,77,.1);color:var(--yellow)}
+.tv{background:rgba(180,77,255,.12);color:#d18bff}
+
+/* SECTION HELPERS */
+.sw{max-width:1200px;margin:0 auto;padding:96px 56px;position:relative;z-index:2}
+.chip{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:5px 16px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px}
+.cp{background:rgba(255,45,120,.12);border:2px solid rgba(255,45,120,.35);color:var(--pink2)}
+.ct{background:rgba(0,229,204,.1);border:2px solid rgba(0,229,204,.3);color:var(--teal2)}
+.cy{background:rgba(255,233,77,.1);border:2px solid rgba(255,233,77,.3);color:var(--yellow)}
+.cpur{background:rgba(180,77,255,.1);border:2px solid rgba(180,77,255,.3);color:#d18bff}
+.cl{background:rgba(163,255,71,.1);border:2px solid rgba(163,255,71,.3);color:var(--lime)}
+
+.big-t{font-family:var(--display);font-size:clamp(52px,7vw,96px);line-height:.88;letter-spacing:.02em;color:var(--white);margin-bottom:18px}
+.gp{background:linear-gradient(90deg,var(--pink),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gt{background:linear-gradient(90deg,var(--teal),var(--lime));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gy{background:linear-gradient(90deg,var(--yellow),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gv{background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.out{-webkit-text-stroke:3px var(--teal);color:transparent}
+.s-intro{font-size:15px;color:var(--muted);max-width:560px;line-height:1.9;margin-bottom:52px;font-weight:600}
+
+/* CODE BLOCK */
+.cblock{background:var(--bg2);border:2px solid rgba(255,45,120,.15);border-radius:18px;overflow:hidden;margin:20px 0;transition:border-color .2s,box-shadow .2s}
+.cblock:hover{border-color:rgba(255,45,120,.4);box-shadow:0 8px 40px rgba(255,45,120,.1)}
+.cb-top{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.07)}
+.cbdots{display:flex;gap:6px}
+.cbdots span{width:10px;height:10px;border-radius:50%}
+.cbdots span:nth-child(1){background:#ff5f57}.cbdots span:nth-child(2){background:#febc2e}.cbdots span:nth-child(3){background:#28c840}
+.cb-file{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.cb-lang{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:linear-gradient(135deg,var(--teal),var(--lime));color:#000;padding:3px 10px;border-radius:8px}
+.cb-body{padding:20px 24px;font-family:var(--mono);font-size:12.5px;line-height:1.9;overflow-x:auto}
+.cb-body pre{white-space:pre}
+
+/* WHAT SECTION */
+.what-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:start}
+.fcards{display:flex;flex-direction:column;gap:14px}
+.fc{background:var(--card);border:2px solid rgba(255,255,255,.06);border-radius:18px;padding:22px 24px;display:flex;gap:18px;align-items:flex-start;transition:all .25s cubic-bezier(.34,1.56,.64,1);cursor:default}
+.fc:hover{transform:translateX(8px) rotate(.5deg);border-color:var(--pink);box-shadow:0 8px 32px rgba(255,45,120,.15)}
+.fc-icon{width:48px;height:48px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.fc:hover .fc-icon{transform:scale(1.15) rotate(-8deg)}
+.fcp{background:rgba(255,45,120,.15);border:2px solid rgba(255,45,120,.3)}
+.fct{background:rgba(0,229,204,.1);border:2px solid rgba(0,229,204,.25)}
+.fcy{background:rgba(255,233,77,.1);border:2px solid rgba(255,233,77,.25)}
+.fcl{background:rgba(163,255,71,.08);border:2px solid rgba(163,255,71,.2)}
+.fc-title{font-weight:900;font-size:14px;color:var(--white);margin-bottom:4px}
+.fc-desc{font-size:12px;color:var(--muted);line-height:1.7;font-weight:600}
+
+/* API SECTION */
+.api-bg{background:var(--bg2);border-top:2px solid rgba(0,229,204,.1);border-bottom:2px solid rgba(0,229,204,.1);position:relative;overflow:hidden}
+.api-bg::before{content:'🎭';position:absolute;right:-60px;top:50%;transform:translateY(-50%);font-size:400px;opacity:.02;pointer-events:none}
+.api-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.acard{background:var(--card);border:2px solid rgba(255,255,255,.06);border-radius:20px;padding:28px 24px;transition:all .3s cubic-bezier(.34,1.56,.64,1);cursor:default}
+.acard:hover{transform:translateY(-8px) rotate(-.5deg)}
+.acp:hover{border-color:var(--pink);box-shadow:0 16px 48px rgba(255,45,120,.2)}
+.act:hover{border-color:var(--teal);box-shadow:0 16px 48px rgba(0,229,204,.2)}
+.acy:hover{border-color:var(--yellow);box-shadow:0 16px 48px rgba(255,233,77,.2)}
+.acl:hover{border-color:var(--lime);box-shadow:0 16px 48px rgba(163,255,71,.15)}
+.acv:hover{border-color:var(--purple);box-shadow:0 16px 48px rgba(180,77,255,.2)}
+.aco:hover{border-color:var(--orange);box-shadow:0 16px 48px rgba(255,124,42,.2)}
+.mpill{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 14px;border-radius:10px;margin-bottom:14px;letter-spacing:.03em}
+.mpp{background:rgba(255,45,120,.12);color:var(--pink2);border:1px solid rgba(255,45,120,.25)}
+.mpt{background:rgba(0,229,204,.1);color:var(--teal);border:1px solid rgba(0,229,204,.2)}
+.mpy{background:rgba(255,233,77,.1);color:var(--yellow);border:1px solid rgba(255,233,77,.2)}
+.mpl{background:rgba(163,255,71,.1);color:var(--lime);border:1px solid rgba(163,255,71,.2)}
+.mpv{background:rgba(180,77,255,.1);color:#d18bff;border:1px solid rgba(180,77,255,.2)}
+.mpo{background:rgba(255,124,42,.1);color:var(--orange);border:1px solid rgba(255,124,42,.2)}
+.a-title{font-weight:900;font-size:14px;color:var(--white);margin-bottom:8px}
+.a-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:14px;font-weight:600}
+.a-ex{font-family:var(--mono);font-size:10.5px;padding:9px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:var(--teal2);word-break:break-all}
+
+/* VS SECTION */
+.vs-bg{background:var(--bg3);border-top:2px solid rgba(255,45,120,.12)}
+.vs-cols{display:grid;grid-template-columns:1fr 72px 1fr}
+.vc{background:var(--card);padding:44px 40px}
+.vl{border-radius:24px 0 0 24px;border:2px solid rgba(255,255,255,.06);border-right:none}
+.vr{border-radius:0 24px 24px 0;border:2px solid var(--pink);background:linear-gradient(135deg,rgba(255,45,120,.06),rgba(255,124,42,.04))}
+.vlab{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;padding:5px 16px;border-radius:20px;margin-bottom:20px}
+.vold{background:rgba(255,255,255,.06);color:var(--muted)}
+.vnew{background:linear-gradient(135deg,rgba(255,45,120,.2),rgba(255,124,42,.15));color:var(--pink2);border:1px solid rgba(255,45,120,.3)}
+.vname{font-family:var(--display);font-size:24px;color:var(--white);margin-bottom:28px}
+.vitems{list-style:none}
+.vitems li{font-size:12.5px;color:var(--muted);padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:12px;align-items:flex-start;font-weight:600;line-height:1.5}
+.vitems li:last-child{border-bottom:none}
+.xi{color:rgba(239,68,68,.5);font-size:12px;flex-shrink:0;margin-top:1px}
+.ci2{color:var(--lime);font-size:12px;flex-shrink:0;margin-top:1px}
+.vmid{display:flex;align-items:center;justify-content:center;background:var(--bg3)}
+.vmid-w{font-family:var(--display);font-size:26px;background:linear-gradient(180deg,var(--pink),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;writing-mode:vertical-lr}
+
+/* RUNNER */
+.runner-bg{background:var(--bg);border-top:2px solid rgba(0,229,204,.1)}
+.runner-top{background:linear-gradient(135deg,rgba(255,45,120,.08),rgba(0,229,204,.06));border-bottom:2px solid rgba(255,45,120,.12);padding:72px 64px 56px;position:relative;overflow:hidden}
+.runner-top::after{content:'▶';position:absolute;right:48px;bottom:-20px;font-family:var(--display);font-size:180px;color:rgba(255,45,120,.04);line-height:1;pointer-events:none}
+.runner-title{font-family:var(--display);font-size:clamp(44px,6vw,80px);line-height:.9;color:var(--white);margin-bottom:14px}
+.runner-sub{font-size:14px;color:var(--muted);max-width:560px;line-height:1.8;font-weight:600}
+.runner-body{padding:52px 64px}
+.rlabel{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:10px}
+.rctrl{display:flex;gap:12px;margin-bottom:20px}
+.rsel{background:var(--card);border:2px solid rgba(255,45,120,.25);color:var(--white);padding:13px 18px;font-family:var(--body);font-size:13px;font-weight:700;outline:none;cursor:none;border-radius:14px;transition:border-color .2s;min-width:200px;appearance:none}
+.rsel:focus{border-color:var(--pink);box-shadow:0 0 0 4px rgba(255,45,120,.15)}
+.rinp{flex:1;background:var(--card);border:2px solid rgba(0,229,204,.2);color:var(--white);padding:13px 18px;font-family:var(--mono);font-size:12px;outline:none;cursor:none;border-radius:14px;transition:border-color .2s}
+.rinp:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(0,229,204,.1)}
+.rinp::placeholder{color:var(--muted)}
+.rbtn{background:linear-gradient(135deg,var(--pink),var(--orange));color:#fff;border:none;padding:13px 28px;font-family:var(--body);font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;cursor:none;border-radius:14px;transition:all .2s;display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(255,45,120,.4);white-space:nowrap}
+.rbtn:hover:not(:disabled){transform:translateY(-3px) scale(1.04);box-shadow:0 8px 40px rgba(255,45,120,.6)}
+.rbtn:disabled{opacity:.5}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.ptag{background:rgba(255,233,77,.06);border:2px solid rgba(255,233,77,.18);color:var(--yellow);padding:7px 16px;border-radius:20px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;font-weight:700;cursor:none;transition:all .2s}
+.ptag:hover{border-color:var(--yellow);background:rgba(255,233,77,.14);transform:translateY(-2px) scale(1.04)}
+.term{background:var(--bg);border:2px solid rgba(255,45,120,.2);border-radius:20px;overflow:hidden;box-shadow:0 12px 56px rgba(0,0,0,.5)}
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:rgba(255,255,255,.025);border-bottom:1px solid rgba(255,255,255,.07)}
+.tbar-l{display:flex;align-items:center;gap:14px}
+.tdots{display:flex;gap:7px}
+.tdots span{width:11px;height:11px;border-radius:50%}
+.tdots span:nth-child(1){background:#ff5f57}.tdots span:nth-child(2){background:#febc2e}.tdots span:nth-child(3){background:#28c840}
+.ttitle{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.tstat{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .3s}
+.sdot.run{background:var(--yellow);animation:glow .8s infinite}
+.sdot.ok{background:var(--lime)}
+.sdot.fail{background:var(--pink)}
+.tbody{padding:18px 24px;font-family:var(--mono);font-size:12px;line-height:2;min-height:300px;max-height:380px;overflow-y:auto}
+.tbody::-webkit-scrollbar{width:3px}
+.tbody::-webkit-scrollbar-thumb{background:rgba(255,45,120,.3)}
+.trow{display:flex;gap:14px}
+.tts{color:rgba(180,77,255,.3);min-width:76px;font-size:11px}
+.ttag{min-width:56px;font-weight:700;font-size:11px}
+.ttag.INFO{color:var(--blue)}.ttag.PASS{color:var(--lime)}.ttag.FAIL{color:var(--pink)}.ttag.WARN{color:var(--yellow)}.ttag.TEST{color:var(--purple)}.ttag.SNAP{color:var(--orange)}
+.tmsg{color:rgba(180,77,255,.35);flex:1;font-size:11px}
+.pwrap{margin-top:20px}
+.prow{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:8px}
+.ptrack{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:6px;height:6px;overflow:hidden}
+.pfill{height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--orange),var(--yellow));border-radius:6px;transition:width .4s ease;box-shadow:0 0 16px rgba(255,45,120,.5)}
+
+/* SETUP */
+.setup-bg{background:var(--bg2);border-top:2px solid rgba(255,45,120,.12)}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.scard{background:var(--card);border:2px solid rgba(255,255,255,.06);border-radius:20px;padding:28px 22px;transition:all .3s cubic-bezier(.34,1.56,.64,1);cursor:default;overflow:hidden;position:relative}
+.scard:hover{transform:translateY(-6px) rotate(-1deg)}
+.scard:nth-child(1):hover{border-color:var(--pink);box-shadow:0 16px 40px rgba(255,45,120,.2)}
+.scard:nth-child(2):hover{border-color:var(--teal);box-shadow:0 16px 40px rgba(0,229,204,.2)}
+.scard:nth-child(3):hover{border-color:var(--yellow);box-shadow:0 16px 40px rgba(255,233,77,.18)}
+.scard:nth-child(4):hover{border-color:var(--purple);box-shadow:0 16px 40px rgba(180,77,255,.2)}
+.scard:nth-child(5):hover{border-color:var(--lime);box-shadow:0 16px 40px rgba(163,255,71,.15)}
+.scard:nth-child(6):hover{border-color:var(--orange);box-shadow:0 16px 40px rgba(255,124,42,.2)}
+.scard:nth-child(7):hover{border-color:var(--blue);box-shadow:0 16px 40px rgba(77,159,255,.2)}
+.scard:nth-child(8):hover{border-color:var(--pink);box-shadow:0 16px 40px rgba(255,45,120,.2)}
+.sc-num{font-family:var(--display);font-size:56px;line-height:1;margin-bottom:14px;opacity:.15;transition:opacity .25s}
+.scard:hover .sc-num{opacity:.35}
+.sc-title{font-weight:900;font-size:14px;color:var(--white);margin-bottom:8px}
+.sc-desc{font-size:11.5px;color:var(--muted);line-height:1.7;margin-bottom:14px;font-weight:600}
+.sc-cmd{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:8px 12px;font-family:var(--mono);font-size:10.5px;color:var(--teal);word-break:break-all}
+
+/* BEST PRACTICES */
+.bpgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.bcard{background:var(--card);border:2px solid rgba(255,255,255,.06);border-radius:22px;padding:36px 28px;transition:all .3s cubic-bezier(.34,1.56,.64,1);cursor:default;position:relative;overflow:hidden}
+.bcard:hover{transform:translateY(-10px) rotate(.8deg)}
+.bcard:nth-child(1):hover{border-color:var(--pink);box-shadow:0 20px 60px rgba(255,45,120,.2)}
+.bcard:nth-child(2):hover{border-color:var(--teal);box-shadow:0 20px 60px rgba(0,229,204,.2)}
+.bcard:nth-child(3):hover{border-color:var(--yellow);box-shadow:0 20px 60px rgba(255,233,77,.18)}
+.bcard:nth-child(4):hover{border-color:var(--purple);box-shadow:0 20px 60px rgba(180,77,255,.2)}
+.bcard:nth-child(5):hover{border-color:var(--lime);box-shadow:0 20px 60px rgba(163,255,71,.15)}
+.bcard:nth-child(6):hover{border-color:var(--orange);box-shadow:0 20px 60px rgba(255,124,42,.2)}
+.bwm{position:absolute;right:-16px;bottom:-20px;font-size:88px;opacity:.04;line-height:1;pointer-events:none}
+.bicon{font-size:38px;margin-bottom:18px;display:inline-block;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.bcard:hover .bicon{transform:scale(1.3) rotate(-10deg)}
+.btitle{font-weight:900;font-size:17px;color:var(--white);margin-bottom:10px}
+.bbody{font-size:13px;color:var(--muted);line-height:1.8;font-weight:600}
+.btag{display:inline-block;margin-top:16px;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:4px 14px;border-radius:10px}
+.btp{background:rgba(255,45,120,.15);color:var(--pink2)}
+.btt{background:rgba(0,229,204,.1);color:var(--teal)}
+.bty{background:rgba(255,233,77,.1);color:var(--yellow)}
+.btv{background:rgba(180,77,255,.12);color:#d18bff}
+.btl{background:rgba(163,255,71,.1);color:var(--lime)}
+.bto{background:rgba(255,124,42,.1);color:var(--orange)}
+
+/* FOOTER */
+footer{background:var(--bg);padding:72px 64px 44px;position:relative;z-index:2;overflow:hidden;border-top:3px solid var(--pink)}
+footer::before{content:'🎭';position:absolute;bottom:-40px;right:-20px;font-size:240px;opacity:.025;pointer-events:none}
+.fgrid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:60px;margin-bottom:48px;padding-bottom:44px;border-bottom:1px solid rgba(255,255,255,.07)}
+.fname{font-family:var(--display);font-size:38px;line-height:1;margin-bottom:6px;background:linear-gradient(135deg,var(--pink),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.frole{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--pink2);font-weight:800;margin-bottom:14px}
+.fbio{font-size:13px;color:var(--muted);line-height:1.8;max-width:270px;font-weight:600}
+.ftch{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.ftc{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:4px 12px;font-size:11px;color:var(--muted);font-weight:700}
+.fch{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--teal);font-weight:800;margin-bottom:18px}
+.flinks{list-style:none}
+.flinks li{margin-bottom:10px}
+.flinks a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;display:flex;align-items:center;gap:8px;font-weight:600}
+.flinks a:hover{color:var(--pink2)}
+.flinks a::before{content:'→';color:var(--pink);opacity:.4;font-size:11px}
+.flinks a:hover::before{opacity:1}
+.fbot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.15);letter-spacing:.06em;font-weight:700}
+.fheart{color:var(--pink);animation:hb 1.2s ease-in-out infinite;display:inline-block}
+@keyframes hb{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+
+/* SCROLL REVEAL */
+.sr{opacity:0;transform:translateY(32px);transition:opacity .65s cubic-bezier(.25,.46,.45,.94),transform .65s cubic-bezier(.25,.46,.45,.94)}
+.sr.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.06s}.d2{transition-delay:.13s}.d3{transition-delay:.2s}.d4{transition-delay:.27s}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  #hero{grid-template-columns:1fr}.hero-r{display:none}
+  nav{padding:12px 20px}.nav-links{display:none}
+  .sw{padding:60px 24px}
+  .strip{grid-template-columns:1fr 1fr}
+  .what-grid,.api-grid{grid-template-columns:1fr}
+  .vs-cols{grid-template-columns:1fr}.vmid{display:none}.vl{border-radius:24px 24px 0 0;border:2px solid rgba(255,255,255,.06);border-bottom:none}.vr{border-radius:0 0 24px 24px}
+  .sgrid{grid-template-columns:1fr 1fr}
+  .bpgrid{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr;gap:36px}
+  .fbot{flex-direction:column;gap:12px;text-align:center}
+  .hstats{grid-template-columns:1fr 1fr}
+  .rctrl{flex-direction:column}
+  .runner-body,.runner-top{padding-left:24px;padding-right:24px}
+}
+</style>
+</head>
+<body>
+<canvas id="cvs"></canvas>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div id="cdot"></div><div id="cring"></div>
+
+<!-- TICKER -->
+<div class="ticker"><div class="tick-inner">
+  <span>🎭 Playwright</span><span class="sep"> ★ </span><span>End-to-End Testing</span><span class="sep"> ★ </span><span>Aayush Mishra · SDET</span><span class="sep"> ★ </span><span>page.click() · page.fill() · page.goto()</span><span class="sep"> ★ </span><span>Auto-Wait · Screenshots · Trace Viewer</span><span class="sep"> ★ </span><span>Multi-Browser · Parallel · API Testing</span><span class="sep"> ★ </span>
+  <span>🎭 Playwright</span><span class="sep"> ★ </span><span>End-to-End Testing</span><span class="sep"> ★ </span><span>Aayush Mishra · SDET</span><span class="sep"> ★ </span><span>page.click() · page.fill() · page.goto()</span><span class="sep"> ★ </span><span>Auto-Wait · Screenshots · Trace Viewer</span><span class="sep"> ★ </span><span>Multi-Browser · Parallel · API Testing</span><span class="sep"> ★ </span>
+</div></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">🎭 PLAYWRIGHT</a>
+  <ul class="nav-links"><li><a href="#overview">Overview</a></li><li><a href="#api">API</a></li><li><a href="#vs">vs Selenium</a></li><li><a href="#runner">Runner</a></li><li><a href="#setup">Setup</a></li></ul>
+  <div class="nav-badge">🚀 Aayush Mishra · SDET</div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-l">
+    <div class="eyebrow"><span class="eyebrow-dot">🎭</span>Microsoft Open Source · 2020</div>
+    <h1 class="h1"><span class="l1">NEXT-GEN</span><span class="l2">BROWSER</span><span class="l3">TESTING.</span></h1>
+    <p class="hero-desc"><strong>Playwright</strong> by Microsoft — the most powerful E2E framework ever made. Auto-waits, 3 browsers, screenshots, trace viewer &amp; API testing. All built-in. Zero drama.</p>
+    <div class="hero-btns">
+      <a href="#runner" class="btn-main">▶ Run Live Tests</a>
+      <a href="#api" class="btn-ghost">🔍 Explore API</a>
+    </div>
+    <div class="hstats">
+      <div class="hs"><span class="hs-n p">3</span><span class="hs-l">Browsers</span></div>
+      <div class="hs"><span class="hs-n t">0ms</span><span class="hs-l">Manual Waits</span></div>
+      <div class="hs"><span class="hs-n y">Auto</span><span class="hs-l">Screenshots</span></div>
+      <div class="hs"><span class="hs-n l">∞</span><span class="hs-l">Parallel</span></div>
+    </div>
+  </div>
+  <div class="hero-r">
+    <div class="code-showcase"><div class="ci">
+      <div class="ci-top"><div class="dots"><span></span><span></span><span></span></div><div class="ci-file">login.spec.ts</div><div class="ci-badge">TypeScript</div></div>
+      <div class="ci-code"><pre><span class="kw">import</span> <span class="wh">{ test, expect }</span> <span class="kw">from</span> <span class="str">'@playwright/test'</span><span class="wh">;</span>
+
+<span class="fn">test</span><span class="wh">(</span><span class="str">'user logs in successfully'</span><span class="wh">,</span>
+  <span class="kw">async</span> <span class="wh">({ page }) => {</span>
+  <span class="cm">// navigate — auto waits for page load</span>
+  <span class="kw">await</span> <span class="wh">page.</span><span class="fn">goto</span><span class="wh">(</span><span class="str">'https://app.example.com'</span><span class="wh">);</span>
+  <span class="cm">// fill — no explicit waits needed!</span>
+  <span class="kw">await</span> <span class="wh">page.</span><span class="fn">fill</span><span class="wh">(</span><span class="str">'#email'</span><span class="wh">, </span><span class="str">'admin@co.com'</span><span class="wh">);</span>
+  <span class="kw">await</span> <span class="wh">page.</span><span class="fn">fill</span><span class="wh">(</span><span class="str">'#password'</span><span class="wh">, </span><span class="str">'secret!'</span><span class="wh">);</span>
+  <span class="kw">await</span> <span class="wh">page.</span><span class="fn">click</span><span class="wh">(</span><span class="str">'[type="submit"]'</span><span class="wh">);</span>
+  <span class="cm">// web-first assertion — retries automatically</span>
+  <span class="kw">await</span> <span class="fn">expect</span><span class="wh">(page).</span><span class="fn">toHaveURL</span><span class="wh">(</span><span class="str">'/dashboard'</span><span class="wh">);</span>
+<span class="wh">});</span></pre></div>
+      <div class="ci-bottom"><span class="ci-pass">2 passed · 0 failed</span><span style="color:var(--muted);font-family:var(--mono);font-size:11px">⏱ 1.18s</span></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="si"><span class="si-icon">⏳</span><div class="si-title">Auto-Waits</div><div class="si-desc">Playwright checks visibility, stability and actionability before every single action. No Thread.sleep(). Ever.</div><span class="stag tp">Zero Flakiness</span></div>
+  <div class="si"><span class="si-icon">🌐</span><div class="si-title">3 Engines</div><div class="si-desc">Chromium, Firefox and WebKit from one script. Real cross-browser coverage with zero extra configuration.</div><span class="stag tt">Chrome+FF+Safari</span></div>
+  <div class="si"><span class="si-icon">🎬</span><div class="si-title">Trace Viewer</div><div class="si-desc">Time-travel debugging. See every step — screenshots, DOM, network, console — all captured automatically.</div><span class="stag ty">Time-Travel Debug</span></div>
+  <div class="si"><span class="si-icon">🔌</span><div class="si-title">API + UI Tests</div><div class="si-desc">Test REST endpoints with request.get() alongside UI flows in the same spec file. No Postman needed.</div><span class="stag tv">All-In-One</span></div>
+</div>
+
+<!-- OVERVIEW -->
+<section id="overview">
+<div class="sw sr">
+  <div class="chip cp">✦ 01 · What is Playwright</div>
+  <h2 class="big-t">The framework<br>that <span class="gp">actually</span><br><span class="out">gets it.</span></h2>
+  <p class="s-intro">Built by Microsoft's Puppeteer team. They knew every Selenium pain point and fixed them all. Playwright is what modern E2E testing looks like.</p>
+  <div class="what-grid">
+    <div>
+      <p style="font-size:14px;color:var(--muted);line-height:1.9;font-weight:600;margin-bottom:16px">Selenium needs WebDriverManager, explicit waits everywhere, a test runner, an assertion library, a screenshot plugin and a reporting tool. That's 6 dependencies to do 1 job.</p>
+      <p style="font-size:14px;color:var(--muted);line-height:1.9;font-weight:600;margin-bottom:32px">Playwright ships with everything built-in: auto-waiting, web-first assertions, screenshot/video on failure, code generation via <strong style="color:var(--teal)">playwright codegen</strong>, network interception and the iconic Trace Viewer. One install, everything included.</p>
+      <div class="cblock"><div class="cb-top"><div class="cbdots"><span></span><span></span><span></span></div><div class="cb-file">search.spec.ts</div><div class="cb-lang">TypeScript</div></div>
+      <div class="cb-body"><pre><span class="kw">import</span> <span class="wh">{ test, expect }</span> <span class="kw">from</span> <span class="str">'@playwright/test'</span><span class="wh">;</span>
+
+<span class="fn">test</span><span class="wh">(</span><span class="str">'search for products'</span><span class="wh">, </span><span class="kw">async</span> <span class="wh">({ page }) => {</span>
+  <span class="kw">await</span> <span class="wh">page.</span><span class="fn">goto</span><span class="wh">(</span><span class="str">'https://amazon.in'</span><span class="wh">);</span>
+  <span class="cm">// Semantic locator — survives CSS refactors</span>
+  <span class="kw">await</span> <span class="wh">page.</span><span class="fn">getByPlaceholder</span><span class="wh">(</span><span class="str">'Search Amazon'</span><span class="wh">).</span><span class="fn">fill</span><span class="wh">(</span><span class="str">'laptop'</span><span class="wh">);</span>
+  <span class="kw">await</span> <span class="wh">page.keyboard.</span><span class="fn">press</span><span class="wh">(</span><span class="str">'Enter'</span><span class="wh">);</span>
+  <span class="cm">// Smart assertion — auto-retries until true</span>
+  <span class="kw">await</span> <span class="fn">expect</span><span class="wh">(page.</span><span class="fn">getByRole</span><span class="wh">(</span><span class="str">'heading'</span><span class="wh">)).</span><span class="fn">toContainText</span><span class="wh">(</span><span class="str">'laptop'</span><span class="wh">);</span>
+  <span class="kw">await</span> <span class="wh">page.</span><span class="fn">screenshot</span><span class="wh">({ </span><span class="num">path</span><span class="wh">: </span><span class="str">'results.png'</span><span class="wh">, fullPage: </span><span class="kw">true</span><span class="wh"> });</span>
+<span class="wh">});</span></pre></div></div>
+    </div>
+    <div class="fcards">
+      <div class="fc sr d1"><div class="fc-icon fcp">⚡</div><div><div class="fc-title">Auto-Waiting Engine</div><div class="fc-desc">6 actionability checks before any action: attached? visible? enabled? stable? not animating? not obscured? All automatic — zero flakiness.</div></div></div>
+      <div class="fc sr d2"><div class="fc-icon fct">🌐</div><div><div class="fc-title">Network Interception</div><div class="fc-desc">Intercept, mock or modify any request with page.route(). Build fully isolated UI tests that don't need a real backend.</div></div></div>
+      <div class="fc sr d3"><div class="fc-icon fcy">🎥</div><div><div class="fc-title">Trace + Video Recording</div><div class="fc-desc">Set trace: 'on-first-retry' — every CI failure gets a full trace. Open in Trace Viewer like DevTools for your tests.</div></div></div>
+      <div class="fc sr d4"><div class="fc-icon fcl">🤖</div><div><div class="fc-title">Codegen — Click to Write Tests</div><div class="fc-desc">Run <code style="font-family:var(--mono);font-size:11px;color:var(--teal)">playwright codegen url.com</code> and Playwright records your clicks as working test code in real time.</div></div></div>
+      <div class="fc sr"><div class="fc-icon fcp">🔌</div><div><div class="fc-title">API Testing Built-In</div><div class="fc-desc">Use request.get()/post() alongside page.click() in the same test. Seed DB via API, verify result via UI — one framework.</div></div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- API -->
+<div class="api-bg" id="api">
+<div class="sw sr" style="max-width:1200px">
+  <div class="chip ct">✦ 02 · Core API Methods</div>
+  <h2 class="big-t">Every command<br>you'll <span class="gt">actually use.</span></h2>
+  <p class="s-intro">Clean, async-first, intuitive. These are the Playwright API methods every SDET reaches for daily.</p>
+  <div class="api-grid">
+    <div class="acard acp sr d1"><div class="mpill mpp">page.goto()</div><div class="a-title">Navigate to URL</div><div class="a-desc">Navigate and wait for load state. Supports domcontentloaded, load, and networkidle. Zero manual waits.</div><div class="a-ex">await page.goto('/login', { waitUntil: 'networkidle' });</div></div>
+    <div class="acard act sr d2"><div class="mpill mpt">page.click()</div><div class="a-title">Click an Element</div><div class="a-desc">Auto-waits for visible, enabled, stable before clicking. Handles retries internally. Never flakes.</div><div class="a-ex">await page.click('button[type="submit"]');</div></div>
+    <div class="acard acy sr d3"><div class="mpill mpy">page.fill()</div><div class="a-title">Type into Input</div><div class="a-desc">Fills input fields after clearing them. Use page.type() for character-by-character keyboard simulation.</div><div class="a-ex">await page.fill('#search', 'playwright');</div></div>
+    <div class="acard acl sr"><div class="mpill mpl">getByRole()</div><div class="a-title">Semantic Locator</div><div class="a-desc">Find by ARIA role — recommended over CSS selectors. Resilient to HTML changes and refactors.</div><div class="a-ex">page.getByRole('button', { name: 'Login' })</div></div>
+    <div class="acard acv sr d1"><div class="mpill mpv">expect().toBeVisible()</div><div class="a-title">Web-First Assertions</div><div class="a-desc">Smart assertions that auto-retry until true or timeout. No external assertion library needed at all.</div><div class="a-ex">await expect(page.getByText('Welcome')).toBeVisible();</div></div>
+    <div class="acard aco sr d2"><div class="mpill mpo">page.route()</div><div class="a-title">Network Mocking</div><div class="a-desc">Intercept any request and return custom responses. Mock 3rd party APIs, loading states, and error flows.</div><div class="a-ex">await page.route('**/api/users', r => r.fulfill({ body: '[]' }));</div></div>
+    <div class="acard acp sr d3"><div class="mpill mpp">page.screenshot()</div><div class="a-title">Capture Screenshots</div><div class="a-desc">Full-page or element screenshots. Auto-capture on failure with screenshot: 'only-on-failure' config.</div><div class="a-ex">await page.screenshot({ path: 'fail.png', fullPage: true });</div></div>
+    <div class="acard act sr"><div class="mpill mpt">waitForResponse()</div><div class="a-title">Wait for Network</div><div class="a-desc">Wait for a specific API response before asserting. Essential for SPAs loading data after navigation.</div><div class="a-ex">await page.waitForResponse('**/api/products');</div></div>
+    <div class="acard acy sr d1"><div class="mpill mpy">test.describe()</div><div class="a-title">Group Tests</div><div class="a-desc">Organize into suites with scoped beforeEach/afterEach setup and teardown. Clean and maintainable.</div><div class="a-ex">test.describe('Login Suite', () => { ... });</div></div>
+  </div>
+
+  <div style="margin-top:60px" class="sr">
+    <div class="chip cy" style="margin-bottom:20px">✦ playwright.config.ts</div>
+    <div class="cblock"><div class="cb-top"><div class="cbdots"><span></span><span></span><span></span></div><div class="cb-file">playwright.config.ts</div><div class="cb-lang">Config</div></div>
+    <div class="cb-body"><pre><span class="kw">import</span> <span class="wh">{ defineConfig, devices }</span> <span class="kw">from</span> <span class="str">'@playwright/test'</span><span class="wh">;</span>
+
+<span class="kw">export default</span> <span class="fn">defineConfig</span><span class="wh">({</span>
+  <span class="num">testDir</span><span class="wh">:   </span><span class="str">'./tests'</span><span class="wh">,</span>
+  <span class="num">workers</span><span class="wh">:   process.env.CI ? </span><span class="num">2</span><span class="wh"> : </span><span class="kw">undefined</span><span class="wh">,</span>
+  <span class="num">retries</span><span class="wh">:   process.env.CI ? </span><span class="num">2</span><span class="wh"> : </span><span class="num">0</span><span class="wh">,</span>
+  <span class="num">use</span><span class="wh">: {</span>
+    <span class="num">baseURL</span><span class="wh">:    </span><span class="str">'https://staging.myapp.com'</span><span class="wh">,</span>
+    <span class="num">trace</span><span class="wh">:     </span><span class="str">'on-first-retry'</span><span class="wh">,</span>
+    <span class="num">screenshot</span><span class="wh">:</span><span class="str">'only-on-failure'</span><span class="wh">,</span>
+    <span class="num">video</span><span class="wh">:     </span><span class="str">'retain-on-failure'</span><span class="wh">,</span>
+  <span class="wh">},</span>
+  <span class="num">projects</span><span class="wh">: [</span>
+    <span class="wh">{ </span><span class="num">name</span><span class="wh">: </span><span class="str">'chromium'</span><span class="wh">, use: { ...devices[</span><span class="str">'Desktop Chrome'</span><span class="wh">] } },</span>
+    <span class="wh">{ </span><span class="num">name</span><span class="wh">: </span><span class="str">'firefox'</span><span class="wh">,  use: { ...devices[</span><span class="str">'Desktop Firefox'</span><span class="wh">] } },</span>
+    <span class="wh">{ </span><span class="num">name</span><span class="wh">: </span><span class="str">'webkit'</span><span class="wh">,   use: { ...devices[</span><span class="str">'Desktop Safari'</span><span class="wh">] } },</span>
+    <span class="wh">{ </span><span class="num">name</span><span class="wh">: </span><span class="str">'mobile'</span><span class="wh">,   use: { ...devices[</span><span class="str">'iPhone 13'</span><span class="wh">] } },</span>
+  <span class="wh">],</span>
+<span class="wh">});</span></pre></div></div>
+  </div>
+</div>
+</div>
+
+<!-- VS -->
+<div class="vs-bg" id="vs">
+<div class="sw sr" style="max-width:1200px">
+  <div class="chip cy">✦ 03 · Playwright vs Selenium</div>
+  <h2 class="big-t">The <span class="gv">honest</span><br>comparison.</h2>
+  <div class="vs-cols">
+    <div class="vc vl">
+      <span class="vlab vold">Legacy</span>
+      <div class="vname">Selenium WebDriver</div>
+      <ul class="vitems">
+        <li><span class="xi">✗</span>Manual WebDriver version management (ChromeDriver hell)</li>
+        <li><span class="xi">✗</span>No built-in auto-wait — Thread.sleep() everywhere</li>
+        <li><span class="xi">✗</span>No built-in test runner — needs TestNG/JUnit externally</li>
+        <li><span class="xi">✗</span>No network interception in standard API</li>
+        <li><span class="xi">✗</span>No built-in screenshot on failure</li>
+        <li><span class="xi">✗</span>No built-in parallelism — complex ThreadLocal setup needed</li>
+        <li><span class="xi">✗</span>Slow WebDriver JSON Wire Protocol</li>
+        <li><span class="xi">✗</span>No Trace Viewer — debugging is painful</li>
+      </ul>
+    </div>
+    <div class="vmid"><div class="vmid-w">VS</div></div>
+    <div class="vc vr">
+      <span class="vlab vnew">✨ Modern Choice</span>
+      <div class="vname">🎭 Playwright</div>
+      <ul class="vitems">
+        <li><span class="ci2">✓</span>npx playwright install — downloads everything automatically</li>
+        <li><span class="ci2">✓</span>Auto-waits on every single action — zero flakiness default</li>
+        <li><span class="ci2">✓</span>Built-in test runner with gorgeous HTML reports</li>
+        <li><span class="ci2">✓</span>page.route() — full request/response mocking built-in</li>
+        <li><span class="ci2">✓</span>Auto screenshot + video + trace on every failure</li>
+        <li><span class="ci2">✓</span>workers: 4 — parallel execution out of the box</li>
+        <li><span class="ci2">✓</span>Native CDP protocol — blazing fast execution speed</li>
+        <li><span class="ci2">✓</span>Trace Viewer — time-travel debug any failed test</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- RUNNER -->
+<div class="runner-bg" id="runner">
+  <div class="runner-top">
+    <div class="chip cl">✦ 04 · Live Test Runner</div>
+    <h2 class="runner-title">🎭 <span style="background:linear-gradient(90deg,var(--pink),var(--orange),var(--yellow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Run</span> Playwright Now.</h2>
+    <p class="runner-sub">Pick a test scenario and watch Playwright execute it — real console output, auto-wait logs, traces, pass/fail — just like your local terminal.</p>
+  </div>
+  <div class="runner-body">
+    <div class="rlabel">Test Configuration</div>
+    <div class="rctrl">
+      <select class="rsel" id="scenario">
+        <option value="login">🔐 Login Flow</option>
+        <option value="search">🔍 Search &amp; Filter</option>
+        <option value="api">🔌 API + UI Hybrid</option>
+        <option value="mobile">📱 Mobile Emulation</option>
+        <option value="network">🌐 Network Mocking</option>
+        <option value="parallel">⚡ Parallel Browsers</option>
+      </select>
+      <input class="rinp" id="specFile" type="text" placeholder="spec filename, e.g. login.spec.ts" value="login.spec.ts"/>
+      <button class="rbtn" id="runBtn" onclick="runTest()"><span id="rIcon">▶</span><span id="rText">Run Test</span></button>
+    </div>
+    <div class="rlabel">Quick Presets</div>
+    <div class="presets">
+      <button class="ptag" onclick="qs('login','login.spec.ts')">🔐 login</button>
+      <button class="ptag" onclick="qs('search','search.spec.ts')">🔍 search</button>
+      <button class="ptag" onclick="qs('api','api-hybrid.spec.ts')">🔌 api+ui</button>
+      <button class="ptag" onclick="qs('mobile','mobile.spec.ts')">📱 mobile</button>
+      <button class="ptag" onclick="qs('network','network-mock.spec.ts')">🌐 network</button>
+      <button class="ptag" onclick="qs('parallel','cross-browser.spec.ts')">⚡ parallel</button>
+    </div>
+    <div class="term">
+      <div class="tbar">
+        <div class="tbar-l"><div class="tdots"><span></span><span></span><span></span></div><div class="ttitle">playwright · v1.44.0</div></div>
+        <div class="tstat"><div class="sdot" id="sdot"></div><span id="slabel">idle</span></div>
+      </div>
+      <div class="tbody" id="tbody"><div class="trow"><span class="tts">00:00:00</span><span class="ttag INFO">INFO</span><span class="tmsg">Runner ready — select a scenario and click ▶ Run Test</span></div></div>
+    </div>
+    <div class="pwrap">
+      <div class="prow"><span id="ptxt">0 / 0 tests</span><span id="ppct">0%</span></div>
+      <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="setup-bg" id="setup">
+<div class="sw sr">
+  <div class="chip ct">✦ 05 · Setup Guide</div>
+  <h2 class="big-t">Zero to testing<br>in <span class="gt">60 seconds.</span></h2>
+  <p class="s-intro">One command installs everything — browsers included. No WebDriver, no version matching. It just works.</p>
+  <div class="sgrid">
+    <div class="scard sr d1"><div class="sc-num">01</div><div class="sc-title">Create Project</div><div class="sc-desc">Scaffold a new Playwright project with runner, config, sample tests and GitHub Actions CI workflow.</div><div class="sc-cmd">npm init playwright@latest</div></div>
+    <div class="scard sr d2"><div class="sc-num">02</div><div class="sc-title">Install Browsers</div><div class="sc-desc">Download Chromium, Firefox and WebKit browser binaries. One command, all three browsers done.</div><div class="sc-cmd">npx playwright install</div></div>
+    <div class="scard sr d3"><div class="sc-num">03</div><div class="sc-title">Write First Test</div><div class="sc-desc">Create tests/login.spec.ts and add your first test block with page.goto, fill, click and expect.</div><div class="sc-cmd">tests/login.spec.ts</div></div>
+    <div class="scard sr d4"><div class="sc-num">04</div><div class="sc-title">Use Codegen</div><div class="sc-desc">Open a URL and click around — Playwright records your interactions as working TypeScript code.</div><div class="sc-cmd">npx playwright codegen url.com</div></div>
+    <div class="scard sr"><div class="sc-num">05</div><div class="sc-title">Configure Config</div><div class="sc-desc">Set baseURL, browsers, retries, screenshot, trace and video settings in playwright.config.ts.</div><div class="sc-cmd">defineConfig({ use: { baseURL } })</div></div>
+    <div class="scard sr d1"><div class="sc-num">06</div><div class="sc-title">Run All Tests</div><div class="sc-desc">Execute the full suite across all configured browsers in parallel with one single command.</div><div class="sc-cmd">npx playwright test</div></div>
+    <div class="scard sr d2"><div class="sc-num">07</div><div class="sc-title">View HTML Report</div><div class="sc-desc">Open the built-in HTML report — test timings, screenshots, videos and status at a glance.</div><div class="sc-cmd">npx playwright show-report</div></div>
+    <div class="scard sr d3"><div class="sc-num">08</div><div class="sc-title">Debug with Traces</div><div class="sc-desc">Open any trace file to time-travel through a failed test — every step, screenshot and network call.</div><div class="sc-cmd">npx playwright show-trace trace.zip</div></div>
+  </div>
+</div>
+</div>
+
+<!-- BEST PRACTICES -->
+<section style="background:var(--bg2);border-top:2px solid rgba(255,45,120,.1)">
+<div class="sw sr">
+  <div class="chip cpur">✦ 06 · Best Practices</div>
+  <h2 class="big-t">Tests that never<br><span class="gv">break.</span></h2>
+  <p class="s-intro">The exact patterns senior SDETs use to write Playwright suites that are reliable, fast and maintainable forever.</p>
+  <div class="bpgrid">
+    <div class="bcard sr d1"><div class="bwm">POM</div><div class="bicon">🏗️</div><div class="btitle">Page Object Model</div><div class="bbody">One class per page with locators and actions as methods. Tests call loginPage.login(user,pass) — not page.fill everywhere. One selector change → fix one file, not 50 tests.</div><span class="btag btp">Architecture</span></div>
+    <div class="bcard sr d2"><div class="bwm">LOC</div><div class="bicon">🎯</div><div class="btitle">getByRole() First</div><div class="bbody">Always try ARIA-based locators first: getByRole(), getByLabel(), getByText(), getByPlaceholder(). They mirror how users interact with your app and survive any CSS refactor.</div><span class="btag btt">Locators</span></div>
+    <div class="bcard sr d3"><div class="bwm">AUTH</div><div class="bicon">🔒</div><div class="btitle">storageState for Auth</div><div class="bbody">Login once, save to storageState.json, reuse across all tests. Cuts suite time 30–50% by skipping the login flow for every test that isn't actually testing login.</div><span class="btag bty">Performance</span></div>
+    <div class="bcard sr"><div class="bwm">NET</div><div class="bicon">🌐</div><div class="btitle">Mock External APIs</div><div class="bbody">Use page.route() to mock payment gateways and slow 3rd-party services. Tests must be deterministic — don't let Stripe's uptime affect your CI pipeline results.</div><span class="btag btv">Reliability</span></div>
+    <div class="bcard sr d1"><div class="bwm">TRC</div><div class="bicon">🎬</div><div class="btitle">Always Trace in CI</div><div class="bbody">Set trace: 'on-first-retry'. Every CI failure gets a complete trace. Debugging remote failures becomes trivial — no more "works on my machine" ever again.</div><span class="btag btl">Debugging</span></div>
+    <div class="bcard sr d2"><div class="bwm">PAR</div><div class="bicon">⚡</div><div class="btitle">Maximize Parallelism</div><div class="bbody">Tests run parallel per file by default. Keep tests independent, set workers: 'auto'. A 200-test suite finishing in under 3 minutes is completely achievable with Playwright.</div><span class="btag bto">Speed</span></div>
+  </div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fgrid">
+    <div><div class="fname">AAYUSH MISHRA</div><div class="frole">SDET · End-to-End Test Automation Engineer</div><div class="fbio">Building world-class automation frameworks with Playwright, TestNG and AI-driven tools. Expert in scalable QA pipelines and zero-flakiness architecture.</div><div class="ftch"><span class="ftc">🎭 Playwright</span><span class="ftc">TestNG</span><span class="ftc">Nova Act</span><span class="ftc">Selenium</span><span class="ftc">TypeScript</span><span class="ftc">Java</span></div></div>
+    <div><div class="fch">Navigation</div><ul class="flinks"><li><a href="#overview">What is Playwright</a></li><li><a href="#api">Core API</a></li><li><a href="#vs">vs Selenium</a></li><li><a href="#runner">Live Runner</a></li><li><a href="#setup">Setup Guide</a></li></ul></div>
+    <div><div class="fch">Also By Aayush</div><ul class="flinks"><li><a href="#">Nova Act — AI Browser Agents</a></li><li><a href="#">TestNG + Java Selenium</a></li><li><a href="#">GitHub Portfolio</a></li><li><a href="#">LinkedIn</a></li></ul></div>
+  </div>
+  <div class="fbot"><span>Made with <span class="fheart">♥</span> by Aayush Mishra · SDET · 2024</span><div class="ftch"><span class="ftc">🎭 Playwright v1.44</span><span class="ftc">TypeScript</span><span class="ftc">GitHub Actions</span></div></div>
+</footer>
+
+<script>
+// CURSOR
+const cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cdot.style.left=mx+'px';cdot.style.top=my+'px';});
+(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cring.style.left=rx+'px';cring.style.top=ry+'px';requestAnimationFrame(loop);})();
+document.querySelectorAll('a,button,.fc,.acard,.bcard,.scard,.hs,.si').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'));
+});
+
+// CONFETTI
+const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');
+let pieces=[];
+const COLS=['#ff2d78','#00e5cc','#ffe94d','#b44dff','#a3ff47','#ff7c2a','#4d9fff','#ff6ba8'];
+function resize(){cvs.width=window.innerWidth;cvs.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+setInterval(()=>{
+  pieces.push({x:Math.random()*cvs.width,y:cvs.height+20,r:Math.random()*4+2,vx:(Math.random()-.5)*1.5,vy:-(Math.random()*2.5+1.5),life:1,color:COLS[Math.floor(Math.random()*COLS.length)],shape:Math.random()>.5?'c':'r',rot:Math.random()*Math.PI*2,vrot:(Math.random()-.5)*.1});
+},200);
+(function draw(){
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  pieces=pieces.filter(p=>p.life>0);
+  pieces.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.025;p.rot+=p.vrot;p.life-=.004;ctx.save();ctx.globalAlpha=p.life*.4;ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.color;if(p.shape==='c'){ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();}else{ctx.fillRect(-p.r,-p.r,p.r*2.5,p.r*2.5);}ctx.restore();});
+  requestAnimationFrame(draw);
+})();
+
+// SCROLL REVEAL
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}}),{threshold:.07});
+document.querySelectorAll('.sr').forEach(el=>obs.observe(el));
+
+// RUNNER
+const tbody=document.getElementById('tbody');
+const sdot=document.getElementById('sdot'),slabel=document.getElementById('slabel');
+const pfill=document.getElementById('pfill'),ptxt=document.getElementById('ptxt'),ppct=document.getElementById('ppct');
+function setS(s,l){sdot.className='sdot '+s;slabel.textContent=l;}
+function setP(d,t){const p=t>0?Math.round(d/t*100):0;pfill.style.width=p+'%';ptxt.textContent=d+' / '+t+' tests';ppct.textContent=p+'%';}
+function qs(s,f){document.getElementById('scenario').value=s;document.getElementById('specFile').value=f;}
+function addLine(tag,cls,msg,delay){return new Promise(r=>setTimeout(()=>{const t=new Date().toTimeString().split(' ')[0];const d=document.createElement('div');d.className='trow';d.innerHTML=`<span class="tts">${t}</span><span class="ttag ${cls}">${tag}</span><span class="tmsg">${msg}</span>`;tbody.appendChild(d);tbody.scrollTop=tbody.scrollHeight;r();},delay));}
+async function runTest(){
+  const btn=document.getElementById('runBtn');
+  const sc=document.getElementById('scenario').value;
+  const file=document.getElementById('specFile').value||'login.spec.ts';
+  btn.disabled=true;document.getElementById('rIcon').textContent='◌';document.getElementById('rText').textContent='Running…';
+  setS('run','running');tbody.innerHTML='';setP(0,0);
+  const scenarios={
+    login:{tests:['valid login flow','invalid password shows error','empty fields validation','session persists on refresh'],fail:[1]},
+    search:{tests:['search returns results','filter by price range','sort by rating','empty state on no results'],fail:[]},
+    api:{tests:['POST /api/login → 200','UI shows dashboard after auth','GET /api/products → 20 items','cart count updates after POST'],fail:[2]},
+    mobile:{tests:['login on iPhone 13','tap nav menu opens drawer','swipe dismisses modal','keyboard not covering form'],fail:[]},
+    network:{tests:['mocked API shows empty list','spinner shown during request','error banner on 500 response','retry button on network fail'],fail:[]},
+    parallel:{tests:['chromium: login flow','firefox: login flow','webkit: login flow','chromium: checkout','firefox: checkout','webkit: checkout'],fail:[]}
+  };
+  const cfg=scenarios[sc]||scenarios.login,total=cfg.tests.length;
+  const browser=sc==='parallel'?'chromium + firefox + webkit':sc==='mobile'?'webkit · iPhone 13':'chromium';
+  const steps=[
+    ['INFO','INFO',`Running ${total} test(s) in ${file}`,200],
+    ['INFO','INFO',`Playwright v1.44.0 · ${sc==='parallel'?'6 workers':'4 workers'}`,160],
+    ['INFO','INFO',`Config: playwright.config.ts · baseURL: https://staging.myapp.com`,180],
+    ['INFO','INFO',`Launching: ${browser}`,380],
+    ['INFO','INFO',`New browser context created · cookies cleared`,260],
+  ];
+  cfg.tests.forEach((name,i)=>{
+    const fail=cfg.fail.includes(i);
+    steps.push(['TEST','TEST',`▶ ${name}`,sc==='parallel'?160:280]);
+    steps.push(['INFO','INFO',`  auto-wait: element actionable in ${(Math.random()*.4+.05).toFixed(2)}s`,140]);
+    if(sc==='network')steps.push(['INFO','INFO','  page.route("**/api/**") → mock response injected',160]);
+    if(sc==='api')steps.push(['INFO','INFO',`  request.post('/api/login') → 200 OK`,180]);
+    if(!fail)steps.push(['PASS','PASS',`  ✓ ${name} (${(Math.random()*.8+.25).toFixed(2)}s)`,230]);
+    else{steps.push(['FAIL','FAIL',`  ✗ ${name}`,190]);steps.push(['WARN','WARN','    → Error: expect(locator).toBeVisible() — element not found',160]);steps.push(['SNAP','SNAP','    → Screenshot saved: test-results/failure.png',150]);steps.push(['INFO','INFO','    → Trace saved: test-results/trace.zip',150]);}
+  });
+  const passed=total-cfg.fail.length,failed=cfg.fail.length;
+  steps.push(['INFO','INFO','',80],['INFO','INFO','Generating HTML report → playwright-report/index.html',280]);
+  if(failed>0){steps.push(['WARN','WARN','Debug: npx playwright show-trace test-results/trace.zip',190]);steps.push(['FAIL','FAIL',`${total} tests · ${passed} passed · ${failed} failed · ${(total*.65+.4).toFixed(2)}s`,100]);}
+  else steps.push(['PASS','PASS',`${total} tests · ${passed} passed · 0 failed · ${(total*.5+.3).toFixed(2)}s`,100]);
+  let delay=0,done=0;
+  for(const [tag,cls,msg,wait] of steps){
+    await addLine(tag,cls,msg,delay);
+    if(tag==='PASS'||(tag==='FAIL'&&msg.includes('✗'))){done++;setP(done,total);}
+    delay+=wait;
+  }
+  setTimeout(()=>{setS(failed>0?'fail':'ok',failed>0?`${failed} failed`:'all passed ✓');btn.disabled=false;document.getElementById('rIcon').textContent='▶';document.getElementById('rText').textContent='Run Test';},delay);
+}
+document.getElementById('specFile').addEventListener('keydown',e=>{if(e.key==='Enter')runTest();});
+</script>
+</body>
+</html>

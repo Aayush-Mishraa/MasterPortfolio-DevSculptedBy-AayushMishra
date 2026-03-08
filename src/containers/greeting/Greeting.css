@@ -30,43 +30,154 @@
   margin-top: 20px;
 }
 
-/* Falling Text Section Styling */
-.falling-text-section {
+.automation-arsenal-cta-wrap {
+  margin: 1.6rem 0 1.2rem;
+  max-width: 560px;
+}
+
+.automation-arsenal-cta {
   position: relative;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  border-radius: 12px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
-  padding: 1.5rem;
-  margin: 2rem 0;
-  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: #f8fbff;
+  border: 1px solid rgba(140, 219, 255, 0.45);
+  background: linear-gradient(120deg, #0f2f67 0%, #185f94 48%, #0a8cad 100%);
+  box-shadow: 0 10px 24px rgba(12, 63, 107, 0.28);
   overflow: hidden;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.falling-text-section:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.2);
+.automation-arsenal-cta::before {
+  content: "";
+  position: absolute;
+  top: -130%;
+  left: -25%;
+  width: 60%;
+  height: 300%;
+  transform: rotate(22deg);
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: ctaSweep 3.2s linear infinite;
 }
 
-.falling-text-section::before {
-  content: '';
+.automation-arsenal-cta:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 16px 34px rgba(12, 63, 107, 0.35);
+}
+
+.cta-chip {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.6px;
+  font-size: 0.72rem;
+  font-family: "Google Sans Bold";
+  text-transform: uppercase;
+}
+
+.cta-text {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  font-family: "Google Sans Bold";
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+}
+
+.cta-label {
+  white-space: nowrap;
+}
+
+.cta-tools-viewport {
+  position: relative;
+  width: clamp(118px, 24vw, 180px);
+  height: 1.28em;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.cta-tool {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 30% 20%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
-              radial-gradient(circle at 70% 80%, rgba(118, 75, 162, 0.08) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
+  width: 100%;
+  white-space: nowrap;
+  opacity: 0;
+  color: #e6f5ff;
+  text-shadow: 0 0 8px rgba(188, 232, 255, 0.4);
+  transform: translate(var(--enter-x), var(--enter-y)) scale(0.9);
+  animation: ctaToolFlow 1.7s cubic-bezier(0.35, 0.05, 0.2, 0.95) both;
 }
 
-.falling-text-section > * {
+.cta-path-0 {
+  --enter-x: -22px;
+  --enter-y: 0px;
+  --exit-x: 24px;
+  --exit-y: 0px;
+}
+
+.cta-path-1 {
+  --enter-x: 24px;
+  --enter-y: 0px;
+  --exit-x: -24px;
+  --exit-y: 0px;
+}
+
+.cta-path-2 {
+  --enter-x: 0px;
+  --enter-y: 18px;
+  --exit-x: 0px;
+  --exit-y: -18px;
+}
+
+.cta-path-3 {
+  --enter-x: 0px;
+  --enter-y: -18px;
+  --exit-x: 0px;
+  --exit-y: 18px;
+}
+
+.cta-arrow {
   position: relative;
   z-index: 1;
+  margin-left: auto;
+  font-size: 1rem;
+  font-family: "Google Sans Bold";
+  transform: translateX(0);
+  transition: transform 0.2s ease;
+}
+
+.automation-arsenal-cta:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+.automation-arsenal-cta-note {
+  margin: 0.65rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  font-family: "Google Sans Medium";
 }
 
 .greeting-text {
@@ -177,6 +288,30 @@
     flex-direction: column;
   }
 
+  .automation-arsenal-cta-wrap {
+    margin: 1.3rem auto 1rem;
+    max-width: 500px;
+  }
+
+  .automation-arsenal-cta {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .cta-text {
+    font-size: 0.88rem;
+    gap: 6px;
+  }
+
+  .cta-tools-viewport {
+    width: clamp(106px, 33vw, 160px);
+  }
+
+  .automation-arsenal-cta-note {
+    text-align: center;
+    font-size: 0.88rem;
+  }
+
   /* Swap positions: ProfileCard first, then text content */
   .greeting-text-div {
     order: 2; /* Move text content (including falling text) to bottom */
@@ -188,13 +323,6 @@
     margin-bottom: 2rem;
   }
   
-  /* Optimize falling text section for mobile */
-  .falling-text-section {
-    margin: 1.5rem 0 !important;
-    min-height: 120px !important;
-    padding: 1rem !important;
-  }
-
   .portfolio-repo-btn-div {
     width: 100%;
     display: flex;
@@ -242,6 +370,30 @@
   .greeting-text {
     font-size: clamp(20px, 8vw, 28px);
   }
+
+  .automation-arsenal-cta {
+    border-radius: 12px;
+  }
+
+  .cta-chip {
+    min-width: 38px;
+    height: 24px;
+    font-size: 0.65rem;
+    padding: 0 8px;
+  }
+
+  .cta-arrow {
+    font-size: 0.9rem;
+  }
+
+  .cta-tools-viewport {
+    width: clamp(102px, 41vw, 150px);
+  }
+
+  .cta-label {
+    display: none;
+  }
+
   .greeting-nickname {
     font-size: clamp(11px, 4vw, 14px);
     line-height: 1.2;
@@ -254,12 +406,6 @@
     padding: 0 10px;
   }
 
-  /* Further optimize falling text for small mobile */
-  .falling-text-section {
-    margin: 1rem 0 !important;
-    min-height: 100px !important;
-    padding: 0.8rem !important;
-  }
 }
 
 /* Extra Small Mobile */
@@ -313,5 +459,56 @@
   }
   51%, 100% {
     opacity: 0;
+  }
+}
+
+@keyframes ctaSweep {
+  0% {
+    transform: translateX(-140%) rotate(22deg);
+  }
+  100% {
+    transform: translateX(340%) rotate(22deg);
+  }
+}
+
+@keyframes ctaToolFlow {
+  0% {
+    opacity: 0;
+    transform: translate(var(--enter-x), var(--enter-y)) scale(0.9);
+    filter: blur(4px);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    filter: blur(0);
+  }
+  58% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    filter: blur(0);
+  }
+  75% {
+    opacity: 0;
+    transform: translate(var(--exit-x), var(--exit-y)) scale(1.08);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--exit-x), var(--exit-y)) scale(1.08);
+    filter: blur(5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .automation-arsenal-cta::before,
+  .cta-tool {
+    animation: none;
+  }
+
+  .cta-tool {
+    opacity: 1;
+    position: absolute;
+    filter: none;
+    transform: none;
   }
 }

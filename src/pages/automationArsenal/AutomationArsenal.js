@@ -22,7 +22,7 @@ export const automationTools = [
       "Modern end-to-end browser automation for reliable, parallel, and cross-browser quality engineering.",
     image: "/tool-logos/playwright.svg",
     docsPath: "/tools/playwright.html",
-    isReady: false,
+    isReady: true,
   },
   {
     name: "Selenium",
@@ -76,7 +76,7 @@ export const automationTools = [
       "Pipeline orchestration for build validation, automated test execution, reporting, and release quality gates.",
     image: "/tool-logos/github-actions.svg",
     docsPath: "/tools/github-actions.html",
-    isReady: false,
+    isReady: true,
   },
 ];
 
