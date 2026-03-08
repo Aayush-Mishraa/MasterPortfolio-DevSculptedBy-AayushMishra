@@ -35,10 +35,28 @@ jobs:
 
       # Step 5: Upload website files to Hostinger public_html via FTP
       # Uses incremental sync state to avoid unnecessary uploads where possible.
+      - name: Resolve FTP host to IPv4
+        run: |
+          FTP_SERVER_RAW="${{ secrets.FTP_SERVER }}"
+
+          if echo "$FTP_SERVER_RAW" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+            FTP_SERVER_IPV4="$FTP_SERVER_RAW"
+          else
+            FTP_SERVER_IPV4=$(getent ahostsv4 "$FTP_SERVER_RAW" | awk '{print $1; exit}')
+          fi
+
+          if [ -z "$FTP_SERVER_IPV4" ]; then
+            echo "Unable to resolve IPv4 for FTP server: $FTP_SERVER_RAW"
+            exit 1
+          fi
+
+          echo "Using FTP IPv4 endpoint: $FTP_SERVER_IPV4"
+          echo "FTP_SERVER_IPV4=$FTP_SERVER_IPV4" >> $GITHUB_ENV
+
       - name: Deploy files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
