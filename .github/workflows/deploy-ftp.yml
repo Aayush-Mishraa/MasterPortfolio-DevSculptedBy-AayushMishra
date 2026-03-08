@@ -84,6 +84,27 @@ jobs:
       url: ${{ secrets.SITE_URL }}
     
     steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Resolve FTP host to IPv4
+        run: |
+          FTP_SERVER_RAW="${{ secrets.FTP_HOST }}"
+
+          if echo "$FTP_SERVER_RAW" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+            FTP_SERVER_IPV4="$FTP_SERVER_RAW"
+          else
+            FTP_SERVER_IPV4=$(getent ahostsv4 "$FTP_SERVER_RAW" | awk '{print $1; exit}')
+          fi
+
+          if [ -z "$FTP_SERVER_IPV4" ]; then
+            echo "Unable to resolve IPv4 for FTP host: $FTP_SERVER_RAW"
+            exit 1
+          fi
+
+          echo "Using FTP IPv4 endpoint: $FTP_SERVER_IPV4"
+          echo "FTP_SERVER_IPV4=$FTP_SERVER_IPV4" >> $GITHUB_ENV
+
       - name: 📥 Download Build Artifact
         uses: actions/download-artifact@v4
         with:
@@ -99,7 +120,7 @@ jobs:
       - name: 🚀 Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_HOST }}
+          server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT }}
@@ -112,8 +133,50 @@ jobs:
             **/node_modules/**
             **/.DS_Store
             **/Thumbs.db
-          dangerous-clean-slate: true
+          dangerous-clean-slate: false
           log-level: minimal
+
+      - name: 🚀 Deploy contentmanagementsystem folder
+        if: ${{ hashFiles('contentmanagementsystem/**') != '' }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ env.FTP_SERVER_IPV4 }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftps
+          local-dir: contentmanagementsystem/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}/contentmanagementsystem/
+          dangerous-clean-slate: false
+          state-name: .ftp-cms-sync-state.json
+
+      - name: 🚀 Deploy prestashopecommerce folder
+        if: ${{ hashFiles('prestashopecommerce/**') != '' }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ env.FTP_SERVER_IPV4 }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftps
+          local-dir: prestashopecommerce/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}/prestashopecommerce/
+          dangerous-clean-slate: false
+          state-name: .ftp-prestashop-sync-state.json
+
+      - name: 🚀 Deploy ecommerceautomation folder
+        if: ${{ hashFiles('ecommerceautomation/**') != '' }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ env.FTP_SERVER_IPV4 }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftps
+          local-dir: ecommerceautomation/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}/ecommerceautomation/
+          dangerous-clean-slate: false
+          state-name: .ftp-ecommerce-sync-state.json
 
       - name: 🎉 Deployment Summary
         run: |
