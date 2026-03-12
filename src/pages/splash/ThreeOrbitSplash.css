@@ -1,0 +1,19 @@
+.cinematic-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  opacity: 1;
+  transition: opacity .6s cubic-bezier(.4, 0, .2, 1);
+}
+
+.cinematic-splash--exiting {
+  opacity: 0;
+}
+
+.cinematic-splash__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}

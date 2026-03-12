@@ -31,7 +31,7 @@ export const automationTools = [
       "Battle-tested browser automation framework used for scalable regression and compatibility test suites.",
     image: "/tool-logos/selenium.svg",
     docsPath: "/tools/selenium.html",
-    isReady: false,
+    isReady: true,
   },
   {
     name: "TestNG",

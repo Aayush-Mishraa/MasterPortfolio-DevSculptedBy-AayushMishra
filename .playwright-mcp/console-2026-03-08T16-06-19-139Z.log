@@ -1,0 +1,333 @@
+[     695ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[     695ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[     695ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[     695ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[     695ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[    3306ms] [WARNING] Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: %s RevealBase @ http://localhost:3000/static/js/0.chunk.js:58889
+[  273230ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[  273230ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[  273231ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[  273231ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[  273232ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[  274494ms] [WARNING] Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: %s RevealBase @ http://localhost:3000/static/js/1.chunk.js:58889
+[  275161ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  275161ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  275161ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  275162ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  275162ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  285673ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  285673ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  285673ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  285673ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  285673ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  288270ms] [WARNING] Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: %s RevealBase @ http://localhost:3000/static/js/1.chunk.js:58889
+[  314676ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  314677ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  314677ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  314677ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  314677ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  315313ms] [WARNING] Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: %s RevealBase @ http://localhost:3000/static/js/0.chunk.js:58889
+[  315908ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[  315909ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[  315909ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[  315909ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[  315909ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[  323410ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[  323411ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[  323411ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[  323411ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[  323411ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[  323599ms] ReferenceError: process is not defined
+    at 4043 (<anonymous>:2:13168)
+    at r (<anonymous>:2:306599)
+    at 8048 (<anonymous>:2:9496)
+    at r (<anonymous>:2:306599)
+    at 8641 (<anonymous>:2:1379)
+    at r (<anonymous>:2:306599)
+    at <anonymous>:2:315627
+    at <anonymous>:2:324225
+    at <anonymous>:2:324229
+    at e.onload (http://localhost:3000/static/js/0.chunk.js:82151:324845)
+[  334335ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  334335ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  334335ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  334335ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  334336ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  336966ms] [WARNING] Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: %s RevealBase @ http://localhost:3000/static/js/1.chunk.js:58889
+[  827127ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  827127ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  827127ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  827127ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[  827127ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[  827585ms] ReferenceError: process is not defined
+    at 4043 (<anonymous>:2:13168)
+    at r (<anonymous>:2:306599)
+    at 8048 (<anonymous>:2:9496)
+    at r (<anonymous>:2:306599)
+    at 8641 (<anonymous>:2:1379)
+    at r (<anonymous>:2:306599)
+    at <anonymous>:2:315627
+    at <anonymous>:2:324225
+    at <anonymous>:2:324229
+    at e.onload (http://localhost:3000/static/js/1.chunk.js:82151:324845)
+[ 1215626ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1215626ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1215626ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1215626ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1215626ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1216569ms] [WARNING] Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: %s RevealBase @ http://localhost:3000/static/js/1.chunk.js:58889
+[ 1217250ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1217251ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1217251ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1217251ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1217251ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1723040ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1723040ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1723041ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1723041ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1723041ms] [WARNING] ./src/containers/automationArsenalPreview/AutomationArsenalPreview.js
+  Line 7:7:  'getToolCategory' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1723041ms] [WARNING] There were more warnings in other files.
+You can find a complete log in the terminal. @ http://localhost:3000/static/js/1.chunk.js:58673
+[ 1723948ms] [WARNING] Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: %s RevealBase @ http://localhost:3000/static/js/0.chunk.js:58889
+[ 1724604ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1724604ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1724604ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1724604ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1724604ms] [WARNING] ./src/containers/automationArsenalPreview/AutomationArsenalPreview.js
+  Line 7:7:  'getToolCategory' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1724604ms] [WARNING] There were more warnings in other files.
+You can find a complete log in the terminal. @ http://localhost:3000/static/js/0.chunk.js:58673
+[ 1735611ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1735611ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1735611ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1735611ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1735611ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/0.chunk.js:58676
+[ 1736429ms] [WARNING] Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://fb.me/react-unsafe-component-lifecycles for details.
+
+* Move data fetching code or side effects to componentDidUpdate.
+* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://fb.me/react-derived-state
+* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 17.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.
+
+Please update the following components: %s RevealBase @ http://localhost:3000/static/js/1.chunk.js:58889
+[ 1736933ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1736933ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1736933ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1736933ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1736934ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1764149ms] [WARNING] ./src/pages/projects/AllProjects.js
+  Line 1002:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1007:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1012:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 1017:19:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1764149ms] [WARNING] ./src/components/chromaCertificates/ChromaCertificates.js
+  Line 12:15:  'baseColor' is assigned a value but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1764149ms] [WARNING] ./src/containers/certifications/Certifications.js
+  Line 3:10:  'Fade' is defined but never used            no-unused-vars
+  Line 4:10:  'certifications' is defined but never used  no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1764149ms] [WARNING] ./src/components/MagicBento/MagicBento.js
+  Line 628:17:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji
+  Line 734:9:   'isDarkTheme' is assigned a value but never used                                                                            no-unused-vars @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1764149ms] [WARNING] ./src/containers/repositories/Repositories.js
+  Line 82:49:  Emojis should be wrapped in <span>, have role="img", and have an accessible description with aria-label or aria-labelledby  jsx-a11y/accessible-emoji @ http://localhost:3000/static/js/1.chunk.js:58676
+[ 1764336ms] ReferenceError: process is not defined
+    at 4043 (<anonymous>:2:13168)
+    at r (<anonymous>:2:306599)
+    at 8048 (<anonymous>:2:9496)
+    at r (<anonymous>:2:306599)
+    at 8641 (<anonymous>:2:1379)
+    at r (<anonymous>:2:306599)
+    at <anonymous>:2:315627
+    at <anonymous>:2:324225
+    at <anonymous>:2:324229
+    at e.onload (http://localhost:3000/static/js/1.chunk.js:82151:324845)

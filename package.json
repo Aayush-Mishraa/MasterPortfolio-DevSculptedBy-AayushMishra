@@ -17,8 +17,8 @@
     "eject": "react-scripts eject",
     "start": "react-scripts start",
     "test": "react-scripts test",
-    "fetch-github-data": "node git_data_fetcher.mjs",
-    "auto-refresh": "node auto-refresh.mjs"
+    "fetch-github-data": "node scripts/automation/git_data_fetcher.mjs",
+    "auto-refresh": "node scripts/automation/auto-refresh.mjs"
   },
   "dependencies": {
     "@studio-freight/lenis": "^1.0.19",
@@ -40,7 +40,8 @@
     "react-scripts": "3.2.0",
     "styled-components": "^5.1.1",
     "styletron-engine-atomic": "^1.4.6",
-    "styletron-react": "^5.2.7"
+    "styletron-react": "^5.2.7",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "dotenv": "^6.2.0",

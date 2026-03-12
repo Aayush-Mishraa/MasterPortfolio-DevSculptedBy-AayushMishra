@@ -1,0 +1,367 @@
+.three-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 700px at 50% 35%, rgba(34, 111, 225, 0.38), transparent 65%),
+    radial-gradient(900px 500px at 18% 80%, rgba(31, 140, 225, 0.23), transparent 72%),
+    radial-gradient(650px 500px at 86% 15%, rgba(19, 91, 190, 0.3), transparent 70%),
+    var(--splash-bg);
+  font-family: "Rajdhani", "Orbitron", "Trebuchet MS", sans-serif;
+  color: #d8eeff;
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0px);
+  --parallax-x: 0px;
+  --parallax-y: 0px;
+  transition: opacity 0.7s ease, transform 0.7s ease, filter 0.7s ease;
+}
+
+.three-splash.is-exiting {
+  opacity: 0;
+  transform: scale(1.035);
+  filter: blur(6px);
+}
+
+.three-splash__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.three-splash__tools-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.three-splash__orbit-rings {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.three-splash__orbit-rings::before,
+.three-splash__orbit-rings::after {
+  content: "";
+  position: absolute;
+  left: var(--orbit-center-x, 50%);
+  top: var(--orbit-center-y, 50%);
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 1px solid rgba(146, 217, 255, 0.2);
+}
+
+.three-splash__orbit-rings::before {
+  width: clamp(290px, 52vw, 700px);
+  height: clamp(290px, 52vw, 700px);
+  box-shadow: 0 0 34px rgba(72, 148, 255, 0.16);
+}
+
+.three-splash__orbit-rings::after {
+  width: clamp(130px, 16vw, 190px);
+  height: clamp(130px, 16vw, 190px);
+  border-color: rgba(158, 224, 255, 0.45);
+  box-shadow:
+    0 0 22px rgba(108, 197, 255, 0.28),
+    0 0 0 13px rgba(133, 210, 255, 0.08);
+}
+
+.three-splash__safe-zone {
+  position: absolute;
+  left: var(--orbit-center-x, 50%);
+  top: var(--orbit-center-y, 50%);
+  width: calc(var(--safe-radius) * 2);
+  height: calc(var(--safe-radius) * 2);
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 1px dashed rgba(126, 192, 255, 0.06);
+  background: radial-gradient(circle, rgba(11, 27, 72, 0.2), transparent 72%);
+}
+
+.fixed-tool {
+  position: absolute;
+  font-size: 14px;
+  opacity: 0.7;
+  white-space: nowrap;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: rgba(208, 234, 255, 0.9);
+  text-shadow: 0 0 8px rgba(120, 180, 255, 0.6);
+  transform: translateY(0px);
+  animation: float 6s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+  will-change: transform;
+}
+
+.shooting-tool {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 14px;
+  opacity: 0;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(220, 241, 255, 0.9);
+  text-shadow:
+    0 0 8px rgba(120, 180, 255, 0.6),
+    0 0 14px rgba(93, 182, 255, 0.45);
+  animation: shootingStarMove 1.5s ease-out forwards;
+  will-change: transform, opacity;
+}
+
+.shooting-tool::before {
+  content: "";
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  width: 120px;
+  height: 1.5px;
+  background: linear-gradient(90deg, rgba(126, 202, 255, 0.54), rgba(126, 202, 255, 0));
+  transform: translateY(-50%);
+}
+
+.three-splash__grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(100, 183, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 183, 255, 0.08) 1px, transparent 1px);
+  background-size: 80px 80px;
+  transform: perspective(700px) rotateX(55deg) translateY(48%);
+  transform-origin: center bottom;
+  animation: splashGridReveal 900ms ease-out both;
+}
+
+.three-splash__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, transparent 36%, rgba(5, 12, 30, 0.82) 100%),
+    linear-gradient(180deg, rgba(6, 18, 44, 0.45), rgba(5, 12, 28, 0.78));
+}
+
+.three-splash__content {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  padding: 2rem;
+  gap: 0;
+}
+
+.three-splash__badge-wrap {
+  animation: splashFadeSlide 620ms ease 420ms both;
+  margin-bottom: 2.8rem;
+}
+
+.three-splash__badge {
+  width: 126px;
+  height: 126px;
+  border-radius: 999px;
+  border: 2px solid rgba(151, 223, 255, 0.62);
+  display: grid;
+  place-items: center;
+  color: #8dd3ff;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  font-size: 2rem;
+  background: radial-gradient(circle at 30% 30%, rgba(199, 239, 255, 0.2), rgba(20, 74, 158, 0.42));
+  box-shadow:
+    0 0 0 10px rgba(141, 211, 255, 0.08),
+    0 0 0 22px rgba(141, 211, 255, 0.045),
+    0 0 52px rgba(82, 177, 255, 0.5);
+  animation: splashPulse 2.1s ease-in-out infinite;
+}
+
+.three-splash__name {
+  margin: 0;
+  padding: 0;
+  font-size: clamp(2.2rem, 4.5vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  color: #dff3ff;
+  text-shadow: 0 0 24px rgba(116, 201, 255, 0.5);
+  animation: splashFadeSlide 660ms ease 760ms both;
+}
+
+.three-splash__role {
+  margin: 0;
+  padding: 1.5rem 2rem 0;
+  font-size: clamp(0.85rem, 1.5vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: rgba(198, 230, 255, 0.88);
+  animation: splashFadeSlide 660ms ease 1020ms both;
+}
+
+.three-splash__loading {
+  margin: 0;
+  padding: 1.5rem 1rem 0;
+  font-size: clamp(0.9rem, 1.45vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  color: rgba(174, 220, 255, 0.84);
+  animation: splashFadeSlide 620ms ease 1560ms both;
+}
+
+.three-splash__meta {
+  margin: 0.9rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(160, 210, 255, 0.42);
+  animation: splashFadeSlide 620ms ease 1.78s both;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes shootingStarMove {
+  0% {
+    transform: translate3d(var(--sx), var(--sy), 0px) scale(0.98);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.85;
+  }
+
+  100% {
+    transform: translate3d(var(--ex), var(--ey), 0px) scale(1.02);
+    opacity: 0;
+  }
+}
+
+@keyframes splashFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splashPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 10px rgba(141, 211, 255, 0.08),
+      0 0 0 22px rgba(141, 211, 255, 0.045),
+      0 0 52px rgba(82, 177, 255, 0.5);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 12px rgba(141, 211, 255, 0.1),
+      0 0 0 28px rgba(141, 211, 255, 0.05),
+      0 0 66px rgba(82, 177, 255, 0.62);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes splashGridReveal {
+  from {
+    opacity: 0;
+    transform: perspective(700px) rotateX(65deg) translateY(54%);
+  }
+
+  to {
+    opacity: 0.35;
+    transform: perspective(700px) rotateX(55deg) translateY(48%);
+  }
+}
+
+@media (max-width: 768px) {
+  .three-splash__badge {
+    width: 90px;
+    height: 90px;
+    font-size: 1.5rem;
+  }
+
+  .three-splash__badge-wrap {
+    margin-bottom: 1.6rem;
+  }
+
+  .three-splash__name {
+    margin-top: 1rem;
+  }
+
+  .three-splash__role {
+    letter-spacing: 0.08em;
+    padding: 0 0.8rem;
+  }
+
+  .three-splash__loading {
+    margin-top: 1rem;
+  }
+
+  .three-splash__meta {
+    display: none;
+  }
+
+  .three-splash__grid {
+    background-size: 56px 56px;
+  }
+
+  .three-splash__orbit-rings::before {
+    width: clamp(230px, 68vw, 420px);
+    height: clamp(230px, 68vw, 420px);
+  }
+
+  .three-splash__orbit-rings::after {
+    width: clamp(96px, 24vw, 144px);
+    height: clamp(96px, 24vw, 144px);
+  }
+
+  .three-splash__safe-zone {
+    display: none;
+  }
+
+  .fixed-tool {
+    font-size: 12px;
+  }
+
+  .fixed-tool:nth-of-type(n + 9) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .three-splash,
+  .three-splash * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
