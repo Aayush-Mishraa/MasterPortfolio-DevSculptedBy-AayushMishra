@@ -7,291 +7,289 @@
 <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Light color palette */
-  --bg: #f8fafc;
-  --bg2: #f1f5f9;
-  --card: #ffffff;
-  --card2: #f8fafc;
-  --blue: #4f46e5;
-  --cyan: #0ea5e9;
-  --purple: #7c3aed;
-  --green: #10b981;
-  --yellow: #d97706;
-  --orange: #ea580c;
-  --pink: #db2777;
-  --text: #1e293b;
-  --muted: #64748b;
-  --light: #94a3b8;
-  --white: #ffffff;
-  --border: rgba(148,163,184,0.25);
-  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08), 0 12px 40px rgba(0,0,0,0.06);
+  --bg: #05080f;
+  --card: #0d1320;
+  --card2: #a5bae8;
+  --blue: #2563ff;
+  --cyan: #00d4ff;
+  --purple: #a855f7;
+  --green: #10e98a;
+  --yellow: #ffd93d;
+  --orange: #ff6b35;
+  --pink: #ff3d9a;
+  --white: #f0f4ff;
+  --muted: #6b7a99;
+  --border: rgba(37,99,255,0.2);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
-  color: var(--text);
+  color: var(--white);
   font-family: 'Nunito', sans-serif;
   overflow-x: hidden;
+  cursor: none;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--bg2)} ::-webkit-scrollbar-thumb{background:var(--blue);border-radius:3px}
+/* CUSTOM CURSOR */
+#cursor { position:fixed; width:12px; height:12px; background:var(--cyan); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:transform 0.1s, background 0.2s; mix-blend-mode:screen; }
+#cursor-ring { position:fixed; width:36px; height:36px; border:2px solid var(--blue); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:all 0.18s cubic-bezier(.23,1,.32,1); }
+
+/* NOISE TEXTURE */
+body::before {
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.5;
+}
+
+/* ANIMATED BG ORBS */
+.orb { position:fixed; border-radius:50%; filter:blur(80px); pointer-events:none; z-index:0; animation:orbFloat 12s ease-in-out infinite; }
+.orb1 { width:600px;height:600px;background:radial-gradient(circle,rgba(37,99,255,0.15),transparent 70%);top:-200px;left:-200px; }
+.orb2 { width:500px;height:500px;background:radial-gradient(circle,rgba(168,85,247,0.12),transparent 70%);bottom:-100px;right:-100px;animation-delay:-6s; }
+.orb3 { width:400px;height:400px;background:radial-gradient(circle,rgba(0,212,255,0.1),transparent 70%);top:50%;left:50%;animation-delay:-3s; }
+@keyframes orbFloat { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-30px) scale(1.05)} 66%{transform:translate(-20px,20px) scale(0.97)} }
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:#0a0e1a} ::-webkit-scrollbar-thumb{background:var(--blue);border-radius:3px}
 
 /* NAV */
 nav {
   position:fixed;top:0;left:0;right:0;z-index:100;
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 40px;
-  background:rgba(255,255,255,0.92);
+  padding:16px 40px;
+  background:rgba(5,8,15,0.85);
   backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
-.nav-logo { font-family:'Righteous',cursive; font-size:1.4rem; color:var(--blue); }
+.nav-logo { font-family:'Righteous',cursive; font-size:1.4rem; background:linear-gradient(135deg,var(--cyan),var(--blue)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; }
 .nav-links { display:flex; gap:28px; }
 .nav-links a { color:var(--muted); text-decoration:none; font-size:0.85rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; transition:color 0.2s; }
-.nav-links a:hover { color:var(--blue); }
-.nav-badge { background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff; padding:6px 16px; border-radius:20px; font-size:0.8rem; font-weight:800; }
+.nav-links a:hover { color:var(--cyan); }
+.nav-badge { background:linear-gradient(135deg,var(--blue),var(--purple)); padding:6px 16px; border-radius:20px; font-size:0.8rem; font-weight:800; }
 
 /* HERO */
 .hero {
   min-height:100vh; display:flex; align-items:center; justify-content:center;
   position:relative; overflow:hidden; padding:100px 40px 60px;
-  background: linear-gradient(160deg, #eef2ff 0%, #f8fafc 40%, #f0f9ff 70%, #faf5ff 100%);
-}
-.hero-mesh {
-  position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(79,70,229,0.08), transparent 50%),
-    radial-gradient(circle at 80% 60%, rgba(14,165,233,0.06), transparent 50%),
-    radial-gradient(circle at 60% 10%, rgba(124,58,237,0.04), transparent 40%);
 }
 #hero-canvas { position:absolute;inset:0;z-index:1; }
 .hero-content { position:relative;z-index:2; text-align:center; max-width:900px; }
-.hero-eyebrow { display:inline-flex;align-items:center;gap:8px; background:rgba(79,70,229,0.08); border:1px solid rgba(79,70,229,0.2); padding:6px 18px; border-radius:20px; font-size:0.8rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--blue); margin-bottom:28px; animation:fadeUp 0.8s ease both; }
-.hero-eyebrow .dot { width:8px;height:8px;border-radius:50%;background:var(--blue);animation:pulse 1.5s infinite; }
+.hero-eyebrow { display:inline-flex;align-items:center;gap:8px; background:rgba(37,99,255,0.15); border:1px solid rgba(37,99,255,0.4); padding:6px 18px; border-radius:20px; font-size:0.8rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--cyan); margin-bottom:28px; animation:fadeUp 0.8s ease both; }
+.hero-eyebrow span { width:8px;height:8px;border-radius:50%;background:var(--cyan);animation:pulse 1.5s infinite; }
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.5)}}
 .hero-title { font-family:'Righteous',cursive; font-size:clamp(3rem,8vw,7rem); line-height:1.0; margin-bottom:24px; animation:fadeUp 0.8s 0.1s ease both; }
-.hero-title .t1 { display:block; color:var(--text); }
+.hero-title .t1 { display:block; color:var(--white); }
 .hero-title .t2 { display:block; background:linear-gradient(135deg,var(--blue) 0%,var(--cyan) 50%,var(--purple) 100%); -webkit-background-clip:text;-webkit-text-fill-color:transparent; }
 .hero-sub { font-size:1.2rem; color:var(--muted); max-width:600px; margin:0 auto 40px; line-height:1.7; font-weight:600; animation:fadeUp 0.8s 0.2s ease both; }
 .hero-stats { display:flex;gap:32px;justify-content:center;flex-wrap:wrap; margin-bottom:44px; animation:fadeUp 0.8s 0.3s ease both; }
-.stat-pill { background:var(--white); border:1px solid var(--border); padding:12px 24px; border-radius:12px; text-align:center; box-shadow:var(--shadow); }
-.stat-pill .num { font-family:'Righteous',cursive; font-size:2rem; background:linear-gradient(135deg,var(--blue),var(--cyan)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+.stat-pill { background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:12px 24px; border-radius:12px; text-align:center; }
+.stat-pill .num { font-family:'Righteous',cursive; font-size:2rem; background:linear-gradient(135deg,var(--cyan),var(--blue)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; }
 .stat-pill .lbl { font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:0.08em; }
 .hero-cta { display:flex;gap:16px;justify-content:center;flex-wrap:wrap; animation:fadeUp 0.8s 0.4s ease both; }
-.btn-primary { background:linear-gradient(135deg,var(--blue),var(--cyan)); color:#fff; border:none; padding:14px 32px; border-radius:12px; font-size:1rem; font-weight:800; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; box-shadow:0 4px 20px rgba(79,70,229,0.25); }
-.btn-primary:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 8px 30px rgba(79,70,229,0.35); }
-.btn-secondary { background:transparent; color:var(--blue); border:2px solid var(--blue); padding:14px 32px; border-radius:12px; font-size:1rem; font-weight:800; cursor:pointer; transition:all 0.2s; }
-.btn-secondary:hover { background:rgba(79,70,229,0.06); transform:translateY(-3px); }
+.btn-primary { background:linear-gradient(135deg,var(--blue),var(--cyan)); color:#fff; border:none; padding:14px 32px; border-radius:12px; font-size:1rem; font-weight:800; cursor:none; transition:transform 0.2s,box-shadow 0.2s; box-shadow:0 0 30px rgba(37,99,255,0.4); }
+.btn-primary:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 0 50px rgba(37,99,255,0.6); }
+.btn-secondary { background:transparent; color:var(--cyan); border:2px solid var(--cyan); padding:14px 32px; border-radius:12px; font-size:1rem; font-weight:800; cursor:none; transition:all 0.2s; }
+.btn-secondary:hover { background:rgba(0,212,255,0.1); transform:translateY(-3px); }
 @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
-/* SECTION */
+/* SECTION WRAPPER */
 .section { position:relative;z-index:1; padding:100px 40px; max-width:1200px; margin:0 auto; }
-.section-tag { display:inline-block; font-size:0.75rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--blue); background:rgba(79,70,229,0.08); border:1px solid rgba(79,70,229,0.15); padding:4px 14px; border-radius:20px; margin-bottom:16px; }
-.section-title { font-family:'Righteous',cursive; font-size:clamp(2rem,4vw,3.5rem); margin-bottom:16px; color:var(--text); }
+.section-tag { display:inline-block; font-size:0.75rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--cyan); background:rgba(0,212,255,0.1); border:1px solid rgba(0,212,255,0.3); padding:4px 14px; border-radius:20px; margin-bottom:16px; }
+.section-title { font-family:'Righteous',cursive; font-size:clamp(2rem,4vw,3.5rem); margin-bottom:16px; }
 .section-sub { color:var(--muted); font-size:1.05rem; max-width:600px; line-height:1.7; font-weight:600; margin-bottom:60px; }
 
 /* DIVIDER */
 .divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:0 40px; }
 
-/* HOW IT WORKS - FLOW */
+/* HOW IT WORKS - ANIMATED FLOW */
+.flow-container { position:relative; }
 .flow-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:0; position:relative; }
 .flow-step {
   background:var(--card); border:1px solid var(--border); padding:32px 24px;
-  position:relative; overflow:hidden; transition:transform 0.3s, border-color 0.3s, box-shadow 0.3s;
-  cursor:pointer;
+  position:relative; overflow:hidden; transition:transform 0.3s, border-color 0.3s;
+  cursor:none;
 }
-.flow-step:hover { transform:translateY(-6px); border-color:var(--blue); box-shadow:var(--shadow-lg); }
+.flow-step:hover { transform:translateY(-6px); border-color:var(--blue); }
 .flow-step:first-child { border-radius:16px 0 0 16px; }
 .flow-step:last-child { border-radius:0 16px 16px 0; }
-.flow-arrow { position:absolute;right:-14px;top:50%;transform:translateY(-50%);z-index:2; width:28px;height:28px; background:var(--blue); color:#fff; border-radius:50%; display:flex;align-items:center;justify-content:center; font-size:0.85rem; box-shadow:0 2px 10px rgba(79,70,229,0.3); }
+.flow-arrow { position:absolute;right:-14px;top:50%;transform:translateY(-50%);z-index:2; width:28px;height:28px; background:var(--blue); border-radius:50%; display:flex;align-items:center;justify-content:center; font-size:0.85rem; box-shadow:0 0 20px rgba(37,99,255,0.6); }
 .flow-step:last-child .flow-arrow { display:none; }
-.flow-num { font-family:'Righteous',cursive; font-size:3rem; color:rgba(79,70,229,0.1); position:absolute;top:12px;right:16px; }
-.flow-label { display:inline-block; font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:var(--blue); background:rgba(79,70,229,0.08); padding:3px 10px; border-radius:6px; margin-bottom:14px; }
-.flow-step h4 { font-size:1rem; font-weight:800; margin-bottom:8px; color:var(--text); }
+.flow-num { font-family:'Righteous',cursive; font-size:3rem; color:rgba(37,99,255,0.15); position:absolute;top:12px;right:16px; }
+.flow-icon { font-size:2.5rem; margin-bottom:16px; }
+.flow-step h4 { font-size:1rem; font-weight:800; margin-bottom:8px; color:var(--white); }
 .flow-step p { font-size:0.85rem; color:var(--muted); line-height:1.6; }
-.flow-step::after { content:''; position:absolute;inset:0; background:linear-gradient(135deg,rgba(79,70,229,0.03),transparent); opacity:0; transition:opacity 0.3s; pointer-events:none; }
+.flow-step::after { content:''; position:absolute;inset:0; background:linear-gradient(135deg,rgba(37,99,255,0.05),transparent); opacity:0; transition:opacity 0.3s; }
 .flow-step:hover::after { opacity:1; }
 
 /* ARCHITECTURE GRID */
 .arch-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
 .arch-card {
   background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px;
-  transition:all 0.3s; position:relative; overflow:hidden; cursor:pointer;
-  box-shadow:var(--shadow);
+  transition:all 0.3s; position:relative; overflow:hidden; cursor:none;
 }
-.arch-card:hover { border-color:var(--blue); transform:translateY(-4px); box-shadow:var(--shadow-lg); }
-.arch-label { display:inline-block; font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; padding:3px 10px; border-radius:6px; margin-bottom:14px; }
-.arch-label.blue { color:var(--blue); background:rgba(79,70,229,0.08); }
-.arch-label.purple { color:var(--purple); background:rgba(124,58,237,0.08); }
-.arch-label.green { color:var(--green); background:rgba(16,185,129,0.08); }
-.arch-label.cyan { color:var(--cyan); background:rgba(14,165,233,0.08); }
-.arch-label.yellow { color:var(--yellow); background:rgba(217,119,6,0.08); }
-.arch-card h3 { font-family:'Righteous',cursive; font-size:1.3rem; margin-bottom:10px; color:var(--text); }
+.arch-card:hover { border-color:var(--blue); transform:translateY(-4px); box-shadow:0 20px 60px rgba(37,99,255,0.15); }
+.arch-card .ac-icon { font-size:2rem; margin-bottom:12px; }
+.arch-card h3 { font-family:'Righteous',cursive; font-size:1.3rem; margin-bottom:10px; }
 .arch-card p { color:var(--muted); font-size:0.9rem; line-height:1.7; }
 .arch-card .tag-list { display:flex;flex-wrap:wrap;gap:6px;margin-top:16px; }
-.tag { background:rgba(79,70,229,0.07); border:1px solid rgba(79,70,229,0.15); padding:3px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; color:var(--blue); font-family:'JetBrains Mono',monospace; }
+.tag { background:rgba(37,99,255,0.15); border:1px solid rgba(37,99,255,0.3); padding:3px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; color:var(--cyan); font-family:'JetBrains Mono',monospace; }
 .arch-card.wide { grid-column:1/-1; }
+.arch-card.glow-purple { border-color:rgba(168,85,247,0.3); }
+.arch-card.glow-purple:hover { border-color:var(--purple); box-shadow:0 20px 60px rgba(168,85,247,0.15); }
+.arch-card.glow-green { border-color:rgba(16,233,138,0.3); }
+.arch-card.glow-green:hover { border-color:var(--green); box-shadow:0 20px 60px rgba(16,233,138,0.15); }
 
-/* ANNOTATIONS */
+/* ANNOTATIONS SHOWCASE */
 .anno-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
 .anno-card {
   background:var(--card); border-radius:14px; padding:20px; border:1px solid var(--border);
-  transition:all 0.3s; cursor:pointer; position:relative; overflow:hidden;
-  box-shadow:var(--shadow);
+  transition:all 0.3s; cursor:none; position:relative; overflow:hidden;
 }
-.anno-card:hover { transform:scale(1.04) translateY(-4px); border-color:var(--yellow); box-shadow:0 8px 30px rgba(217,119,6,0.12); }
+.anno-card:hover { transform:scale(1.04) translateY(-4px); border-color:var(--yellow); box-shadow:0 0 30px rgba(255,217,61,0.2); }
 .anno-name { font-family:'JetBrains Mono',monospace; font-size:0.9rem; font-weight:700; color:var(--yellow); margin-bottom:8px; }
 .anno-desc { font-size:0.82rem; color:var(--muted); line-height:1.6; }
+.anno-glow { position:absolute;top:0;right:0;width:80px;height:80px; background:radial-gradient(circle,rgba(255,217,61,0.1),transparent 70%); }
 
 /* CODE BLOCK */
-.code-wrap { background:#1e293b; border:1px solid rgba(51,65,85,0.5); border-radius:16px; overflow:hidden; margin:24px 0; }
-.code-header { background:#334155; padding:12px 20px; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(51,65,85,0.5); }
+.code-wrap { background:#0a0e1a; border:1px solid var(--border); border-radius:16px; overflow:hidden; margin:24px 0; }
+.code-header { background:#0d1320; padding:12px 20px; display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--border); }
 .dot { width:12px;height:12px;border-radius:50%; }
 .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
-.code-title { font-size:0.8rem; color:#94a3b8; font-weight:700; margin-left:8px; font-family:'JetBrains Mono',monospace; }
-.copy-btn { margin-left:auto; background:rgba(79,70,229,0.3); border:1px solid rgba(79,70,229,0.5); color:#c7d2fe; padding:4px 12px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; transition:all 0.2s; }
-.copy-btn:hover { background:rgba(79,70,229,0.5); }
-pre { padding:24px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:0.85rem; line-height:1.7; color:#e2e8f0; }
-.kw{color:#a78bfa}.str{color:#34d399}.cm{color:#64748b;font-style:italic}.fn{color:#60a5fa}.cls{color:#fbbf24}.num{color:#f472b6}.ann{color:#fb923c}
+.code-title { font-size:0.8rem; color:var(--muted); font-weight:700; margin-left:8px; font-family:'JetBrains Mono',monospace; }
+.copy-btn { margin-left:auto; background:rgba(37,99,255,0.2); border:1px solid rgba(37,99,255,0.4); color:var(--cyan); padding:4px 12px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:none; transition:all 0.2s; }
+.copy-btn:hover { background:rgba(37,99,255,0.4); }
+pre { padding:24px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:0.85rem; line-height:1.7; }
+.kw{color:#a78bfa}.str{color:#10e98a}.cm{color:#4b5563;font-style:italic}.fn{color:#60a5fa}.cls{color:#fbbf24}.num{color:#f472b6}.ann{color:#fb923c}
 
-/* PLAYGROUND */
+/* ═══════════════════════════════════════
+   PLAYGROUND — MAIN ATTRACTION
+═══════════════════════════════════════ */
 .playground-wrapper {
   background:var(--card); border:1px solid var(--border); border-radius:24px; overflow:hidden;
-  box-shadow:var(--shadow-lg);
+  box-shadow:0 40px 100px rgba(0,0,0,0.5);
 }
 .pg-header {
-  background:linear-gradient(135deg,rgba(79,70,229,0.06),rgba(14,165,233,0.04));
+  background:linear-gradient(135deg,rgba(37,99,255,0.2),rgba(168,85,247,0.15));
   padding:24px 32px; border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
 }
-.pg-title { font-family:'Righteous',cursive; font-size:1.5rem; color:var(--text); }
-.pg-title span { background:linear-gradient(135deg,var(--blue),var(--cyan)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+.pg-title { font-family:'Righteous',cursive; font-size:1.5rem; }
+.pg-title span { background:linear-gradient(135deg,var(--cyan),var(--blue)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; }
 .pg-badges { display:flex;gap:8px; }
 .pg-badge { padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:800; }
-.pg-badge.b1{background:rgba(16,185,129,0.1);color:var(--green);border:1px solid rgba(16,185,129,0.25)}
-.pg-badge.b2{background:rgba(14,165,233,0.1);color:var(--cyan);border:1px solid rgba(14,165,233,0.25)}
-.pg-badge.b3{background:rgba(124,58,237,0.1);color:var(--purple);border:1px solid rgba(124,58,237,0.25)}
+.pg-badge.b1{background:rgba(16,233,138,0.2);color:var(--green);border:1px solid rgba(16,233,138,0.4)}
+.pg-badge.b2{background:rgba(0,212,255,0.2);color:var(--cyan);border:1px solid rgba(0,212,255,0.4)}
+.pg-badge.b3{background:rgba(168,85,247,0.2);color:var(--purple);border:1px solid rgba(168,85,247,0.4)}
 
 .pg-body { display:grid; grid-template-columns:320px 1fr; min-height:600px; }
-.pg-sidebar { border-right:1px solid var(--border); padding:24px; display:flex;flex-direction:column;gap:12px; background:var(--bg2); }
+.pg-sidebar { border-right:1px solid var(--border); padding:24px; display:flex;flex-direction:column;gap:12px; }
 .pg-sidebar-title { font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:4px; }
 
 .scenario-btn {
-  background:var(--white); border:1px solid var(--border);
-  padding:14px 16px; border-radius:12px; cursor:pointer; text-align:left;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border);
+  padding:14px 16px; border-radius:12px; cursor:none; text-align:left;
   transition:all 0.25s; display:flex;align-items:center;gap:12px;
-  box-shadow:var(--shadow);
 }
-.scenario-btn:hover { border-color:var(--blue); background:rgba(79,70,229,0.04); }
-.scenario-btn.active { border-color:var(--blue); background:rgba(79,70,229,0.06); box-shadow:0 2px 12px rgba(79,70,229,0.1); }
-.scenario-btn .s-badge { flex-shrink:0; width:36px;height:36px; border-radius:10px; display:flex;align-items:center;justify-content:center; font-size:0.75rem; font-weight:900; color:#fff; }
-.scenario-btn .s-badge.bg-blue { background:linear-gradient(135deg,var(--blue),#6366f1); }
-.scenario-btn .s-badge.bg-cyan { background:linear-gradient(135deg,var(--cyan),#06b6d4); }
-.scenario-btn .s-badge.bg-purple { background:linear-gradient(135deg,var(--purple),#a855f7); }
-.scenario-btn .s-badge.bg-green { background:linear-gradient(135deg,var(--green),#34d399); }
-.scenario-btn .s-badge.bg-yellow { background:linear-gradient(135deg,var(--yellow),#f59e0b); }
-.scenario-btn .s-badge.bg-pink { background:linear-gradient(135deg,var(--pink),#f472b6); }
-.scenario-btn .s-info .s-name { font-size:0.9rem; font-weight:800; color:var(--text); }
+.scenario-btn:hover { border-color:var(--blue); background:rgba(37,99,255,0.08); }
+.scenario-btn.active { border-color:var(--cyan); background:rgba(0,212,255,0.1); box-shadow:0 0 20px rgba(0,212,255,0.1); }
+.scenario-btn .s-icon { font-size:1.5rem; flex-shrink:0; }
+.scenario-btn .s-info .s-name { font-size:0.9rem; font-weight:800; color:var(--white); }
 .scenario-btn .s-info .s-desc { font-size:0.75rem; color:var(--muted); margin-top:2px; }
-.scenario-btn.active .s-info .s-name { color:var(--blue); }
+.scenario-btn.active .s-info .s-name { color:var(--cyan); }
 
 .pg-main { display:flex;flex-direction:column; }
-.pg-canvas-area { flex:1; padding:24px; position:relative; min-height:320px; background:var(--bg2); }
-#browser-canvas { width:100%;height:300px;border-radius:12px;border:1px solid var(--border); background:#1e293b; display:block; }
+.pg-canvas-area { flex:1; padding:24px; position:relative; min-height:320px; }
+#browser-canvas { width:100%;height:300px;border-radius:12px;border:1px solid var(--border); background:#060a14; display:block; }
 
 .pg-controls { padding:16px 24px; border-top:1px solid var(--border); display:flex;align-items:center;gap:12px;flex-wrap:wrap; }
 .run-btn {
   background:linear-gradient(135deg,var(--blue),var(--cyan)); border:none; color:#fff;
   padding:12px 28px; border-radius:10px; font-size:0.95rem; font-weight:800;
-  cursor:pointer; transition:all 0.2s; box-shadow:0 4px 16px rgba(79,70,229,0.25);
+  cursor:none; transition:all 0.2s; box-shadow:0 0 30px rgba(37,99,255,0.4);
   display:flex;align-items:center;gap:8px;
 }
-.run-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 24px rgba(79,70,229,0.35); }
+.run-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 0 50px rgba(37,99,255,0.6); }
 .run-btn:disabled { opacity:0.5; transform:none; box-shadow:none; }
-.stop-btn { background:rgba(219,39,119,0.08); border:1px solid rgba(219,39,119,0.25); color:var(--pink); padding:12px 20px; border-radius:10px; font-size:0.9rem; font-weight:800; cursor:pointer; transition:all 0.2s; }
-.stop-btn:hover:not(:disabled) { background:rgba(219,39,119,0.15); }
+.stop-btn { background:rgba(255,61,154,0.15); border:1px solid rgba(255,61,154,0.4); color:var(--pink); padding:12px 20px; border-radius:10px; font-size:0.9rem; font-weight:800; cursor:none; transition:all 0.2s; }
+.stop-btn:hover:not(:disabled) { background:rgba(255,61,154,0.25); }
 .stop-btn:disabled { opacity:0.3; }
 .speed-wrap { margin-left:auto; display:flex;align-items:center;gap:8px; font-size:0.8rem; color:var(--muted); font-weight:700; }
-.speed-wrap input[type=range] { width:80px; accent-color:var(--blue); cursor:pointer; }
-.pg-status-bar { padding:10px 24px; background:var(--bg2); border-top:1px solid var(--border); display:flex;align-items:center;gap:16px; font-size:0.8rem; }
-.status-dot { width:8px;height:8px;border-radius:50%;background:var(--light); }
+.speed-wrap input[type=range] { width:80px; accent-color:var(--cyan); cursor:none; }
+.pg-status-bar { padding:10px 24px; background:rgba(0,0,0,0.3); border-top:1px solid var(--border); display:flex;align-items:center;gap:16px; font-size:0.8rem; }
+.status-dot { width:8px;height:8px;border-radius:50%;background:var(--muted); }
 .status-dot.running { background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 1s infinite; }
 .status-dot.pass { background:var(--green); box-shadow:0 0 8px var(--green); }
 .status-dot.fail { background:var(--pink); box-shadow:0 0 8px var(--pink); }
 #pg-status-text { color:var(--muted); font-weight:600; }
 .pg-metrics { margin-left:auto; display:flex;gap:16px; }
 .metric { display:flex;gap:6px;align-items:center; color:var(--muted); }
-.metric .mv { color:var(--text); font-weight:800; font-family:'JetBrains Mono',monospace; }
+.metric .mv { color:var(--white); font-weight:800; font-family:'JetBrains Mono',monospace; }
 .metric .ml { font-size:0.75rem; }
 
-/* TERMINAL — stays dark (it's a terminal) */
+/* TERMINAL */
 .pg-terminal-area { border-top:1px solid var(--border); }
-.pg-terminal-header { padding:10px 24px; display:flex;align-items:center;gap:10px; background:#1e293b; }
-.pg-terminal-header span { font-size:0.75rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.1em; }
-.terminal-clear { margin-left:auto; background:transparent;border:1px solid rgba(148,163,184,0.3);color:#94a3b8;padding:3px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.2s; }
+.pg-terminal-header { padding:10px 24px; display:flex;align-items:center;gap:10px; background:rgba(0,0,0,0.3); }
+.pg-terminal-header span { font-size:0.75rem; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; }
+.terminal-clear { margin-left:auto; background:transparent;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;cursor:none;transition:all 0.2s; }
 .terminal-clear:hover { border-color:var(--pink);color:var(--pink); }
-#pg-terminal { height:200px; overflow-y:auto; padding:16px 24px; font-family:'JetBrains Mono',monospace; font-size:0.8rem; line-height:1.8; background:#0f172a; color:#e2e8f0; }
+#pg-terminal { height:200px; overflow-y:auto; padding:16px 24px; font-family:'JetBrains Mono',monospace; font-size:0.8rem; line-height:1.8; background:#04060e; }
 #pg-terminal .log-line { animation:logSlide 0.2s ease; }
-#pg-terminal .log-pass { color:#34d399; }
-#pg-terminal .log-fail { color:#f472b6; }
-#pg-terminal .log-info { color:#38bdf8; }
-#pg-terminal .log-warn { color:#fbbf24; }
-#pg-terminal .log-cmd { color:#a78bfa; }
-#pg-terminal .log-muted { color:#64748b; }
-#pg-terminal .log-time { color:#475569; }
+#pg-terminal .log-pass { color:var(--green); }
+#pg-terminal .log-fail { color:var(--pink); }
+#pg-terminal .log-info { color:var(--cyan); }
+#pg-terminal .log-warn { color:var(--yellow); }
+#pg-terminal .log-cmd { color:var(--purple); }
+#pg-terminal .log-muted { color:var(--muted); }
+#pg-terminal .log-time { color:#374151; }
 @keyframes logSlide{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 
-/* PROGRESS */
+/* PROGRESS BAR */
 .progress-wrap { padding:0 24px 16px; }
-.progress-track { height:6px;background:rgba(0,0,0,0.05);border-radius:3px;overflow:hidden; }
+.progress-track { height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden; }
 .progress-fill { height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:3px;transition:width 0.3s ease; }
 
-/* SUMMARY */
-.summary-panel { display:none; padding:16px 24px; background:rgba(16,185,129,0.05); border-top:1px solid rgba(16,185,129,0.15); flex-wrap:wrap;gap:16px; }
+/* SUMMARY PANEL */
+.summary-panel { display:none; padding:16px 24px; background:rgba(16,233,138,0.05); border-top:1px solid rgba(16,233,138,0.2); flex-wrap:wrap;gap:16px; }
 .summary-panel.show { display:flex; }
 .sum-item { display:flex;align-items:center;gap:8px;font-size:0.85rem;font-weight:800; }
 .sum-pass{color:var(--green)}.sum-fail{color:var(--pink)}.sum-time{color:var(--cyan)}.sum-assertions{color:var(--purple)}.sum-browser{color:var(--yellow)}
 
-/* MARQUEE */
-.marquee-wrap { overflow:hidden;padding:30px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border); background:linear-gradient(180deg,rgba(79,70,229,0.02),transparent); }
+/* FEATURES MARQUEE */
+.marquee-wrap { overflow:hidden;padding:30px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border); background:linear-gradient(180deg,rgba(37,99,255,0.03),transparent); }
 .marquee-track { display:flex;gap:32px;animation:marquee 20s linear infinite;white-space:nowrap; }
 .marquee-track:hover { animation-play-state:paused; }
-.marquee-item { display:inline-flex;align-items:center;gap:10px;font-size:0.9rem;font-weight:800;color:var(--muted);padding:8px 20px;border:1px solid var(--border);border-radius:20px;background:var(--card); box-shadow:var(--shadow); }
-.marquee-item .mi-dot { width:6px;height:6px;border-radius:50%;background:var(--blue); }
+.marquee-item { display:inline-flex;align-items:center;gap:10px;font-size:0.9rem;font-weight:800;color:var(--muted);padding:8px 20px;border:1px solid var(--border);border-radius:20px;background:var(--card); }
+.marquee-item span{color:var(--cyan)}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* SETUP GRID */
 .setup-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
 .setup-step { display:flex;gap:20px; }
 .step-num-wrap { flex-shrink:0; }
-.step-num { width:44px;height:44px;border-radius:12px; background:linear-gradient(135deg,var(--blue),var(--purple)); display:flex;align-items:center;justify-content:center; font-family:'Righteous',cursive; font-size:1.2rem; color:#fff; }
-.step-content h4 { font-size:1rem;font-weight:800;margin-bottom:6px;color:var(--text); }
+.step-num { width:44px;height:44px;border-radius:12px; background:linear-gradient(135deg,var(--blue),var(--purple)); display:flex;align-items:center;justify-content:center; font-family:'Righteous',cursive; font-size:1.2rem; }
+.step-content h4 { font-size:1rem;font-weight:800;margin-bottom:6px; }
 .step-content p { font-size:0.85rem;color:var(--muted);line-height:1.6; }
 
 /* COMPARISON TABLE */
 .comp-table { width:100%; border-collapse:collapse; }
-.comp-table th { background:rgba(79,70,229,0.06); padding:14px 20px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
+.comp-table th { background:rgba(37,99,255,0.1); padding:14px 20px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
 .comp-table th:first-child { border-radius:12px 0 0 0; }
 .comp-table th:last-child { border-radius:0 12px 0 0; }
 .comp-table td { padding:14px 20px; border-bottom:1px solid var(--border); font-size:0.9rem; }
-.comp-table tr:hover td { background:rgba(79,70,229,0.02); }
-.comp-table .feature-name { font-weight:700; color:var(--text); }
-.comp-table .check { color:var(--green); font-size:1.1rem; font-weight:700; }
-.comp-table .cross { color:var(--pink); font-size:1.1rem; font-weight:700; }
+.comp-table tr:hover td { background:rgba(255,255,255,0.02); }
+.comp-table .feature-name { font-weight:700; color:var(--white); }
+.comp-table .check { color:var(--green); font-size:1.1rem; }
+.comp-table .cross { color:var(--pink); font-size:1.1rem; }
 .comp-table .partial { color:var(--yellow); font-size:0.9rem; font-weight:700; }
-.comp-table .best { background:rgba(79,70,229,0.04); }
+.comp-table .best { background:rgba(37,99,255,0.08); }
 
 /* FOOTER */
-footer { border-top:1px solid var(--border); padding:60px 40px; text-align:center; position:relative;z-index:1; background:var(--bg2); }
-.footer-logo { font-family:'Righteous',cursive; font-size:2rem; background:linear-gradient(135deg,var(--blue),var(--cyan),var(--purple)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:12px; }
+footer { border-top:1px solid var(--border); padding:60px 40px; text-align:center; position:relative;z-index:1; }
+.footer-logo { font-family:'Righteous',cursive; font-size:2rem; background:linear-gradient(135deg,var(--cyan),var(--blue),var(--purple)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; margin-bottom:12px; }
 footer p { color:var(--muted); font-size:0.9rem; }
-footer a { color:var(--blue); text-decoration:none; }
+footer a { color:var(--cyan); text-decoration:none; }
 
-/* REVEAL */
+/* REVEAL ANIMATION */
 .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease, transform 0.7s ease; }
 .reveal.visible { opacity:1; transform:translateY(0); }
 .reveal-delay-1{transition-delay:0.1s}.reveal-delay-2{transition-delay:0.2s}.reveal-delay-3{transition-delay:0.3s}.reveal-delay-4{transition-delay:0.4s}
@@ -299,20 +297,22 @@ footer a { color:var(--blue); text-decoration:none; }
 @media(max-width:900px){
   .pg-body{grid-template-columns:1fr;} .pg-sidebar{border-right:none;border-bottom:1px solid var(--border);}
   .arch-grid{grid-template-columns:1fr;} .anno-grid{grid-template-columns:repeat(2,1fr);}
-  .setup-grid{grid-template-columns:1fr;} nav{padding:14px 20px;}
+  .setup-grid{grid-template-columns:1fr;} nav{padding:16px 20px;}
   .nav-links{display:none;} .section{padding:60px 20px;}
-  .hero{padding:80px 20px 40px;}
-}
-@media(max-width:500px){
-  .anno-grid{grid-template-columns:1fr;} .hero-stats{gap:16px;} .stat-pill{padding:10px 16px;}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV — icons removed, clean text -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- NAV -->
 <nav>
-  <div class="nav-logo">Selenium</div>
+  <div class="nav-logo">⚡ Selenium</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
     <a href="#architecture">Architecture</a>
@@ -322,12 +322,11 @@ footer a { color:var(--blue); text-decoration:none; }
   <div class="nav-badge">Aayush Mishra · SDET</div>
 </nav>
 
-<!-- HERO — removed emoji icons, replaced orbs with gradient mesh -->
+<!-- HERO -->
 <section class="hero">
-  <div class="hero-mesh" aria-hidden="true"></div>
   <canvas id="hero-canvas"></canvas>
   <div class="hero-content">
-    <div class="hero-eyebrow"><span class="dot"></span> Browser Automation Framework</div>
+    <div class="hero-eyebrow"><span></span> Browser Automation Framework</div>
     <h1 class="hero-title">
       <span class="t1">Master</span>
       <span class="t2">Selenium WebDriver</span>
@@ -340,43 +339,43 @@ footer a { color:var(--blue); text-decoration:none; }
       <div class="stat-pill"><div class="num" data-count="6">0</div><div class="lbl">Scenarios</div></div>
     </div>
     <div class="hero-cta">
-      <button class="btn-primary" onclick="document.getElementById('playground').scrollIntoView({behavior:'smooth'})">Launch Playground</button>
-      <button class="btn-secondary" onclick="document.getElementById('setup').scrollIntoView({behavior:'smooth'})">View Setup Guide</button>
+      <button class="btn-primary" onclick="document.getElementById('playground').scrollIntoView({behavior:'smooth'})">🎮 Launch Playground</button>
+      <button class="btn-secondary" onclick="document.getElementById('setup').scrollIntoView({behavior:'smooth'})">📦 View Setup Guide</button>
     </div>
   </div>
 </section>
 
-<!-- MARQUEE — emoji icons replaced with small dots -->
+<!-- MARQUEE -->
 <div class="marquee-wrap">
   <div class="marquee-track" id="marqueeTrack">
-    <div class="marquee-item"><span class="mi-dot"></span> Cross-Browser Testing</div>
-    <div class="marquee-item"><span class="mi-dot"></span> WebDriver Protocol</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Element Locators</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Explicit Waits</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Screenshot Capture</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Actions API</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Chrome / Firefox / Safari</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Page Object Model</div>
-    <div class="marquee-item"><span class="mi-dot"></span> XPath &amp; CSS Selectors</div>
-    <div class="marquee-item"><span class="mi-dot"></span> JavaScript Executor</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Grid Parallel Execution</div>
-    <div class="marquee-item"><span class="mi-dot"></span> TestNG Integration</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Cross-Browser Testing</div>
-    <div class="marquee-item"><span class="mi-dot"></span> WebDriver Protocol</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Element Locators</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Explicit Waits</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Screenshot Capture</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Actions API</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Chrome / Firefox / Safari</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Page Object Model</div>
-    <div class="marquee-item"><span class="mi-dot"></span> XPath &amp; CSS Selectors</div>
-    <div class="marquee-item"><span class="mi-dot"></span> JavaScript Executor</div>
-    <div class="marquee-item"><span class="mi-dot"></span> Grid Parallel Execution</div>
-    <div class="marquee-item"><span class="mi-dot"></span> TestNG Integration</div>
+    <div class="marquee-item"><span>🌐</span> Cross-Browser Testing</div>
+    <div class="marquee-item"><span>⚡</span> WebDriver Protocol</div>
+    <div class="marquee-item"><span>🎯</span> Element Locators</div>
+    <div class="marquee-item"><span>🔄</span> Explicit Waits</div>
+    <div class="marquee-item"><span>📸</span> Screenshot Capture</div>
+    <div class="marquee-item"><span>🖱️</span> Actions API</div>
+    <div class="marquee-item"><span>🌐</span> Chrome / Firefox / Safari</div>
+    <div class="marquee-item"><span>⚡</span> Page Object Model</div>
+    <div class="marquee-item"><span>🎯</span> XPath & CSS Selectors</div>
+    <div class="marquee-item"><span>🔄</span> JavaScript Executor</div>
+    <div class="marquee-item"><span>📸</span> Grid Parallel Execution</div>
+    <div class="marquee-item"><span>🖱️</span> TestNG Integration</div>
+    <div class="marquee-item"><span>🌐</span> Cross-Browser Testing</div>
+    <div class="marquee-item"><span>⚡</span> WebDriver Protocol</div>
+    <div class="marquee-item"><span>🎯</span> Element Locators</div>
+    <div class="marquee-item"><span>🔄</span> Explicit Waits</div>
+    <div class="marquee-item"><span>📸</span> Screenshot Capture</div>
+    <div class="marquee-item"><span>🖱️</span> Actions API</div>
+    <div class="marquee-item"><span>🌐</span> Chrome / Firefox / Safari</div>
+    <div class="marquee-item"><span>⚡</span> Page Object Model</div>
+    <div class="marquee-item"><span>🎯</span> XPath & CSS Selectors</div>
+    <div class="marquee-item"><span>🔄</span> JavaScript Executor</div>
+    <div class="marquee-item"><span>📸</span> Grid Parallel Execution</div>
+    <div class="marquee-item"><span>🖱️</span> TestNG Integration</div>
   </div>
 </div>
 
-<!-- OVERVIEW — emoji icons replaced with color-coded step labels -->
+<!-- OVERVIEW -->
 <div id="overview"></div>
 <div class="section reveal">
   <div class="section-tag">01 — Overview</div>
@@ -385,35 +384,35 @@ footer a { color:var(--blue); text-decoration:none; }
   <div class="flow-steps">
     <div class="flow-step reveal reveal-delay-1">
       <div class="flow-num">01</div>
-      <div class="flow-label">Author</div>
+      <div class="flow-icon">✍️</div>
       <h4>Write Test Code</h4>
       <p>Author Java/Python/JS tests using WebDriver API calls and assertions</p>
-      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-arrow">→</div>
     </div>
     <div class="flow-step reveal reveal-delay-2">
       <div class="flow-num">02</div>
-      <div class="flow-label">Protocol</div>
+      <div class="flow-icon">🔌</div>
       <h4>WebDriver Protocol</h4>
       <p>Commands sent as HTTP/JSON to browser driver via W3C standard</p>
-      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-arrow">→</div>
     </div>
     <div class="flow-step reveal reveal-delay-3">
       <div class="flow-num">03</div>
-      <div class="flow-label">Driver</div>
+      <div class="flow-icon">🌐</div>
       <h4>Browser Driver</h4>
       <p>ChromeDriver / GeckoDriver translates commands to native APIs</p>
-      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-arrow">→</div>
     </div>
     <div class="flow-step reveal reveal-delay-4">
       <div class="flow-num">04</div>
-      <div class="flow-label">Execute</div>
+      <div class="flow-icon">🎬</div>
       <h4>Browser Executes</h4>
       <p>Real browser navigates, clicks, types — exactly like a human would</p>
-      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-arrow">→</div>
     </div>
     <div class="flow-step reveal reveal-delay-4" style="transition-delay:0.5s">
       <div class="flow-num">05</div>
-      <div class="flow-label">Verify</div>
+      <div class="flow-icon">✅</div>
       <h4>Assert Results</h4>
       <p>Verify DOM state, page title, element visibility, URL — tests pass/fail</p>
     </div>
@@ -422,7 +421,7 @@ footer a { color:var(--blue); text-decoration:none; }
 
 <div class="divider"></div>
 
-<!-- ARCHITECTURE — emoji icons replaced with color-coded labels -->
+<!-- ARCHITECTURE -->
 <div id="architecture"></div>
 <div class="section reveal">
   <div class="section-tag">02 — Architecture</div>
@@ -430,7 +429,7 @@ footer a { color:var(--blue); text-decoration:none; }
   <p class="section-sub">Selenium is a suite of tools. Understanding each layer unlocks powerful, scalable automation.</p>
   <div class="arch-grid">
     <div class="arch-card reveal reveal-delay-1">
-      <div class="arch-label blue">Core API</div>
+      <div class="ac-icon">🔧</div>
       <h3>WebDriver API</h3>
       <p>The heart of Selenium. Provides browser.findElement(), click(), sendKeys(), navigate() and 100+ methods to control browsers programmatically.</p>
       <div class="tag-list">
@@ -441,8 +440,8 @@ footer a { color:var(--blue); text-decoration:none; }
         <span class="tag">executeScript()</span>
       </div>
     </div>
-    <div class="arch-card reveal reveal-delay-2">
-      <div class="arch-label purple">Drivers</div>
+    <div class="arch-card glow-purple reveal reveal-delay-2">
+      <div class="ac-icon">🌐</div>
       <h3>Browser Drivers</h3>
       <p>Platform-specific executables that implement W3C WebDriver spec. ChromeDriver for Chrome, GeckoDriver for Firefox, SafariDriver for Safari.</p>
       <div class="tag-list">
@@ -452,8 +451,8 @@ footer a { color:var(--blue); text-decoration:none; }
         <span class="tag" style="color:var(--pink)">EdgeDriver</span>
       </div>
     </div>
-    <div class="arch-card reveal reveal-delay-3">
-      <div class="arch-label green">Locators</div>
+    <div class="arch-card glow-green reveal reveal-delay-3">
+      <div class="ac-icon">🎯</div>
       <h3>Locator Strategies</h3>
       <p>8 ways to find elements: ID (fastest), CSS Selector (recommended), XPath (powerful), Name, Class, Tag, Link Text, Partial Link Text.</p>
       <div class="tag-list">
@@ -465,18 +464,18 @@ footer a { color:var(--blue); text-decoration:none; }
       </div>
     </div>
     <div class="arch-card reveal reveal-delay-4">
-      <div class="arch-label cyan">Waits</div>
+      <div class="ac-icon">⏳</div>
       <h3>Wait Strategies</h3>
       <p>Three types: Implicit (global), Explicit (condition-based), Fluent (polling interval). Always prefer Explicit Waits for reliable tests.</p>
       <div class="tag-list">
         <span class="tag" style="color:var(--muted)">Implicit Wait</span>
-        <span class="tag" style="color:var(--cyan)">Explicit Wait *</span>
+        <span class="tag" style="color:var(--cyan)">Explicit Wait ★</span>
         <span class="tag" style="color:var(--purple)">Fluent Wait</span>
         <span class="tag">WebDriverWait</span>
       </div>
     </div>
     <div class="arch-card wide reveal">
-      <div class="arch-label yellow">Design Pattern</div>
+      <div class="ac-icon">🏗️</div>
       <h3>Page Object Model (POM)</h3>
       <p>Design pattern that creates an object repository for web elements. Each page has a class — locators and actions are encapsulated. Tests become shorter, readable, and maintainable. The gold standard for enterprise test automation.</p>
       <div class="tag-list">
@@ -494,25 +493,25 @@ footer a { color:var(--blue); text-decoration:none; }
 
 <div class="divider"></div>
 
-<!-- ANNOTATIONS — emoji glow removed, clean cards -->
+<!-- ANNOTATIONS -->
 <div class="section reveal">
   <div class="section-tag">03 — Key Concepts</div>
   <h2 class="section-title">Essential WebDriver Methods</h2>
   <p class="section-sub">Master these methods and you can automate almost anything in a browser.</p>
   <div class="anno-grid">
-    <div class="anno-card"><div class="anno-name">driver.get(url)</div><div class="anno-desc">Navigate to a URL and wait for page load to complete</div></div>
-    <div class="anno-card"><div class="anno-name">findElement(By)</div><div class="anno-desc">Locate a single DOM element using any locator strategy</div></div>
-    <div class="anno-card"><div class="anno-name">element.click()</div><div class="anno-desc">Simulate a real mouse click on any interactable element</div></div>
-    <div class="anno-card"><div class="anno-name">sendKeys(text)</div><div class="anno-desc">Type text into input fields, simulate key presses</div></div>
-    <div class="anno-card"><div class="anno-name">getText()</div><div class="anno-desc">Retrieve visible text content of an element</div></div>
-    <div class="anno-card"><div class="anno-name">WebDriverWait</div><div class="anno-desc">Wait until ExpectedCondition is met — no flaky sleeps</div></div>
-    <div class="anno-card"><div class="anno-name">Actions API</div><div class="anno-desc">Hover, drag-drop, double-click, right-click, keyboard chords</div></div>
-    <div class="anno-card"><div class="anno-name">executeScript()</div><div class="anno-desc">Run arbitrary JavaScript — scroll, modify DOM, get JS values</div></div>
-    <div class="anno-card"><div class="anno-name">getScreenshotAs()</div><div class="anno-desc">Capture full-page or element screenshots on failure</div></div>
+    <div class="anno-card"><div class="anno-glow"></div><div class="anno-name">driver.get(url)</div><div class="anno-desc">Navigate to a URL and wait for page load to complete</div></div>
+    <div class="anno-card"><div class="anno-glow"></div><div class="anno-name">findElement(By)</div><div class="anno-desc">Locate a single DOM element using any locator strategy</div></div>
+    <div class="anno-card"><div class="anno-glow"></div><div class="anno-name">element.click()</div><div class="anno-desc">Simulate a real mouse click on any interactable element</div></div>
+    <div class="anno-card"><div class="anno-glow"></div><div class="anno-name">sendKeys(text)</div><div class="anno-desc">Type text into input fields, simulate key presses</div></div>
+    <div class="anno-card"><div class="anno-glow"></div><div class="anno-name">getText()</div><div class="anno-desc">Retrieve visible text content of an element</div></div>
+    <div class="anno-card"><div class="anno-glow"></div><div class="anno-name">WebDriverWait</div><div class="anno-desc">Wait until ExpectedCondition is met — no flaky sleeps</div></div>
+    <div class="anno-card"><div class="anno-glow"></div><div class="anno-name">Actions API</div><div class="anno-desc">Hover, drag-drop, double-click, right-click, keyboard chords</div></div>
+    <div class="anno-card"><div class="anno-glow"></div><div class="anno-name">executeScript()</div><div class="anno-desc">Run arbitrary JavaScript — scroll, modify DOM, get JS values</div></div>
+    <div class="anno-card"><div class="anno-glow"></div><div class="anno-name">getScreenshotAs()</div><div class="anno-desc">Capture full-page or element screenshots on failure</div></div>
   </div>
 </div>
 
-<!-- CODE SAMPLE — kept dark (code blocks look better dark) -->
+<!-- CODE SAMPLE -->
 <div class="section reveal" style="padding-top:0">
   <div class="section-tag">Sample Code</div>
   <h2 class="section-title">Page Object Model</h2>
@@ -564,7 +563,7 @@ footer a { color:var(--blue); text-decoration:none; }
 
 <div class="divider"></div>
 
-<!-- PLAYGROUND — emoji icons replaced with colored badges -->
+<!-- ═══════════ PLAYGROUND ═══════════ -->
 <div id="playground"></div>
 <div class="section reveal">
   <div class="section-tag">04 — Interactive Playground</div>
@@ -574,57 +573,57 @@ footer a { color:var(--blue); text-decoration:none; }
   <div class="playground-wrapper">
     <div class="pg-header">
       <div>
-        <div class="pg-title">Selenium <span>WebDriver Lab</span></div>
+        <div class="pg-title">🎮 Selenium <span>WebDriver Lab</span></div>
         <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;font-weight:600;">6 scenarios · animated browser · live execution logs</div>
       </div>
       <div class="pg-badges">
-        <span class="pg-badge b1">LIVE</span>
+        <span class="pg-badge b1">● LIVE</span>
         <span class="pg-badge b2">Java + WebDriver 4</span>
         <span class="pg-badge b3">POM Pattern</span>
       </div>
     </div>
 
     <div class="pg-body">
-      <!-- SIDEBAR — emoji icons replaced with colored badge letters -->
+      <!-- SIDEBAR -->
       <div class="pg-sidebar">
-        <div class="pg-sidebar-title">Test Scenarios</div>
+        <div class="pg-sidebar-title">🧪 Test Scenarios</div>
         <button class="scenario-btn active" data-id="0" onclick="selectScenario(0)">
-          <div class="s-badge bg-blue">LF</div>
+          <div class="s-icon">🔐</div>
           <div class="s-info">
             <div class="s-name">Login Flow</div>
             <div class="s-desc">Form fill + assertion</div>
           </div>
         </button>
         <button class="scenario-btn" data-id="1" onclick="selectScenario(1)">
-          <div class="s-badge bg-cyan">SR</div>
+          <div class="s-icon">🔍</div>
           <div class="s-info">
             <div class="s-name">Search + Results</div>
             <div class="s-desc">Dynamic content wait</div>
           </div>
         </button>
         <button class="scenario-btn" data-id="2" onclick="selectScenario(2)">
-          <div class="s-badge bg-green">EC</div>
+          <div class="s-icon">🛒</div>
           <div class="s-info">
             <div class="s-name">E-Commerce Flow</div>
             <div class="s-desc">Add to cart + checkout</div>
           </div>
         </button>
         <button class="scenario-btn" data-id="3" onclick="selectScenario(3)">
-          <div class="s-badge bg-yellow">FV</div>
+          <div class="s-icon">📋</div>
           <div class="s-info">
             <div class="s-name">Form Validation</div>
             <div class="s-desc">Error state testing</div>
           </div>
         </button>
         <button class="scenario-btn" data-id="4" onclick="selectScenario(4)">
-          <div class="s-badge bg-purple">AA</div>
+          <div class="s-icon">🖱️</div>
           <div class="s-info">
             <div class="s-name">Actions API</div>
             <div class="s-desc">Hover, drag, right-click</div>
           </div>
         </button>
         <button class="scenario-btn" data-id="5" onclick="selectScenario(5)">
-          <div class="s-badge bg-pink">FS</div>
+          <div class="s-icon">💥</div>
           <div class="s-info">
             <div class="s-name">Failure + Screenshot</div>
             <div class="s-desc">Error handling demo</div>
@@ -641,12 +640,12 @@ footer a { color:var(--blue); text-decoration:none; }
           <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
         </div>
         <div class="pg-controls">
-          <button class="run-btn" id="run-btn" onclick="runScenario()">Run Test</button>
-          <button class="stop-btn" id="stop-btn" onclick="stopScenario()" disabled>Stop</button>
+          <button class="run-btn" id="run-btn" onclick="runScenario()">▶ Run Test</button>
+          <button class="stop-btn" id="stop-btn" onclick="stopScenario()" disabled>■ Stop</button>
           <div class="speed-wrap">
-            Speed:
+            ⚡ Speed:
             <input type="range" id="speed-range" min="0.5" max="3" step="0.5" value="1">
-            <span id="speed-label">1x</span>
+            <span id="speed-label">1×</span>
           </div>
         </div>
         <div class="pg-status-bar">
@@ -661,7 +660,7 @@ footer a { color:var(--blue); text-decoration:none; }
         <div class="summary-panel" id="summary-panel"></div>
         <div class="pg-terminal-area">
           <div class="pg-terminal-header">
-            <span>Execution Log</span>
+            <span>📟 Execution Log</span>
             <button class="terminal-clear" onclick="clearTerminal()">Clear</button>
           </div>
           <div id="pg-terminal"></div>
@@ -673,31 +672,31 @@ footer a { color:var(--blue); text-decoration:none; }
 
 <div class="divider"></div>
 
-<!-- COMPARISON — check/cross marks kept (they are semantic, not decorative icons) -->
+<!-- COMPARISON -->
 <div class="section reveal">
   <div class="section-tag">05 — Comparison</div>
   <h2 class="section-title">Selenium vs The World</h2>
-  <p class="section-sub">How Selenium stacks up against modern alternatives.</p>
+  <p class="section-sub">How Selenium stacks up against modern alternatives in 2024.</p>
   <div style="overflow-x:auto">
     <table class="comp-table">
       <thead>
         <tr>
           <th>Feature</th>
-          <th style="color:var(--blue)">Selenium 4</th>
+          <th style="color:var(--cyan)">Selenium 4</th>
           <th>Playwright</th>
           <th>Cypress</th>
           <th>Puppeteer</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td class="feature-name">Multi-browser</td><td class="check best">All</td><td class="check">All</td><td class="partial">Limited</td><td class="cross">Chromium</td></tr>
+        <tr><td class="feature-name">Multi-browser</td><td class="check best">✓ All</td><td class="check">✓ All</td><td class="partial">Limited</td><td class="cross">Chromium</td></tr>
         <tr><td class="feature-name">Language Support</td><td class="best" style="color:var(--green);font-weight:700">Java, Python, JS, C#, Ruby</td><td class="check">JS/TS, Python, Java, C#</td><td class="partial">JS/TS only</td><td class="cross">JS/TS only</td></tr>
-        <tr><td class="feature-name">Grid / Parallel</td><td class="check best">Selenium Grid 4</td><td class="check">Built-in</td><td class="partial">Cypress Cloud</td><td class="cross">Manual</td></tr>
-        <tr><td class="feature-name">Real Browser</td><td class="check best">Always</td><td class="check">Always</td><td class="check">Always</td><td class="check">Chromium</td></tr>
+        <tr><td class="feature-name">Grid / Parallel</td><td class="check best">✓ Selenium Grid 4</td><td class="check">✓ Built-in</td><td class="partial">Cypress Cloud</td><td class="cross">Manual</td></tr>
+        <tr><td class="feature-name">Real Browser</td><td class="check best">✓ Always</td><td class="check">✓ Always</td><td class="check">✓ Always</td><td class="check">✓ Chromium</td></tr>
         <tr><td class="feature-name">Maturity</td><td class="best" style="color:var(--green);font-weight:700">20+ years</td><td class="partial">4 years</td><td class="partial">7 years</td><td class="partial">6 years</td></tr>
-        <tr><td class="feature-name">Enterprise Adoption</td><td class="check best">Highest</td><td class="partial">High</td><td class="partial">Medium</td><td class="partial">Low</td></tr>
-        <tr><td class="feature-name">Auto-Wait</td><td class="partial">Manual (Explicit)</td><td class="check">Built-in</td><td class="check">Built-in</td><td class="partial">Manual</td></tr>
-        <tr><td class="feature-name">Mobile Testing</td><td class="check best">Appium</td><td class="partial">Emulation</td><td class="partial">Emulation</td><td class="cross">No</td></tr>
+        <tr><td class="feature-name">Enterprise Adoption</td><td class="check best">★★★★★</td><td class="partial">★★★★</td><td class="partial">★★★</td><td class="partial">★★</td></tr>
+        <tr><td class="feature-name">Auto-Wait</td><td class="partial">Manual (Explicit)</td><td class="check">✓ Built-in</td><td class="check">✓ Built-in</td><td class="partial">Manual</td></tr>
+        <tr><td class="feature-name">Mobile Testing</td><td class="check best">✓ Appium</td><td class="partial">Emulation</td><td class="partial">Emulation</td><td class="cross">No</td></tr>
       </tbody>
     </table>
   </div>
@@ -705,7 +704,7 @@ footer a { color:var(--blue); text-decoration:none; }
 
 <div class="divider"></div>
 
-<!-- SETUP — icons removed, step numbers kept -->
+<!-- SETUP -->
 <div id="setup"></div>
 <div class="section reveal">
   <div class="section-tag">06 — Setup Guide</div>
@@ -758,13 +757,24 @@ footer a { color:var(--blue); text-decoration:none; }
 </div>
 
 <footer>
-  <div class="footer-logo">Selenium WebDriver</div>
+  <div class="footer-logo">⚡ Selenium WebDriver</div>
   <p>Built by <strong>Aayush Mishra</strong> · Senior SDET · Java | Selenium | TestNG | Playwright</p>
   <p style="margin-top:8px"><a href="#">GitHub</a> · <a href="#">LinkedIn</a> · <a href="#">Blog</a></p>
 </footer>
 
 <script>
-/* ========= HERO CANVAS — light theme particles ========= */
+// ═══════════ CURSOR ═══════════
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+(function animateRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animateRing);})();
+document.querySelectorAll('button,a,.scenario-btn,.anno-card,.arch-card,.flow-step').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.transform='translate(-50%,-50%) scale(2)';ring.style.transform='translate(-50%,-50%) scale(1.6)';});
+  el.addEventListener('mouseleave',()=>{cursor.style.transform='translate(-50%,-50%) scale(1)';ring.style.transform='translate(-50%,-50%) scale(1)';});
+});
+
+// ═══════════ HERO CANVAS ═══════════
 (function(){
   const c=document.getElementById('hero-canvas');
   const ctx=c.getContext('2d');
@@ -782,13 +792,13 @@ footer a { color:var(--blue); text-decoration:none; }
       if(d.x<0||d.x>c.width)d.vx*=-1;
       if(d.y<0||d.y>c.height)d.vy*=-1;
       ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(79,70,229,${d.a*0.2})`;ctx.fill();
+      ctx.fillStyle=`rgba(37,99,255,${d.a*0.4})`;ctx.fill();
     });
     dots.forEach((a,i)=>dots.slice(i+1).forEach(b=>{
       const dist=Math.hypot(a.x-b.x,a.y-b.y);
       if(dist<120){
         ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
-        ctx.strokeStyle=`rgba(79,70,229,${(1-dist/120)*0.06})`;ctx.lineWidth=1;ctx.stroke();
+        ctx.strokeStyle=`rgba(0,212,255,${(1-dist/120)*0.12})`;ctx.lineWidth=1;ctx.stroke();
       }
     }));
     requestAnimationFrame(draw);
@@ -796,7 +806,7 @@ footer a { color:var(--blue); text-decoration:none; }
   draw();
 })();
 
-/* ========= COUNTER ANIMATION ========= */
+// ═══════════ COUNTER ANIMATION ═══════════
 function animateCounter(el,target){
   let start=0; const dur=1500; const startTime=performance.now();
   const isLarge=target>1000;
@@ -811,7 +821,7 @@ function animateCounter(el,target){
   requestAnimationFrame(step);
 }
 
-/* ========= SCROLL REVEAL ========= */
+// ═══════════ SCROLL REVEAL ═══════════
 const observer=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(e.isIntersecting){
@@ -831,110 +841,110 @@ document.querySelectorAll('[data-count]').forEach(el=>{
   }
 });
 
-/* ========= COPY CODE ========= */
+// ═══════════ COPY CODE ═══════════
 function copyCode(btn){
   const code=btn.closest('.code-wrap').querySelector('pre').textContent;
   navigator.clipboard.writeText(code).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',2000);});
 }
 
-/* ========= PLAYGROUND ENGINE ========= */
+// ═══════════ PLAYGROUND ENGINE ═══════════
 const canvas=document.getElementById('browser-canvas');
 const ctx=canvas.getContext('2d');
 let animFrame=null, running=false, stopFlag=false;
 
 const scenarios=[
   {
-    name:'Login Flow',
+    name:'Login Flow',icon:'🔐',
     steps:[
       {type:'navigate',url:'https://app.example.com/login',log:'driver.get("https://app.example.com/login")',desc:'Navigating to login page...'},
       {type:'wait',selector:'#username',log:'wait.until(EC.visibilityOf(usernameInput))',desc:'Waiting for username field...'},
       {type:'click',selector:'#username',log:'usernameInput.click()',desc:'Clicking username field'},
       {type:'type',text:'aayush@sdet.io',selector:'#username',log:'usernameInput.sendKeys("aayush@sdet.io")',desc:'Typing username'},
-      {type:'type',text:'--------',selector:'#password',log:'passwordInput.sendKeys("--------")',desc:'Typing password'},
+      {type:'type',text:'••••••••',selector:'#password',log:'passwordInput.sendKeys("••••••••")',desc:'Typing password'},
       {type:'click',selector:'.login-btn',log:'loginButton.click()',desc:'Clicking Login button'},
       {type:'wait',selector:'.dashboard',log:'wait.until(EC.urlContains("/dashboard"))',desc:'Waiting for dashboard...'},
-      {type:'assert',check:'Dashboard heading visible',log:'Assert.assertEquals(driver.getTitle(), "Dashboard | App")',desc:'Asserting page title'},
-      {type:'assert',check:'User avatar displayed',log:'Assert.assertTrue(userAvatar.isDisplayed())',desc:'Asserting user avatar'},
-      {type:'screenshot',log:'((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE)',desc:'Capturing success screenshot'},
+      {type:'assert',check:'Dashboard heading visible',log:'Assert.assertEquals(driver.getTitle(), "Dashboard | App")',desc:'✓ Asserting page title'},
+      {type:'assert',check:'User avatar displayed',log:'Assert.assertTrue(userAvatar.isDisplayed())',desc:'✓ Asserting user avatar'},
+      {type:'screenshot',log:'((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE)',desc:'📸 Capturing success screenshot'},
     ],
     summary:{pass:1,fail:0,assertions:2,browser:'Chrome 121',time:null}
   },
   {
-    name:'Search + Results',
+    name:'Search + Results',icon:'🔍',
     steps:[
       {type:'navigate',url:'https://shop.example.com',log:'driver.get("https://shop.example.com")',desc:'Opening e-commerce site'},
       {type:'click',selector:'#search-box',log:'searchBox.click()',desc:'Focusing search input'},
       {type:'type',text:'Wireless Headphones',selector:'#search',log:'searchBox.sendKeys("Wireless Headphones")',desc:'Typing search query'},
       {type:'click',selector:'.search-btn',log:'searchBtn.click()',desc:'Submitting search'},
       {type:'wait',selector:'.results',log:'wait.until(EC.presenceOfAllElementsLocated(By.css(".product-card")))',desc:'Waiting for results to load...'},
-      {type:'assert',check:'Results > 0 found',log:'Assert.assertTrue(results.size() > 0, "No results found")',desc:'Results count > 0'},
+      {type:'assert',check:'Results > 0 found',log:'Assert.assertTrue(results.size() > 0, "No results found")',desc:'✓ Results count > 0'},
       {type:'scroll',log:'js.executeScript("arguments[0].scrollIntoView(true)", firstResult)',desc:'Scrolling to first result'},
       {type:'click',selector:'.product:first',log:'firstProduct.click()',desc:'Clicking first product'},
-      {type:'assert',check:'Product title visible',log:'Assert.assertTrue(productTitle.isDisplayed())',desc:'Product detail page loaded'},
+      {type:'assert',check:'Product title visible',log:'Assert.assertTrue(productTitle.isDisplayed())',desc:'✓ Product detail page loaded'},
     ],
     summary:{pass:1,fail:0,assertions:2,browser:'Firefox 122',time:null}
   },
   {
-    name:'E-Commerce Flow',
+    name:'E-Commerce Flow',icon:'🛒',
     steps:[
       {type:'navigate',url:'https://store.example.com/products',log:'driver.get("https://store.example.com/products")',desc:'Loading product catalog'},
       {type:'click',selector:'.product-card:nth(2)',log:'product.click()',desc:'Selecting product'},
       {type:'wait',selector:'.add-to-cart',log:'wait.until(EC.elementToBeClickable(addToCartBtn))',desc:'Waiting for Add to Cart...'},
       {type:'click',selector:'.add-to-cart',log:'addToCartBtn.click()',desc:'Adding item to cart'},
-      {type:'assert',check:'Cart badge = 1',log:'Assert.assertEquals(cartBadge.getText(), "1")',desc:'Cart count updated'},
+      {type:'assert',check:'Cart badge = 1',log:'Assert.assertEquals(cartBadge.getText(), "1")',desc:'✓ Cart count updated'},
       {type:'click',selector:'.cart-icon',log:'cartIcon.click()',desc:'Opening cart sidebar'},
-      {type:'assert',check:'Item in cart list',log:'Assert.assertTrue(cartItem.isDisplayed())',desc:'Product in cart'},
+      {type:'assert',check:'Item in cart list',log:'Assert.assertTrue(cartItem.isDisplayed())',desc:'✓ Product in cart'},
       {type:'click',selector:'.checkout-btn',log:'checkoutBtn.click()',desc:'Proceeding to checkout'},
       {type:'type',text:'4242 4242 4242 4242',selector:'#card',log:'cardInput.sendKeys("4242424242424242")',desc:'Entering card details'},
       {type:'click',selector:'.place-order',log:'placeOrderBtn.click()',desc:'Placing order'},
-      {type:'assert',check:'Order confirmation shown',log:'Assert.assertTrue(confirmationMsg.isDisplayed())',desc:'Order confirmed'},
+      {type:'assert',check:'Order confirmation shown',log:'Assert.assertTrue(confirmationMsg.isDisplayed())',desc:'✓ Order confirmed!'},
     ],
     summary:{pass:1,fail:0,assertions:3,browser:'Chrome 121',time:null}
   },
   {
-    name:'Form Validation',
+    name:'Form Validation',icon:'📋',
     steps:[
       {type:'navigate',url:'https://forms.example.com/register',log:'driver.get("https://forms.example.com/register")',desc:'Loading registration form'},
       {type:'click',selector:'#submit-empty',log:'submitBtn.click()',desc:'Submitting empty form'},
-      {type:'assert',check:'Required field errors shown',log:'Assert.assertEquals(errors.size(), 3)',desc:'3 validation errors appear'},
+      {type:'assert',check:'Required field errors shown',log:'Assert.assertEquals(errors.size(), 3)',desc:'✓ 3 validation errors appear'},
       {type:'type',text:'bad-email',selector:'#email',log:'emailInput.sendKeys("bad-email")',desc:'Entering invalid email'},
       {type:'click',selector:'#submit',log:'submitBtn.click()',desc:'Submitting with bad email'},
-      {type:'assert',check:'Email error message',log:'Assert.assertEquals(emailError.getText(), "Invalid email format")',desc:'Email error shown'},
+      {type:'assert',check:'Email error message',log:'Assert.assertEquals(emailError.getText(), "Invalid email format")',desc:'✓ Email error shown'},
       {type:'type',text:'valid@email.com',selector:'#email',log:'emailInput.clear(); emailInput.sendKeys("valid@email.com")',desc:'Fixing email address'},
       {type:'type',text:'WeakPass',selector:'#password',log:'passwordInput.sendKeys("WeakPass")',desc:'Entering weak password'},
-      {type:'assert',check:'Password strength meter: Weak',log:'Assert.assertEquals(strengthMeter.getAttribute("data-level"), "weak")',desc:'Strength indicator is Weak'},
+      {type:'assert',check:'Password strength meter: Weak',log:'Assert.assertEquals(strengthMeter.getAttribute("data-level"), "weak")',desc:'✓ Strength indicator is Weak'},
       {type:'type',text:'Str0ng!Pass#99',selector:'#password',log:'passwordInput.clear(); passwordInput.sendKeys("Str0ng!Pass#99")',desc:'Entering strong password'},
-      {type:'assert',check:'Password strength meter: Strong',log:'Assert.assertEquals(strengthMeter.getAttribute("data-level"), "strong")',desc:'Strength indicator is Strong'},
+      {type:'assert',check:'Password strength meter: Strong',log:'Assert.assertEquals(strengthMeter.getAttribute("data-level"), "strong")',desc:'✓ Strength indicator is Strong'},
     ],
     summary:{pass:1,fail:0,assertions:4,browser:'Edge 120',time:null}
   },
   {
-    name:'Actions API',
+    name:'Actions API',icon:'🖱️',
     steps:[
       {type:'navigate',url:'https://ui.example.com/interactions',log:'driver.get("https://ui.example.com/interactions")',desc:'Loading interactions demo page'},
       {type:'hover',selector:'.dropdown-menu',log:'actions.moveToElement(dropdownMenu).perform()',desc:'Hovering over dropdown menu'},
-      {type:'assert',check:'Dropdown submenu visible',log:'Assert.assertTrue(submenu.isDisplayed())',desc:'Dropdown appeared on hover'},
+      {type:'assert',check:'Dropdown submenu visible',log:'Assert.assertTrue(submenu.isDisplayed())',desc:'✓ Dropdown appeared on hover'},
       {type:'click',selector:'.submenu-item',log:'actions.moveToElement(submenu).click().perform()',desc:'Clicking submenu item'},
       {type:'drag',from:'.draggable',to:'.droptarget',log:'actions.dragAndDrop(source, target).perform()',desc:'Drag and drop element'},
-      {type:'assert',check:'Element dropped in target',log:'Assert.assertTrue(target.getText().contains("Dropped!"))',desc:'Drop successful'},
+      {type:'assert',check:'Element dropped in target',log:'Assert.assertTrue(target.getText().contains("Dropped!"))',desc:'✓ Drop successful'},
       {type:'hover',selector:'.tooltip-trigger',log:'actions.moveToElement(tooltipTrigger).perform()',desc:'Hovering to reveal tooltip'},
-      {type:'assert',check:'Tooltip text correct',log:'Assert.assertEquals(tooltip.getText(), "Click for more info")',desc:'Tooltip text matches'},
+      {type:'assert',check:'Tooltip text correct',log:'Assert.assertEquals(tooltip.getText(), "Click for more info")',desc:'✓ Tooltip text matches'},
       {type:'click',selector:'.context-menu-target',log:'actions.contextClick(element).perform()',desc:'Right-clicking for context menu'},
-      {type:'assert',check:'Context menu appears',log:'Assert.assertTrue(contextMenu.isDisplayed())',desc:'Context menu visible'},
+      {type:'assert',check:'Context menu appears',log:'Assert.assertTrue(contextMenu.isDisplayed())',desc:'✓ Context menu visible'},
     ],
     summary:{pass:1,fail:0,assertions:4,browser:'Chrome 121',time:null}
   },
   {
-    name:'Failure + Screenshot',
+    name:'Failure + Screenshot',icon:'💥',
     steps:[
       {type:'navigate',url:'https://app.example.com/profile',log:'driver.get("https://app.example.com/profile")',desc:'Navigating to profile page'},
       {type:'wait',selector:'.profile-name',log:'wait.until(EC.visibilityOf(profileName))',desc:'Waiting for profile name...'},
-      {type:'assert',check:'Username = "aayush_mishra"',log:'Assert.assertEquals(profileName.getText(), "aayush_mishra")',desc:'Username verified'},
+      {type:'assert',check:'Username = "aayush_mishra"',log:'Assert.assertEquals(profileName.getText(), "aayush_mishra")',desc:'✓ Username verified'},
       {type:'click',selector:'.edit-profile',log:'editProfileBtn.click()',desc:'Clicking Edit Profile'},
       {type:'type',text:'',selector:'#bio',log:'bioInput.clear()',desc:'Clearing bio field'},
       {type:'click',selector:'.save-btn',log:'saveBtn.click()',desc:'Saving empty bio — expecting error'},
-      {type:'fail',check:'Bio cannot be empty',log:'Assert.assertFalse(errorBanner.isDisplayed()) — FAILED',desc:'ERROR: Unexpected validation banner'},
-      {type:'screenshot',fail:true,log:'((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE)',desc:'Capturing failure screenshot...'},
+      {type:'fail',check:'Bio cannot be empty',log:'Assert.assertFalse(errorBanner.isDisplayed()) ← FAILED',desc:'✗ ERROR: Unexpected validation banner!'},
+      {type:'screenshot',fail:true,log:'((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE)',desc:'📸 Capturing failure screenshot...'},
       {type:'log',log:'System.out.println("Test FAILED - see screenshots/failure_001.png")',desc:'Logging failure artifact path'},
     ],
     summary:{pass:0,fail:1,assertions:2,browser:'Chrome 121',time:null}
@@ -950,7 +960,7 @@ function selectScenario(id){
   currentScenario=id;
   document.querySelectorAll('.scenario-btn').forEach((b,i)=>b.classList.toggle('active',i===id));
   resetPlayground();
-  drawBrowserIdle(scenarios[id].name);
+  drawBrowserIdle(scenarios[id].name, scenarios[id].icon);
 }
 
 function resetPlayground(){
@@ -987,39 +997,47 @@ function resizeCanvas(){
   canvas.height=300;
 }
 
-function drawBrowserIdle(name='Select Scenario'){
+function drawBrowserIdle(name='Select Scenario', icon='🖥️'){
   resizeCanvas();
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  // Browser chrome
   drawBrowserChrome('https://app.example.com','idle');
-  ctx.fillStyle='#0f172a';
+  // Content area
+  ctx.fillStyle='#0f1629';
   ctx.fillRect(0,40,canvas.width,canvas.height-40);
-  ctx.font='bold 16px Nunito, sans-serif'; ctx.fillStyle='#64748b';
-  ctx.textAlign='center';
-  ctx.fillText(name, canvas.width/2, canvas.height/2+5);
-  ctx.font='12px Nunito, sans-serif'; ctx.fillStyle='#475569';
-  ctx.fillText('Press Run to start automation', canvas.width/2, canvas.height/2+30);
+  // Center message
+  ctx.font='32px serif'; ctx.textAlign='center';
+  ctx.fillText(icon, canvas.width/2, canvas.height/2-10);
+  ctx.font='bold 16px Nunito, sans-serif'; ctx.fillStyle='#4b5563';
+  ctx.fillText(name, canvas.width/2, canvas.height/2+25);
+  ctx.font='12px Nunito, sans-serif'; ctx.fillStyle='#374151';
+  ctx.fillText('Press ▶ Run to start automation', canvas.width/2, canvas.height/2+50);
   ctx.textAlign='left';
 }
 
 function drawBrowserChrome(url, state){
+  // Window bar
   const grad=ctx.createLinearGradient(0,0,0,40);
-  grad.addColorStop(0,'#1e293b'); grad.addColorStop(1,'#0f172a');
+  grad.addColorStop(0,'#1e2640'); grad.addColorStop(1,'#151d30');
   ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,40);
+  // Traffic lights
   [[12,'#ff5f57'],[28,'#febc2e'],[44,'#28c840']].forEach(([x,c])=>{
     ctx.beginPath();ctx.arc(x,20,6,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();
   });
-  ctx.fillStyle='#0f172a'; ctx.beginPath();
+  // Address bar
+  ctx.fillStyle='#0d1220'; ctx.beginPath();
   roundRect(ctx, 60, 8, canvas.width-130, 24, 6); ctx.fill();
-  ctx.fillStyle='#94a3b8'; ctx.font='11px JetBrains Mono, monospace';
+  ctx.fillStyle='#6b7a99'; ctx.font='11px JetBrains Mono, monospace';
   ctx.textAlign='left'; ctx.fillText(url, 70, 24);
-  const dotColor = state==='idle'?'#475569':state==='running'?'#34d399':state==='pass'?'#34d399':'#f472b6';
+  // State indicator
+  const dotColor = state==='idle'?'#374151':state==='running'?'#10e98a':state==='pass'?'#10e98a':'#ff3d9a';
   ctx.beginPath();ctx.arc(canvas.width-20,20,5,0,Math.PI*2);ctx.fillStyle=dotColor;ctx.fill();
-  if(state==='running'){ctx.beginPath();ctx.arc(canvas.width-20,20,9,0,Math.PI*2);ctx.strokeStyle='rgba(52,211,153,0.3)';ctx.lineWidth=2;ctx.stroke();}
+  if(state==='running'){ctx.beginPath();ctx.arc(canvas.width-20,20,9,0,Math.PI*2);ctx.strokeStyle='rgba(16,233,138,0.3)';ctx.lineWidth=2;ctx.stroke();}
 }
 
 function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
 
-let highlight={x:0,y:0,w:0,h:0,alpha:0,color:'#4f46e5'};
+let highlight={x:0,y:0,w:0,h:0,alpha:0,color:'#2563ff'};
 let browserState={url:'',title:'',step:''};
 let particles=[];
 let cursor2={x:canvas.width/2,y:canvas.height/2,targetX:canvas.width/2,targetY:canvas.height/2};
@@ -1033,25 +1051,30 @@ function drawBrowserFrame(step, progress){
 
   drawBrowserChrome(browserState.url||'https://app.example.com', running?(isFail?'fail':'running'):'idle');
 
-  ctx.fillStyle='#0f172a'; ctx.fillRect(0,40,canvas.width,canvas.height-40);
+  // Page bg
+  ctx.fillStyle='#0c1420'; ctx.fillRect(0,40,canvas.width,canvas.height-40);
 
+  // Fake page content based on scenario
   drawFakePage(step);
 
+  // Cursor
   cursor2.x+=(cursor2.targetX-cursor2.x)*0.15;
   cursor2.y+=(cursor2.targetY-cursor2.y)*0.15;
   ctx.beginPath();ctx.moveTo(cursor2.x,cursor2.y);ctx.lineTo(cursor2.x+10,cursor2.y+14);ctx.lineTo(cursor2.x+4,cursor2.y+12);ctx.lineTo(cursor2.x+7,cursor2.y+18);ctx.lineTo(cursor2.x+5,cursor2.y+19);ctx.lineTo(cursor2.x+2,cursor2.y+13);ctx.lineTo(cursor2.x-2,cursor2.y+16);ctx.closePath();
   ctx.fillStyle='white';ctx.fill();ctx.strokeStyle='#333';ctx.lineWidth=1;ctx.stroke();
 
+  // Highlight box
   if(highlight.alpha>0){
     ctx.save();
     ctx.globalAlpha=highlight.alpha;
-    ctx.strokeStyle=isFail?'#f472b6':highlight.color;ctx.lineWidth=2;
+    ctx.strokeStyle=isFail?'#ff3d9a':highlight.color;ctx.lineWidth=2;
     roundRect(ctx,highlight.x,highlight.y,highlight.w,highlight.h,6);ctx.stroke();
-    ctx.fillStyle=isFail?'rgba(244,114,182,0.08)':'rgba(79,70,229,0.08)';ctx.fill();
+    ctx.fillStyle=isFail?'rgba(255,61,154,0.08)':'rgba(37,99,255,0.08)';ctx.fill();
     ctx.restore();
     highlight.alpha-=0.02;
   }
 
+  // Particles
   particles=particles.filter(p=>p.life>0);
   particles.forEach(p=>{
     p.x+=p.vx;p.y+=p.vy;p.life-=2;p.vy+=0.1;
@@ -1059,10 +1082,11 @@ function drawBrowserFrame(step, progress){
     ctx.fillStyle=`rgba(${p.color},${p.life/100})`;ctx.fill();
   });
 
+  // Step label
   ctx.fillStyle='rgba(0,0,0,0.7)';roundRect(ctx,8,canvas.height-36,canvas.width-16,24,6);ctx.fill();
-  ctx.fillStyle=isFail?'#f472b6':'#60a5fa';ctx.font='11px JetBrains Mono, monospace';
+  ctx.fillStyle=isFail?'#ff3d9a':'#60a5fa';ctx.font='11px JetBrains Mono, monospace';
   ctx.textAlign='left';
-  ctx.fillText((isFail?'FAIL: ':'> ')+step.desc, 16, canvas.height-18);
+  ctx.fillText((isFail?'✗ ':'⚡ ')+step.desc, 16, canvas.height-18);
   ctx.textAlign='left';
 }
 
@@ -1070,98 +1094,109 @@ function drawFakePage(step){
   const w=canvas.width, h=canvas.height;
   const sc=currentScenario;
 
-  if(sc===0||sc===3){
-    ctx.fillStyle='#1e293b';ctx.fillRect(0,40,w,45);
-    ctx.fillStyle='#4f46e5';ctx.fillRect(10,52,80,20);
+  if(sc===0||sc===3){ // Login/Form page
+    // Header bar
+    ctx.fillStyle='#141e30';ctx.fillRect(0,40,w,45);
+    ctx.fillStyle='#2563ff';ctx.fillRect(10,52,80,20);
     ctx.fillStyle='white';ctx.font='bold 11px Nunito,sans-serif';ctx.fillText('MYAPP',18,65);
 
+    // Form card
     const fx=w/2-140,fy=100;
-    ctx.fillStyle='#1e293b';roundRect(ctx,fx,fy,280,170,12);ctx.fill();
-    ctx.strokeStyle='#334155';ctx.lineWidth=1;roundRect(ctx,fx,fy,280,170,12);ctx.stroke();
+    ctx.fillStyle='#1a2540';roundRect(ctx,fx,fy,280,170,12);ctx.fill();
+    ctx.strokeStyle='#2a3a5c';ctx.lineWidth=1;roundRect(ctx,fx,fy,280,170,12);ctx.stroke();
     ctx.fillStyle='white';ctx.font='bold 14px Nunito,sans-serif';ctx.textAlign='center';
     ctx.fillText(sc===0?'Sign In':'Register',w/2,fy+28);ctx.textAlign='left';
 
+    // Input fields
     [[fx+20,fy+45,'Username / Email'],[fx+20,fy+90,'Password']].forEach(([x,y,ph],i)=>{
-      ctx.fillStyle='#0f172a';roundRect(ctx,x,y,240,28,6);ctx.fill();
-      ctx.strokeStyle=highlight.alpha>0.5?'#4f46e5':'#334155';ctx.lineWidth=1;roundRect(ctx,x,y,240,28,6);ctx.stroke();
+      ctx.fillStyle='#0d1628';roundRect(ctx,x,y,240,28,6);ctx.fill();
+      ctx.strokeStyle=highlight.alpha>0.5?'#2563ff':'#2a3a5c';ctx.lineWidth=1;roundRect(ctx,x,y,240,28,6);ctx.stroke();
       if(step.type==='type'&&typingText&&i===0){
         ctx.fillStyle='#60a5fa';ctx.font='11px JetBrains Mono,monospace';
         ctx.fillText(typingText.substring(0,20),x+8,y+18);
       } else {
-        ctx.fillStyle='#475569';ctx.font='11px Nunito,sans-serif';
+        ctx.fillStyle='#374151';ctx.font='11px Nunito,sans-serif';
         ctx.fillText(ph,x+8,y+18);
       }
     });
 
+    // Button
     const bfail=step.type==='fail';
     const btnGrad=ctx.createLinearGradient(fx+20,fy+135,fx+260,fy+135);
-    btnGrad.addColorStop(0,bfail?'#7f1d1d':'#4338ca');btnGrad.addColorStop(1,bfail?'#991b1b':'#4f46e5');
+    btnGrad.addColorStop(0,bfail?'#7f1d1d':'#1d4ed8');btnGrad.addColorStop(1,bfail?'#991b1b':'#2563ff');
     ctx.fillStyle=btnGrad;roundRect(ctx,fx+20,fy+135,240,24,6);ctx.fill();
     ctx.fillStyle='white';ctx.font='bold 11px Nunito,sans-serif';ctx.textAlign='center';
     ctx.fillText(sc===0?'LOG IN':'REGISTER',w/2,fy+151);ctx.textAlign='left';
+
+    // Cursor target
     cursor2.targetX=fx+140;cursor2.targetY=fy+140;
 
-  } else if(sc===1||sc===2){
-    ctx.fillStyle='#1e293b';ctx.fillRect(0,40,w,40);
-    ctx.fillStyle='#4f46e5';roundRect(ctx,8,52,50,18,4);ctx.fill();
+  } else if(sc===1||sc===2){ // Search/Shop page
+    // Navbar
+    ctx.fillStyle='#111827';ctx.fillRect(0,40,w,40);
+    ctx.fillStyle='#2563ff';roundRect(ctx,8,52,50,18,4);ctx.fill();
     ctx.fillStyle='white';ctx.font='bold 9px Nunito,sans-serif';ctx.fillText('SHOP',16,64);
+    // Search bar
     const sx=70,sy=52,sw=w-160;
-    ctx.fillStyle='#0f172a';roundRect(ctx,sx,sy,sw,18,4);ctx.fill();
-    ctx.strokeStyle='#4f46e5';ctx.lineWidth=1;roundRect(ctx,sx,sy,sw,18,4);ctx.stroke();
+    ctx.fillStyle='#1f2937';roundRect(ctx,sx,sy,sw,18,4);ctx.fill();
+    ctx.strokeStyle='#2563ff';ctx.lineWidth=1;roundRect(ctx,sx,sy,sw,18,4);ctx.stroke();
     if(step.type==='type'){
       ctx.fillStyle='#93c5fd';ctx.font='10px JetBrains Mono,monospace';
       ctx.fillText(typingText||'',sx+6,sy+13);
     } else {
-      ctx.fillStyle='#64748b';ctx.font='10px Nunito,sans-serif';ctx.fillText('Search products...',sx+6,sy+13);
+      ctx.fillStyle='#4b5563';ctx.font='10px Nunito,sans-serif';ctx.fillText('Search products...',sx+6,sy+13);
     }
+    // Product cards
     for(let i=0;i<4;i++){
       const cx=(w/4)*i+6,cy=95,cw=w/4-12,ch=155;
-      ctx.fillStyle='#1e293b';roundRect(ctx,cx,cy,cw,ch,8);ctx.fill();
-      ctx.fillStyle='#0f172a';ctx.fillRect(cx+4,cy+4,cw-8,75);
-      ctx.fillStyle='#4f46e5';ctx.globalAlpha=0.2;roundRect(ctx,cx+cw/2-18,cy+28,36,30,4);ctx.fill();ctx.globalAlpha=1;
-      ctx.fillStyle='#94a3b8';ctx.font='9px Nunito,sans-serif';
+      ctx.fillStyle='#1a2540';roundRect(ctx,cx,cy,cw,ch,8);ctx.fill();
+      ctx.fillStyle='#0f1a2d';ctx.fillRect(cx+4,cy+4,cw-8,75);
+      ctx.fillStyle='#2563ff';ctx.globalAlpha=0.3;roundRect(ctx,cx+cw/2-18,cy+28,36,30,4);ctx.fill();ctx.globalAlpha=1;
+      ctx.fillStyle='#374151';ctx.font='9px Nunito,sans-serif';
       ctx.fillText('Product '+(i+1),cx+6,cy+90);
-      ctx.fillStyle='#34d399';ctx.font='bold 10px Nunito,sans-serif';
+      ctx.fillStyle='#10e98a';ctx.font='bold 10px Nunito,sans-serif';
       ctx.fillText('$'+(29+i*10)+'.99',cx+6,cy+105);
       if(i===0&&(step.type==='click'||step.type==='assert')){
-        ctx.strokeStyle='#0ea5e9';ctx.lineWidth=2;roundRect(ctx,cx,cy,cw,ch,8);ctx.stroke();
+        ctx.strokeStyle='#00d4ff';ctx.lineWidth=2;roundRect(ctx,cx,cy,cw,ch,8);ctx.stroke();
       }
     }
     cursor2.targetX=w/4/2+6;cursor2.targetY=200;
 
-  } else if(sc===4){
-    ctx.fillStyle='#1e293b';ctx.fillRect(0,40,w,40);
-    ctx.fillStyle='#1e293b';roundRect(ctx,20,100,150,30,6);ctx.fill();
-    ctx.strokeStyle='#4f46e5';ctx.lineWidth=1;roundRect(ctx,20,100,150,30,6);ctx.stroke();
-    ctx.fillStyle='white';ctx.font='bold 11px Nunito,sans-serif';ctx.fillText('Components',30,120);
+  } else if(sc===4){ // Actions demo
+    ctx.fillStyle='#141e30';ctx.fillRect(0,40,w,40);
+    // Dropdown
+    ctx.fillStyle='#1f2a40';roundRect(ctx,20,100,150,30,6);ctx.fill();
+    ctx.strokeStyle='#2563ff';ctx.lineWidth=1;roundRect(ctx,20,100,150,30,6);ctx.stroke();
+    ctx.fillStyle='white';ctx.font='bold 11px Nunito,sans-serif';ctx.fillText('▼ Components',30,120);
     if(step.type==='hover'||step.type==='assert'){
-      ctx.fillStyle='#1e293b';roundRect(ctx,20,130,150,80,6);ctx.fill();
-      ctx.strokeStyle='#4f46e5';roundRect(ctx,20,130,150,80,6);ctx.stroke();
+      ctx.fillStyle='#1a2b45';roundRect(ctx,20,130,150,80,6);ctx.fill();
+      ctx.strokeStyle='#2563ff';roundRect(ctx,20,130,150,80,6);ctx.stroke();
       ['Button','Input','Modal','Table'].forEach((item,i)=>{
         ctx.fillStyle='#60a5fa';ctx.font='10px Nunito,sans-serif';ctx.fillText(item,32,148+i*18);
       });
     }
+    // Draggable
     ctx.fillStyle='#7c3aed';roundRect(ctx,w-180,90,70,50,8);ctx.fill();
     ctx.fillStyle='white';ctx.font='9px Nunito,sans-serif';ctx.textAlign='center';
     ctx.fillText('Drag Me',w-145,119);ctx.textAlign='left';
-    ctx.fillStyle='#1e293b';ctx.strokeStyle='#34d399';ctx.lineWidth=1;roundRect(ctx,w-90,90,70,50,8);ctx.fill();ctx.stroke();
-    ctx.fillStyle='#34d399';ctx.font='9px Nunito,sans-serif';ctx.textAlign='center';
+    ctx.fillStyle='#1f2a40';ctx.strokeStyle='#10e98a';ctx.lineWidth=1;roundRect(ctx,w-90,90,70,50,8);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#10e98a';ctx.font='9px Nunito,sans-serif';ctx.textAlign='center';
     ctx.fillText('Drop Here',w-55,119);ctx.textAlign='left';
     cursor2.targetX=step.type==='drag'?w-90:step.type==='hover'?80:w-145;
     cursor2.targetY=115;
 
-  } else if(sc===5){
-    ctx.fillStyle='#1e293b';ctx.fillRect(0,40,w,45);
-    ctx.fillStyle='#1e293b';roundRect(ctx,20,100,w-40,160,10);ctx.fill();
+  } else if(sc===5){ // Failure
+    ctx.fillStyle='#141e30';ctx.fillRect(0,40,w,45);
+    ctx.fillStyle='#1f2937';roundRect(ctx,20,100,w-40,160,10);ctx.fill();
     ctx.fillStyle='white';ctx.font='bold 13px Nunito,sans-serif';ctx.fillText('My Profile',30,125);
-    ctx.fillStyle='#94a3b8';ctx.font='10px Nunito,sans-serif';ctx.fillText('Edit bio, avatar, and account settings',30,145);
-    ctx.fillStyle='#1e293b';roundRect(ctx,20,155,w-40,90,8);ctx.fill();
-    ctx.fillStyle='#94a3b8';ctx.font='9px Nunito,sans-serif';ctx.fillText('Bio:',30,175);
-    ctx.fillStyle='#0f172a';roundRect(ctx,30,180,w-80,40,4);ctx.fill();
+    ctx.fillStyle='#374151';ctx.font='10px Nunito,sans-serif';ctx.fillText('Edit bio, avatar, and account settings',30,145);
+    ctx.fillStyle='#1a2540';roundRect(ctx,20,155,w-40,90,8);ctx.fill();
+    ctx.fillStyle='#6b7a99';ctx.font='9px Nunito,sans-serif';ctx.fillText('Bio:',30,175);
+    ctx.fillStyle='#1e293b';roundRect(ctx,30,180,w-80,40,4);ctx.fill();
     if(step.type==='fail'){
       ctx.fillStyle='rgba(127,29,29,0.5)';roundRect(ctx,20,100,w-40,25,6);ctx.fill();
       ctx.fillStyle='#fca5a5';ctx.font='bold 10px Nunito,sans-serif';ctx.textAlign='center';
-      ctx.fillText('AssertionError: Unexpected element displayed',w/2,115);ctx.textAlign='left';
+      ctx.fillText('✗ AssertionError: Unexpected element displayed!',w/2,115);ctx.textAlign='left';
     }
     cursor2.targetX=w/2;cursor2.targetY=210;
   }
@@ -1182,10 +1217,10 @@ async function runScenario(){
   document.getElementById('pg-status-text').textContent='Running: '+s.name+'...';
 
   clearTerminal();
-  log('='.repeat(50),'log-muted');
-  log(`Starting: ${s.name}`,'log-info');
+  log('═'.repeat(50),'log-muted');
+  log(`🚀 Starting: ${s.icon} ${s.name}`,'log-info');
   log(`Browser: ${s.summary.browser}  |  WebDriver 4.x`,'log-muted');
-  log('='.repeat(50),'log-muted');
+  log('═'.repeat(50),'log-muted');
 
   startTime=Date.now();
   timerInterval=setInterval(()=>{
@@ -1207,9 +1242,10 @@ async function runScenario(){
 
     log(`[Step ${stepIdx}]  ${step.log}`, step.type==='fail'?'log-fail':step.type==='assert'?'log-pass':'log-cmd');
 
+    // Animate highlight
     const hx=Math.random()*(canvas.width-200)+30;
     const hy=80+Math.random()*(canvas.height-120);
-    highlight={x:hx,y:hy,w:100+Math.random()*80,h:24+Math.random()*16,alpha:1,color:'#4f46e5'};
+    highlight={x:hx,y:hy,w:100+Math.random()*80,h:24+Math.random()*16,alpha:1,color:'#2563ff'};
     cursor2.targetX=hx+50+Math.random()*40;
     cursor2.targetY=hy+12+Math.random()*20;
 
@@ -1227,16 +1263,17 @@ async function runScenario(){
     if(step.type==='assert'){
       assertCount++;
       document.getElementById('m-assert').textContent=assertCount;
-      log(`   PASS: ${step.check}`,'log-pass');
-      for(let t=0;t<3;t++){particles.push({x:cursor2.x+Math.random()*20-10,y:cursor2.y,vx:(Math.random()-0.5)*3,vy:-Math.random()*4-2,r:3,life:100,color:'52,211,153'});}
+      log(`   └─ ${step.check}`,'log-pass');
+      for(let t=0;t<3;t++){particles.push({x:cursor2.x+Math.random()*20-10,y:cursor2.y,vx:(Math.random()-0.5)*3,vy:-Math.random()*4-2,r:3,life:100,color:'16,233,138'});}
     }
     if(step.type==='fail'){
       assertCount++;
       document.getElementById('m-assert').textContent=assertCount;
-      log(`   FAIL: ${step.check}`,'log-fail');
-      for(let t=0;t<6;t++){particles.push({x:canvas.width/2+Math.random()*40-20,y:canvas.height/2,vx:(Math.random()-0.5)*5,vy:-Math.random()*6-2,r:4,life:100,color:'244,114,182'});}
+      log(`   └─ FAILED: ${step.check}`,'log-fail');
+      for(let t=0;t<6;t++){particles.push({x:canvas.width/2+Math.random()*40-20,y:canvas.height/2,vx:(Math.random()-0.5)*5,vy:-Math.random()*6-2,r:4,life:100,color:'255,61,154'});}
     }
 
+    // Draw frame loop for this step
     const stepMs=(800/speed);
     const startT=Date.now();
     while(Date.now()-startT<stepMs){
@@ -1256,19 +1293,20 @@ async function runScenario(){
     const elapsed=((Date.now()-startTime)/1000).toFixed(2);
     const isFail=s.steps.some(s=>s.type==='fail');
     document.getElementById('status-dot').className='status-dot '+(isFail?'fail':'pass');
-    document.getElementById('pg-status-text').textContent=isFail?`FAILED in ${elapsed}s`:`PASSED in ${elapsed}s`;
-    log('='.repeat(50),'log-muted');
-    log(isFail?`FAILED - ${s.name} (${elapsed}s)  |  Assertions: ${assertCount}`:`PASSED - ${s.name} (${elapsed}s)  |  Assertions: ${assertCount}`, isFail?'log-fail':'log-pass');
-    log('='.repeat(50),'log-muted');
+    document.getElementById('pg-status-text').textContent=isFail?`✗ Test FAILED in ${elapsed}s`:`✓ Test PASSED in ${elapsed}s`;
+    log('═'.repeat(50),'log-muted');
+    log(isFail?`✗ FAILED — ${s.name} (${elapsed}s)  |  Assertions: ${assertCount}`:`✓ PASSED — ${s.name} (${elapsed}s)  |  Assertions: ${assertCount}`, isFail?'log-fail':'log-pass');
+    log('═'.repeat(50),'log-muted');
 
+    // Summary panel
     const panel=document.getElementById('summary-panel');
     panel.className='summary-panel show';
     panel.innerHTML=`
-      <div class="sum-item sum-${isFail?'fail':'pass'}">${isFail?'FAILED':'PASSED'}</div>
-      <div class="sum-item sum-assertions">${assertCount} assertions</div>
-      <div class="sum-item sum-time">${elapsed}s</div>
-      <div class="sum-item sum-browser">${s.summary.browser}</div>
-      <div class="sum-item sum-time">${isFail?'failure_001.png':'results.html'}</div>
+      <div class="sum-item sum-${isFail?'fail':'pass'}">${isFail?'✗':'✓'} ${isFail?'FAILED':'PASSED'}</div>
+      <div class="sum-item sum-assertions">🔍 ${assertCount} assertions</div>
+      <div class="sum-item sum-time">⏱ ${elapsed}s</div>
+      <div class="sum-item sum-browser">🌐 ${s.summary.browser}</div>
+      <div class="sum-item sum-time">📦 ${isFail?'failure_001.png':'results.html'}</div>
     `;
   } else {
     document.getElementById('status-dot').className='status-dot';
@@ -1287,25 +1325,28 @@ function stopScenario(){
   document.getElementById('stop-btn').disabled=true;
   document.getElementById('status-dot').className='status-dot';
   document.getElementById('pg-status-text').textContent='Stopped by user';
-  log('Execution stopped','log-warn');
+  log('■ Execution stopped','log-warn');
 }
 
+// Speed label
 document.getElementById('speed-range').addEventListener('input',function(){
-  document.getElementById('speed-label').textContent=this.value+'x';
+  document.getElementById('speed-label').textContent=this.value+'×';
 });
 
+// Init
 window.addEventListener('load',()=>{
   resizeCanvas();
-  drawBrowserIdle(scenarios[0].name);
+  drawBrowserIdle(scenarios[0].name, scenarios[0].icon);
+  // Animation loop for particles even when idle
   (function loop(){
     if(!running){
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      drawBrowserIdle(scenarios[currentScenario].name);
+      drawBrowserIdle(scenarios[currentScenario].name,scenarios[currentScenario].icon);
     }
     requestAnimationFrame(loop);
   })();
 });
-window.addEventListener('resize',()=>{ if(!running)drawBrowserIdle(scenarios[currentScenario].name); });
+window.addEventListener('resize',()=>{ if(!running)drawBrowserIdle(scenarios[currentScenario].name,scenarios[currentScenario].icon); });
 </script>
 </body>
 </html>

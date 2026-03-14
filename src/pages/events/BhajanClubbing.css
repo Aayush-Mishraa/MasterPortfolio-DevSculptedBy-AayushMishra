@@ -1,0 +1,356 @@
+:root {
+  scroll-behavior: smooth;
+}
+
+.bc-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fff8ef 0%, #fff3df 100%);
+  color: #311806;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+.bc-page * {
+  box-sizing: border-box;
+}
+
+.bc-top,
+.bc-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 20px;
+}
+
+.bc-top {
+  padding-top: 38px;
+  text-align: center;
+}
+
+.bc-top-logo {
+  width: min(140px, 45vw);
+  margin: 0 auto 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(88, 44, 14, 0.14);
+  background: #fff;
+}
+
+.bc-gurudev-photo {
+  width: min(420px, 100%);
+  margin: 0 auto 20px;
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(88, 44, 14, 0.14);
+  background: #fffdf8;
+  box-shadow: 0 12px 34px rgba(42, 22, 6, 0.12);
+}
+
+.bc-gurudev-photo img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: contain;
+  display: block;
+  border-radius: 12px;
+  background: #f7f0e1;
+}
+
+.bc-eyebrow {
+  margin: 0;
+  color: #7e4a1f;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bc-top h1,
+.bc-section h2 {
+  margin: 12px 0;
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.2;
+}
+
+.bc-top h1 {
+  font-size: clamp(1.7rem, 4.4vw, 3rem);
+}
+
+.bc-subtitle {
+  margin: 0;
+  font-weight: 700;
+  color: #5d3514;
+}
+
+.bc-intro {
+  width: min(760px, 100%);
+  margin: 12px auto 0;
+}
+
+.bc-btn-primary,
+.bc-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 160px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bc-btn-primary {
+  margin-top: 14px;
+  border: 1px solid #ce8a42;
+  background: linear-gradient(135deg, #ffd27f 0%, #f3a850 100%);
+  color: #2f1604;
+  box-shadow: 0 6px 18px rgba(80, 42, 11, 0.16);
+}
+
+.bc-btn-secondary {
+  border: 1px solid rgba(93, 53, 20, 0.3);
+  background: #fffaf2;
+  color: #44240c;
+}
+
+.bc-btn-primary:hover,
+.bc-btn-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.bc-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 650px;
+}
+
+.bc-section h2 {
+  font-size: clamp(1.5rem, 3.8vw, 2.2rem);
+  color: #2e1807;
+}
+
+.bc-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.bc-detail-card {
+  border: 1px solid rgba(93, 53, 20, 0.16);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fffaf2;
+}
+
+.bc-label {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #7e4a1f;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bc-value {
+  margin: 6px 0 0;
+  font-size: 1.01rem;
+  font-weight: 700;
+  color: #2f1604;
+}
+
+.bc-prasadam {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 1.02rem;
+}
+
+.bc-presence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.bc-person-card {
+  margin: 0;
+  border: 1px solid rgba(93, 53, 20, 0.16);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fffdf8;
+}
+
+.bc-person-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  display: block;
+  background: #f7f0e1;
+}
+
+.bc-person-card p {
+  margin: 0;
+  padding: 10px;
+  font-weight: 600;
+}
+
+.bc-story,
+.bc-final {
+  background: #fffaf2;
+  border: 1px solid rgba(93, 53, 20, 0.14);
+  border-radius: 14px;
+}
+
+.bc-story p,
+.bc-final p {
+  margin: 0 0 10px;
+}
+
+.bc-quote-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid rgba(93, 53, 20, 0.16);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fffdf8 0%, #fff4e4 100%);
+  padding: 14px;
+}
+
+.bc-quote-card img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #f7f0e1;
+}
+
+.bc-quote-card blockquote {
+  margin: 0;
+  font-size: clamp(1.08rem, 2.2vw, 1.4rem);
+  font-family: Georgia, "Times New Roman", serif;
+  color: #3f220a;
+}
+
+.bc-quote-author {
+  margin: 8px 0 0;
+  font-weight: 700;
+  color: #7b4a1f;
+}
+
+.bc-contact {
+  background: #fffaf2;
+  border: 1px solid rgba(93, 53, 20, 0.14);
+  border-radius: 14px;
+}
+
+.bc-contact-intro {
+  margin: 0 0 12px;
+}
+
+.bc-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.bc-contact-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  min-height: 130px;
+  border-radius: 14px;
+  border: 1px solid rgba(93, 53, 20, 0.16);
+  background: #fffdf8;
+  padding: 10px;
+}
+
+.bc-contact-content {
+  width: 100%;
+}
+
+.bc-contact-number {
+  margin: 0;
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: #2f1604;
+}
+
+.bc-contact-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.bc-contact-whatsapp,
+.bc-contact-call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.bc-contact-whatsapp {
+  border: 1px solid #2dbf65;
+  background: #e9fff1;
+  color: #16572f;
+}
+
+.bc-contact-call {
+  border: 1px solid rgba(39, 76, 159, 0.3);
+  background: #f2f6ff;
+  color: #274c9f;
+}
+
+.bc-contact-whatsapp:hover,
+.bc-contact-call:hover {
+  transform: translateY(-1px);
+}
+
+.bc-cta-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+@media (max-width: 760px) {
+  .bc-quote-card {
+    grid-template-columns: 1fr;
+  }
+
+  .bc-contact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bc-section {
+    padding: 20px 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .bc-contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bc-contact-number {
+    font-size: 0.95rem;
+  }
+
+  .bc-contact-actions {
+    flex-wrap: wrap;
+  }
+
+  .bc-contact-whatsapp,
+  .bc-contact-call {
+    min-width: 90px;
+  }
+}
