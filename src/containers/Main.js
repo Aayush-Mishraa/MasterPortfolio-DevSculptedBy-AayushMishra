@@ -8,7 +8,6 @@ import AutomationArsenal from "../pages/automationArsenal/AutomationArsenal";
 import Opensource from "../pages/opensource/Opensource";
 import Contact from "../pages/contact/ContactComponent";
 import AllProjects from "../pages/projects/AllProjects";
-import BhajanClubbing from "../pages/events/BhajanClubbing";
 import { settings } from "../portfolio.js";
 import Error404 from "../pages/errors/error404/Error";
 
@@ -72,34 +71,6 @@ export default class Main extends Component {
           <Route
             path="/projects"
             render={(props) => <AllProjects {...props} theme={this.props.theme} />}
-          />
-          <Route
-            path="/bhajan-clubbing"
-            exact
-            render={(props) => (
-              <BhajanClubbing {...props} theme={this.props.theme} />
-            )}
-          />
-          <Route
-            path="/bhajan-clubing"
-            exact
-            render={(props) => (
-              <BhajanClubbing {...props} theme={this.props.theme} />
-            )}
-          />
-          <Route
-            path="/art-of-living-presents/bhajan-clubbing"
-            exact
-            render={(props) => (
-              <BhajanClubbing {...props} theme={this.props.theme} />
-            )}
-          />
-          <Route
-            path="/art-of-living-presents/bhajan-clubing"
-            exact
-            render={(props) => (
-              <BhajanClubbing {...props} theme={this.props.theme} />
-            )}
           />
           <Route
             path="*"
