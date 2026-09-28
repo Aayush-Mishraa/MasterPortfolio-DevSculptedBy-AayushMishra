@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { createPortal } from "react-dom";
 import "./CreativeFooter.css";
 import { greeting, socialMediaLinks, experience } from "../../portfolio";
 import ThemeSelector from "../themeSelector/ThemeSelector";
@@ -253,15 +254,83 @@ function BackToTop() {
   );
 }
 
+const legalNotes = {
+  privacy: {
+    title: "Privacy",
+    body: [
+      "This site uses Google Analytics and Google Ads/AdSense, which may set cookies to measure visits and serve ads. See Google's privacy policy for how that data is handled.",
+      "Your theme choice, contact-form drafts and cached GitHub data are kept in your own browser's local storage and never sent to me.",
+      "If you email me, subscribe or send the contact form, your address is used only to reply. It is never sold or shared."
+    ],
+    link: ["Google privacy policy", "https://policies.google.com/privacy"]
+  },
+  terms: {
+    title: "Terms",
+    body: [
+      "Everything here is a personal portfolio. Code samples and case studies are shared as-is, for learning, with no warranty.",
+      "The site's source code is MIT-licensed on GitHub. Logos and trademarks belong to their owners."
+    ],
+    link: ["Source on GitHub", "https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra"]
+  },
+  accessibility: {
+    title: "Accessibility",
+    body: [
+      "The site aims for WCAG 2.1 AA: keyboard navigation (Ctrl/⌘ K opens search), readable contrast in every theme and reduced motion when your system asks for it.",
+      `Found a barrier? Email ${CONTACT_EMAIL} and I will fix it.`
+    ],
+    link: ["Email me", `mailto:${CONTACT_EMAIL}`]
+  }
+};
+
+function LegalDialog({ note, onClose }) {
+  const closeRef = useRef(null);
+  useEffect(() => {
+    const previous = document.activeElement;
+    if (closeRef.current) closeRef.current.focus();
+    const onKey = (event) => { if (event.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      if (previous && previous.focus) previous.focus();
+    };
+  }, [onClose]);
+  const [label, href] = note.link;
+  const external = href.startsWith("http");
+  return createPortal(
+    <div className="legal-backdrop" onClick={onClose} data-lenis-prevent>
+      <div className="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="legal-title" onClick={(event) => event.stopPropagation()}>
+        <div className="legal-head">
+          <h3 id="legal-title">{note.title}</h3>
+          <button ref={closeRef} type="button" className="legal-close" onClick={onClose} aria-label="Close">
+            <i className="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        {note.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+        <a className="legal-link" href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+          {label} <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function ClosingBar() {
   const [ref, revealClass] = useReveal();
+  const [openNote, setOpenNote] = useState(null);
+  const closeNote = useCallback(() => setOpenNote(null), []);
   return (
     <div ref={ref} className={`footer-closing footer-reveal ${revealClass}`}>
       <div className="closing-meta">
         <span>© {new Date().getFullYear()} {greeting.title}. Crafted in India.</span>
         <cite>&quot;Quality is not an act, it is a habit.&quot; — Aristotle</cite>
       </div>
-      <div className="quiet-links"><a href="#privacy">Privacy</a><a href="#terms">Terms</a><a href="#accessibility">Accessibility</a></div>
+      <div className="quiet-links">
+        {Object.keys(legalNotes).map((key) => (
+          <button key={key} type="button" onClick={() => setOpenNote(key)} aria-haspopup="dialog">{legalNotes[key].title}</button>
+        ))}
+      </div>
+      {openNote && <LegalDialog note={legalNotes[openNote]} onClose={closeNote} />}
       <div className="closing-actions">
         <div className="theme-wrap"><ThemeSelector /></div>
         <div className="tech-icons" aria-label="Built with React, CSS and JavaScript"><i className="fab fa-react" title="React"></i><i className="fab fa-css3-alt" title="CSS"></i><i className="fab fa-js-square" title="JavaScript"></i></div>
