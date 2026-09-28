@@ -26,6 +26,56 @@ import {
 
 const ThemeContext = createContext();
 
+const hexToRgb = (hex = '') => {
+  const clean = String(hex).replace('#', '');
+  const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean.slice(0, 6);
+  const value = parseInt(full, 16);
+  if (Number.isNaN(value) || full.length !== 6) return null;
+  return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+};
+
+const rgbToHex = (rgb) => `#${rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('')}`;
+
+const luminance = (rgb) => {
+  const [r, g, b] = rgb.map((c) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+const contrast = (a, b) => {
+  const x = luminance(a);
+  const y = luminance(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+};
+
+export const isDarkColor = (hex) => {
+  const rgb = hexToRgb(hex);
+  return rgb ? luminance(rgb) < 0.3 : false;
+};
+
+// Black or white, whichever reads better on the given color
+export const readableOn = (hex) => {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return '#ffffff';
+  return contrast(rgb, [255, 255, 255]) >= contrast(rgb, [0, 0, 0]) ? '#ffffff' : '#0b1220';
+};
+
+// Nudge the accent toward white (dark pages) or black (light pages) until it
+// passes WCAG AA (4.5:1) as text on the page background.
+export const readableAccent = (accentHex, bodyHex) => {
+  const accent = hexToRgb(accentHex);
+  const body = hexToRgb(bodyHex);
+  if (!accent || !body) return accentHex;
+  const target = luminance(body) < 0.3 ? [255, 255, 255] : [0, 0, 0];
+  for (let t = 0; t <= 1; t += 0.05) {
+    const mixed = accent.map((c, i) => c + (target[i] - c) * t);
+    if (contrast(mixed, body) >= 4.5) return rgbToHex(mixed);
+  }
+  return rgbToHex(target);
+};
+
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
@@ -99,27 +149,16 @@ export const ThemeProvider = ({ children }) => {
       }
     });
     
-    // Add dark theme detection
-    const isDarkTheme = currentTheme.id.includes('dark') || 
-                       currentTheme.id.includes('black') || 
-                       currentTheme.id.includes('midnight') || 
-                       currentTheme.id.includes('amoled') ||
-                       currentTheme.id.includes('cyberpunk') ||
-                       currentTheme.id.includes('monochrome') ||
-                       currentTheme.id.includes('dracula') ||
-                       currentTheme.id.includes('nord') ||
-                       currentTheme.id.includes('galaxy') ||
-                       currentTheme.id.includes('ocean') ||
-                       currentTheme.id.includes('crimson') ||
-                       currentTheme.id.includes('neon');
-    
-    if (isDarkTheme) {
-      body.classList.add('dark-theme');
-      body.setAttribute('data-theme', 'dark');
-    } else {
-      body.classList.add('light-theme');
-      body.setAttribute('data-theme', 'light');
-    }
+    // Accent that stays readable when used as text on the page background
+    root.style.setProperty('--theme-accentText', readableAccent(currentTheme.imageHighlight, currentTheme.body));
+    root.style.setProperty('--theme-onAccent', readableOn(currentTheme.imageHighlight));
+
+    // Dark/light is decided by the actual page background, not the theme name
+    const isDarkTheme = isDarkColor(currentTheme.body);
+
+    body.classList.remove('dark-theme', 'light-theme');
+    body.classList.add(isDarkTheme ? 'dark-theme' : 'light-theme');
+    body.setAttribute('data-theme', isDarkTheme ? 'dark' : 'light');
     
     // Also update body background
     document.body.style.backgroundColor = currentTheme.body;
