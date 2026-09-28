@@ -1,15 +1,55 @@
 #topButton {
   visibility: hidden;
+  opacity: 0;
   position: fixed;
   bottom: 2rem;
   right: 2rem;
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
   cursor: pointer;
-  padding: 15px;
-  outline: none;
-  border-radius: 2rem;
-  font-size: 1.5rem;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.3rem;
   z-index: 1000;
-  border: none;
+  border: 1px solid var(--tb-bg);
+  color: var(--tb-fg);
+  background-color: var(--tb-bg);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s, color 0.2s, background-color 0.2s;
+}
+
+#topButton.is-visible {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+
+#topButton:hover,
+#topButton:focus-visible {
+  color: var(--tb-bg);
+  background-color: var(--tb-fg);
+}
+
+#topButton:focus-visible {
+  outline: 2px solid var(--tb-bg);
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  #topButton {
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 2.9rem;
+    height: 2.9rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #topButton {
+    transition: none;
+  }
 }

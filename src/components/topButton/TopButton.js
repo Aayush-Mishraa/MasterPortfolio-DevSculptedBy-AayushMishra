@@ -1,65 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./TopButton.css";
 
+const scrollToTop = () => {
+  if (window.__lenis) {
+    window.__lenis.scrollTo(0);
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+};
+
 export default function TopButton({ theme }) {
-  function GoUpEvent() {
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-  }
+  const [scrolled, setScrolled] = useState(false);
+  const [footerInView, setFooterInView] = useState(false);
 
-  function scrollFunction() {
-    if (
-      document.body.scrollTop > 30 ||
-      document.documentElement.scrollTop > 30
-    ) {
-      document.getElementById("topButton").style.visibility = "visible";
-    } else {
-      document.getElementById("topButton").style.visibility = "hidden";
-    }
-  }
+  useEffect(() => {
+    let frame = null;
+    const update = () => {
+      frame = null;
+      setScrolled(window.scrollY > 30);
+    };
+    const onScroll = () => {
+      if (frame === null) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame !== null) cancelAnimationFrame(frame);
+    };
+  }, []);
 
-  window.onscroll = function () {
-    scrollFunction();
-  };
+  // The footer has its own back-to-top control, so step aside when it shows
+  useEffect(() => {
+    const closing = document.querySelector(".footer-closing");
+    if (!closing || !("IntersectionObserver" in window)) return undefined;
+    const observer = new IntersectionObserver(([entry]) => setFooterInView(entry.isIntersecting));
+    observer.observe(closing);
+    return () => observer.disconnect();
+  }, []);
 
-  const onMouseEnter = (color, bgColor) => {
-    /* For the button */
-    const topButton = document.getElementById("topButton");
-    topButton.style.color = color;
-    topButton.style.backgroundColor = bgColor;
-
-    /* For arrow icon */
-    const arrow = document.getElementById("arrow");
-    arrow.style.color = color;
-    arrow.style.backgroundColor = bgColor;
-  };
-
-  const onMouseLeave = (color, bgColor) => {
-    /* For the button */
-    const topButton = document.getElementById("topButton");
-    topButton.style.color = color;
-    topButton.style.backgroundColor = bgColor;
-
-    /* For arrow icon */
-    const arrow = document.getElementById("arrow");
-    arrow.style.color = color;
-    arrow.style.backgroundColor = bgColor;
-  };
+  const visible = scrolled && !footerInView;
 
   return (
-    <div
-      onClick={GoUpEvent}
+    <button
+      type="button"
       id="topButton"
-      style={{
-        color: theme.body,
-        backgroundColor: theme.text,
-        border: `solid 1px ${theme.text}`,
-      }}
-      title="Go up"
-      onMouseEnter={() => onMouseEnter(theme.text, theme.body)}
-      onMouseLeave={() => onMouseLeave(theme.body, theme.text)}
+      className={visible ? "is-visible" : ""}
+      onClick={scrollToTop}
+      aria-label="Back to top"
+      title="Back to top"
+      tabIndex={visible ? 0 : -1}
+      style={{ "--tb-fg": theme.body, "--tb-bg": theme.text }}
     >
       <i className="fas fa-arrow-up" id="arrow" aria-hidden="true" />
-    </div>
+    </button>
   );
 }
