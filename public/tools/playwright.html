@@ -56,7 +56,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:cen
 .nav-badge{background:linear-gradient(135deg,var(--pink),var(--orange));color:#fff;font-size:11px;font-weight:800;padding:7px 18px;border-radius:999px;letter-spacing:.04em}
 
 /* HERO */
-#hero{position:relative;z-index:2;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;padding-top:60px;overflow:hidden}
+#hero{position:relative;z-index:2;min-height:100vh;display:grid;grid-template-columns: repeat(2, minmax(0, 1fr));padding-top:60px;overflow:hidden}
 #hero::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle,rgba(255,45,120,.18) 1.5px,transparent 1.5px);background-size:36px 36px;animation:dotS 20s linear infinite}
 @keyframes dotS{from{background-position:0 0}to{background-position:36px 36px}}
 
@@ -314,7 +314,7 @@ footer::before{content:'🎭';position:absolute;bottom:-40px;right:-20px;font-si
 .flinks a:hover{color:var(--pink2)}
 .flinks a::before{content:'→';color:var(--pink);opacity:.4;font-size:11px}
 .flinks a:hover::before{opacity:1}
-.fbot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.15);letter-spacing:.06em;font-weight:700}
+.fbot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.06em;font-weight:700}
 .fheart{color:var(--pink);animation:hb 1.2s ease-in-out infinite;display:inline-block}
 @keyframes hb{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
 
@@ -325,15 +325,15 @@ footer::before{content:'🎭';position:absolute;bottom:-40px;right:-20px;font-si
 
 /* RESPONSIVE */
 @media(max-width:960px){
-  #hero{grid-template-columns:1fr}.hero-r{display:none}
+  #hero{grid-template-columns:minmax(0,1fr)}.hero-r{display:none}
   nav{padding:12px 20px}.nav-links{display:none}
   .sw{padding:60px 24px}
   .strip{grid-template-columns:1fr 1fr}
-  .what-grid,.api-grid{grid-template-columns:1fr}
-  .vs-cols{grid-template-columns:1fr}.vmid{display:none}.vl{border-radius:24px 24px 0 0;border:2px solid rgba(255,255,255,.06);border-bottom:none}.vr{border-radius:0 0 24px 24px}
+  .what-grid,.api-grid{grid-template-columns:minmax(0,1fr)}
+  .vs-cols{grid-template-columns:minmax(0,1fr)}.vmid{display:none}.vl{border-radius:24px 24px 0 0;border:2px solid rgba(255,255,255,.06);border-bottom:none}.vr{border-radius:0 0 24px 24px}
   .sgrid{grid-template-columns:1fr 1fr}
-  .bpgrid{grid-template-columns:1fr}
-  .fgrid{grid-template-columns:1fr;gap:36px}
+  .bpgrid{grid-template-columns:minmax(0,1fr)}
+  .fgrid{grid-template-columns: minmax(0, 1fr);gap:36px}
   .fbot{flex-direction:column;gap:12px;text-align:center}
   .hstats{grid-template-columns:1fr 1fr}
   .rctrl{flex-direction:column}
@@ -607,9 +607,9 @@ footer::before{content:'🎭';position:absolute;bottom:-40px;right:-20px;font-si
   <div class="fgrid">
     <div><div class="fname">AAYUSH MISHRA</div><div class="frole">SDET · End-to-End Test Automation Engineer</div><div class="fbio">Building world-class automation frameworks with Playwright, TestNG and AI-driven tools. Expert in scalable QA pipelines and zero-flakiness architecture.</div><div class="ftch"><span class="ftc">🎭 Playwright</span><span class="ftc">TestNG</span><span class="ftc">Nova Act</span><span class="ftc">Selenium</span><span class="ftc">TypeScript</span><span class="ftc">Java</span></div></div>
     <div><div class="fch">Navigation</div><ul class="flinks"><li><a href="#overview">What is Playwright</a></li><li><a href="#api">Core API</a></li><li><a href="#vs">vs Selenium</a></li><li><a href="#runner">Live Runner</a></li><li><a href="#setup">Setup Guide</a></li></ul></div>
-    <div><div class="fch">Also By Aayush</div><ul class="flinks"><li><a href="#">Nova Act — AI Browser Agents</a></li><li><a href="#">TestNG + Java Selenium</a></li><li><a href="#">GitHub Portfolio</a></li><li><a href="#">LinkedIn</a></li></ul></div>
+    <div><div class="fch">Also By Aayush</div><ul class="flinks"><li><a href="/tools/nova-act.html">Nova Act — AI Browser Agents</a></li><li><a href="/tools/testng-selenium.html">TestNG + Java Selenium</a></li><li><a href="https://github.com/Aayush-Mishraa" target="_blank" rel="noopener noreferrer">GitHub Portfolio</a></li><li><a href="https://www.linkedin.com/in/aayushmishra33/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li></ul></div>
   </div>
-  <div class="fbot"><span>Made with <span class="fheart">♥</span> by Aayush Mishra · SDET · 2024</span><div class="ftch"><span class="ftc">🎭 Playwright v1.44</span><span class="ftc">TypeScript</span><span class="ftc">GitHub Actions</span></div></div>
+  <div class="fbot"><span>Made with <span class="fheart">♥</span> by Aayush Mishra · SDET</span><div class="ftch"><span class="ftc">🎭 Playwright v1.44</span><span class="ftc">TypeScript</span><span class="ftc">GitHub Actions</span></div></div>
 </footer>
 
 <script>

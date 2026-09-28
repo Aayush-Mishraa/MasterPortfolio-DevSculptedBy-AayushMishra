@@ -121,6 +121,7 @@ nav {
 /* Matrix rain canvas */
 #matrixCanvas {
   position: absolute; inset: 0;
+  width: 100%; height: 100%;
   opacity: 0.07;
   pointer-events: none;
   z-index: 0;
@@ -287,7 +288,7 @@ nav {
 
 /* ── WHAT IS TESTNG ── */
 .wt-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px;
   background: var(--border);
 }
 .wt-main { background: var(--panel); padding: 52px; grid-column: 1; }
@@ -335,7 +336,7 @@ nav {
 .layers-bg { background: var(--dark); padding: 100px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .layers-inner { max-width: 1200px; margin: 0 auto; padding: 0 56px; }
 .layers-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 60px; align-items: start;
 }
 .layer-flow { display: flex; flex-direction: column; gap: 0; }
 .lf-item {
@@ -556,15 +557,15 @@ footer::before { content:'TESTNG'; position:absolute; top:50%; left:50%; transfo
 .d1{transition-delay:.1s;} .d2{transition-delay:.2s;} .d3{transition-delay:.3s;}
 
 @media(max-width:900px){
-  #hero{grid-template-columns:1fr;}
+  #hero{grid-template-columns: minmax(0, 1fr);}
   .hero-right{display:none;}
   nav{padding:14px 20px;}
   .nav-links{display:none;}
   .sw{padding:72px 24px;}
-  .wt-grid,.layers-grid,.compare-grid,.footer-top{grid-template-columns:1fr;}
+  .wt-grid,.layers-grid,.compare-grid,.footer-top{grid-template-columns: minmax(0, 1fr);}
   .compare-mid{display:none;}
-  .annotation-grid,.bp-grid{grid-template-columns:1fr;}
-  .setup-grid{grid-template-columns:1fr 1fr;}
+  .annotation-grid,.bp-grid{grid-template-columns: minmax(0, 1fr);}
+  .setup-grid{grid-template-columns: repeat(2, minmax(0, 1fr));}
   .hero-meta{grid-template-columns:repeat(2,1fr);}
   .run-controls{flex-direction:column;}
 }
@@ -1008,10 +1009,10 @@ footer::before { content:'TESTNG'; position:absolute; top:50%; left:50%; transfo
     <div>
       <div class="fc-title">Connect</div>
       <ul class="fl">
-        <li><a href="#">GitHub</a></li>
-        <li><a href="#">LinkedIn</a></li>
-        <li><a href="#">Portfolio</a></li>
-        <li><a href="#">Email</a></li>
+        <li><a href="https://github.com/Aayush-Mishraa" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/aayushmishra33/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+        <li><a href="/home">Portfolio</a></li>
+        <li><a href="mailto:contact@aayushmishra.engineer">Email</a></li>
       </ul>
       <div style="margin-top:28px;">
         <div class="fc-title">Stack</div>

@@ -102,7 +102,7 @@ nav {
 .nav-tag:hover { background: rgba(200, 65, 10, 0.15); border-color: var(--rust); }
 
 /* HERO */
-#hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; position: relative; overflow: hidden; }
+#hero { min-height: 100vh; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); position: relative; overflow: hidden; }
 .hero-left {
   background: var(--ink); display: flex; flex-direction: column;
   justify-content: flex-end; padding: 80px 56px 64px; position: relative; overflow: hidden;
@@ -301,7 +301,7 @@ nav {
 .t-msg { color: #6b6456; flex: 1; }
 
 /* IMPLEMENTATION */
-.impl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--sand); }
+.impl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; background: var(--sand); }
 .impl-left { background: var(--paper); padding: 56px; }
 .impl-right { background: var(--cream); padding: 56px; }
 .tree-block { background: var(--ink); padding: 32px 28px; font-family: var(--mono); font-size: 12px; line-height: 2.2; border-left: 3px solid var(--gold); }
@@ -366,7 +366,7 @@ footer::before { content: 'AAYUSH'; position: absolute; top: 50%; left: 50%; tra
 .sr-d1 { transition-delay: .1s; } .sr-d2 { transition-delay: .2s; } .sr-d3 { transition-delay: .3s; }
 
 @media (max-width: 900px) {
-  #hero { grid-template-columns: 1fr; }
+  #hero { grid-template-columns: minmax(0, 1fr); }
   .hero-right { display: none; }
   body { padding-top: 76px; }
   .marquee-strip { font-size: 9px; padding: 7px 0; }
@@ -378,17 +378,17 @@ footer::before { content: 'AAYUSH'; position: absolute; top: 50%; left: 50%; tra
   .nav-tag { font-size: 9px; padding: 4px 8px; }
   .nav-links { display: none; }
   .sw { padding: 80px 24px; }
-  .shift-grid { grid-template-columns: 1fr; }
+  .shift-grid { grid-template-columns: minmax(0, 1fr); }
   .shift-mid { display: none; }
-  .arch-split { grid-template-columns: 1fr; }
-  .loop-steps { grid-template-columns: 1fr 1fr; }
-  .impl-grid { grid-template-columns: 1fr; }
-  .steps-grid { grid-template-columns: 1fr 1fr; }
-  .benefits-grid { grid-template-columns: 1fr; }
-  .future-layout { grid-template-columns: 1fr; }
-  .footer-top { grid-template-columns: 1fr; gap: 40px; }
+  .arch-split { grid-template-columns: minmax(0, 1fr); }
+  .loop-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .impl-grid { grid-template-columns: minmax(0, 1fr); }
+  .steps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .benefits-grid { grid-template-columns: minmax(0, 1fr); }
+  .future-layout { grid-template-columns: minmax(0, 1fr); }
+  .footer-top { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .footer-bottom { flex-direction: column; gap: 16px; }
-  .overview-layout { grid-template-columns: 1fr; }
+  .overview-layout { grid-template-columns: minmax(0, 1fr); }
   .pg-row { flex-direction: column; }
 }
 </style>
@@ -824,11 +824,10 @@ footer::before { content: 'AAYUSH'; position: absolute; top: 50%; left: 50%; tra
     <div>
       <div class="footer-col-title">Connect</div>
       <ul class="fl">
-        <li><a href="#">GitHub</a></li>
-        <li><a href="#">LinkedIn</a></li>
-        <li><a href="#">Portfolio</a></li>
-        <li><a href="#">Email</a></li>
-        <li><a href="#">Twitter / X</a></li>
+        <li><a href="https://github.com/Aayush-Mishraa" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/aayushmishra33/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+        <li><a href="/home">Portfolio</a></li>
+        <li><a href="mailto:contact@aayushmishra.engineer">Email</a></li>
       </ul>
       <div style="margin-top:32px;">
         <div class="footer-col-title">Stack</div>
