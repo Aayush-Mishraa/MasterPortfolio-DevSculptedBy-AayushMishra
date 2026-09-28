@@ -12,12 +12,14 @@
   },
   "scripts": {
     "build": "react-scripts build",
+    "prebuild": "node scripts/automation/fetch_projects_snapshot.mjs",
     "predeploy": "npm run build",
     "deploy": "gh-pages -b gh-pages -d build",
     "eject": "react-scripts eject",
     "start": "react-scripts start",
     "test": "react-scripts test",
     "fetch-github-data": "node scripts/automation/git_data_fetcher.mjs",
+    "fetch-projects": "node scripts/automation/fetch_projects_snapshot.mjs",
     "auto-refresh": "node scripts/automation/auto-refresh.mjs"
   },
   "dependencies": {

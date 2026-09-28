@@ -47,6 +47,8 @@ jobs:
         env:
           CI: false
           GENERATE_SOURCEMAP: false
+          # read-only token so the prebuild GitHub snapshot isn't rate-limited
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📄 Add SPA Support
         run: |
