@@ -288,6 +288,27 @@ html.uv-standalone body {
   font-size: 1.14em;
 }
 
+.uv-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.15;
+}
+
+.uv-brand-by {
+  font-family: var(--uv-font-display);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--pj-ink-soft);
+}
+
+.uv-brand-by .uv-serif {
+  font-size: 1.2em;
+  margin-right: 1px;
+  color: var(--pj-ink);
+}
+
 .uv-brandmark {
   --gh: 74;
   color: var(--pj-ink);
@@ -394,7 +415,7 @@ html.uv-standalone body {
   opacity: 0.7;
 }
 
-.uv-app:not(.is-rail-open) .uv-rail .uv-brand-word,
+.uv-app:not(.is-rail-open) .uv-rail .uv-brand-text,
 .uv-app:not(.is-rail-open) .uv-rail .uv-nav-label,
 .uv-app:not(.is-rail-open) .uv-rail .uv-nav-channel,
 .uv-app:not(.is-rail-open) .uv-rail .uv-rail-exit span {
@@ -2263,7 +2284,7 @@ button:hover .uv-glyph,
     --uv-rail: 76px !important;
   }
 
-  .uv-app .uv-rail .uv-brand-word,
+  .uv-app .uv-rail .uv-brand-text,
   .uv-app .uv-rail .uv-nav-label,
   .uv-app .uv-rail .uv-nav-channel,
   .uv-app .uv-rail .uv-rail-exit span {

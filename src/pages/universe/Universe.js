@@ -487,8 +487,13 @@ function Shell({ id }) {
         <aside className="uv-rail" aria-label="Channels">
           <Link to="/universe" className="uv-brand" aria-label="Tech Universe hub">
             <BrandMark size={30} />
-            <span className="uv-brand-word">
-              Tech <em className="uv-serif">Universe</em>
+            <span className="uv-brand-text">
+              <span className="uv-brand-word">
+                Tech <em className="uv-serif">Universe</em>
+              </span>
+              <span className="uv-brand-by">
+                <em className="uv-serif">by</em> Aayush Mishra
+              </span>
             </span>
           </Link>
           <nav className="uv-nav" data-lenis-prevent>
@@ -590,8 +595,13 @@ function Shell({ id }) {
         {sheetOpen && (
           <div className="uv-sheet" role="dialog" aria-modal="true" aria-label="Channels">
             <div className="uv-sheet-head">
-              <span className="uv-brand-word">
-                Tech <em className="uv-serif">Universe</em>
+              <span className="uv-brand-text">
+                <span className="uv-brand-word">
+                  Tech <em className="uv-serif">Universe</em>
+                </span>
+                <span className="uv-brand-by">
+                  <em className="uv-serif">by</em> Aayush Mishra
+                </span>
               </span>
               <button type="button" className="uv-ghost-btn" onClick={() => setSheetOpen(false)} aria-label="Close channels">
                 <Icon name="close" size={20} />
