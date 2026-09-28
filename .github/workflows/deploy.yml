@@ -90,8 +90,9 @@ jobs:
           # Deploy from the build folder (production files)
           local-dir: ./build/
 
-          # Hostinger web root
-          server-dir: /public_html/
+          # Hostinger web root for aayushmishra.engineer (the FTP login sees the whole account,
+          # so /public_html/ would be the account's primary site, not this domain)
+          server-dir: /domains/aayushmishra.engineer/public_html/
 
           # Keep remote files that are not in local repo (safer default)
           dangerous-clean-slate: false
@@ -124,7 +125,7 @@ jobs:
           port: ${{ env.FTP_PORT_EFFECTIVE }}
           protocol: ftps
           local-dir: ./contentmanagementsystem/
-          server-dir: /public_html/contentmanagementsystem/
+          server-dir: /domains/aayushmishra.engineer/public_html/contentmanagementsystem/
           dangerous-clean-slate: false
           state-name: .ftp-cms-sync-state.json
 
@@ -138,7 +139,7 @@ jobs:
           port: ${{ env.FTP_PORT_EFFECTIVE }}
           protocol: ftps
           local-dir: ./prestashopecommerce/
-          server-dir: /public_html/prestashopecommerce/
+          server-dir: /domains/aayushmishra.engineer/public_html/prestashopecommerce/
           dangerous-clean-slate: false
           state-name: .ftp-prestashop-sync-state.json
 
@@ -152,6 +153,6 @@ jobs:
           port: ${{ env.FTP_PORT_EFFECTIVE }}
           protocol: ftps
           local-dir: ./ecommerceautomation/
-          server-dir: /public_html/ecommerceautomation/
+          server-dir: /domains/aayushmishra.engineer/public_html/ecommerceautomation/
           dangerous-clean-slate: false
           state-name: .ftp-ecommerce-sync-state.json
