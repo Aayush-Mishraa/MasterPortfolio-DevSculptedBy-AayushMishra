@@ -699,6 +699,33 @@ const contactPageData = {
     profile_image_path: "ProfileImage.png",
     description:
       "I'm actively available across multiple platforms and always excited to connect! Reach out to me and I'll respond within 24 hours. I specialize in SDET (Software Development Engineer in Test) expertise including test automation frameworks, AI-powered testing solutions, performance testing, and CI/CD pipeline optimization. I can also assist with Machine Learning model testing, AI quality assurance, React test automation, mobile testing strategies, cloud-based testing infrastructure, and open-source testing tools. Let's discuss how we can enhance your testing capabilities with cutting-edge AI and automation technologies!",
+    // Contact page redesign
+    email: "contact@aayushmishra.tech",
+    lead:
+      "SDET building test automation frameworks, AI-powered testing, performance suites and CI/CD quality gates. Tell me what you're shipping, and I'll reply within 24 hours.",
+    responseTime: "< 24h",
+    timezone: "Asia/Kolkata",
+    utcOffsetMinutes: 330,
+    // Working window in local (IST) hours, used for the "sync window" planner
+    workingHours: { start: 10, end: 19 },
+    coordinates: { lat: 19.076, lng: 72.8777 },
+    topics: [
+      { id: "frameworks", label: "Test automation frameworks", icon: "fa-solid fa-cubes" },
+      { id: "ai-testing", label: "AI-powered testing", icon: "fa-solid fa-brain" },
+      { id: "performance", label: "Performance testing", icon: "fa-solid fa-gauge-high" },
+      { id: "cicd", label: "CI/CD pipelines", icon: "fa-solid fa-code-branch" },
+      { id: "ml-qa", label: "ML model QA", icon: "fa-solid fa-diagram-project" },
+      { id: "mobile", label: "Mobile testing", icon: "fa-solid fa-mobile-screen" },
+      { id: "cloud", label: "Cloud test infra", icon: "fa-solid fa-cloud" },
+      { id: "open-source", label: "Open-source tooling", icon: "fa-brands fa-osi" },
+    ],
+    // "What happens after you hit Transmit"
+    process: [
+      { title: "Signal received", detail: "I read every message myself and reply within 24 hours.", icon: "fa-solid fa-inbox" },
+      { title: "Quick scoping call", detail: "A short call to understand your product, stack, and where quality hurts.", icon: "fa-solid fa-headset" },
+      { title: "Plan & estimate", detail: "A clear testing strategy with milestones, tooling, and timelines.", icon: "fa-solid fa-map-location-dot" },
+      { title: "Build & ship", detail: "Frameworks, pipelines, and reports, delivered in small, reviewable steps.", icon: "fa-solid fa-rocket" },
+    ],
   },
   blogSection: {
     title: "Blogs",
