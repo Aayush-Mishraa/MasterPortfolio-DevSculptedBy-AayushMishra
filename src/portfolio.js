@@ -711,7 +711,7 @@ const contactPageData = {
     description:
       "I'm actively available across multiple platforms and always excited to connect! Reach out to me and I'll respond within 24 hours. I specialize in SDET (Software Development Engineer in Test) expertise including test automation frameworks, AI-powered testing solutions, performance testing, and CI/CD pipeline optimization. I can also assist with Machine Learning model testing, AI quality assurance, React test automation, mobile testing strategies, cloud-based testing infrastructure, and open-source testing tools. Let's discuss how we can enhance your testing capabilities with cutting-edge AI and automation technologies!",
     // Contact page redesign
-    email: "contact@aayushmishra.tech",
+    email: "contact@aayushmishra.engineer",
     lead:
       "SDET building test automation frameworks, AI-powered testing, performance suites and CI/CD quality gates. Tell me what you're shipping, and I'll reply within 24 hours.",
     responseTime: "< 24h",

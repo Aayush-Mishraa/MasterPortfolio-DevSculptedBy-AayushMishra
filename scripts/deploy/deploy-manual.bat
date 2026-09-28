@@ -27,7 +27,7 @@ echo.
 echo Your manually edited files have been:
 echo ✅ Committed to Git
 echo ✅ Pushed to GitHub  
-echo ✅ Auto-deployed to aayushmishra.tech
+echo ✅ Auto-deployed to aayushmishra.engineer
 echo.
 echo Check your live site in 2-3 minutes!
 echo.

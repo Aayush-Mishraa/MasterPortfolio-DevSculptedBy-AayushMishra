@@ -5,7 +5,7 @@ import { greeting, socialMediaLinks, experience } from "../../portfolio";
 import ThemeSelector from "../themeSelector/ThemeSelector";
 
 const buttondownEndpoint = process.env.REACT_APP_BUTTONDOWN_ENDPOINT;
-const CONTACT_EMAIL = "contact@aayushmishra.tech";
+const CONTACT_EMAIL = "contact@aayushmishra.engineer";
 const currentRole = experience.sections[0].experiences[0];
 
 const automationTools = [

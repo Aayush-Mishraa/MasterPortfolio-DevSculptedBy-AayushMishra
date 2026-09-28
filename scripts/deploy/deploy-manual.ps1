@@ -31,7 +31,7 @@ Write-Host ""
 Write-Host "Your manually edited files have been:" -ForegroundColor White
 Write-Host "✅ Committed to Git" -ForegroundColor Green
 Write-Host "✅ Pushed to GitHub" -ForegroundColor Green
-Write-Host "✅ Auto-deployed to aayushmishra.tech" -ForegroundColor Green
+Write-Host "✅ Auto-deployed to aayushmishra.engineer" -ForegroundColor Green
 Write-Host ""
 Write-Host "Check your live site in 2-3 minutes!" -ForegroundColor Yellow
 Write-Host ""

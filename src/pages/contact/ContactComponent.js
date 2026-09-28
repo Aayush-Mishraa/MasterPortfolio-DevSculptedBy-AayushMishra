@@ -611,7 +611,7 @@ const buildMail = (f) => {
   if (company) lines.push(`Company: ${company}`);
   if (f.topics.length) lines.push(`Topics: ${TOPICS.filter((t) => f.topics.includes(t.id)).map((t) => t.label).join(", ")}`);
   if (intent.scoped && f.timeline) lines.push(`Timeline: ${f.timeline}`);
-  lines.push("", "Sent from the contact page on aayushmishra.tech");
+  lines.push("", "Sent from the contact page on aayushmishra.engineer");
   return { subject, body: lines.join("\n") };
 };
 

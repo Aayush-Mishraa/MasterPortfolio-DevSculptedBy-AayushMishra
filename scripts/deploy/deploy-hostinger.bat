@@ -43,6 +43,6 @@ echo 3. Navigate to public_html folder
 echo 4. Upload all extracted files to public_html
 echo 5. Make sure index.html is in the root of public_html
 echo.
-echo Your website will be live at: https://aayushmishra.tech
+echo Your website will be live at: https://aayushmishra.engineer
 echo.
 pause
