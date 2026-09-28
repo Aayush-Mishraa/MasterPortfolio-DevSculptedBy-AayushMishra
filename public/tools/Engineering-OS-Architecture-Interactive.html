@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AgentOps Architecture — Agent Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ───────── TOKENS ───────── */
+:root{
+  --bg:#07090d;--bg2:#0a0d13;--panel:#0d1118;--panel2:#121722;--panel3:#171d2a;
+  --line:rgba(148,163,184,.11);--line2:rgba(148,163,184,.2);
+  --text:#e7eaf0;--muted:#8d96a6;--faint:#566072;
+  --amber:#f2b441;--indigo:#8e8ff7;--teal:#39c8b3;--green:#4fce8b;--grey:#8b95a5;--red:#f06b6b;
+  --amber-a:rgba(242,180,65,.12);--indigo-a:rgba(142,143,247,.12);--teal-a:rgba(57,200,179,.12);
+  --green-a:rgba(79,206,139,.12);--grey-a:rgba(139,149,165,.12);--red-a:rgba(240,107,107,.12);
+  --sans:'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'Geist Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  --r:14px;--r-sm:9px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07090d;--text:#e7eaf0}}
+:root[data-theme="dark"]{--bg:#07090d;--text:#e7eaf0}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px);scroll-behavior:auto}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background-color:var(--bg);background-image:
+  radial-gradient(900px 620px at 8% -12%,rgba(142,143,247,.2),transparent 68%),
+  radial-gradient(760px 560px at 92% 8%,rgba(57,200,179,.14),transparent 66%),
+  radial-gradient(820px 680px at 52% 112%,rgba(242,180,65,.1),transparent 70%);
+  background-size:140% 140%;background-position:0% 0%;color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;animation:bgDrift 22s ease-in-out infinite alternate}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 56px;opacity:.35;animation:gridDrift 28s linear infinite;
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 20%,transparent 75%);
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 20%,transparent 75%)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes bgDrift{0%{background-position:0% 0%}50%{background-position:100% 35%}100%{background-position:30% 100%}}
+@keyframes gridDrift{from{transform:translate3d(0,0,0);opacity:.28}50%{transform:translate3d(0,-18px,0);opacity:.4}to{transform:translate3d(18px,0,0);opacity:.28}}
+@media (prefers-reduced-motion:reduce){body{animation:none}body::before{animation:none}}
+main,nav,footer{position:relative;z-index:1}
+a{color:inherit}
+button{font-family:inherit;font-size:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--indigo);outline-offset:2px;border-radius:6px}
+::selection{background:rgba(142,143,247,.35)}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}
+.mono{font-family:var(--mono)}
+.shell{max-width:1320px;margin:0 auto;padding:0 28px}
+.c-amber{color:var(--amber)}.c-indigo{color:var(--indigo)}.c-teal{color:var(--teal)}.c-green{color:var(--green)}.c-grey{color:var(--grey)}.c-red{color:var(--red)}
+
+/* ───────── NAV ───────── */
+nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:rgba(7,9,13,.78);
+  backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1320px;margin:0 auto;padding:0 28px;height:58px;display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:14px;letter-spacing:-.01em;flex-shrink:0}
+.brand-mark{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;
+  background:conic-gradient(from 210deg,var(--amber),var(--indigo),var(--teal),var(--green),var(--amber));position:relative}
+.brand-mark::after{content:'';position:absolute;inset:3px;border-radius:5px;background:var(--bg)}
+.brand-mark i{position:relative;z-index:1;width:7px;height:7px;border-radius:2px;background:var(--text)}
+.nav-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{font-size:13px;color:var(--muted);text-decoration:none;padding:6px 11px;border-radius:7px;white-space:nowrap;transition:color .15s,background .15s}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.nav-links a.on{color:var(--text);background:rgba(255,255,255,.06)}
+.site-actions{display:flex;align-items:center;gap:7px;flex:none}
+.site-action{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line2);border-radius:8px;color:var(--muted);text-decoration:none;font-size:12px;white-space:nowrap;transition:color .15s,background .15s,border-color .15s}
+.site-action:hover{color:var(--text);background:rgba(255,255,255,.06);border-color:var(--faint)}
+.site-action.primary{color:var(--text);border-color:var(--indigo);background:var(--indigo-a)}
+.kbd-btn{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);border:1px solid var(--line2);
+  padding:6px 8px 6px 11px;border-radius:8px;flex-shrink:0;transition:border-color .15s,color .15s}
+.kbd-btn:hover{color:var(--text);border-color:var(--faint)}
+kbd{font-family:var(--mono);font-size:11px;padding:1px 6px;border-radius:5px;background:var(--panel3);border:1px solid var(--line2);color:var(--muted)}
+
+/* ───────── SHARED ───────── */
+.blk{padding:104px 0 24px}
+.blk-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:24px 56px;align-items:end;margin-bottom:40px}
+.path{font-family:var(--mono);font-size:12.5px;color:var(--faint);margin-bottom:14px;display:flex;gap:8px;align-items:center}
+.path b{font-weight:500;color:var(--muted)}
+h2{font-size:clamp(30px,4vw,46px);line-height:1.05;letter-spacing:-.035em;font-weight:600;text-wrap:balance}
+h3{font-size:17px;letter-spacing:-.01em;font-weight:600}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.65;max-width:60ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;padding:3px 9px;border-radius:999px;
+  border:1px solid var(--line2);color:var(--muted);white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.k-human{color:var(--amber)}.k-agent{color:var(--indigo)}.k-mcp{color:var(--teal)}.k-os{color:var(--green)}.k-ext{color:var(--grey)}.k-err{color:var(--red)}
+.chip.k-human{background:var(--amber-a);border-color:rgba(242,180,65,.28)}
+.chip.k-agent{background:var(--indigo-a);border-color:rgba(142,143,247,.3)}
+.chip.k-mcp{background:var(--teal-a);border-color:rgba(57,200,179,.3)}
+.chip.k-os{background:var(--green-a);border-color:rgba(79,206,139,.3)}
+.chip.k-ext{background:var(--grey-a);border-color:rgba(139,149,165,.3)}
+.chip.k-err{background:var(--red-a);border-color:rgba(240,107,107,.3)}
+.btn{text-decoration:none;display:inline-flex;align-items:center;gap:9px;font-size:14px;font-weight:500;padding:11px 18px;border-radius:10px;
+  border:1px solid var(--line2);color:var(--text);background:var(--panel2);transition:background .18s,border-color .18s,transform .18s}
+.btn:hover{border-color:var(--faint);background:var(--panel3)}
+.btn-primary{background:var(--text);color:#0a0c11;border-color:var(--text)}
+.btn-primary:hover{background:#fff;border-color:#fff}
+.btn-sm{font-size:12.5px;padding:7px 12px;border-radius:8px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--bg2);flex-wrap:wrap}
+.seg button{font-size:12.5px;padding:6px 12px;border-radius:7px;color:var(--muted);transition:background .15s,color .15s}
+.seg button:hover{color:var(--text)}
+.seg button[aria-pressed="true"]{background:var(--panel3);color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+.demo-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--amber);border:1px dashed rgba(242,180,65,.45);padding:2px 8px;border-radius:6px}
+.term{border-bottom:1px dotted var(--faint);cursor:help;text-decoration:none}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ───────── HERO ───────── */
+.hero{padding:88px 0 40px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:56px;align-items:center}
+.status{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;color:var(--green);margin-bottom:30px}
+.status .dot{box-shadow:0 0 0 0 rgba(79,206,139,.6);animation:beat 2.4s infinite}
+@keyframes beat{0%{box-shadow:0 0 0 0 rgba(79,206,139,.55)}70%{box-shadow:0 0 0 9px rgba(79,206,139,0)}100%{box-shadow:0 0 0 0 rgba(79,206,139,0)}}
+.hero h1{font-size:clamp(44px,6.2vw,92px);line-height:.86;letter-spacing:-.06em;font-weight:600;margin-bottom:26px}
+.hero h1 span{display:block;color:transparent;-webkit-text-stroke:1px var(--line2);background:linear-gradient(90deg,var(--amber),var(--indigo) 30%,var(--teal) 60%,var(--green));
+  -webkit-background-clip:text;background-clip:text}
+.hero .sub{font-size:clamp(19px,2vw,24px);letter-spacing:-.02em;line-height:1.3;margin-bottom:16px;max-width:30ch}
+.hero .support{color:var(--muted);max-width:52ch;margin-bottom:34px}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap}
+.hero-vis{position:relative;padding:22px;border-radius:18px}
+.hero-vis svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px}
+.hv-cap{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-bottom:10px}
+
+/* ───────── MAP ───────── */
+.map-wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px}
+.map-stage{position:relative;padding:14px;overflow:hidden}
+.map-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+#mapSvg{width:100%;height:auto;display:block}
+.mnode{cursor:pointer;outline:none}
+.mnode rect{fill:var(--panel2);stroke-width:1.2;transition:fill .2s,stroke-width .2s,opacity .25s}
+.mnode text{font-family:var(--sans);font-size:13px;font-weight:500;fill:var(--text);pointer-events:none}
+.mnode .sub{font-family:var(--mono);font-size:9.5px;fill:var(--faint);font-weight:400}
+.mnode:hover rect,.mnode:focus-visible rect,.mnode.sel rect{fill:var(--panel3);stroke-width:2}
+.mnode.dim{opacity:.18}
+.medge{fill:none;stroke:var(--line2);stroke-width:1.2;transition:opacity .25s,stroke .25s}
+.medge.dashed{stroke-dasharray:4 4}
+.medge.hot{stroke:var(--text);opacity:.8;stroke-dasharray:5 5;animation:flow 1s linear infinite}
+.medge.dim{opacity:.08}
+@keyframes flow{to{stroke-dashoffset:-20}}
+.elabel{font-family:var(--mono);font-size:9.5px;fill:var(--teal)}
+.layer-panel{padding:20px;display:flex;flex-direction:column;gap:16px}
+.lp-row h4{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--faint);margin-bottom:6px;letter-spacing:.02em}
+.lp-row p,.lp-row li{font-size:13.5px;color:var(--muted);line-height:1.55}
+.lp-row ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.lp-row li::before{content:'→ ';color:var(--faint)}
+.map-list{display:none;flex-wrap:wrap;gap:8px;margin-top:12px}
+.record-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.record-card{padding:20px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);min-height:220px}
+.record-card.primary{border-color:rgba(57,200,179,.5);background:linear-gradient(160deg,var(--teal-a),transparent 65%),var(--panel)}
+.record-card .record-kicker{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+.record-card h3{font-size:22px;margin:8px 0 8px}
+.record-card p{font-size:13px;color:var(--muted);line-height:1.55}
+.record-card ul{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:6px}
+.record-card li{font-size:12.5px;color:var(--muted)}
+.record-card li::before{content:'→ ';color:var(--teal)}
+.record-entities{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.record-entity{font-family:var(--mono);font-size:11px;padding:4px 8px;border:1px solid var(--line2);border-radius:6px;color:var(--muted);background:var(--bg2)}
+
+/* ───────── PLAYGROUND ───────── */
+.pg{display:grid;grid-template-columns:230px minmax(0,1fr) 330px;grid-template-rows:auto auto;overflow:hidden}
+.pg-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg2)}
+.pg-head .ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pg-side{border-right:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:3px;max-height:640px;overflow-y:auto}
+.sc-btn{text-align:left;padding:10px 11px;border-radius:9px;border:1px solid transparent;transition:background .15s,border-color .15s}
+.sc-btn:hover{background:rgba(255,255,255,.03)}
+.sc-btn[aria-pressed="true"]{background:var(--panel3);border-color:var(--line2)}
+.sc-btn b{display:block;font-size:13.5px;font-weight:500;margin-bottom:2px}
+.sc-btn span{display:block;font-size:12px;color:var(--faint);line-height:1.4}
+.pg-center{padding:22px 26px;max-height:640px;overflow-y:auto;position:relative}
+.pg-center-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.pg-center-head p{font-size:13px;color:var(--muted);max-width:52ch}
+.chain{display:flex;flex-direction:column}
+.gnode{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:start;position:relative;padding-bottom:18px;cursor:pointer}
+.gnode:last-child{padding-bottom:0}
+.gnode .gi{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:500;
+  border:1px solid var(--line2);background:var(--panel2);position:relative;z-index:1;transition:border-color .3s,box-shadow .3s,background .3s}
+.gnode:not(:last-child)::before{content:'';position:absolute;left:19.5px;top:42px;bottom:0;width:1px;background:var(--line2)}
+.gnode:not(:last-child)::after{content:'';position:absolute;left:19.5px;top:42px;bottom:0;width:1px;background:var(--green);transform:scaleY(0);transform-origin:top;transition:transform .5s ease}
+.gnode.s-completed:not(:last-child)::after{transform:scaleY(1)}
+.gnode .pkt{position:absolute;left:16.5px;top:42px;width:7px;height:7px;border-radius:50%;opacity:0;z-index:2}
+.gnode.s-completed .pkt{animation:pkt .7s ease-out}
+@keyframes pkt{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(34px)}}
+.gnode .gt{padding-top:2px;min-width:0}
+.gnode .gt b{font-size:14px;font-weight:500;display:block}
+.gnode .gt>span{font-size:12.5px;color:var(--muted);display:block;line-height:1.45}
+.state{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;padding:3px 8px;border-radius:6px;border:1px solid var(--line2);color:var(--faint);white-space:nowrap;margin-top:4px}
+.gnode.s-queued{opacity:.55}
+.gnode.s-running .gi{border-color:var(--indigo);box-shadow:0 0 0 4px var(--indigo-a)}
+.gnode.s-running .state{color:var(--indigo);border-color:rgba(142,143,247,.4)}
+.gnode.s-running .gi::after{content:'';position:absolute;inset:-5px;border-radius:14px;border:1px solid var(--indigo);opacity:.6;animation:ring 1.3s ease-out infinite}
+@keyframes ring{from{transform:scale(.9);opacity:.7}to{transform:scale(1.25);opacity:0}}
+.gnode.s-completed .gi{border-color:rgba(79,206,139,.5)}
+.gnode.s-completed .state{color:var(--green);border-color:rgba(79,206,139,.35)}
+.gnode.s-approval .gi{border-color:var(--amber);box-shadow:0 0 0 4px var(--amber-a)}
+.gnode.s-approval .state{color:var(--amber);border-color:rgba(242,180,65,.45)}
+.gnode.s-blocked .gi{border-color:var(--red);box-shadow:0 0 0 4px var(--red-a)}
+.gnode.s-blocked .state{color:var(--red);border-color:rgba(240,107,107,.45)}
+.gnode.s-waiting .state{color:var(--amber)}
+.gnode.sel .gt b{text-decoration:underline;text-decoration-color:var(--faint);text-underline-offset:4px}
+.approve{display:flex;gap:8px;margin-top:10px}
+.approve .btn{font-size:12.5px;padding:7px 12px}
+.btn-ok{border-color:rgba(79,206,139,.45);color:var(--green);background:var(--green-a)}
+.btn-no{border-color:rgba(240,107,107,.4);color:var(--red);background:var(--red-a)}
+.pg-insp{border-left:1px solid var(--line);padding:18px;max-height:640px;overflow-y:auto}
+.insp-title{font-family:var(--mono);font-size:11px;color:var(--faint);margin-bottom:14px;display:flex;justify-content:space-between}
+.kv{display:grid;grid-template-columns:100px minmax(0,1fr);gap:9px 12px;font-size:13px}
+.kv dt{color:var(--faint);font-family:var(--mono);font-size:11.5px;padding-top:2px}
+.kv dd{color:var(--text);min-width:0;overflow-wrap:anywhere}
+pre.code{font-family:var(--mono);font-size:12px;line-height:1.65;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:12px 14px;
+  overflow-x:auto;color:#c9d1e0;white-space:pre}
+.tk-k{color:var(--indigo)}.tk-s{color:var(--green)}.tk-n{color:var(--amber)}.tk-c{color:var(--faint)}.tk-f{color:var(--teal)}
+.skel{height:12px;border-radius:5px;background:linear-gradient(90deg,var(--panel2),var(--panel3),var(--panel2));background-size:200% 100%;animation:sk 1.1s linear infinite;margin-bottom:10px}
+@keyframes sk{to{background-position:-200% 0}}
+.pg-bottom{grid-column:1/-1;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.stream{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:280px;max-height:320px}
+.stream-head,.term-tabs{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--bg2);font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+.stream-list{overflow-y:auto;flex:1}
+.ev{display:grid;grid-template-columns:66px 96px minmax(0,1fr);gap:10px;width:100%;text-align:left;padding:7px 14px;font-family:var(--mono);font-size:12px;
+  border-bottom:1px solid rgba(148,163,184,.05);transition:background .12s}
+.ev.new{animation:evIn .35s ease}
+@keyframes evIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.ev:hover{background:rgba(255,255,255,.025)}
+.ev.sel{background:var(--panel3)}
+.ev time{color:var(--faint)}
+.ev .who{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev .msg{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{padding:26px 16px;font-size:13px;color:var(--faint)}
+.terminal{display:flex;flex-direction:column;min-height:280px;max-height:320px;background:#05070a}
+.term-tabs{justify-content:flex-start;gap:2px;padding:6px 8px}
+.term-tabs button{font-family:var(--mono);font-size:11.5px;padding:5px 10px;border-radius:6px;color:var(--faint)}
+.term-tabs button[aria-selected="true"]{background:var(--panel3);color:var(--text)}
+.term-out{flex:1;overflow-y:auto;padding:12px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:#c9d1e0}
+.term-out .ln{white-space:pre-wrap;overflow-wrap:anywhere}
+.term-in{display:flex;align-items:center;gap:8px;padding:8px 16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12.5px}
+.term-in span{color:var(--green)}
+.term-in input{flex:1;background:transparent;border:0;outline:0;color:var(--text);font-family:inherit;font-size:inherit;min-width:0}
+
+/* ───────── LIFECYCLE ───────── */
+.rail{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:0;position:relative;margin-bottom:18px}
+.rail::before{content:'';position:absolute;left:4%;right:4%;top:26px;height:1px;background:var(--line2)}
+.rail .fill{position:absolute;left:4%;top:26px;height:1px;background:linear-gradient(90deg,var(--amber),var(--indigo),var(--teal),var(--green));width:0;transition:width 1.4s cubic-bezier(.3,.7,.2,1)}
+.stage{display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 4px;position:relative;text-align:center}
+.stage .num{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-family:var(--mono);font-size:13px;
+  background:var(--panel);border:1px solid var(--line2);transition:all .35s;opacity:.4}
+.stage.lit .num{opacity:1}
+.stage[aria-pressed="true"] .num{background:var(--panel3);transform:translateY(-3px)}
+.stage .lbl{font-size:13px;font-weight:500;color:var(--muted);transition:color .3s}
+.stage.lit .lbl,.stage[aria-pressed="true"] .lbl{color:var(--text)}
+.stage-detail{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;padding:28px}
+.stage-detail h3{font-size:24px;letter-spacing:-.02em;margin:8px 0 10px}
+.stage-detail p{color:var(--muted)}
+
+/* ───────── MCP ───────── */
+.mcp-path{padding:24px;margin-bottom:16px}
+.path-row{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;position:relative;margin:22px 0 18px}
+.pnode{padding:12px 8px;border-radius:10px;border:1px solid var(--line2);background:var(--panel2);text-align:center;font-size:12.5px;font-weight:500;transition:all .3s;position:relative}
+.pnode small{display:block;font-family:var(--mono);font-size:10px;color:var(--faint);font-weight:400;margin-top:3px}
+.pnode.on{border-color:var(--teal);background:var(--teal-a)}
+.pnode.wait{border-color:var(--amber);background:var(--amber-a)}
+.pnode.stop{border-color:var(--red);background:var(--red-a)}
+.pnode.done{border-color:rgba(79,206,139,.5)}
+.perm-row{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;justify-content:space-between}
+.perm-msg{flex:1;min-width:260px;font-size:14px;color:var(--muted);padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg2)}
+.perm-msg b{color:var(--text)}
+.conn-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.conn-tab{padding:12px 16px;border-radius:11px;border:1px solid var(--line);background:var(--panel);text-align:left;min-width:170px;transition:all .18s}
+.conn-tab:hover{border-color:var(--line2)}
+.conn-tab[aria-selected="true"]{border-color:rgba(57,200,179,.5);background:var(--teal-a)}
+.conn-tab b{font-family:var(--mono);font-size:13px;font-weight:500;display:block}
+.conn-tab span{font-size:12px;color:var(--faint)}
+.conn-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0}
+.conn-body>div{padding:22px}
+.conn-body>div+div{border-left:1px solid var(--line)}
+.tool-list{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 18px}
+.tool{font-family:var(--mono);font-size:11.5px;padding:4px 9px;border-radius:6px;background:var(--teal-a);color:var(--teal);border:1px solid rgba(57,200,179,.22)}
+
+/* ───────── AGENTS ───────── */
+.ag-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.search{display:flex;align-items:center;gap:8px;border:1px solid var(--line2);border-radius:10px;padding:0 12px;background:var(--panel);flex:1;min-width:220px;max-width:360px}
+.search input{flex:1;background:none;border:0;outline:0;color:var(--text);font-family:inherit;font-size:14px;padding:10px 0;min-width:0}
+.ag-count{font-family:var(--mono);font-size:12px;color:var(--faint);margin-left:auto}
+.ag-table{width:100%;border-collapse:collapse}
+.ag-table th{text-align:left;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--faint);padding:11px 16px;border-bottom:1px solid var(--line)}
+.ag-row{cursor:pointer;transition:background .15s}
+.ag-row td{padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13.5px}
+.ag-row:hover{background:rgba(255,255,255,.022)}
+.ag-row:hover .ag-name{color:#fff}
+.ag-name{font-family:var(--mono);font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.ag-glyph{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:10.5px;border:1px solid currentColor;opacity:.9;flex-shrink:0}
+.ag-row .muted{color:var(--muted)}
+.pen{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:5px;white-space:nowrap}
+.pen.w{color:var(--amber);background:var(--amber-a)}.pen.r{color:var(--teal);background:var(--teal-a)}
+.table-scroll{overflow-x:auto}
+
+/* ───────── SAFETY ───────── */
+.hitl{display:flex;align-items:center;gap:0;flex-wrap:wrap;padding:24px;margin-bottom:16px}
+.hitl .h{padding:9px 14px;border-radius:9px;border:1px solid var(--line2);font-size:13px;font-weight:500;background:var(--panel2)}
+.hitl .arr{color:var(--faint);padding:0 8px;font-family:var(--mono)}
+.hitl .h.gate{border-color:var(--amber);color:var(--amber);background:var(--amber-a)}
+.safety-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.sf-col{padding:18px}
+.sf-col header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sf-col header b{font-family:var(--mono);font-size:13px;font-weight:500}
+details.rule{border-top:1px solid var(--line);padding:10px 0}
+details.rule summary{cursor:pointer;font-size:13.5px;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.rule summary::-webkit-details-marker{display:none}
+details.rule summary::after{content:'+';color:var(--faint);font-family:var(--mono)}
+details.rule[open] summary::after{content:'−'}
+details.rule p{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.55}
+blockquote.pull{font-size:clamp(22px,2.6vw,30px);letter-spacing:-.025em;line-height:1.25;padding:8px 0 8px 22px;border-left:2px solid var(--amber);margin:36px 0 0;max-width:34ch}
+
+/* ───────── TEAMS ───────── */
+.team-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.team-tab{text-align:left;padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);transition:all .18s}
+.team-tab:hover{border-color:var(--line2)}
+.team-tab[aria-selected="true"]{background:var(--panel3);border-color:var(--faint)}
+.team-tab b{display:block;font-size:15px;font-weight:600;margin:8px 0 2px}
+.team-tab span{font-size:12.5px;color:var(--faint)}
+.team-body{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.team-body>div{padding:24px}
+.team-body>div+div{border-left:1px solid var(--line)}
+.loop{display:flex;flex-direction:column;gap:0;margin-top:14px}
+.loop-step{display:grid;grid-template-columns:120px minmax(0,1fr) minmax(0,1fr);gap:14px;padding:12px 0;border-top:1px solid var(--line);font-size:13px}
+.loop-step b{font-size:13px;font-weight:500}
+.loop-step .hu{color:var(--muted)}
+.loop-step .hu::before{content:'Human  ';font-family:var(--mono);font-size:10.5px;color:var(--amber);display:block}
+.loop-step .ai{color:var(--muted)}
+.loop-step .ai::before{content:'Claude / agents  ';font-family:var(--mono);font-size:10.5px;color:var(--indigo);display:block}
+.deval{margin-top:16px;padding:24px}
+.deval-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+.metric{display:grid;grid-template-columns:130px minmax(0,1fr) 54px;gap:12px;align-items:center;font-size:13px;padding:8px 0}
+.metric input[type=range]{width:100%;accent-color:var(--indigo)}
+.bar{height:6px;border-radius:4px;background:var(--panel3);position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:4px;transition:width .6s cubic-bezier(.3,.7,.2,1)}
+.gate{margin-top:14px;padding:14px;border-radius:10px;font-family:var(--mono);font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px;transition:all .3s}
+.gate.pass{background:var(--green-a);color:var(--green);border:1px solid rgba(79,206,139,.4)}
+.gate.fail{background:var(--red-a);color:var(--red);border:1px solid rgba(240,107,107,.4)}
+.flowline{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:12px 0 4px}
+.flowline span{font-size:12px;padding:5px 10px;border-radius:7px;background:var(--panel2);border:1px solid var(--line)}
+.flowline em{color:var(--faint);font-style:normal;font-family:var(--mono);font-size:11px}
+
+/* ───────── JEV ───────── */
+.jev{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden}
+.jev>div{padding:30px}
+.jev>div+div{border-left:1px dashed var(--line2)}
+.jev-slot{border:1px dashed var(--line2);border-radius:12px;padding:16px;margin-top:12px;font-size:13.5px;color:var(--muted)}
+.jev-slot b{display:block;font-family:var(--mono);font-size:11.5px;color:var(--faint);font-weight:500;margin-bottom:4px}
+
+/* ───────── ECOSYSTEM ───────── */
+.eco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.eco{padding:16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);transition:border-color .2s,transform .2s}
+.eco:hover{border-color:var(--line2);transform:translateY(-2px)}
+.eco.use{border-color:rgba(79,206,139,.4);background:linear-gradient(180deg,rgba(79,206,139,.06),transparent 60%),var(--panel)}
+.eco header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.eco b{font-size:14.5px;font-weight:600}
+.eco p{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.eco .fit{font-size:12px;color:var(--faint);border-top:1px solid var(--line);padding-top:9px}
+.eco .fit::before{content:'Fit here: ';color:var(--muted)}
+
+/* ───────── ACTIVITY / STATUS ───────── */
+.act-row td{padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px;font-family:var(--mono);vertical-align:top}
+.act-row td.m{font-family:var(--sans);color:var(--muted)}
+.st-pill{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:6px;white-space:nowrap}
+.st-impl{color:var(--green);background:var(--green-a)}.st-part{color:var(--amber);background:var(--amber-a)}
+.st-idle{color:var(--grey);background:var(--grey-a)}.st-fut{color:var(--indigo);background:var(--indigo-a)}.st-no{color:var(--red);background:var(--red-a)}
+.recs{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:14px}
+.rec{padding:16px;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px}
+.rec i{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--faint)}
+.rec p{font-size:13.5px;color:var(--muted)}
+.rec p b{color:var(--text);font-weight:500}
+
+/* ───────── LEARN (LMS) ───────── */
+.lms-top{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;margin-bottom:16px}
+.progress-card{padding:22px;display:flex;gap:18px;align-items:center}
+.ring{width:92px;height:92px;flex-shrink:0}
+.ring circle{fill:none;stroke-width:7}
+.ring .bg{stroke:var(--panel3)}.ring .fg{stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.3,.7,.2,1);transform:rotate(-90deg);transform-origin:50% 50%}
+.signals{padding:22px}
+.sig-bars{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.sig{display:grid;grid-template-columns:130px minmax(0,1fr) 52px;gap:12px;align-items:center;font-size:13px}
+.sig span:last-child{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+.modules{display:flex;flex-direction:column;gap:8px}
+.mod{border:1px solid var(--line);border-radius:12px;background:var(--panel);transition:border-color .2s,opacity .3s}
+.mod.faded{opacity:.42}
+.mod.fit{border-color:var(--line2)}
+.mod summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;padding:16px 18px}
+.mod summary::-webkit-details-marker{display:none}
+.mod .mn{font-family:var(--mono);font-size:12px;color:var(--faint);width:44px;height:44px;border-radius:11px;border:1px solid var(--line2);display:grid;place-items:center}
+.mod.complete .mn{color:var(--green);border-color:rgba(79,206,139,.5);background:var(--green-a)}
+.mod summary b{font-size:15px;font-weight:600;display:block}
+.mod summary span{font-size:12.5px;color:var(--muted)}
+.mod .mp{font-family:var(--mono);font-size:11.5px;color:var(--faint);display:flex;align-items:center;gap:10px}
+.mod .mp .bar{width:80px}
+.mod-body{padding:0 18px 18px 76px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.res{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:9px;border:1px solid var(--line);margin-bottom:6px;transition:border-color .15s}
+.res:hover{border-color:var(--line2)}
+.res input{margin-top:4px;accent-color:var(--green);width:15px;height:15px;flex-shrink:0}
+.res a{font-size:13.5px;font-weight:500;text-decoration:none}
+.res a:hover{text-decoration:underline;text-underline-offset:3px}
+.res small{display:block;font-size:12px;color:var(--faint)}
+.showit{padding:14px;border-radius:10px;background:var(--bg2);border:1px dashed var(--line2);font-size:13px;color:var(--muted)}
+.showit b{display:block;color:var(--text);font-weight:500;margin-bottom:4px}
+.study-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.flash-deck{padding:22px}
+.flash{perspective:900px;height:170px;margin:14px 0;cursor:pointer}
+.flash-in{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.3,.7,.2,1);transform-style:preserve-3d}
+.flash.flip .flash-in{transform:rotateY(180deg)}
+.flash-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;border:1px solid var(--line2);background:var(--panel2);display:grid;place-items:center;padding:20px;text-align:center}
+.flash-face.back{transform:rotateY(180deg);font-size:14.5px;color:var(--muted);line-height:1.55}
+.flash-face.front{font-size:24px;font-weight:600;letter-spacing:-.02em}
+.quiz{padding:22px}
+.q-opts{display:flex;flex-direction:column;gap:6px;margin:14px 0}
+.q-opt{text-align:left;padding:11px 14px;border-radius:9px;border:1px solid var(--line);font-size:13.5px;transition:all .15s}
+.q-opt:hover{border-color:var(--line2);background:rgba(255,255,255,.02)}
+.q-opt.right{border-color:var(--green);background:var(--green-a);color:var(--green)}
+.q-opt.wrong{border-color:var(--red);background:var(--red-a);color:var(--red)}
+.focus-table td,.focus-table th{padding:12px 16px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:top;text-align:left}
+.focus-table th{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--faint)}
+.sources{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.sources a{font-size:12px;color:var(--muted);text-decoration:none;padding:5px 10px;border:1px solid var(--line);border-radius:7px}
+.sources a:hover{color:var(--text);border-color:var(--line2)}
+
+/* ───────── DRAWER / PALETTE / TOAST / TIP ───────── */
+.scrim{position:fixed;inset:0;background:rgba(3,4,7,.6);backdrop-filter:blur(3px);z-index:80;opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--panel);border-left:1px solid var(--line2);z-index:81;
+  transform:translateX(102%);transition:transform .35s cubic-bezier(.3,.7,.2,1);display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.on{transform:none}
+.dr-head{padding:22px 24px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.dr-head h3{font-size:22px;letter-spacing:-.02em;margin-top:8px}
+.dr-head p{color:var(--muted);font-size:13.5px}
+.x{width:32px;height:32px;border-radius:8px;border:1px solid var(--line2);display:grid;place-items:center;color:var(--muted);flex-shrink:0}
+.x:hover{color:var(--text)}
+.dr-body{padding:22px 24px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:22px}
+.dr-sec h4{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--faint);margin-bottom:8px}
+.dr-sec p,.dr-sec li{font-size:14px;color:var(--muted);line-height:1.6}
+.dr-sec ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.li-can::before{content:'✓  ';color:var(--green);font-family:var(--mono)}
+.li-cant::before{content:'✕  ';color:var(--red);font-family:var(--mono)}
+.li-dot::before{content:'•  ';color:var(--faint)}
+.palette{position:fixed;left:50%;top:14vh;transform:translate(-50%,-8px) scale(.98);width:min(600px,calc(100% - 32px));z-index:82;
+  background:var(--panel);border:1px solid var(--line2);border-radius:14px;box-shadow:0 40px 120px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:all .18s}
+.palette.on{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1)}
+.palette input{width:100%;background:none;border:0;outline:0;color:var(--text);font-family:inherit;font-size:16px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.pal-list{max-height:360px;overflow-y:auto;padding:6px}
+.pal-item{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:10px 14px;border-radius:8px;font-size:14px}
+.pal-item small{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.pal-item.act{background:var(--panel3)}
+.toasts{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:90;display:flex;flex-direction:column;gap:8px}
+.toast{padding:11px 15px;border-radius:10px;background:var(--panel3);border:1px solid var(--line2);font-size:13px;display:flex;gap:9px;align-items:center;
+  box-shadow:0 12px 40px rgba(0,0,0,.4);animation:tin .3s ease}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#tip{position:fixed;z-index:95;max-width:280px;padding:10px 12px;border-radius:9px;background:var(--panel3);border:1px solid var(--line2);font-size:12.5px;color:var(--muted);
+  pointer-events:none;opacity:0;transition:opacity .15s;line-height:1.5}
+#tip b{color:var(--text);display:block;font-size:13px;margin-bottom:2px}
+footer{border-top:1px solid var(--line);margin-top:96px;padding:30px 0 40px;color:var(--faint);font-size:13px}
+footer .shell{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.site-footer{margin-top:96px;padding:42px 0 28px;background:rgba(7,9,13,.82);border-top:1px solid var(--line2)}
+.footer-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;align-items:start}
+.footer-grid>div{min-width:0}
+.footer-grid>div:not(:first-child){border-left:1px solid var(--line);padding-left:24px}
+.footer-grid strong{display:block;color:var(--text);font-size:18px;letter-spacing:.08em}
+.footer-grid span,.footer-grid p{display:block;color:var(--muted);font-size:12px;margin-top:6px;max-width:25ch}
+.footer-grid b{display:block;color:var(--indigo);font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.footer-grid a{display:block;color:var(--muted);font-size:12px;text-decoration:none;margin:7px 0}
+.footer-grid a:hover{color:var(--text)}
+.arsenal-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px}
+.footer-bottom{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-size:11px}
+@media (max-width:640px){.footer-grid{grid-template-columns:1fr;gap:24px}.footer-grid>div:not(:first-child){border-left:0;padding-left:0}.arsenal-links{grid-template-columns:1fr}}
+
+/* ───────── RESPONSIVE ───────── */
+@media (max-width:1100px){
+  .pg{grid-template-columns:200px minmax(0,1fr)}
+  .pg-insp{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);max-height:none}
+  .map-wrap{grid-template-columns:minmax(0,1fr)}
+  .safety-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:820px){
+  .shell,.nav-in{padding:0 18px}
+  .hero-grid,.blk-head,.stage-detail,.conn-body,.team-body,.deval-grid,.jev,.lms-top,.study-grid,.mod-body{grid-template-columns:minmax(0,1fr)}
+  .conn-body>div+div,.team-body>div+div,.jev>div+div{border-left:0;border-top:1px solid var(--line)}
+  .pg{grid-template-columns:minmax(0,1fr)}
+  .pg>*{min-width:0}
+  .pg-side{border-right:0;border-bottom:1px solid var(--line);flex-direction:row;overflow-x:auto;max-height:none}
+  .sc-btn{min-width:180px}
+  .pg-bottom{grid-template-columns:1fr}
+  .stream{border-right:0;border-bottom:1px solid var(--line)}
+  .rail{grid-template-columns:repeat(5,minmax(0,1fr));row-gap:18px}
+  .rail::before,.rail .fill{display:none}
+  .path-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .team-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .safety-grid{grid-template-columns:minmax(0,1fr)}
+  .loop-step{grid-template-columns:minmax(0,1fr);gap:6px}
+  .mod-body{padding:0 18px 18px}
+  .map-list{display:flex}
+  .record-grid{grid-template-columns:1fr}
+  .ev{grid-template-columns:60px minmax(0,1fr)}
+  .ev .who{display:none}
+  .kbd-btn span{display:none}
+  .site-action span{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Primary">
+  <div class="nav-in">
+    <a class="brand" href="#top"><span class="brand-mark"><i></i></span>AgentOps Architecture</a>
+    <div class="nav-links" id="navLinks">
+      <a href="#map">System map</a>
+      <a href="#work-systems">Work systems</a>
+      <a href="#playground">Playground</a>
+      <a href="#lifecycle">How it works</a>
+      <a href="#mcp">MCP</a>
+      <a href="#agents">Agents</a>
+      <a href="#safety">Safety</a>
+      <a href="#teams">Teams</a>
+      <a href="#jev">JEV AI</a>
+      <a href="#ecosystem">Ecosystem</a>
+      <a href="#activity">Activity</a>
+      <a href="#learn">Learn</a>
+    </div>
+    <div class="site-actions">
+      <a class="site-action" href="/" aria-label="Go to portfolio home">⌂<span>Home</span></a>
+      <a class="site-action" href="/automation-arsenal" aria-label="Back to Automation Arsenal">←<span>Arsenal</span></a>
+      <button class="kbd-btn" id="palBtn" aria-label="Open command palette"><span>Search or run</span><kbd>⌘K</kbd></button>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+
+<!-- ═════════ HERO ═════════ -->
+<section class="hero">
+
+  <div class="shell hero-grid">
+    <div>
+      <div class="status"><span class="dot"></span>SYSTEM OPERATIONAL</div>
+      <h1>LLM DRIVEN<span>AJWAIN AI</span></h1>
+      <p class="sub">Where human intent becomes coordinated engineering delivery.</p>
+      <p class="support">Explore how <a class="term" data-term="Claude Code">Claude Code</a> coordinates specialist <a class="term" data-term="Sub-agent">agents</a> through <a class="term" data-term="MCP">MCP</a> to plan, execute, review and record engineering work — with <a class="term" data-term="OS">Ajwain</a> as the single source of truth.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary mag" href="#playground">Explore agent playground
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="btn mag" href="#map">View architecture</a>
+      </div>
+      <div class="legend" aria-label="Colour legend">
+        <span class="chip k-human"><span class="dot"></span>Human</span>
+        <span class="chip k-agent"><span class="dot"></span>Claude / agent</span>
+        <span class="chip k-mcp"><span class="dot"></span>MCP / tool call</span>
+        <span class="chip k-os"><span class="dot"></span>AJWAIN OS</span>
+        <span class="chip k-ext"><span class="dot"></span>External system</span>
+      </div>
+    </div>
+    <div class="hero-vis panel">
+      <div class="hv-cap"><span>request path · live</span><span>solid = request · dashed = result</span></div>
+      <svg viewBox="0 0 420 470" role="img" aria-label="Layered flow from human to external systems with animated packets">
+        <defs>
+          <path id="hvDown" d="M386 58 V 424"/>
+          <path id="hvUp" d="M404 424 V 58"/>
+        </defs>
+        <g id="hvLayers"></g>
+        <line x1="386" y1="58" x2="386" y2="424" stroke="rgba(148,163,184,.25)" stroke-width="1.2"/>
+        <line x1="404" y1="424" x2="404" y2="58" stroke="rgba(79,206,139,.35)" stroke-width="1.2" stroke-dasharray="4 5"/>
+        <g id="hvPackets"></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ SYSTEM MAP ═════════ -->
+<section class="blk" id="map">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/map</b> live system map</div><h2>Every layer, one picture. Click anything.</h2></div>
+      <p class="lead">Five layers sit between a person and the systems that hold real data. Hover a node to trace its connections; click it to inspect. Pick a layer to isolate it.</p>
+    </div>
+    <div class="map-wrap reveal">
+      <div class="panel map-stage">
+        <div class="map-toolbar">
+          <div class="seg" id="layerSeg" role="group" aria-label="Architecture layers"></div>
+          <span class="mono" style="font-size:11.5px;color:var(--faint)">Only documented connections are drawn</span>
+        </div>
+        <svg id="mapSvg" viewBox="0 0 1000 610" role="group" aria-label="Interactive architecture diagram"></svg>
+        <div class="map-list" id="mapList"></div>
+      </div>
+      <aside class="panel layer-panel" id="layerPanel" aria-live="polite"></aside>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ WORK SYSTEMS ═════════ -->
+<section class="blk" id="work-systems">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/work-systems</b> project records</div><h2>Jira, ClickUp, or Ajwain?</h2></div>
+      <p class="lead">These are the work-management surfaces for the delivery system. They organize the complete record of a project: epics, stories, tasks, bugs, documents, test evidence, releases, and the people responsible for each decision.</p>
+    </div>
+    <div class="record-grid reveal">
+      <article class="record-card">
+        <span class="record-kicker">Established tracker</span>
+        <h3>Jira</h3>
+        <p>Structured issue and sprint management for teams that need deep workflows, permissions, reporting, and integrations.</p>
+        <ul><li>Strong epics, stories, tasks, bugs, sprints</li><li>Workflow states, reports, dashboards</li><li>External system option for client projects</li></ul>
+      </article>
+      <article class="record-card">
+        <span class="record-kicker">Flexible workspace</span>
+        <h3>ClickUp</h3>
+        <p>A flexible workspace combining tasks, docs, goals, views, comments, and lightweight project operations in one place.</p>
+        <ul><li>Tasks, lists, boards, docs, goals</li><li>Flexible views and team collaboration</li><li>External system option for client projects</li></ul>
+      </article>
+      <article class="record-card primary">
+        <span class="record-kicker">Recommended system of record</span>
+        <h3>Ajwain</h3>
+        <p>The project’s own Jira/ClickUp-style engineering workspace. Claude, agents, the browser portal, and MCP all write to the same governed record.</p>
+        <ul><li>Epics, stories, features, tasks, bugs</li><li>Documents, files, comments, tests, releases</li><li>Sprints, incidents, support tickets, audit history</li></ul>
+        <div class="record-entities"><span class="record-entity">epic</span><span class="record-entity">story</span><span class="record-entity">task</span><span class="record-entity">bug</span><span class="record-entity">document</span><span class="record-entity">release</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ PLAYGROUND ═════════ -->
+<section class="blk" id="playground">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/playground</b> agent simulation</div><h2>Run a workflow. Inspect every event.</h2></div>
+      <p class="lead">Pick a scenario and press run. Each step activates in order, approvals stop and wait for you, and every event is clickable. This is a demonstration of the documented flow — the browser is not calling OS, MCP or any real system.</p>
+    </div>
+    <div class="panel pg reveal" id="pg">
+      <div class="pg-head">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span class="demo-tag">DEMO / SIMULATED RUN</span>
+          <span class="mono" style="font-size:12px;color:var(--faint)" id="pgClock">idle</span>
+        </div>
+        <div class="ctrl">
+          <div class="seg" role="group" aria-label="Speed" id="speedSeg">
+            <button aria-pressed="false" data-s="0.5">0.5×</button><button aria-pressed="true" data-s="1">1×</button><button aria-pressed="false" data-s="2">2×</button>
+          </div>
+          <button class="btn btn-sm" id="pauseBtn" aria-label="Pause or resume (Space)">Pause <kbd>Space</kbd></button>
+          <button class="btn btn-sm" id="resetBtn">Reset</button>
+          <button class="btn btn-sm btn-primary mag" id="runBtn">Run scenario <kbd style="background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.15);color:#333">↵</kbd></button>
+        </div>
+      </div>
+      <div class="pg-side" id="scList" role="group" aria-label="Scenarios"></div>
+      <div class="pg-center">
+        <div class="pg-center-head">
+          <div><h3 id="scTitle"></h3><p id="scDesc"></p></div>
+        </div>
+        <div class="chain" id="chain"></div>
+      </div>
+      <aside class="pg-insp" id="insp" aria-live="polite"></aside>
+      <div class="pg-bottom">
+        <div class="stream">
+          <div class="stream-head"><span>event stream</span><span id="evCount">0 events</span></div>
+          <div class="stream-list" id="stream" role="list"><div class="empty">Run a scenario — events appear here. Click any event to inspect it.</div></div>
+        </div>
+        <div class="terminal">
+          <div class="term-tabs" role="tablist" id="termTabs"></div>
+          <div class="term-out" id="termOut" aria-live="polite"></div>
+          <label class="term-in"><span>$</span><input id="termIn" placeholder="type help" autocomplete="off" spellcheck="false" aria-label="Terminal input"></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ LIFECYCLE ═════════ -->
+<section class="blk" id="lifecycle">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/lifecycle</b> the coordinator's loop</div><h2>How an agent actually works</h2></div>
+      <p class="lead">The coordinator is the only hub. It understands the request, loads context, plans, delegates with a precise brief, collects reports, verifies, and records the result. Click any stage.</p>
+    </div>
+    <div class="rail reveal" id="rail"><div class="fill" id="railFill"></div></div>
+    <div class="panel stage-detail reveal" id="stageDetail" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ═════════ MCP ═════════ -->
+<section class="blk" id="mcp">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/mcp</b> connector layer</div><h2>One logged phone line to every real system.</h2></div>
+      <p class="lead">No agent touches a real system directly. Every call is loaded on demand, screened by the permission layer, sent through the MCP client to the right server, and returned as structured data.</p>
+    </div>
+    <div class="panel mcp-path reveal">
+      <div class="perm-row">
+        <div>
+          <h3 style="margin-bottom:10px">Send a tool call</h3>
+          <div class="seg" role="group" aria-label="Permission rule" id="permSeg">
+            <button aria-pressed="true" data-p="allow">allow</button><button aria-pressed="false" data-p="ask">ask</button><button aria-pressed="false" data-p="deny">deny</button>
+          </div>
+        </div>
+        <div class="perm-msg" id="permMsg"></div>
+        <button class="btn btn-primary mag" id="sendCall">Send create_bug()</button>
+      </div>
+      <div class="path-row" id="pathRow"></div>
+      <div id="pathOut" class="mono" style="font-size:12.5px;color:var(--muted);min-height:22px"></div>
+    </div>
+    <div class="conn-tabs reveal" role="tablist" id="connTabs"></div>
+    <div class="panel conn-body reveal" id="connBody"></div>
+  </div>
+</section>
+
+<!-- ═════════ AGENTS ═════════ -->
+<section class="blk" id="agents">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/agents</b> agent matrix</div><h2>Some hold a pen. Most hold a magnifying glass.</h2></div>
+      <p class="lead">19 named specialists plus the coordinator. Only the write group can change files, so asking a reviewer to review can never accidentally change anything. Click a row for the full profile.</p>
+    </div>
+    <div class="ag-toolbar reveal">
+      <label class="search"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <input id="agSearch" placeholder="Search agents…" aria-label="Search agents"><kbd>/</kbd></label>
+      <div class="seg" id="agFilter" role="group" aria-label="Agent family"></div>
+      <span class="ag-count" id="agCount"></span>
+    </div>
+    <div class="panel table-scroll reveal">
+      <table class="ag-table">
+        <thead><tr><th>Agent</th><th>Purpose</th><th>Access</th><th>Triggered when</th></tr></thead>
+        <tbody id="agBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ SAFETY ═════════ -->
+<section class="blk" id="safety">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/safety</b> safety center</div><h2>The assistant can ask. The records room decides.</h2></div>
+      <p class="lead">Security is enforced at two points: local permission rules and hooks on the machine, and independent access control on the OS server. Nothing an agent asserts locally widens what the backend allows.</p>
+    </div>
+    <div class="panel hitl reveal" aria-label="Human in the loop chain" id="hitl"></div>
+    <div class="safety-grid reveal" id="safetyGrid"></div>
+    <blockquote class="pull reveal">Agents assist. Humans remain accountable for important decisions.</blockquote>
+  </div>
+</section>
+
+<!-- ═════════ TEAMS ═════════ -->
+<section class="blk" id="teams">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/teams</b> team workflows</div><h2>One tool. Four ways of working.</h2></div>
+      <p class="lead">Each machine carries a work-style role that changes how Claude behaves. People own judgement, sign-off and client contact; agents own execution, review and evidence gathering.</p>
+    </div>
+    <div class="team-tabs reveal" role="tablist" id="teamTabs"></div>
+    <div class="panel team-body reveal" id="teamBody"></div>
+    <div class="panel deval reveal" id="deval">
+      <div class="blk-head" style="margin-bottom:20px">
+        <div><div class="path"><b>/teams/qa</b> DeepEval</div><h3 style="font-size:24px;letter-spacing:-.02em">How QA measures LLM output with DeepEval</h3></div>
+        <p class="lead" style="font-size:14px">DeepEval is an open-source, pytest-style framework for testing LLM output. QA writes test cases, attaches metrics with thresholds, and fails the run when a score drops below the gate. Drag the thresholds to see the gate respond.</p>
+      </div>
+      <div class="deval-grid">
+        <div>
+          <div class="flowline"><span>Test cases</span><em>→</em><span>Metrics + thresholds</span><em>→</em><span>deepeval test run</span><em>→</em><span>Release gate</span><em>→</em><span class="k-os">Test run in OS</span></div>
+          <p style="font-size:12px;color:var(--faint);margin-bottom:14px">Recording results as an OS test run (start_test_run) is the recommended wiring, matching the document's call for scheduled, recorded regression.</p>
+          <pre class="code" id="devalCode"></pre>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="font-size:14px">Gate simulator</b><span class="demo-tag">DEMO SCORES</span></div>
+          <div id="metrics"></div>
+          <div class="gate" id="gate"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ JEV AI ═════════ -->
+<section class="blk" id="jev">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/jev</b> JEV AI</div><h2>JEV AI</h2></div>
+      <p class="lead">JEV AI isn't described in the architecture document, so this page doesn't guess what it does. The slot below is wired in and ready: fill the JEV_AI data object and it renders here.</p>
+    </div>
+    <div class="panel jev reveal" id="jevBody"></div>
+  </div>
+</section>
+
+<!-- ═════════ ECOSYSTEM ═════════ -->
+<section class="blk" id="ecosystem">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/ecosystem</b> agents in use &amp; in the market</div><h2>What we run, and what else is out there.</h2></div>
+      <p class="lead">Green cards are part of this setup today. The rest are market alternatives, grouped by the job they would do. The market view is a general overview — check each vendor's docs for current features and pricing.</p>
+    </div>
+    <div class="ag-toolbar reveal">
+      <div class="seg" id="ecoFilter" role="group" aria-label="Ecosystem category"></div>
+    </div>
+    <div class="eco-grid reveal" id="ecoGrid"></div>
+  </div>
+</section>
+
+<!-- ═════════ ACTIVITY + STATUS ═════════ -->
+<section class="blk" id="activity">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/activity</b> agent activity</div><h2>One timeline of what every agent did.</h2></div>
+      <p class="lead">The document recommends a central agent-action audit view. This is what it could look like, assembled from the playground scenarios. <span class="demo-tag">DEMO DATA</span></p>
+    </div>
+    <div class="ag-toolbar reveal"><div class="seg" id="actFilter" role="group" aria-label="Activity filter"></div><span class="ag-count" id="actCount"></span></div>
+    <div class="panel table-scroll reveal" style="max-height:440px;overflow-y:auto">
+      <table class="ag-table"><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Connector · tool</th><th>Status</th><th>Result</th></tr></thead><tbody id="actBody"></tbody></table>
+    </div>
+
+    <div class="blk-head reveal" style="margin-top:80px">
+      <div><div class="path"><b>/status</b> implementation review</div><h2>What's built. What's next.</h2></div>
+      <p class="lead">From the document's independent review — built today, switched on but lightly used, available but not adopted, and recommended next.</p>
+    </div>
+    <div class="panel table-scroll reveal">
+      <table class="ag-table"><thead><tr><th>Capability</th><th>Status</th><th>Notes</th></tr></thead><tbody id="stBody"></tbody></table>
+    </div>
+    <div class="recs reveal" id="recs"></div>
+  </div>
+</section>
+
+<!-- ═════════ LEARN ═════════ -->
+<section class="blk" id="learn">
+  <div class="shell">
+    <div class="blk-head reveal">
+      <div><div class="path"><b>/learn</b> learning hub</div><h2>Study path for AI engineering.</h2></div>
+      <p class="lead">Eleven skill tracks from the September 2026 job-posting review, each with free material and a portfolio project. Pick your target role, tick resources as you finish them — progress saves in this browser.</p>
+    </div>
+    <div class="lms-top reveal">
+      <div class="panel signals">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3>What postings ask for</h3>
+          <div class="seg" id="sigSeg" role="group" aria-label="Posting dataset"></div>
+        </div>
+        <div class="sig-bars" id="sigBars"></div>
+        <p style="font-size:12px;color:var(--faint);margin-top:14px" id="sigNote"></p>
+      </div>
+      <div class="panel progress-card">
+        <svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="bg" cx="50" cy="50" r="42"/><circle class="fg" id="ringFg" cx="50" cy="50" r="42" stroke-dasharray="263.9" stroke-dashoffset="263.9"/></svg>
+        <div><div style="font-size:32px;font-weight:600;letter-spacing:-.03em" id="progPct">0%</div><div style="font-size:13px;color:var(--muted)" id="progTxt">0 of 0 items done</div>
+          <button class="btn btn-sm" style="margin-top:10px" id="progReset">Reset progress</button></div>
+      </div>
+    </div>
+    <div class="ag-toolbar reveal"><span style="font-size:13px;color:var(--muted)">Target role</span><div class="seg" id="roleSeg" role="group" aria-label="Target role"></div></div>
+    <div class="modules reveal" id="modules"></div>
+
+    <div class="panel table-scroll reveal" style="margin-top:16px">
+      <table class="focus-table" style="width:100%;border-collapse:collapse"><thead><tr><th>Target role</th><th>First portfolio project</th><th>Add next</th></tr></thead><tbody id="focusBody"></tbody></table>
+    </div>
+
+    <div class="study-grid reveal">
+      <div class="panel flash-deck">
+        <div style="display:flex;justify-content:space-between;align-items:center"><h3>AgentOps glossary</h3><span class="mono" style="font-size:12px;color:var(--faint)" id="flashIdx"></span></div>
+        <div class="flash" id="flash" role="button" tabindex="0" aria-label="Flip card"><div class="flash-in"><div class="flash-face front" id="flashF"></div><div class="flash-face back" id="flashB"></div></div></div>
+        <div style="display:flex;gap:8px"><button class="btn btn-sm" id="flashPrev">Previous</button><button class="btn btn-sm" id="flashFlip">Flip</button><button class="btn btn-sm" id="flashNext">Next</button></div>
+      </div>
+      <div class="panel quiz" id="quiz"></div>
+    </div>
+    <div class="reveal" style="margin-top:18px">
+      <div class="path"><b>evidence</b> sources behind the posting figures</div>
+      <div class="sources" id="sources"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div><strong>AAYUSH MISHRA</strong><span>SDET · AI + Automation Engineer</span><p>Building practical AI engineering systems, reliable test automation, and quality-first delivery workflows.</p></div>
+    <div><b>Navigation</b><a href="#map">System map</a><a href="#playground">Agent playground</a><a href="#learn">Learning hub</a></div>
+    <div><b>Portfolio</b><a href="/">Home</a><a href="/experience">Experience</a><a href="/education">Education</a><a href="/projects">Projects</a><a href="/opensource">Open source</a><a href="/contact">Contact</a></div>
+    <div><b>Automation Arsenal</b><div class="arsenal-links"><a href="/automation-arsenal">All automation tools</a><a href="/tools/Engineering-OS-Architecture-Interactive.html">AgentOps Architecture</a><a href="/tools/neuralforge.html">NeuralForge</a><a href="/tools/github-actions.html">GitHub Actions</a><a href="/tools/playwright.html">Playwright</a><a href="/tools/selenium.html">Selenium</a><a href="/tools/testng-selenium.html">TestNG + Selenium</a><a href="/tools/nova-act.html">Amazon Nova Act</a><a href="/tools/browser-use.html">Browser Use AI</a><a href="/tools/kane-ai.html">Kane AI</a><a href="/tools/postman.html">Postman</a><a href="#work-systems">Ajwain workspace</a></div></div>
+  </div>
+  <div class="shell footer-bottom"><span>© 2026 Aayush Mishra · AgentOps Architecture</span><span class="mono">Human intent → agents → MCP → verified delivery</span></div>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drTitle">
+  <div class="dr-head"><div><div id="drKind"></div><h3 id="drTitle"></h3><p id="drSub"></p></div><button class="x" id="drClose" aria-label="Close">✕</button></div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <input id="palIn" placeholder="Type a command or search agents…" autocomplete="off" aria-label="Command">
+  <div class="pal-list" id="palList" role="listbox"></div>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   DATA — sourced from the Engineering OS Architecture document
+   ══════════════════════════════════════════════════════════════ */
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const KIND = {human:'k-human',agent:'k-agent',mcp:'k-mcp',os:'k-os',ext:'k-ext',err:'k-err'};
+const COLOR = {human:'var(--amber)',agent:'var(--indigo)',mcp:'var(--teal)',os:'var(--green)',ext:'var(--grey)',err:'var(--red)'};
+
+const GLOSSARY = {
+  'Claude Code':'The terminal assistant you type into; it plans and does the work or delegates it.',
+  'Agent':'A smaller specialist helper Claude creates for one bounded job, with a fixed tool set.',
+  'Sub-agent':'A smaller specialist helper Claude creates for one bounded job, with a fixed tool set.',
+  'Coordinator':'The main Claude session that plans, delegates, integrates, and verifies.',
+  'Orchestrator':'Another name for the coordinator: the main session that plans, delegates, integrates, and verifies.',
+  'MCP':'Model Context Protocol: the standard connector that links Claude to real systems through servers offering tools and data.',
+  'Tool':'A single action a connector can perform, for example create_bug or get_my_tasks.',
+  'Deferred tool':'A tool whose name is known but whose details are loaded only when needed, via ToolSearch.',
+  'OS':'The engineering platform and portal: the single source of truth for all work, docs, tests, and releases.',
+  'Role':'A per-machine setting (developer, designer, tester, business-analyst) that changes how Claude works.',
+  'Hook':'A small script the terminal runs automatically at set points, for example at session start.',
+  'link_commit':'Ties a Git commit to its work item so the record shows which code resolved which item.',
+  'Skill':'A ready-made set of instructions for a task, run by name, for example /work or /diagnose.',
+  'RBAC':'Role-based access control: the backend checks project membership and permissions on every read and write.',
+  'Regression':'Re-running earlier tests to make sure a new change did not break something that used to work.',
+  'Fork':'A clone of the coordinator that inherits its full context; every other agent starts fresh with only its brief.'
+};
+
+const HERO_LAYERS = [
+  {k:'human',t:'Human',d:'intent in plain language'},
+  {k:'agent',t:'Claude Code · coordinator',d:'plans · delegates · verifies'},
+  {k:'agent',t:'Specialist agents',d:'build · review · investigate'},
+  {k:'mcp',t:'MCP layer',d:'allow · ask · deny'},
+  {k:'os',t:'Ajwain',d:'single source of truth'},
+  {k:'ext',t:'External systems',d:'GitHub · AWS · Azure · Docker · Kubernetes · Cloudflare · Figma'}
+];
+
+const MAP_NODES = [
+  {id:'human',x:500,y:36,w:220,t:'Human',s:'engineer · designer · QA · BA',k:'human',layer:'human'},
+  {id:'claude',x:500,y:118,w:170,t:'Claude Code',s:'terminal · Opus 4.8',k:'agent',layer:'claude'},
+  {id:'coord',x:500,y:200,w:170,t:'Coordinator',s:'main session',k:'agent',layer:'claude'},
+  {id:'portal',x:140,y:200,w:180,t:'Ajwain Workspace',s:'browser front door',k:'os',layer:'os'},
+  {id:'impl',x:245,y:300,w:150,t:'Implementers',s:'write',k:'agent',layer:'agents'},
+  {id:'rev',x:420,y:300,w:150,t:'Reviewers',s:'read-only',k:'agent',layer:'agents'},
+  {id:'inv',x:595,y:300,w:150,t:'Investigators',s:'read-only',k:'agent',layer:'agents'},
+  {id:'plan',x:770,y:300,w:150,t:'Planners',s:'read-only',k:'agent',layer:'agents'},
+  {id:'mcp',x:500,y:398,w:320,t:'MCP layer',s:'ToolSearch · permissions · client',k:'mcp',layer:'mcp'},
+  {id:'os',x:215,y:494,w:190,t:'OS backend',s:'work · docs · tests · releases',k:'os',layer:'os'},
+  {id:'figma',x:430,y:494,w:130,t:'Figma',s:'design files',k:'ext',layer:'ext'},
+  {id:'chrome',x:610,y:494,w:130,t:'Chrome',s:'local browser',k:'ext',layer:'ext'},
+  {id:'ide',x:790,y:494,w:130,t:'VS Code',s:'editor',k:'ext',layer:'ext'},
+  {id:'git',x:110,y:580,w:130,t:'Git / GitHub',s:'source control',k:'ext',layer:'ext'},
+  {id:'azure',x:265,y:580,w:120,t:'AWS / Azure',s:'deploy targets',k:'ext',layer:'ext'},
+  {id:'cf',x:420,y:580,w:130,t:'Cloudflare',s:'DNS',k:'ext',layer:'ext'}
+];
+const MAP_EDGES = [
+  ['human','claude'],['human','portal'],['claude','coord'],
+  ['coord','impl'],['coord','rev'],['coord','inv'],['coord','plan'],
+  ['impl','mcp'],['rev','mcp'],['inv','mcp'],['plan','mcp'],['coord','mcp'],
+  ['mcp','os','os'],['mcp','figma','figma-mcp'],['mcp','chrome','claude-in-chrome'],['mcp','ide','ide'],
+  ['portal','os'],['os','git'],['os','azure'],['os','cf'],['coord','git',null,true]
+];
+const NODE_INFO = {
+  human:{title:'Human',sub:'The manager',role:'Decides what to build and approves important actions.',resp:['Types intent in plain language','Approves anything set to ask','Owns judgement, sign-off and client contact','Approves commits, pushes and version changes'],conns:['Claude Code (terminal)','Engineering Portal (browser)'],safety:'Commits, pushes and version-number changes need a person\'s explicit approval.',flow:1},
+  claude:{title:'Claude Code',sub:'Terminal · Opus 4.8',role:'The assistant you type into, loaded with shared team configuration, a per-machine role, ready-made skills, safety hooks and small file memory.',resp:['Reads team config, role, skills and memory','Loads tool details on demand through ToolSearch','Hosts the coordinator main session'],conns:['Human','Coordinator'],safety:'Applies local permission rules (allow / ask / deny) and hooks at session start and around actions.',flow:0},
+  coord:{title:'Coordinator',sub:'Main session · orchestrator',role:'Senior assistant: plans, delegates, integrates and verifies. The only hub — agents never talk to each other.',resp:['Plans work and decides act-directly or delegate','Spawns sub-agents via the Agent tool with a precise brief','Chooses model per job: fast for lookups, mid for routine edits, most capable for design, investigation and shipped code','Merges reports, runs reviewers, records results'],conns:['Implementers','Reviewers','Investigators','Planners','MCP layer','Git (commit, with approval)'],safety:'Holds all tools but cannot bypass hard denies: production changes, worktrees, unapproved push.',flow:1},
+  portal:{title:'Ajwain Workspace',sub:'Browser front door',role:'Where people read and manage work visually. Writes to the same Ajwain record as the terminal.',resp:['Projects, sprints, backlog, tasks, bugs, epics, features','Releases, test runs, documents and files','Several sprints in parallel (e.g. Engineering, Marketing, Partners)'],conns:['Human','Ajwain backend'],safety:'Same access-control layer as MCP calls — project membership and permissions.',flow:0},
+  impl:{title:'Implementers',sub:'The write group',role:'Build a specified unit in their lane, build until it passes, and report per-file results.',resp:['dotnet-implementer','react-implementer','react-native-implementer','edit-sweeper','general-purpose'],conns:['Coordinator (brief in, report out)','MCP layer'],safety:'Only this group can change files. Cannot design vague work or ship without a spec.',flow:1},
+  rev:{title:'Reviewers',sub:'Read-only',role:'Read the resulting change and report problems without touching anything.',resp:['security-reviewer','landmine-reviewer','ui-reviewer','blast-radius-checker'],conns:['Coordinator','MCP layer'],safety:'Cannot change code — asking for a review can never accidentally change anything.',flow:4},
+  inv:{title:'Investigators',sub:'Read-only',role:'Read code, logs or the database and return findings.',resp:['scout','Explore','kql-investigator','sql-investigator','dacpac-drift-analyst','deploy-verifier'],conns:['Coordinator','MCP layer'],safety:'Read-only. sql-investigator writes are hard-forbidden; dacpac-drift-analyst cannot apply to a live database.',flow:3},
+  plan:{title:'Planners',sub:'Read-only',role:'Produce a plan or an answer, and change nothing.',resp:['Plan','claude-code-guide'],conns:['Coordinator','MCP layer'],safety:'Cannot edit or write.',flow:1},
+  mcp:{title:'MCP layer',sub:'Model Context Protocol',role:'The single, logged, approved way to reach any real system. Claude Code includes an MCP client; each server exposes tools and resources.',resp:['ToolSearch loads deferred tool details before first call','Permission layer applies allow / ask / deny','Client sends the call to the right server over a local channel','Server returns a typed result'],conns:['os','figma-mcp','claude-in-chrome','ide'],safety:'Login is never claimed by the terminal; the OS backend decides what the signed-in identity may see and change.',flow:0},
+  os:{title:'OS backend',sub:'Single source of truth',role:'The central records room: tasks, bugs, epics, features, sprints, releases, test cases, incidents, support tickets, documents and files.',resp:['Checks access, writes to the database, returns typed results','Owns links out to Git, Cloudflare and the build pipeline','Searchable Documents store and Files store'],conns:['MCP (os connector)','Engineering Portal','Git / GitHub','Azure','Cloudflare'],safety:'RBAC by project membership; Documents store refuses to save live secrets; approver identity is scoped.',flow:0},
+  figma:{title:'Figma',sub:'via figma-mcp',role:'Design files read locally: nodes, styles, variables (design tokens) and screenshots.',resp:['get_node · get_styles · get_variable_defs','get_screenshot · get_selection · list_files'],conns:['MCP (figma-mcp)'],safety:'Read-only and one-way, with a local Figma token.',flow:2},
+  chrome:{title:'Chrome',sub:'via claude-in-chrome',role:'A local Chrome browser Claude can drive for testing and checks.',resp:['navigate · computer · read_page','form_input · read_console_messages · read_network_requests'],conns:['MCP (claude-in-chrome)'],safety:'Local browser only, never remote; per-site permission granted in the extension.',flow:7},
+  ide:{title:'VS Code',sub:'via ide',role:'The editor: diagnostics and code execution.',resp:['getDiagnostics','executeCode'],conns:['MCP (ide)'],safety:'Local editor session.',flow:1},
+  git:{title:'Git / GitHub',sub:'Source control',role:'Code goes here; each commit is linked to its work item.',resp:['Commit linking via link_commit and gh CLI','One working copy per repo — worktrees banned'],conns:['OS backend','Coordinator (approved commit)'],safety:'Commits and pushes need explicit approval. No dedicated GitHub connector today.',flow:6},
+  azure:{title:'AWS / Azure',sub:'Deploy targets',role:'Containerized services can build and deploy to AWS or Azure through CI/CD.',resp:['Docker images package the application','Kubernetes can orchestrate scaled workloads','deploy-verifier checks health after deploy','App Insights or cloud logs support diagnosis'],conns:['OS backend'],safety:'Name the cloud account or subscription on every command rather than switching a shared setting.',flow:6},
+  cf:{title:'Cloudflare',sub:'DNS',role:'DNS tools exist in OS; configured, used occasionally.',resp:['Cloudflare DNS / OTA / build tools'],conns:['OS backend'],safety:'Configured, lightly used — not a routine step.',flow:0}
+};
+const LAYERS = [
+  {id:'all',t:'All layers'},
+  {id:'human',t:'Human',resp:'Expresses intent in plain language and approves important actions.',in:['Business need, bug report, design, release decision'],out:['A prompt in Claude Code','Approve / reject on ask-level actions'],boundary:'The final say on commits, pushes, version numbers and sign-offs.'},
+  {id:'claude',t:'Claude Code',resp:'Turns intent into a plan and a set of actions; coordinates everything below.',in:['Prompt','Team config, role, skills, memory','Context from OS: sprint, tasks, docs'],out:['Briefs to sub-agents','Tool calls','One integrated answer and committed work'],boundary:'Local permission rules and hooks; hard blocks on production, worktrees and unapproved push.'},
+  {id:'agents',t:'Sub-agents',resp:'Carry out bounded pieces — build, review, investigate or plan — and report back to the coordinator.',in:['A precise brief from the coordinator'],out:['Structured report: code built, findings, conclusions'],boundary:'Fixed tool sets. Only implementers can write files.'},
+  {id:'mcp',t:'MCP',resp:'The only way any of them touch a real system.',in:['Tool call with arguments'],out:['Typed structured result'],boundary:'Permission layer: allow runs silently, ask prompts a person, deny blocks.'},
+  {id:'os',t:'Ajwain OS',resp:'Holds the truth for the whole delivery lifecycle; reachable from portal and terminal alike.',in:['MCP os calls','Portal actions'],out:['Work items, docs, test runs, releases','Links to Git, Azure, Cloudflare'],boundary:'Server-side RBAC independent of anything the terminal claims.'},
+  {id:'ext',t:'External',resp:'Outside suppliers at the edges: design, browser, editor, source control, cloud, DNS.',in:['Calls via their connector or OS'],out:['Designs, page state, diagnostics, builds, deployments'],boundary:'Local-only connectors (Chrome, Figma); named subscriptions and firewall rules per session.'}
+];
+
+/* Agents — responsibility matrix §5.1, triggers §5.2 */
+const FAMILIES = {
+  coordinator:{t:'Coordinator',k:'agent',trig:'Every session — it is the main session.'},
+  implementer:{t:'Implementers',k:'agent',trig:'There is a precise spec and a lane to build.'},
+  reviewer:{t:'Reviewers',k:'mcp',trig:'Before a change is pushed — especially security, data or portal UI.'},
+  investigator:{t:'Investigators',k:'human',trig:'Lookups, production diagnosis, schema drift, post-deploy checks.'},
+  planner:{t:'Planners',k:'os',trig:'The next step is a design decision or a how-does-it-work question.'},
+  utility:{t:'Utility',k:'ext',trig:'Named directly for a narrow job.'}
+};
+const AGENTS = [
+  {n:'coordinator',f:'coordinator',g:'CO',w:true,p:'Plan, delegate, integrate, verify, and commit the work that ships.',can:['All tools','Spawn any agent','Write code'],cant:['Bypass hard safety denies (production, worktrees, unapproved push)'],model:'Opus 4.8 (main session)'},
+  {n:'dotnet-implementer',f:'implementer',g:'.N',w:true,p:'Build a specified .NET unit: an API endpoint, a page, a function, a data entity.',can:['Read, edit, write files','Run builds'],cant:['Design vague work','Ship without a clear spec']},
+  {n:'react-implementer',f:'implementer',g:'Re',w:true,p:'Build a specified React web unit: a page, component, hook, or API slice.',can:['Read, edit, write files','Lint and build'],cant:['Native mobile config','Version numbers']},
+  {n:'react-native-implementer',f:'implementer',g:'RN',w:true,p:'Build a specified mobile (React Native) unit.',can:['Read, edit, write files','Typecheck'],cant:['Touch native build config or versions unless told']},
+  {n:'edit-sweeper',f:'implementer',g:'ES',w:true,p:'Carry out an explicit, mechanical edit across many files, then verify.',can:['Read, edit, write','Build, lint'],cant:['Improvise beyond the given edit list']},
+  {n:'general-purpose',f:'implementer',g:'GP',w:true,p:'Catch-all for multi-step tasks that fit no specific agent.',can:['All tools'],cant:['Nothing specific — used when no better fit']},
+  {n:'scout',f:'investigator',g:'Sc',w:false,p:'Fast, cheap read-only recon: where is X, quick search-and-summarise.',can:['Search','Read','Summarise'],cant:['Edit','Plan','Review','Verify']},
+  {n:'Explore',f:'investigator',g:'Ex',w:false,p:'Broad read-only search across many files; returns conclusions.',can:['All read tools'],cant:['Edit or write']},
+  {n:'kql-investigator',f:'investigator',g:'KQ',w:false,p:'Query production logs (App Insights) and return a findings table.',can:['Read-only queries'],cant:['Change resources','Dump raw logs']},
+  {n:'sql-investigator',f:'investigator',g:'SQ',w:false,p:'Read-only database checks on production or staging.',can:['Read queries only'],cant:['Any write or schema change (hard-forbidden)']},
+  {n:'dacpac-drift-analyst',f:'investigator',g:'DD',w:false,p:'Analyse database schema drift and propose safe migrations.',can:['Analyse','Propose'],cant:['Apply anything to a live database']},
+  {n:'deploy-verifier',f:'investigator',g:'DV',w:false,p:'Run the post-deploy checklist and return GREEN or RED per app.',can:['Read-only health checks'],cant:['Deploy','Fix']},
+  {n:'security-reviewer',f:'reviewer',g:'Se',w:false,p:'Review a change for security holes (permissions, access, secrets).',can:['Read-only analysis'],cant:['Change code']},
+  {n:'landmine-reviewer',f:'reviewer',g:'LM',w:false,p:'Scan a change for known .NET mistakes before it is pushed.',can:['Read-only analysis'],cant:['Change code']},
+  {n:'ui-reviewer',f:'reviewer',g:'UI',w:false,p:'Check portal UI against the house style standard.',can:['Read-only analysis'],cant:['Change code']},
+  {n:'blast-radius-checker',f:'reviewer',g:'BR',w:false,p:'Say which apps a shared change breaks, and in what order to ship.',can:['Read-only analysis'],cant:['Change code']},
+  {n:'Plan',f:'planner',g:'Pl',w:false,p:'Design an implementation plan with steps and trade-offs.',can:['All read tools'],cant:['Edit or write']},
+  {n:'claude-code-guide',f:'planner',g:'CG',w:false,p:'Answer questions about Claude Code, the SDK, the API, and Slack.',can:['Read','Web fetch','Web search'],cant:['Change the repo']},
+  {n:'statusline-setup',f:'utility',g:'SL',w:true,p:'Configure the terminal status line.',can:['Read and edit that one setting'],cant:['Broad edits']},
+  {n:'fork',f:'utility',g:'Fk',w:true,p:'A clone of the coordinator that inherits its full context.',can:['Whatever the parent can'],cant:['Be downgraded to a weaker model'],model:'Inherits the parent session'}
+];
+
+/* MCP connectors §6.1 */
+const MCP_SERVERS = [
+  {id:'os',purpose:'The engineering platform: work items, docs, tests, releases, incidents, DNS.',dir:'Read + write (system of record)',tools:['get_my_tasks','create_bug','update_bug','add_comment','start_test_run','create_release','link_commit','search_docs'],access:'OS command-line login token; backend controls access by project membership.',
+   req:'create_bug({\n  project: "Acme Portal",\n  title: "Login returns 500 on valid submit",\n  severity: "High",\n  component: "Auth",\n  addToCurrentSprint: true\n})',res:'{\n  "id": "BUG-1421",\n  "status": "New",\n  "sprint": "current"\n}'},
+  {id:'figma-mcp',purpose:'Read design files and design tokens.',dir:'Read-only, one-way',tools:['get_node','get_styles','get_variable_defs','get_screenshot','get_selection','list_files'],access:'Local Figma token; runs on the machine.',
+   req:'get_variable_defs({\n  node: "settings-screen"\n})',res:'{\n  "color/surface": "#0D1118",\n  "space/md": 16,\n  "type/body": "Geist 15/24"\n}'},
+  {id:'claude-in-chrome',purpose:'Drive a local Chrome browser for testing and checks.',dir:'Local browser control',tools:['navigate','computer','read_page','form_input','read_console_messages','read_network_requests'],access:'Local browser only; per-site permission granted in the extension.',
+   req:'navigate({ url: "http://localhost:5173/login" })\nread_console_messages()',res:'{\n  "errors": 1,\n  "messages": ["POST /api/login 500"]\n}'},
+  {id:'ide',purpose:'The VS Code editor: diagnostics and code execution.',dir:'Local editor session',tools:['getDiagnostics','executeCode'],access:'Local editor session.',
+   req:'getDiagnostics({ file: "ReportController.cs" })',res:'{\n  "diagnostics": []\n}'}
+];
+
+const PERMISSIONS = {
+  allow:{msg:'<b>allow</b> — the call runs silently. Routine reads and writes don\'t interrupt you.',stop:null},
+  ask:{msg:'<b>ask</b> — human approval is required before the tool executes. You get a one-line confirmation.',stop:'ask'},
+  deny:{msg:'<b>deny</b> — the request is blocked at the permission layer. The system does not execute the action.',stop:'deny'}
+};
+const PATH_STAGES = [['Claude','coordinator'],['ToolSearch','load details'],['Permission','allow/ask/deny'],['MCP client','local channel'],['MCP server','os'],['OS backend','RBAC · write'],['Result','typed data'],['Claude','reports back']];
+
+/* Lifecycle */
+const LIFECYCLE = [
+  {t:'Intent',k:'human',who:'Human',b:'A person types an instruction in Claude Code in plain language — file a bug, pick up a task, fix a slow report.',ex:'"Login returns 500 on valid submit."'},
+  {t:'Context',k:'agent',who:'Claude Code',b:'Claude loads the shared team configuration, the machine\'s role, skills and file memory, and reads current state from OS: the sprint, the person\'s tasks and bugs, project notes and documents.',ex:'get_current_sprint · get_my_tasks · search_docs'},
+  {t:'Planning',k:'agent',who:'Coordinator',b:'The coordinator decides whether to act directly or delegate. If the next step is a design decision, the Plan agent produces a plan and changes nothing.',ex:'Plan: locate → confirm → fix → review'},
+  {t:'Delegation',k:'agent',who:'Coordinator',b:'It spawns sub-agents with a precise brief, choosing the model per job. Agents never talk to each other; each returns a structured report. A fork inherits full context; everyone else starts fresh.',ex:'spawn(react-implementer) ∥ spawn(dotnet-implementer)'},
+  {t:'Tool call',k:'mcp',who:'MCP client',b:'Tools arrive deferred. ToolSearch loads a tool\'s details before its first call, which keeps startup light even when a connector offers hundreds of tools.',ex:'ToolSearch("create_bug") → schema loaded'},
+  {t:'Permission',k:'human',who:'Permission layer',b:'Rules classify the action: allow runs silently, ask prompts the person, deny blocks it. Commits, pushes and version changes always need approval.',ex:'create_bug → ask → approved'},
+  {t:'Execution',k:'mcp',who:'MCP server',b:'The server runs the action against its system. For OS, the backend checks project membership and permissions before anything touches the database.',ex:'os server → backend → RBAC → write'},
+  {t:'Result',k:'os',who:'OS backend',b:'A typed result travels back as data Claude can read. Agents report their findings to the coordinator, never to each other.',ex:'{ "id": "BUG-1421" }'},
+  {t:'Verification',k:'agent',who:'Reviewers + checks',b:'Nothing is done because it built. Reviewers read the change, builds must be green, and after deploy the deploy-verifier returns GREEN or RED.',ex:'security-reviewer: no findings · build: pass'},
+  {t:'Record',k:'os',who:'OS',b:'Durable notes go into work-item comments, commits are linked to work items, and the change is instantly visible in the portal. If a write fails: stop and report — never save to a side file.',ex:'link_commit · add_comment · portal updated'}
+];
+
+/* Safety §12 */
+const SAFETY = [
+  {id:'allow',t:'ALLOW',k:'os',rules:[
+    ['Routine reads','Reads of work items, docs and code run silently so everyday work is not slowed.'],
+    ['Search and lookups','search_work_items, get_my_tasks and similar calls run without a prompt.'],
+    ['Shared permission template','Rules come from a shared template so every machine behaves consistently.']]},
+  {id:'ask',t:'ASK',k:'human',rules:[
+    ['Commits','A person approves each commit — the coordinator prepares it, the human decides.'],
+    ['Pushes','Pushing to the remote needs explicit approval.'],
+    ['Version-number changes','Version numbers change only with a person\'s approval.'],
+    ['Filing records','Actions like create_bug can be set to ask, giving a one-line confirmation.']]},
+  {id:'deny',t:'DENY',k:'err',rules:[
+    ['Secrets in chat or shared repos','Secrets are never pasted into chat or committed to a shared repo.'],
+    ['Secrets in Documents store','The store refuses to save anything containing a live secret — record where it lives, not the secret.'],
+    ['Out-of-scope data','RBAC means an agent sees only the projects its identity belongs to.'],
+    ['Unentitled sign-offs','Approver identity is scoped so an agent cannot approve a sign-off it is not entitled to.']]},
+  {id:'hard',t:'HARD BLOCK',k:'err',rules:[
+    ['Direct production changes','Banned outright; no rule or prompt unlocks them.'],
+    ['Git worktrees','Banned: there is one live working copy per repo, shared by every session.'],
+    ['Database writes by sql-investigator','Any write or schema change is hard-forbidden.'],
+    ['Sweeping another session\'s files','Never sweep another session\'s in-progress files into a commit.']]}
+];
+const HITL = [['Human','human'],['Request','human'],['Claude','agent'],['Agent','agent'],['Action','mcp'],['Permission','mcp'],['Human approval','gate'],['Execution','os']];
+
+/* Teams §4.1 + §10.1 */
+const TEAMS = [
+  {id:'dev',t:'Developers',role:'developer',model:'Most capable',k:'agent',
+   beh:'Full rigour: plans before non-trivial changes, works in parallel, verifies builds, raises issues.',
+   loop:[['Planning','Confirms assignees, sprint and priority.','Creates the epic, features and tasks; places them in the right sprint.'],
+         ['Development','Reviews the approach at key points, approves commits.','Implementer agents build lanes; the coordinator integrates and builds green.'],
+         ['Code review','Approves or requests changes; owns the merge decision.','Security, landmine, UI and blast-radius reviewers verify the change.'],
+         ['Bug fix','Confirms the defect and verifies the fix.','Finds the root cause, fixes, links the commit, writes the resolution.']],
+   agents:['dotnet-implementer','react-implementer','react-native-implementer','edit-sweeper','security-reviewer','landmine-reviewer','blast-radius-checker','kql-investigator'],
+   conns:['os','ide','figma-mcp (read)']},
+  {id:'qa',t:'QA',role:'tester',model:'Fast',k:'mcp',
+   beh:'Verification-first. Reproduces before concluding, thinks in edge cases, files bugs with evidence.',
+   loop:[['QA','Designs coverage, runs exploratory testing, judges pass or fail.','Creates test cases, records test runs, drives the browser for checks.'],
+         ['LLM evaluation','Sets metric thresholds and decides what blocks a release.','DeepEval test cases score model output in CI; results feed the gate.'],
+         ['Bug fix','Confirms the defect and verifies the fix.','Files the bug with steps and evidence; checks for duplicates first.'],
+         ['Regression','Decides how much to re-test.','Re-runs the relevant suites and reports results.']],
+   agents:['deploy-verifier','ui-reviewer','scout'],conns:['os (start_test_run, create_bug)','claude-in-chrome']},
+  {id:'ba',t:'Business analysts',role:'business-analyst',model:'Fast',k:'human',
+   beh:'Requirements and client documents in plain business language, using the document skill.',
+   loop:[['Requirement','Gathers needs, talks to the client, decides scope.','Drafts BRD, FRD and user stories; structures them.'],
+         ['Planning','Confirms scope and priority with stakeholders.','Creates the epic, features and tasks in OS.'],
+         ['Release','Communicates the release to the client.','Release notes written from resolved items.']],
+   agents:['Plan','Explore'],conns:['os (search_docs, work items)']},
+  {id:'design',t:'Designers',role:'designer',model:'Fast',k:'os',
+   beh:'Fast and do-as-told. Minimal planning, concise replies, focus on UI, layout and content.',
+   loop:[['Design','Creates the Figma design and sets the visual direction.','Reads Figma tokens and screenshots, captures design intent into tasks.'],
+         ['Handoff','Pastes the frame link on the feature.','Creates build tasks with exact tokens and QA test cases from the design.'],
+         ['Review','Judges whether the build matches the intent.','ui-reviewer checks the built screen against the house standard.']],
+   agents:['react-implementer','ui-reviewer'],conns:['figma-mcp','os']}
+];
+
+const DEEPEVAL_METRICS = [
+  {id:'rel',t:'Answer relevancy',score:.84,th:.7,higher:true},
+  {id:'faith',t:'Faithfulness',score:.78,th:.8,higher:true},
+  {id:'ctx',t:'Contextual recall',score:.81,th:.7,higher:true},
+  {id:'hall',t:'Hallucination',score:.12,th:.2,higher:false}
+];
+const DEEPEVAL_CODE = `<span class="tk-k">from</span> deepeval <span class="tk-k">import</span> assert_test
+<span class="tk-k">from</span> deepeval.test_case <span class="tk-k">import</span> LLMTestCase
+<span class="tk-k">from</span> deepeval.metrics <span class="tk-k">import</span> (
+    AnswerRelevancyMetric, FaithfulnessMetric,
+)
+
+<span class="tk-k">def</span> <span class="tk-f">test_release_notes_summary</span>():
+    case = LLMTestCase(
+        input=<span class="tk-s">"Summarise the fixes in release 2.4.0"</span>,
+        actual_output=generate_summary(<span class="tk-s">"2.4.0"</span>),
+        retrieval_context=load_resolved_items(<span class="tk-s">"2.4.0"</span>),
+    )
+    assert_test(case, [
+        AnswerRelevancyMetric(threshold=<span class="tk-n">0.7</span>),
+        FaithfulnessMetric(threshold=<span class="tk-n">0.8</span>),
+    ])
+
+<span class="tk-c"># run in CI:  deepeval test run test_release_notes.py</span>`;
+
+/* JEV AI — details to be supplied by the team */
+const JEV_AI = {
+  name:'JEV AI',
+  summary:null,       // one-line description of what JEV AI does
+  owner:null,         // owning team
+  layer:null,         // where it sits: human / claude / agents / mcp / os / external
+  inputs:null,        // what it reads
+  outputs:null,       // what it produces
+  access:null         // permissions / connectors it uses
+};
+
+/* Ecosystem — market overview, not an endorsement */
+const ECOSYSTEM = [
+  {c:'use',n:'Claude Code',tag:'In use',d:'Terminal coordinator on Opus 4.8 with team config, roles, skills, hooks and memory.',fit:'The coordinator for every session.'},
+  {c:'use',n:'19 specialist sub-agents',tag:'In use',d:'Implementers, reviewers, investigators, planners and utilities with fixed tool sets.',fit:'Bounded work delegated by the coordinator.'},
+  {c:'use',n:'MCP: os · figma-mcp · claude-in-chrome · ide',tag:'In use',d:'The connector layer to the engineering platform, design files, local browser and editor.',fit:'Every real-system call.'},
+  {c:'use',n:'AWS · Docker · Kubernetes',tag:'Delivery stack',d:'Cloud hosting, container packaging, and orchestration for repeatable builds and scalable deployments.',fit:'The deployment layer behind Ajwain delivery workflows.'},
+  {c:'use',n:'DeepEval',tag:'In use · QA',d:'Open-source, pytest-style LLM evaluation with metrics like relevancy, faithfulness and hallucination.',fit:'QA quality gate for LLM output.'},
+  {c:'coding',n:'GitHub Copilot coding agent',tag:'Coding agent',d:'Agent inside GitHub that takes an issue and opens a pull request.',fit:'Could fill the "no dedicated GitHub connector" gap for PR-centric teams.'},
+  {c:'coding',n:'OpenAI Codex',tag:'Coding agent',d:'Cloud and CLI coding agent that works on tasks in a sandboxed copy of a repo.',fit:'Comparison point for the implementer lane.'},
+  {c:'coding',n:'Cursor',tag:'Editor agent',d:'AI-first code editor with an agent mode for multi-file changes.',fit:'Alternative editor surface to the ide connector.'},
+  {c:'coding',n:'Devin (Cognition)',tag:'Autonomous agent',d:'Hosted software agent that plans and executes tasks end to end.',fit:'Contrast: more autonomy, fewer human gates than this setup.'},
+  {c:'coding',n:'Amazon Q Developer',tag:'Coding agent',d:'AWS assistant with agents for code, tests and upgrades.',fit:'Relevant for AWS-heavy client work.'},
+  {c:'coding',n:'Gemini CLI',tag:'Terminal agent',d:'Google\'s open-source terminal agent with MCP support.',fit:'Direct comparison to Claude Code\'s terminal model.'},
+  {c:'coding',n:'Aider',tag:'Open source',d:'Terminal pair-programmer that edits files and commits with git.',fit:'Lightweight open-source reference.'},
+  {c:'browser',n:'Browser Use',tag:'Browser agent',d:'Open-source library that lets an LLM drive a real browser from a plain-language task.',fit:'Scheduled browser regression (recommendation 2).'},
+  {c:'browser',n:'Amazon Nova Act',tag:'Browser agent',d:'SDK for reliable browser actions composed into workflows.',fit:'Structured UI test flows.'},
+  {c:'browser',n:'Playwright MCP',tag:'MCP server',d:'MCP server exposing Playwright browser automation as tools.',fit:'A test-focused alternative to claude-in-chrome.'},
+  {c:'framework',n:'Claude Agent SDK',tag:'Framework',d:'Build custom agents on the same harness that powers Claude Code.',fit:'Scheduled maintenance agents (recommendation 7).'},
+  {c:'framework',n:'LangGraph',tag:'Framework',d:'Graph-based orchestration for stateful, multi-step agents.',fit:'Explicit workflow graphs with checkpoints.'},
+  {c:'framework',n:'OpenAI Agents SDK',tag:'Framework',d:'Lightweight SDK for agents, handoffs and guardrails.',fit:'Comparison for handoff patterns.'},
+  {c:'framework',n:'CrewAI',tag:'Framework',d:'Role-based multi-agent crews that collaborate on tasks.',fit:'Contrast: agents talk to each other; here they don\'t.'},
+  {c:'framework',n:'Microsoft AutoGen',tag:'Framework',d:'Multi-agent conversation framework from Microsoft Research.',fit:'Research reference for multi-agent patterns.'},
+  {c:'eval',n:'Ragas',tag:'Evaluation',d:'Metrics focused on retrieval-augmented generation quality.',fit:'RAG-specific checks alongside DeepEval.'},
+  {c:'eval',n:'Promptfoo',tag:'Evaluation',d:'CLI for prompt testing and red-teaming with config files.',fit:'Prompt-injection tests (security gap).'},
+  {c:'eval',n:'LangSmith',tag:'Observability',d:'Tracing, datasets and evaluation for LLM apps.',fit:'Model for the agent-action audit view.'},
+  {c:'eval',n:'Arize Phoenix',tag:'Observability',d:'Open-source tracing and evaluation built on OpenTelemetry.',fit:'Self-hosted traces for agent runs.'}
+];
+const ECO_CATS = [['all','All'],['use','In use'],['coding','Coding agents'],['browser','Browser agents'],['framework','Frameworks'],['eval','Eval & observability']];
+
+/* Status §15.1 + recommendations §16.2 */
+const STATUS = [
+  ['Terminal + shared team configuration, roles, skills, hooks, memory','impl','Implemented','Synced config; work-style roles; small file memory; large-context handling.'],
+  ['Sub-agents (19 types)','impl','Implemented','Implementers, reviewers, investigators, planners; model chosen per task.'],
+  ['os connector (work items, docs, tests, releases)','impl','Implemented','The source of truth; used every session.'],
+  ['Figma connector','impl','Implemented','Connected; read tools available for the design pipeline.'],
+  ['Git / GitHub linkage','part','Partial','Commits linked via the CLI; no dedicated GitHub connector.'],
+  ['Production diagnosis (logs, kql-investigator)','impl','Implemented','Read-only diagnosis on demand.'],
+  ['Permissions, branch guard, safety denies','impl','Implemented','Allow / ask / deny; worktrees and production changes blocked.'],
+  ['claude-in-chrome browser automation','idle','Configured, light use','Available for QA and checks; not yet a standard step.'],
+  ['Cloudflare DNS / OTA / build tools','idle','Configured, light use','Used occasionally, not routinely.'],
+  ['Scheduled and looped agents','idle','Available','Could run recurring checks such as a nightly deploy watch.'],
+  ['Multi-agent workflow orchestration','idle','Available, opt-in','For large fan-out audits and migrations; on request.'],
+  ['External bug tracker bridge (e.g. Jira)','no','Not implemented','OS is the tracker; bridge only if a client demands one.'],
+  ['Automated agent review in CI','fut','Recommended','Run reviewers on every pull request automatically.'],
+  ['Central agent-action audit view','fut','Recommended','One timeline of what each agent created, changed, and closed.']
+];
+const RECS = [
+  ['Automate review in CI','Security, landmine and UI reviewers on every PR, with findings posted back.'],
+  ['Scheduled regression','Core suites nightly with browser automation, recorded as OS test runs.'],
+  ['Agent-action audit view','One portal timeline of what each agent created, changed and closed.'],
+  ['Design-drift check','Compare shipped screens with current Figma frames; raise a bug on mismatch.'],
+  ['Optional tracker bridges','Sync outward for clients who require them; OS stays the master copy.'],
+  ['Secrets scan on commit','Block commits that introduce a new secret into a shared repo.'],
+  ['Maintenance agents','Backlog grooming, stale-item nudges and deploy-health watches on a schedule.']
+];
+
+/* ══════════ SCENARIOS (simulated) ══════════
+   step: {a:actor, k:kind, t:title, d:desc, ev:[events], gate?:'approval', blocked?:bool}
+   event: [dt ms, type, msg, detail?]                                     */
+const S = (a,k,t,d,ev,o={}) => Object.assign({a,k,t,d,ev},o);
+const E = (dt,type,msg,x={}) => ({dt,type,msg,x});
+const SCENARIOS = [
+  {id:'bug',t:'File a bug',s:'Tester reports a login error',d:'The worked bug example from the document: check for a duplicate, confirm details, file, attach evidence.',steps:[
+    S('You','human','Tester describes the defect','"Login returns 500 on valid submit."',[E(300,'prompt','Prompt received',{event:'user.prompt',input:'Login returns 500 on valid submit'})]),
+    S('Coordinator','agent','Classify and plan','File a bug — check duplicates first.',[E(600,'plan','Task classified: file bug',{event:'coordinator.plan',result:'search → confirm → create → attach'})]),
+    S('os','mcp','Search for a duplicate','Never file what already exists.',[E(500,'tool','os.search_work_items()',{event:'tool.call',connector:'os',tool:'search_work_items',permission:'ALLOW',input:{query:'login 500 on submit'},result:'0 matching records',duration:'182ms'})]),
+    S('You','human','Confirm severity & component','Details weren\'t obvious, so Claude asks rather than guesses.',[E(400,'approval','Confirm: severity High · component Auth',{event:'approval.request',permission:'ASK'})],{gate:'approval'}),
+    S('os','mcp','File the bug','create_bug with reproducing steps; joins the current sprint.',[E(600,'tool','os.create_bug()',{event:'tool.call',connector:'os',tool:'create_bug',permission:'ASK → approved',input:{project:'Acme Portal',title:'Login returns 500 on valid submit',severity:'High',component:'Auth',addToCurrentSprint:true},result:'BUG-1421',duration:'241ms'})]),
+    S('os','mcp','Attach evidence','The error log goes on the record.',[E(400,'tool','os.add_attachment()',{event:'tool.call',connector:'os',tool:'add_attachment',permission:'ALLOW',input:{kind:'bug',id:'BUG-1421',filePath:'./error-log.txt'},result:'attached',duration:'96ms'})]),
+    S('OS','os','Visible in the portal','Same record, same id, for everyone.',[E(300,'os','BUG-1421 visible in portal',{event:'os.record',result:'BUG-1421 · High · Auth · current sprint'})])
+  ]},
+  {id:'slow',t:'Fix a slow report',s:'Scout → KQL → fix → review',d:'The document\'s agent example: find where the report is built, confirm the slow query in production logs, fix it, review it, then you approve the commit.',steps:[
+    S('You','human','Ask for a fix','"Analyze the slow revenue report."',[E(300,'prompt','Prompt received',{event:'user.prompt',input:'Analyze the slow revenue report'})]),
+    S('Coordinator','agent','Classify and plan','Locate → confirm → fix → review.',[E(600,'plan','Task classified: performance fix',{event:'coordinator.plan',result:'scout → kql-investigator → dotnet-implementer → security-reviewer'})]),
+    S('scout','agent','Locate the report code','Read-only recon.',[E(300,'agent','scout spawned',{event:'agent.spawn',actor:'scout',result:'read-only'}),E(700,'result','ReportController.cs located',{event:'agent.report',actor:'scout',tool:'search · read',permission:'ALLOW',result:'ReportController.cs',duration:'0.7s'})]),
+    S('kql-investigator','agent','Confirm in production logs','Read-only App Insights query.',[E(300,'agent','kql-investigator started',{event:'agent.spawn',actor:'kql-investigator'}),E(1100,'result','P95 = 14,200 ms (demo value)',{event:'agent.report',actor:'kql-investigator',connector:'App Insights (read-only)',permission:'ALLOW',input:{kql:"requests | where name == 'GET /api/reports/revenue' | summarize percentile(duration,95)"},result:'P95 14,200 ms',duration:'1.1s'})]),
+    S('dotnet-implementer','agent','Apply the fix','Write group — edits and builds.',[E(300,'agent','dotnet-implementer started',{event:'agent.spawn',actor:'dotnet-implementer',result:'write access'}),E(1400,'build','Build passed',{event:'build.result',actor:'dotnet-implementer',result:'PASS',duration:'1.4s'})]),
+    S('security-reviewer','agent','Review the change','Read-only analysis.',[E(300,'review','security-reviewer started',{event:'agent.spawn',actor:'security-reviewer'}),E(900,'review','No findings',{event:'agent.report',actor:'security-reviewer',result:'0 findings',duration:'0.9s'})]),
+    S('You','human','Approve the commit','Commits need a person\'s explicit approval.',[E(300,'approval','Approval required: commit to dev branch',{event:'approval.request',permission:'ASK'})],{gate:'approval'}),
+    S('os','mcp','Link commit & close','Root cause and resolution recorded.',[E(500,'tool','os.link_commit()',{event:'tool.call',connector:'os',tool:'link_commit',permission:'ALLOW',input:{commit:'b7e2a14',item:'BUG-1389'},result:'linked',duration:'120ms'}),E(400,'os','Work item updated with resolution',{event:'os.record',result:'BUG-1389 Fixed · root cause recorded'})])
+  ]},
+  {id:'design',t:'Design handoff',s:'Figma → tasks → build → review',d:'A designer finishes a settings screen; Claude reads the tokens, creates tasks and test cases, and the build uses exact tokens.',steps:[
+    S('Designer','human','Paste the frame link','Settings screen attached to the feature.',[E(300,'prompt','Figma link added to feature',{event:'user.prompt',input:'figma.com/file/…/settings-screen'})]),
+    S('figma-mcp','mcp','Read the design','Frame, tokens and a reference image.',[E(500,'tool','figma-mcp.get_node()',{event:'tool.call',connector:'figma-mcp',tool:'get_node',permission:'ALLOW',input:{node:'settings-screen'},result:'frame structure',duration:'210ms'}),E(400,'tool','figma-mcp.get_variable_defs()',{event:'tool.call',connector:'figma-mcp',tool:'get_variable_defs',permission:'ALLOW',result:'spacing, colour and type tokens',duration:'150ms'})]),
+    S('Coordinator','agent','Create work in OS','Three build tasks, five test cases.',[E(700,'os','3 tasks + 5 test cases created',{event:'os.record',connector:'os',result:'tasks and test cases with tokens and acceptance criteria'})]),
+    S('react-implementer','agent','Build with exact tokens','No eyeballing the picture.',[E(300,'agent','react-implementer started',{event:'agent.spawn',actor:'react-implementer'}),E(1300,'build','Lint + build passed',{event:'build.result',result:'PASS',duration:'1.3s'})]),
+    S('ui-reviewer','agent','Check house style','Read-only review.',[E(800,'review','No findings',{event:'agent.report',actor:'ui-reviewer',result:'0 findings'})]),
+    S('You','human','Approve the commit','Human gate.',[E(300,'approval','Approval required: commit',{event:'approval.request',permission:'ASK'})],{gate:'approval'}),
+    S('OS','os','Tasks move to Done','Summary attached.',[E(400,'os','Tasks → Done',{event:'os.record',result:'3 tasks Done'})])
+  ]},
+  {id:'prod',t:'Production investigation',s:'Read-only diagnosis',d:'Diagnose a production error without changing anything: logs, database, findings recorded as a comment.',steps:[
+    S('You','human','Report the symptom','"Checkout errors spiked this morning."',[E(300,'prompt','Prompt received',{event:'user.prompt'})]),
+    S('kql-investigator','agent','Query production logs','Findings table, not a raw dump.',[E(1100,'result','Findings: failures on one endpoint (demo)',{event:'agent.report',actor:'kql-investigator',connector:'App Insights (read-only)',permission:'ALLOW',result:'findings table',duration:'1.1s'})]),
+    S('sql-investigator','agent','Read-only database check','Writes are hard-forbidden.',[E(900,'result','Row counts consistent (demo)',{event:'agent.report',actor:'sql-investigator',permission:'ALLOW (read)',result:'read queries only'})]),
+    S('Coordinator','agent','Integrate findings','One answer from two reports.',[E(600,'plan','Root cause hypothesis ready',{event:'coordinator.integrate'})]),
+    S('os','mcp','Record as a comment','Durable state lives in OS, not chat.',[E(400,'tool','os.add_comment()',{event:'tool.call',connector:'os',tool:'add_comment',permission:'ALLOW',result:'comment added',duration:'88ms'})])
+  ]},
+  {id:'sec',t:'Security review',s:'Reviewers + a blocked action',d:'Reviewers run before a push. An attempted direct production change hits a hard block.',steps:[
+    S('Coordinator','agent','Prepare to push','Change touches access rules.',[E(400,'plan','Pre-push review triggered',{event:'coordinator.plan'})]),
+    S('security-reviewer','agent','Security review','Permissions, access, secrets.',[E(900,'review','1 finding: missing permission check',{event:'agent.report',actor:'security-reviewer',result:'1 finding (ranked)',status:'COMPLETED'})]),
+    S('landmine-reviewer','agent','Known .NET mistakes','Read-only scan.',[E(800,'review','No findings',{event:'agent.report',actor:'landmine-reviewer',result:'0 findings'})]),
+    S('blast-radius-checker','agent','Which apps break?','And in what order to ship.',[E(800,'review','2 apps affected · ship API first',{event:'agent.report',actor:'blast-radius-checker',result:'ship order: API → portal'})]),
+    S('Coordinator','agent','Attempt direct production change','This is on the hard-deny list.',[E(500,'error','DENY: direct production change blocked',{event:'permission.deny',permission:'DENY (hard block)',result:'not executed',status:'BLOCKED'})],{blocked:true}),
+    S('dotnet-implementer','agent','Fix the finding','Adds the permission check.',[E(1100,'build','Build passed',{event:'build.result',result:'PASS'})]),
+    S('You','human','Approve commit to dev branch','The correct route.',[E(300,'approval','Approval required: commit + push',{event:'approval.request',permission:'ASK'})],{gate:'approval'})
+  ]},
+  {id:'db',t:'Database investigation',s:'Drift analysis, no live writes',d:'Schema drift is analysed and a safe migration proposed — but never applied to a live database by an agent.',steps:[
+    S('You','human','Ask about schema drift','"Staging and prod schemas disagree."',[E(300,'prompt','Prompt received',{event:'user.prompt'})]),
+    S('sql-investigator','agent','Read both schemas','Read queries only.',[E(900,'result','3 differences found (demo)',{event:'agent.report',actor:'sql-investigator',permission:'ALLOW (read)'})]),
+    S('dacpac-drift-analyst','agent','Propose a safe migration','Analyse and propose.',[E(1000,'result','Migration script proposed',{event:'agent.report',actor:'dacpac-drift-analyst',result:'proposal only'})]),
+    S('dacpac-drift-analyst','agent','Apply to live database?','Outside this agent\'s capability.',[E(500,'error','BLOCKED: cannot apply to a live database',{event:'permission.deny',permission:'DENY',status:'BLOCKED'})],{blocked:true}),
+    S('You','human','Review the proposal','A person decides what happens next.',[E(300,'approval','Human review required',{event:'approval.request',permission:'ASK'})],{gate:'approval'}),
+    S('os','mcp','Record the proposal','Attached to the work item.',[E(400,'tool','os.add_comment()',{event:'tool.call',connector:'os',tool:'add_comment',permission:'ALLOW'})])
+  ]},
+  {id:'deploy',t:'Deploy verification',s:'Nothing is done because it built',d:'After an approved commit and deploy, a separate checker confirms health before the release is recorded.',steps:[
+    S('You','human','Approve the commit','To the development branch.',[E(300,'approval','Approval required: commit',{event:'approval.request',permission:'ASK'})],{gate:'approval'}),
+    S('GitHub → Azure','ext','CI/CD builds and deploys','Partly in place today.',[E(1200,'ext','Deployed to Azure (demo)',{event:'external.deploy',connector:'CI/CD',result:'deployed'})]),
+    S('deploy-verifier','agent','Post-deploy checklist','Version marker · health · deployment entry · errors.',[E(500,'agent','deploy-verifier started',{event:'agent.spawn'}),E(1100,'result','GREEN',{event:'agent.report',actor:'deploy-verifier',result:'GREEN — all checks passed',status:'COMPLETED'})]),
+    S('os','mcp','Create the release','Notes written, deployment stamped.',[E(500,'tool','os.create_release()',{event:'tool.call',connector:'os',tool:'create_release',permission:'ASK → approved',input:{version:'2.4.0'},result:'REL-2.4.0',duration:'230ms'})]),
+    S('OS','os','Release recorded','Commits linked back to work items.',[E(300,'os','REL-2.4.0 recorded',{event:'os.record'})])
+  ]},
+  {id:'ui',t:'UI review',s:'Findings → fix → re-review',d:'A portal screen is checked against the house style; findings are ranked, fixed and re-reviewed.',steps:[
+    S('Coordinator','agent','Portal UI changed','Triggers a UI review.',[E(400,'plan','UI review triggered',{event:'coordinator.plan'})]),
+    S('ui-reviewer','agent','Check house style','Ranked findings.',[E(900,'review','2 findings: spacing, contrast',{event:'agent.report',actor:'ui-reviewer',result:'2 findings (ranked)'})]),
+    S('react-implementer','agent','Fix the findings','Write group.',[E(1100,'build','Build passed',{event:'build.result',result:'PASS'})]),
+    S('ui-reviewer','agent','Re-review','Verify each finding.',[E(700,'review','No findings',{event:'agent.report',result:'0 findings'})]),
+    S('You','human','Approve the commit','Human gate.',[E(300,'approval','Approval required: commit',{event:'approval.request',permission:'ASK'})],{gate:'approval'})
+  ]}
+];
+
+/* Learning hub — from "AI engineering skills in current job postings" (23 Sep 2026) */
+const SIGNALS = {
+  swe:{t:'Software engineer',note:'U.S. analysis of 9,504 descriptions, Sept 2026. Explicit mentions, not proficiency.',rows:[['Python',45.2],['AWS',27.5],['C++',24.2],['Kubernetes',22.9],['Java',21.9],['TypeScript',21.9],['Distributed systems',19.0],['CI/CD',18.6]]},
+  ai:{t:'AI engineer',note:'U.S. analysis of about 707 descriptions, Sept 2026.',rows:[['Python',68.4],['LLMs',52.8],['RAG',34.7],['Machine learning',32.0],['AWS',27.2],['Prompt engineering',19.7],['PyTorch',18.6]]},
+  aug:{t:'Aug cross-check',note:'Independent scrape of 1,222 postings, Aug 2026. Different method — don\'t pool with Sept figures.',rows:[['Python',69.1],['LLMs',58.6],['RAG',43.2],['Agentic workflows',42.0],['CI/CD',39.4],['LLM evaluation',21.4]]}
+};
+const ROLES = [['all','All roles'],['swe','Software engineer'],['ai','AI engineer'],['fde','FDE']];
+const MODULES = [
+  {t:'Python and production coding',fit:['swe','ai','fde'],w:'Write typed, tested code; handle errors, dependencies and async work.',res:[['Python tutorial','language fundamentals and standard library','https://docs.python.org/3/tutorial/index.html'],['FastAPI tutorial','build a documented service with validation','https://fastapi.tiangolo.com/tutorial/']],show:'A small API with tests, logging, clear README and a reproducible local setup.'},
+  {t:'APIs, SQL and integrations',fit:['swe','ai','fde'],w:'HTTP, authentication, webhooks, data modeling and query basics.',res:[['MDN HTTP overview','requests, responses and status codes','https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview'],['PostgreSQL tutorial','SQL and relational data','https://www.postgresql.org/docs/current/tutorial.html']],show:'Connect an API to a database and handle pagination, retries and failure cases.'},
+  {t:'Cloud, containers and CI/CD',fit:['swe','ai','fde'],w:'Ship a service, automate tests and deployment, reason about reliability, cost and scale.',res:[['Docker container tutorial','containerize an app','https://docs.docker.com/get-started/tutorials/run-an-app/'],['GitHub Actions quickstart','automate build and tests','https://docs.github.com/en/actions/get-started/quickstart'],['AWS Well-Architected','production design trade-offs','https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html']],show:'Deploy a containerized service with CI, health checks and a rollback plan.'},
+  {t:'LLM APIs and prompting',fit:['ai','fde'],w:'Structured output, tool calls, context and failure handling.',res:[['Anthropic context engineering','plan what enters the model context and when','https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents'],['Anthropic customer service agent notebook','build a tool-using agent','https://github.com/anthropics/claude-cookbooks/blob/main/tool_use/customer_service_agent.ipynb']],show:'A task-specific feature with versioned prompts, input validation and fallback behavior.'},
+  {t:'RAG, embeddings and search',fit:['ai','fde'],w:'Ingest documents, retrieve relevant passages and cite the answer source.',res:[['OpenAI retrieval guide','vector stores and semantic search','https://developers.openai.com/api/docs/guides/retrieval'],['Anthropic contextual retrieval','context-aware chunks','https://www.anthropic.com/engineering/contextual-retrieval'],['Anthropic RAG notebook','document retrieval and answer generation','https://github.com/anthropics/claude-cookbooks/blob/main/capabilities/retrieval_augmented_generation/guide.ipynb']],show:'A document Q&A app with source citations and a retrieval test set.'},
+  {t:'Evaluation and observability',fit:['ai','fde'],w:'Measure task success, retrieval quality, latency, cost and regressions before rollout.',res:[['Anthropic agent evals','build task sets and grade agent behavior','https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents'],['OpenTelemetry Python example','instrument and inspect a sample service','https://opentelemetry.io/docs/languages/python/getting-started/'],['Anthropic evals notebook','run a small evaluation harness','https://github.com/anthropics/claude-cookbooks/blob/main/misc/building_evals.ipynb']],show:'A 30-case eval dataset, baseline scores, trace samples and a release gate.'},
+  {t:'Agents and tool workflows',fit:['ai','fde'],w:'Bounded tool use with state, permissions and observable steps.',res:[['Hugging Face agents course','agent concepts and exercises','https://huggingface.co/learn/agents-course/unit1/introduction'],['Anthropic effective agents','workflow and agent patterns','https://www.anthropic.com/engineering/building-effective-agents'],['Anthropic tool design','prototype and improve tools for agents','https://www.anthropic.com/engineering/writing-tools-for-agents']],show:'A workflow that uses two tools, recovers from errors and records each action.'},
+  {t:'ML foundations and PyTorch',fit:['ai'],w:'Training, inference, data splits and model evaluation; deeper for model-centric roles.',res:[['Google ML crash course','practical ML foundations','https://developers.google.com/machine-learning/crash-course'],['PyTorch basics','training and inference tutorial','https://docs.pytorch.org/tutorials/beginner/basics/']],show:'Train a baseline, explain metrics and compare it with a simpler alternative.'},
+  {t:'Security and safe AI delivery',fit:['swe','ai','fde'],w:'Protect data, constrain tool access, test prompt-injection and data-leak paths.',res:[['OWASP LLM Top 10','AI application threat patterns','https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/'],['PortSwigger LLM attack labs','prompt injection and excessive agency','https://portswigger.net/web-security/learning-paths/llm-attacks']],show:'A threat checklist and tests for untrusted retrieved text and excessive tool privileges.'},
+  {t:'Customer discovery and implementation',fit:['fde'],w:'Translate a workflow into scoped requirements, success metrics and a deployment plan.',res:[['Atlassian customer interview play','interview real users','https://www.atlassian.com/team-playbook/plays/customer-interview'],['Microsoft build for business needs','tie design choices to requirements','https://learn.microsoft.com/en-us/azure/architecture/guide/design-principles/build-for-business']],show:'A one-page discovery brief, architecture diagram, adoption metric and rollout plan.'},
+  {t:'System design and architecture',fit:['swe','ai','fde'],w:'Services for reliability, scale, cost, data flow and human review.',res:[['System Design Primer','open source design exercises','https://github.com/donnemartin/system-design-primer'],['Architecture of Open Source Applications','how real systems fit together','https://aosabook.org/en/index.html'],['Cloud design pattern examples','reliability pattern implementations','https://github.com/mspnp/cloud-design-patterns'],['Anthropic multi-agent architecture','a production AI system case study','https://www.anthropic.com/engineering/multi-agent-research-system']],show:'Diagram a retrieval service and explain scale, failure, cost and evaluation.'}
+];
+const FOCUS = [
+  ['Software engineer on an AI team','A reliable API or full-stack feature that calls an LLM, stores data and ships through CI.','RAG and evaluation; deepen the team\'s primary language and cloud stack.'],
+  ['AI engineer','A RAG application with a measured eval set, traces, latency/cost tracking and deployment.','Agent workflows; ML/PyTorch if postings emphasize model training or tuning.'],
+  ['Forward deployed engineer','A customer workflow prototype connected to realistic systems, with success criteria and rollout notes.','Discovery, stakeholder communication, enterprise security and repeatable implementation patterns.']
+];
+const SOURCES = [
+  ['Sept 2026 software engineer analysis','https://kitejobs.ai/reports/software-engineer'],['Sept 2026 AI engineer analysis','https://kitejobs.ai/reports/ai-engineer'],
+  ['Aug 2026 AI engineering scrape','https://aishippinglabs.com/blog/ai-engineering-job-market'],['LinkedIn U.S. SWE landscape 2026','https://economicgraph.linkedin.com/content/dam/me/economicgraph/en-us/PDF/us-software-engineer-talent-landscape-2026.pdf'],
+  ['OpenAI FDE role','https://jobs.ashbyhq.com/openai/cf31f5f6-4e67-4695-808c-9cdd2e1fa3b1?employmentType=FullTime'],['Anthropic FDE role','https://job-boards.greenhouse.io/anthropic/jobs/5423029008'],
+  ['SuperDial FDE role','https://jobs.ashbyhq.com/superdial/5019a8a4-e695-464d-a081-fea1e29161f1'],['Guild.ai FDE role','https://jobs.ashbyhq.com/guild/c88a336a-a611-4a45-89d1-9116536a4df3/'],
+  ['Growth Protocol FDE role','https://jobs.ashbyhq.com/growthprotocol/cff5edc0-8bff-4e3b-9731-75d124275f99'],['Console FDE role','https://jobs.ashbyhq.com/console/395c3f5b-759f-4bf1-b6ed-38db7f0c76ee/'],
+  ['DeepEval docs','https://deepeval.com/docs/getting-started']
+];
+const QUIZ = [
+  {q:'Where does every task, bug and release live?',o:['In each engineer\'s terminal memory','In OS — the single source of truth','In GitHub issues','In a text file when a write fails'],a:1,why:'OS is the one records room; portal and terminal write to the same database.'},
+  {q:'Which agents can change files?',o:['Reviewers','Investigators','Implementers (the write group)','Planners'],a:2,why:'Only the write group can change code. Reviewers, investigators and planners are read-only.'},
+  {q:'A tool call is set to ask. What happens?',o:['It runs silently','A person is prompted to approve before it executes','It is blocked','It is queued for tomorrow'],a:1,why:'allow runs silently, ask prompts the person, deny blocks.'},
+  {q:'How do two sub-agents share their work?',o:['They message each other directly','Through the coordinator, which is the only hub','Through a shared Slack channel','They don\'t share work'],a:1,why:'Agents never talk to each other. The coordinator passes briefs in and collects reports.'},
+  {q:'What does deploy-verifier return?',o:['A pull request','GREEN or RED per app','A new release','A migration script'],a:1,why:'It runs the post-deploy checklist and returns GREEN or RED — it cannot deploy or fix.'}
+];
+
+/* ══════════════════════════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════════════════════════ */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(msg,k='agent'){
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML=`<span class="dot ${KIND[k]||''}"></span>${esc(msg)}`;
+  $('#toasts').appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(()=>t.remove(),300)},2600);
+}
+function seg(el,items,cur,on){
+  el.innerHTML=items.map(([v,l])=>`<button aria-pressed="${v===cur}" data-v="${esc(v)}">${esc(l)}</button>`).join('');
+  el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$$('button',el).forEach(x=>x.setAttribute('aria-pressed',x===b));on(b.dataset.v)});
+}
+function json(o){
+  if(typeof o==='string')return esc(o);
+  return esc(JSON.stringify(o,null,2)).replace(/&quot;([^&]*)&quot;:/g,'<span class="tk-k">"$1"</span>:')
+    .replace(/: &quot;([^&]*)&quot;/g,': <span class="tk-s">"$1"</span>').replace(/: (\d+\.?\d*|true|false)/g,': <span class="tk-n">$1</span>');
+}
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ── Drawer ── */
+let lastFocus=null;
+function openDrawer({kind,k,title,sub,body}){
+  lastFocus=document.activeElement;
+  $('#drKind').innerHTML=kind?`<span class="chip ${KIND[k]||''}"><span class="dot"></span>${esc(kind)}</span>`:'';
+  $('#drTitle').textContent=title;$('#drSub').textContent=sub||'';$('#drBody').innerHTML=body;
+  $('#drawer').classList.add('on');$('#scrim').classList.add('on');setTimeout(()=>$('#drClose').focus(),50);
+}
+function closeAll(){
+  $('#drawer').classList.remove('on');$('#palette').classList.remove('on');$('#scrim').classList.remove('on');
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+$('#drClose').onclick=closeAll;$('#scrim').onclick=closeAll;
+const sec=(h,inner)=>`<div class="dr-sec"><h4>${h}</h4>${inner}</div>`;
+const ul=(arr,cls='li-dot')=>`<ul>${arr.map(x=>`<li class="${cls}">${esc(x)}</li>`).join('')}</ul>`;
+
+/* ── Tooltips ── */
+const tip=$('#tip');
+document.addEventListener('mouseover',e=>{const t=e.target.closest('.term');if(!t)return;showTip(t)});
+document.addEventListener('focusin',e=>{const t=e.target.closest('.term');if(t)showTip(t)});
+document.addEventListener('mouseout',e=>{if(e.target.closest('.term'))tip.style.opacity=0});
+document.addEventListener('focusout',e=>{if(e.target.closest('.term'))tip.style.opacity=0});
+function showTip(t){
+  const k=t.dataset.term;if(!GLOSSARY[k])return;
+  tip.innerHTML=`<b>${esc(k)}</b>${esc(GLOSSARY[k])}`;
+  const r=t.getBoundingClientRect();tip.style.opacity=1;
+  const w=tip.offsetWidth;tip.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2))+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8<8?r.bottom+8:r.top-tip.offsetHeight-8)+'px';
+}
+
+/* ── Magnetic buttons ── */
+if(!RM){document.addEventListener('mousemove',e=>{const b=e.target.closest('.mag');$$('.mag').forEach(m=>{if(m!==b)m.style.transform=''});
+  if(!b)return;const r=b.getBoundingClientRect();b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.12}px,${(e.clientY-r.top-r.height/2)*.18}px)`})}
+
+/* ── Reveal ── */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08});
+$$('.reveal').forEach(el=>io.observe(el));
+
+/* ══════════════════════════════════════════════════════════════
+   HERO VISUAL
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+  const g=$('#hvLayers');let h='';
+  HERO_LAYERS.forEach((L,i)=>{const y=14+i*80;
+    h+=`<g><rect x="20" y="${y}" width="360" height="48" rx="10" fill="var(--panel2)" stroke="${COLOR[L.k]}" stroke-opacity=".45"/>
+      <circle cx="42" cy="${y+24}" r="4" fill="${COLOR[L.k]}"/>
+      <text x="56" y="${y+22}" fill="var(--text)" font-family="Geist,sans-serif" font-size="13.5" font-weight="500">${L.t}</text>
+      <text x="56" y="${y+38}" fill="var(--faint)" font-family="Geist Mono,monospace" font-size="10">${L.d}</text></g>`});
+  g.innerHTML=h;
+  if(RM)return;
+  const P=$('#hvPackets');const cols=['var(--amber)','var(--indigo)','var(--teal)','var(--indigo)'];
+  let p='';cols.forEach((c,i)=>{p+=`<circle r="3.5" fill="${c}"><animateMotion dur="4.2s" begin="-${i*1.05}s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#hvDown"/></animateMotion></circle>`});
+  [0,1.4,2.8].forEach(b=>{p+=`<circle r="3" fill="var(--green)"><animateMotion dur="4.2s" begin="-${b+.5}s" repeatCount="indefinite"><mpath href="#hvUp"/></animateMotion></circle>`});
+  P.innerHTML=p;
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   SYSTEM MAP
+   ══════════════════════════════════════════════════════════════ */
+const NMAP=Object.fromEntries(MAP_NODES.map(n=>[n.id,n]));
+(function buildMap(){
+  const svg=$('#mapSvg');let e='',n='',lab='',pk='';
+  MAP_EDGES.forEach(([a,b,label,dashed],i)=>{
+    const A=NMAP[a],B=NMAP[b];let x1=A.x,y1=A.y+20,x2=B.x,y2=B.y-20,d;
+    if(a==='human'&&b==='portal'){x1=A.x-110;y1=A.y;d=`M${x1} ${y1} C ${B.x} ${y1}, ${B.x} ${y1}, ${x2} ${y2}`}
+    else if(a==='coord'&&b==='git'){x1=A.x-85;y1=A.y;d=`M${x1} ${y1} C 40 ${y1+40}, 40 ${y2-20}, ${x2-40} ${y2}`;y2=B.y-20}
+    else d=`M${x1} ${y1} C ${x1} ${(y1+y2)/2}, ${x2} ${(y1+y2)/2}, ${x2} ${y2}`;
+    e+=`<path id="edge${i}" class="medge${dashed?' dashed':''}" data-a="${a}" data-b="${b}" d="${d}"/>`;
+    if(label)lab+=`<text class="elabel" x="${x1+(x2-x1)*.8+(x2<x1?-8:x2>x1?8:6)}" y="${y1+(y2-y1)*.8}" text-anchor="${x2<x1?'end':'start'}">${label}</text>`;
+  });
+  MAP_NODES.forEach(N=>{const x=N.x-N.w/2,y=N.y-20;
+    n+=`<g class="mnode" tabindex="0" role="button" aria-label="${N.t}: ${N.s}" data-id="${N.id}" data-layer="${N.layer}">
+      <rect x="${x}" y="${y}" width="${N.w}" height="40" rx="9" stroke="${COLOR[N.k]}" stroke-opacity=".55"/>
+      <circle cx="${x+13}" cy="${N.y}" r="3.5" fill="${COLOR[N.k]}"/>
+      <text x="${x+24}" y="${N.y-2}">${N.t}</text><text class="sub" x="${x+24}" y="${N.y+11}">${N.s}</text></g>`});
+  if(!RM){[[0,'amber'],[3,'indigo'],[11,'indigo'],[12,'teal'],[17,'green'],[4,'indigo']].forEach(([i,c],j)=>{
+    pk+=`<circle r="3" fill="var(--${c})" opacity=".9"><animateMotion dur="2.6s" begin="-${j*.45}s" repeatCount="indefinite"><mpath href="#edge${i}"/></animateMotion></circle>`})}
+  svg.innerHTML=`<g>${e}</g><g>${lab}</g><g>${pk}</g><g>${n}</g>`;
+  $('#mapList').innerHTML=MAP_NODES.map(N=>`<button class="chip ${KIND[N.k]}" data-id="${N.id}"><span class="dot"></span>${N.t}</button>`).join('');
+})();
+function hl(id){
+  const conn=new Set([id]);
+  $$('.medge').forEach(p=>{const on=p.dataset.a===id||p.dataset.b===id;p.classList.toggle('hot',on);p.classList.toggle('dim',!on);if(on){conn.add(p.dataset.a);conn.add(p.dataset.b)}});
+  $$('.mnode').forEach(g=>g.classList.toggle('dim',!conn.has(g.dataset.id)));
+}
+function clearHl(){$$('.medge').forEach(p=>p.classList.remove('hot','dim'));applyLayer(curLayer)}
+$('#mapSvg').addEventListener('mouseover',e=>{const g=e.target.closest('.mnode');if(g)hl(g.dataset.id)});
+$('#mapSvg').addEventListener('mouseleave',clearHl);
+$('#mapSvg').addEventListener('focusin',e=>{const g=e.target.closest('.mnode');if(g)hl(g.dataset.id)});
+$('#mapSvg').addEventListener('click',e=>{const g=e.target.closest('.mnode');if(g)openNode(g.dataset.id)});
+$('#mapSvg').addEventListener('keydown',e=>{const g=e.target.closest('.mnode');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openNode(g.dataset.id)}});
+$('#mapList').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(b)openNode(b.dataset.id)});
+function openNode(id){
+  const I=NODE_INFO[id],N=NMAP[id];$$('.mnode').forEach(g=>g.classList.toggle('sel',g.dataset.id===id));
+  openDrawer({kind:LAYERS.find(l=>l.id===N.layer).t,k:N.k,title:I.title,sub:I.sub,body:
+    sec('Role',`<p>${esc(I.role)}</p>`)+sec(id==='impl'||id==='rev'||id==='inv'||id==='plan'?'Members':'Responsibilities',ul(I.resp))+
+    sec('Connections',`<ul>${I.conns.map(c=>`<li class="li-dot">→ ${esc(c)}</li>`).join('')}</ul>`)+sec('Safety',`<p>${esc(I.safety)}</p>`)+
+    `<div><button class="btn btn-primary" data-flow="${I.flow}">View flow in playground</button></div>`});
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-flow]');if(!b)return;closeAll();selectScenario(+b.dataset.flow);$('#playground').scrollIntoView({behavior:RM?'auto':'smooth'})});
+let curLayer='all';
+function applyLayer(id){
+  curLayer=id;$$('.mnode').forEach(g=>g.classList.toggle('dim',id!=='all'&&g.dataset.layer!==id));
+  $$('.medge').forEach(p=>{const a=NMAP[p.dataset.a].layer,b=NMAP[p.dataset.b].layer;p.classList.toggle('dim',id!=='all'&&a!==id&&b!==id)});
+  const L=LAYERS.find(l=>l.id===id),P=$('#layerPanel');
+  if(id==='all'){P.innerHTML=`<div class="lp-row"><h4>how to read it</h4><p>Solid lines are requests or actions; the dashed line is the approved commit path to Git. Teal labels name the MCP connector on each call.</p></div>
+    <div class="lp-row"><h4>the design in one sentence</h4><p>You speak to one assistant, it works through one logged phone line, and it files everything in one records room.</p></div>
+    <div class="lp-row"><h4>two front doors</h4><p>People use the Engineering Portal; Claude uses the os connector. Both write to the same database — a bug filed in either place is the same record.</p></div>`;return}
+  P.innerHTML=`<div><span class="chip ${KIND[NMAP[MAP_NODES.find(n=>n.layer===id).id].k]}"><span class="dot"></span>Layer · ${esc(L.t)}</span></div>
+    <div class="lp-row"><h4>responsibility</h4><p>${esc(L.resp)}</p></div><div class="lp-row"><h4>inputs</h4><ul>${L.in.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="lp-row"><h4>outputs</h4><ul>${L.out.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div class="lp-row"><h4>security boundary</h4><p>${esc(L.boundary)}</p></div>`;
+}
+seg($('#layerSeg'),LAYERS.map(l=>[l.id,l.t]),'all',applyLayer);applyLayer('all');
+
+/* ══════════════════════════════════════════════════════════════
+   PLAYGROUND ENGINE (simulation only)
+   ══════════════════════════════════════════════════════════════ */
+const PG={sc:0,token:0,running:false,paused:false,speed:1,events:[],states:[],approve:null,selEv:null,selStep:null,clock:0,termTab:'claude',osItems:[]};
+const STATE_LABEL={queued:'QUEUED',running:'RUNNING',waiting:'WAITING',completed:'COMPLETED',blocked:'BLOCKED',approval:'APPROVAL REQUIRED'};
+const EV_KIND={prompt:'human',approval:'human',plan:'agent',agent:'agent',review:'agent',build:'agent',tool:'mcp',result:'agent',os:'os',ext:'ext',error:'err'};
+
+$('#scList').innerHTML=SCENARIOS.map((s,i)=>`<button class="sc-btn" aria-pressed="${i===0}" data-i="${i}"><b>${esc(s.t)}</b><span>${esc(s.s)}</span></button>`).join('');
+$('#scList').addEventListener('click',e=>{const b=e.target.closest('.sc-btn');if(b)selectScenario(+b.dataset.i)});
+function selectScenario(i){
+  stopRun();PG.sc=i;$$('.sc-btn').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===i));
+  const S=SCENARIOS[i];$('#scTitle').textContent=S.t;$('#scDesc').textContent=S.d;
+  PG.states=S.steps.map(()=>'queued');PG.events=[];PG.osItems=[];PG.selEv=null;renderChain();renderStream();renderTerm();inspectDefault();$('#pgClock').textContent='idle';
+}
+function renderChain(){
+  const S=SCENARIOS[PG.sc];
+  $('#chain').innerHTML=S.steps.map((st,i)=>{const s=PG.states[i];
+    return `<div class="gnode s-${s}${PG.selStep===i?' sel':''}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(st.a)}: ${esc(st.t)}, ${STATE_LABEL[s]}">
+      <div class="gi ${KIND[st.k]}" style="color:${COLOR[st.k]}">${esc(glyph(st))}</div><span class="pkt" style="background:${COLOR[st.k]}"></span>
+      <div class="gt"><b>${esc(st.t)}</b><span><span class="mono" style="color:${COLOR[st.k]}">${esc(st.a)}</span> · ${esc(st.d)}</span>
+      ${s==='approval'?`<div class="approve"><button class="btn btn-ok" data-dec="1">Approve</button><button class="btn btn-no" data-dec="0">Reject</button></div>`:''}</div>
+      <span class="state">${STATE_LABEL[s]}</span></div>`}).join('');
+}
+function glyph(st){if(st.k==='human')return'HU';if(st.k==='os')return'OS';if(st.k==='ext')return'EX';if(st.k==='mcp')return'MC';const a=AGENTS.find(x=>x.n===st.a);return a?a.g:'CO'}
+$('#chain').addEventListener('click',e=>{
+  const d=e.target.closest('[data-dec]');if(d){e.stopPropagation();if(PG.approve){const r=PG.approve;PG.approve=null;r(d.dataset.dec==='1')}return}
+  const g=e.target.closest('.gnode');if(g)inspectStep(+g.dataset.i)});
+$('#chain').addEventListener('keydown',e=>{const g=e.target.closest('.gnode');if(g&&e.key==='Enter'){e.preventDefault();e.stopPropagation();inspectStep(+g.dataset.i)}});
+function setState(i,s){PG.states[i]=s;const g=$(`#chain .gnode[data-i="${i}"]`);if(!g){renderChain();return}
+  g.className=`gnode s-${s}${PG.selStep===i?' sel':''}`;g.querySelector('.state').textContent=STATE_LABEL[s];
+  const st=SCENARIOS[PG.sc].steps[i];g.setAttribute('aria-label',`${st.a}: ${st.t}, ${STATE_LABEL[s]}`);
+  const ap=g.querySelector('.approve');if(s==='approval'&&!ap)g.querySelector('.gt').insertAdjacentHTML('beforeend','<div class="approve"><button class="btn btn-ok" data-dec="1">Approve</button><button class="btn btn-no" data-dec="0">Reject</button></div>');
+  if(s!=='approval'&&ap)ap.remove();}
+function fmt(ms){const d=new Date(ms);return d.toTimeString().slice(0,8)}
+function pushEvent(step,ev){
+  PG.clock+=ev.dt+Math.floor(ev.dt*.3);
+  const rec={id:PG.events.length,time:fmt(PG.clock),actor:ev.x.actor||step.a,kind:EV_KIND[ev.type]||'agent',type:ev.type,msg:ev.msg,x:ev.x,step:step.t};
+  PG.events.push(rec);if(ev.type==='tool'||ev.type==='os')PG.osItems.push(rec);
+  appendEvent(rec);if(PG.termTab==='claude'||PG.termTab==='audit'||PG.termTab==='os')renderTerm();$('#pgClock').textContent=rec.time+' · simulated';
+}
+async function wait(ms,tok){let left=RM?Math.min(ms,120):ms/PG.speed;while(left>0){if(tok!==PG.token)throw'cancel';await new Promise(r=>setTimeout(r,40));if(!PG.paused)left-=40}}
+async function runScenario(){
+  if(PG.running)return;selectScenario(PG.sc);const tok=++PG.token;PG.running=true;PG.clock=Date.now();
+  $('#runBtn').firstChild.textContent='Running… ';toast('Simulated run started: '+SCENARIOS[PG.sc].t);
+  const S=SCENARIOS[PG.sc];
+  try{
+    for(let i=0;i<S.steps.length;i++){
+      const st=S.steps[i];setState(i,'running');
+      for(const ev of st.ev){await wait(ev.dt,tok);pushEvent(st,ev)}
+      if(st.gate==='approval'){
+        setState(i,'approval');toast('Approval required — decide in the graph','human');
+        const ok=await new Promise(r=>{PG.approve=r});if(tok!==PG.token)throw'cancel';
+        pushEvent(st,E(100,ok?'approval':'error',ok?'Approved by human':'Rejected by human — not executed',{event:ok?'approval.granted':'approval.rejected',permission:ok?'ASK → approved':'ASK → rejected',status:ok?'COMPLETED':'BLOCKED'}));
+        if(!ok){setState(i,'blocked');for(let j=i+1;j<S.steps.length;j++)PG.states[j]='queued';renderChain();toast('Run stopped: human rejected the action','err');break}
+        setState(i,'completed');continue;
+      }
+      if(st.blocked){setState(i,'blocked');await wait(500,tok);continue}
+      setState(i,'completed');await wait(150,tok);
+    }
+    if(PG.states.every(s=>s==='completed'||s==='blocked'))toast('Scenario complete','os');
+  }catch(err){if(err!=='cancel')console.error(err)}
+  if(tok===PG.token){PG.running=false;$('#runBtn').firstChild.textContent='Run again ';}
+}
+function stopRun(){PG.token++;PG.running=false;PG.paused=false;if(PG.approve){PG.approve=null}$('#pauseBtn').firstChild.textContent='Pause ';$('#runBtn').firstChild.textContent='Run scenario '}
+function togglePause(){if(!PG.running)return;PG.paused=!PG.paused;$('#pauseBtn').firstChild.textContent=PG.paused?'Resume ':'Pause ';toast(PG.paused?'Simulation paused':'Simulation resumed','ext')}
+$('#runBtn').onclick=runScenario;$('#pauseBtn').onclick=togglePause;$('#resetBtn').onclick=()=>{selectScenario(PG.sc);toast('Playground reset','ext')};
+$$('#speedSeg button').forEach(b=>b.onclick=()=>{$$('#speedSeg button').forEach(x=>x.setAttribute('aria-pressed',x===b));PG.speed=+b.dataset.s});
+
+function renderStream(scroll){
+  const L=$('#stream');$('#evCount').textContent=PG.events.length+' events';
+  if(!PG.events.length){L.innerHTML='<div class="empty">Run a scenario — events appear here. Click any event to inspect it.</div>';return}
+  L.innerHTML=PG.events.map(ev=>evRow(ev)).join('');
+  if(scroll)L.scrollTop=L.scrollHeight;
+}
+function evRow(ev,cls=''){return `<button class="ev${cls}${PG.selEv===ev.id?' sel':''}" data-e="${ev.id}" role="listitem"><time>${ev.time}</time><span class="who ${KIND[ev.kind]}">${esc(ev.actor)}</span><span class="msg">${esc(ev.msg)}</span></button>`}
+function appendEvent(ev){const L=$('#stream');if(PG.events.length===1)L.innerHTML='';L.insertAdjacentHTML('beforeend',evRow(ev,' new'));L.scrollTop=L.scrollHeight;$('#evCount').textContent=PG.events.length+' events'}
+$('#stream').addEventListener('click',e=>{const b=e.target.closest('.ev');if(b)inspectEvent(PG.events[+b.dataset.e])});
+function inspectDefault(){
+  $('#insp').innerHTML=`<div class="insp-title"><span>inspector</span><span class="demo-tag">DEMO</span></div>
+  <p style="font-size:13.5px;color:var(--muted);margin-bottom:14px">Click a step in the graph or an event in the stream to inspect it here.</p>
+  <dl class="kv"><dt>scenario</dt><dd>${esc(SCENARIOS[PG.sc].t)}</dd><dt>steps</dt><dd>${SCENARIOS[PG.sc].steps.length}</dd>
+  <dt>approvals</dt><dd>${SCENARIOS[PG.sc].steps.filter(s=>s.gate).length}</dd><dt>blocked</dt><dd>${SCENARIOS[PG.sc].steps.filter(s=>s.blocked).length}</dd></dl>
+  <div style="margin-top:18px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--faint)">${Object.entries(STATE_LABEL).map(([k,v])=>`<span class="mono">${v}</span>`).join('')}</div>`;
+}
+function skel(){$('#insp').innerHTML='<div class="insp-title"><span>loading</span></div>'+'<div class="skel" style="width:70%"></div><div class="skel"></div><div class="skel" style="width:85%"></div><div class="skel" style="width:50%"></div>'}
+function inspectEvent(ev){
+  PG.selEv=ev.id;$$('#stream .ev').forEach(r=>r.classList.toggle('sel',+r.dataset.e===ev.id));skel();
+  setTimeout(()=>{const x=ev.x;const status=x.status||(ev.type==='error'?'BLOCKED':'COMPLETED');
+    $('#insp').innerHTML=`<div class="insp-title"><span>event</span><span class="demo-tag">SIMULATED</span></div>
+    <h3 class="mono" style="font-size:15px;margin-bottom:14px">${esc(x.event||ev.type)}</h3>
+    <dl class="kv"><dt>timestamp</dt><dd class="mono">${ev.time}</dd><dt>actor</dt><dd class="${KIND[ev.kind]}">${esc(ev.actor)}</dd><dt>step</dt><dd>${esc(ev.step)}</dd>
+    ${x.connector?`<dt>connector</dt><dd class="mono c-teal">${esc(x.connector)}</dd>`:''}${x.tool?`<dt>tool</dt><dd class="mono">${esc(x.tool)}</dd>`:''}
+    ${x.permission?`<dt>permission</dt><dd class="mono ${/DENY|rejected/.test(x.permission)?'c-red':/ASK/.test(x.permission)?'c-amber':'c-green'}">${esc(x.permission)}</dd>`:''}
+    ${x.duration?`<dt>duration</dt><dd class="mono">${esc(x.duration)}</dd>`:''}
+    <dt>status</dt><dd class="mono ${status==='BLOCKED'?'c-red':'c-green'}">${status}</dd></dl>
+    ${x.input?`<div style="margin-top:16px"><div class="mono" style="font-size:11px;color:var(--faint);margin-bottom:6px">input</div><pre class="code">${json(x.input)}</pre></div>`:''}
+    <div style="margin-top:14px"><div class="mono" style="font-size:11px;color:var(--faint);margin-bottom:6px">result</div><pre class="code">${json(x.result||ev.msg)}</pre></div>`},RM?0:220);
+}
+function inspectStep(i){
+  PG.selStep=i;$$('#chain .gnode').forEach(g=>g.classList.toggle('sel',+g.dataset.i===i));const st=SCENARIOS[PG.sc].steps[i];const a=AGENTS.find(x=>x.n===st.a);
+  const why=a?FAMILIES[a.f].trig:st.k==='human'?'The human owns this decision.':st.k==='mcp'?'A real system is needed — every call goes through MCP.':'The system of record is updated.';
+  $('#insp').innerHTML=`<div class="insp-title"><span>step ${i+1}</span><span class="mono">${STATE_LABEL[PG.states[i]]}</span></div>
+  <h3 style="margin-bottom:4px">${esc(st.t)}</h3><p style="font-size:13px;color:var(--muted);margin-bottom:16px">${esc(st.d)}</p>
+  <dl class="kv"><dt>actor</dt><dd class="${KIND[st.k]}">${esc(st.a)}</dd><dt>why here</dt><dd>${esc(why)}</dd>
+  ${a?`<dt>access</dt><dd>${a.w?'<span class="pen w">write</span>':'<span class="pen r">read-only</span>'}</dd><dt>can</dt><dd>${a.can.map(esc).join(' · ')}</dd><dt>cannot</dt><dd class="c-red">${a.cant.map(esc).join(' · ')}</dd>`:''}
+  <dt>events</dt><dd>${st.ev.map(e=>esc(e.msg)).join('<br>')}</dd></dl>
+  ${a?`<button class="btn btn-sm" style="margin-top:16px" data-agent="${esc(a.n)}">Open agent profile</button>`:''}`;
+}
+
+/* Terminal */
+const TERM_TABS=['claude','agents','mcp','os','audit'];
+$('#termTabs').innerHTML=TERM_TABS.map(t=>`<button role="tab" aria-selected="${t==='claude'}" data-t="${t}">$ ${t}</button>`).join('');
+$('#termTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;PG.termTab=b.dataset.t;$$('#termTabs button').forEach(x=>x.setAttribute('aria-selected',x===b));renderTerm()});
+let termExtra=[];
+function renderTerm(){
+  const o=$('#termOut');let L=[];
+  const c=(k,s)=>`<span style="color:${COLOR[k]}">${esc(s)}</span>`;
+  if(PG.termTab==='claude'){L.push(c('os','$ ')+'claude');
+    if(!PG.events.length)L.push(`<span class="tk-c">&gt; ready. Press Run scenario or type "run ${PG.sc+1}".</span>`);
+    PG.events.forEach(ev=>{L.push(ev.type==='prompt'?`&gt; ${esc(ev.x.input||ev.msg)}`:`${c(ev.kind,'['+ev.actor+']')} ${esc(ev.msg)}`)})}
+  if(PG.termTab==='agents'){L.push(c('os','$ ')+'agents --list');Object.keys(FAMILIES).forEach(f=>{L.push(c('agent',FAMILIES[f].t.toLowerCase()));AGENTS.filter(a=>a.f===f).forEach(a=>L.push(`  ${a.n.padEnd(26)} ${a.w?c('human','write'):c('mcp','read')}`))})}
+  if(PG.termTab==='mcp'){L.push(c('os','$ ')+'mcp servers');MCP_SERVERS.forEach(m=>{L.push(c('mcp',m.id)+'  '+esc(m.purpose));L.push('  tools: '+m.tools.join(', '))})}
+  if(PG.termTab==='os'){L.push(c('os','$ ')+'os records --this-run');if(!PG.osItems.length)L.push('<span class="tk-c">no OS writes yet in this run</span>');PG.osItems.forEach(r=>L.push(`${r.time}  ${c('os',r.x.tool||'record')}  ${esc(typeof r.x.result==='string'?r.x.result:r.msg)}`))}
+  if(PG.termTab==='audit'){L.push(c('os','$ ')+'audit --run');PG.events.forEach(ev=>L.push(`${ev.time}  ${(ev.x.event||ev.type).padEnd(18)} ${c(ev.kind,ev.actor)}  ${esc(ev.x.permission||'')}`))}
+  o.innerHTML=[...L,...termExtra].map(l=>`<div class="ln">${l}</div>`).join('');o.scrollTop=o.scrollHeight;
+}
+$('#termIn').addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;e.stopPropagation();const v=e.target.value.trim();e.target.value='';if(!v)return;
+  const say=s=>termExtra.push(s);say(`<span style="color:var(--green)">$</span> ${esc(v)}`);
+  const [cmd,arg]=v.split(/\s+/);
+  if(cmd==='help')say('commands: run &lt;1-8&gt; · scenarios · agents · mcp · os · audit · pause · reset · clear');
+  else if(cmd==='scenarios')SCENARIOS.forEach((s,i)=>say(`  ${i+1}. ${esc(s.t)}`));
+  else if(cmd==='run'){const i=(parseInt(arg)||PG.sc+1)-1;if(SCENARIOS[i]){termExtra=[];selectScenario(i);PG.termTab='claude';$$('#termTabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.t==='claude'));runScenario()}else say('no such scenario')}
+  else if(TERM_TABS.includes(cmd)){termExtra=[];PG.termTab=cmd;$$('#termTabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===cmd))}
+  else if(cmd==='pause')togglePause();
+  else if(cmd==='reset'){termExtra=[];selectScenario(PG.sc)}
+  else if(cmd==='clear')termExtra=[];
+  else say(`command not found: ${esc(cmd)} — try help`);
+  renderTerm();
+});
+selectScenario(0);
+
+/* ══════════════════════════════════════════════════════════════
+   LIFECYCLE
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+  const R=$('#rail');R.insertAdjacentHTML('beforeend',LIFECYCLE.map((s,i)=>`<button class="stage" data-i="${i}" aria-pressed="${i===0}"><span class="num" style="color:${COLOR[s.k]}">${String(i+1).padStart(2,'0')}</span><span class="lbl">${s.t}</span></button>`).join(''));
+  function show(i){const s=LIFECYCLE[i];$$('.stage').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.i===i));
+    $('#stageDetail').innerHTML=`<div><span class="chip ${KIND[s.k]}"><span class="dot"></span>${esc(s.who)}</span><h3>${String(i+1).padStart(2,'0')} · ${esc(s.t)}</h3><p>${esc(s.b)}</p></div>
+    <div><div class="mono" style="font-size:11px;color:var(--faint);margin-bottom:8px">example</div><pre class="code">${esc(s.ex)}</pre>
+    <div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-sm" ${i===0?'disabled style="opacity:.4"':''} data-st="${i-1}">Previous</button><button class="btn btn-sm" ${i===9?'disabled style="opacity:.4"':''} data-st="${i+1}">Next stage</button></div></div>`}
+  R.addEventListener('click',e=>{const b=e.target.closest('.stage');if(b)show(+b.dataset.i)});
+  $('#stageDetail').addEventListener('click',e=>{const b=e.target.closest('[data-st]');if(b&&!b.disabled)show(+b.dataset.st)});
+  show(0);
+  const ro=new IntersectionObserver(es=>{if(!es[0].isIntersecting)return;ro.disconnect();
+    $$('.stage').forEach((s,i)=>setTimeout(()=>s.classList.add('lit'),RM?0:i*140));$('#railFill').style.width='92%'},{threshold:.4});ro.observe(R);
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   MCP
+   ══════════════════════════════════════════════════════════════ */
+let perm='allow',sending=false;
+$('#pathRow').innerHTML=PATH_STAGES.map(([t,s],i)=>`<div class="pnode" data-i="${i}">${t}<small>${s}</small></div>`).join('');
+function setPerm(p){perm=p;$('#permMsg').innerHTML=PERMISSIONS[p].msg;$$('.pnode').forEach(n=>n.className='pnode');$('#pathOut').textContent=''}
+$$('#permSeg button').forEach(b=>b.onclick=()=>{$$('#permSeg button').forEach(x=>x.setAttribute('aria-pressed',x===b));setPerm(b.dataset.p)});setPerm('allow');
+$('#sendCall').onclick=async()=>{
+  if(sending)return;sending=true;const N=$$('.pnode');N.forEach(n=>n.className='pnode');$('#pathOut').textContent='';
+  const step=ms=>new Promise(r=>setTimeout(r,RM?0:ms));
+  for(let i=0;i<N.length;i++){
+    N[i].classList.add('on');await step(380);
+    if(i===2&&perm==='deny'){N[i].className='pnode stop';$('#pathOut').innerHTML='<span class="c-red">✕ DENY</span> — blocked at the permission layer. Nothing reached the server.';toast('Tool call denied','err');sending=false;return}
+    if(i===2&&perm==='ask'){N[i].className='pnode wait';$('#pathOut').innerHTML='<span class="c-amber">? ASK</span> — waiting for you. <button class="btn btn-sm btn-ok" id="okCall" style="margin-left:8px">Approve</button> <button class="btn btn-sm btn-no" id="noCall">Reject</button>';
+      const ok=await new Promise(r=>{$('#okCall').onclick=()=>r(true);$('#noCall').onclick=()=>r(false)});
+      if(!ok){N[i].className='pnode stop';$('#pathOut').innerHTML='<span class="c-red">✕ Rejected</span> — the call never executes.';sending=false;return}
+      $('#pathOut').textContent='';}
+    N[i].className='pnode done';
+  }
+  $('#pathOut').innerHTML='<span class="c-green">✓ Result</span> {"id":"BUG-1421"} — returned to Claude as structured data. <span class="demo-tag">DEMO</span>';sending=false;
+};
+let curConn=0;
+$('#connTabs').innerHTML=MCP_SERVERS.map((m,i)=>`<button class="conn-tab" role="tab" aria-selected="${i===0}" data-i="${i}"><b>${m.id}</b><span>${m.tools.length} tools · ${esc(m.dir)}</span></button>`).join('');
+$('#connTabs').addEventListener('click',e=>{const b=e.target.closest('.conn-tab');if(!b)return;curConn=+b.dataset.i;$$('.conn-tab').forEach(x=>x.setAttribute('aria-selected',x===b));renderConn()});
+function renderConn(){const m=MCP_SERVERS[curConn];
+  $('#connBody').innerHTML=`<div><span class="chip k-mcp"><span class="dot"></span>MCP server</span><h3 class="mono" style="font-size:22px;margin:10px 0 6px">${m.id}</h3>
+  <p style="color:var(--muted);font-size:14px">${esc(m.purpose)}</p><div class="mono" style="font-size:11px;color:var(--faint);margin-top:18px">tools</div>
+  <div class="tool-list">${m.tools.map(t=>`<span class="tool">${t}</span>`).join('')}</div>
+  <dl class="kv"><dt>access</dt><dd>${esc(m.access)}</dd><dt>direction</dt><dd>${esc(m.dir)}</dd></dl></div>
+  <div><div class="mono" style="font-size:11px;color:var(--faint);margin-bottom:6px">example request</div><pre class="code">${esc(m.req)}</pre>
+  <div class="mono" style="font-size:11px;color:var(--faint);margin:14px 0 6px">example response <span class="demo-tag">ILLUSTRATIVE</span></div><pre class="code">${esc(m.res)}</pre></div>`}
+renderConn();
+
+/* ══════════════════════════════════════════════════════════════
+   AGENTS
+   ══════════════════════════════════════════════════════════════ */
+let agFam='all';
+seg($('#agFilter'),[['all','All'],['implementer','Implementers'],['reviewer','Reviewers'],['investigator','Investigators'],['planner','Planners'],['utility','Utility']],'all',v=>{agFam=v;renderAgents()});
+$('#agSearch').addEventListener('input',renderAgents);
+function renderAgents(){
+  const q=$('#agSearch').value.trim().toLowerCase();
+  const list=AGENTS.filter(a=>(agFam==='all'||a.f===agFam)&&(!q||(a.n+' '+a.p+' '+a.can.join(' ')+' '+a.cant.join(' ')).toLowerCase().includes(q)));
+  $('#agCount').textContent=`${list.length} of ${AGENTS.length}`;
+  $('#agBody').innerHTML=list.length?list.map(a=>{const F=FAMILIES[a.f];
+    return `<tr class="ag-row" tabindex="0" data-agent="${esc(a.n)}"><td><span class="ag-name"><span class="ag-glyph" style="color:${COLOR[F.k]}">${a.g}</span>${esc(a.n)}</span></td>
+    <td class="muted">${esc(a.p)}</td><td>${a.w?'<span class="pen w">write</span>':'<span class="pen r">read-only</span>'}</td><td class="muted" style="font-size:12.5px">${esc(F.trig)}</td></tr>`}).join('')
+    :`<tr><td colspan="4" class="empty">No agents match "${esc(q)}". Try "review", "read", or "build".</td></tr>`;
+}
+renderAgents();
+document.addEventListener('click',e=>{const r=e.target.closest('[data-agent]');if(r)openAgent(r.dataset.agent)});
+$('#agBody').addEventListener('keydown',e=>{const r=e.target.closest('[data-agent]');if(r&&e.key==='Enter')openAgent(r.dataset.agent)});
+function openAgent(n){
+  const a=AGENTS.find(x=>x.n===n);if(!a)return;const F=FAMILIES[a.f];
+  const used=SCENARIOS.filter(s=>s.steps.some(st=>st.a===a.n)).map(s=>s.t);
+  openDrawer({kind:F.t,k:F.k,title:a.n,sub:a.w?'Write access':'Read-only',body:
+    sec('Purpose',`<p>${esc(a.p)}</p>`)+sec('Capabilities',ul(a.can,'li-can'))+sec('Restrictions',ul(a.cant,'li-cant'))+
+    sec('Triggered when',`<p>${esc(F.trig)}</p>`)+
+    sec('Model',`<p>${esc(a.model||'Chosen per job by the coordinator: a fast model for quick lookups, a mid model for routine multi-file edits, the most capable model for design, investigation and code that ships.')}</p>`)+
+    sec('Execution model',`<p>${a.w?'Can read, edit and write files in its lane, then report per-file results.':'Read-only — gathers evidence or analysis and reports back. Cannot change anything.'} Reports only to the coordinator; never talks to other agents.</p>`)+
+    sec('Appears in playground',used.length?`<ul>${used.map(u=>`<li class="li-dot"><button class="term" data-flow="${SCENARIOS.findIndex(s=>s.t===u)}" style="border:0;text-decoration:underline;text-underline-offset:3px">${esc(u)}</button></li>`).join('')}</ul>`:'<p>Not used in the current demo scenarios.</p>')});
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SAFETY
+   ══════════════════════════════════════════════════════════════ */
+$('#hitl').innerHTML=HITL.map(([t,k],i)=>`${i?'<span class="arr">→</span>':''}<span class="h ${k==='gate'?'gate':''}" style="${k!=='gate'?'color:'+COLOR[k]:''}">${t}</span>`).join('');
+$('#safetyGrid').innerHTML=SAFETY.map(c=>`<div class="panel sf-col"><header><b style="color:${COLOR[c.k]}">${c.t}</b><span class="mono" style="font-size:11px;color:var(--faint)">${c.rules.length} rules</span></header>
+  ${c.rules.map(([t,d])=>`<details class="rule"><summary>${esc(t)}</summary><p>${esc(d)}</p></details>`).join('')}</div>`).join('');
+
+/* ══════════════════════════════════════════════════════════════
+   TEAMS + DEEPEVAL
+   ══════════════════════════════════════════════════════════════ */
+let curTeam=0;
+$('#teamTabs').innerHTML=TEAMS.map((t,i)=>`<button class="team-tab" role="tab" aria-selected="${i===0}" data-i="${i}"><span class="chip ${KIND[t.k]}"><span class="dot"></span>role: ${t.role}</span><b>${t.t}</b><span>${t.model} model by default</span></button>`).join('');
+$('#teamTabs').addEventListener('click',e=>{const b=e.target.closest('.team-tab');if(!b)return;curTeam=+b.dataset.i;$$('.team-tab').forEach(x=>x.setAttribute('aria-selected',x===b));renderTeam()});
+function renderTeam(){const T=TEAMS[curTeam];
+  $('#teamBody').innerHTML=`<div><h3 style="font-size:22px;letter-spacing:-.02em">${T.t}</h3><p style="color:var(--muted);margin-top:6px">${esc(T.beh)}</p>
+    <div class="loop">${T.loop.map(([s,h,a])=>`<div class="loop-step"><b>${esc(s)}</b><span class="hu">${esc(h)}</span><span class="ai">${esc(a)}</span></div>`).join('')}</div></div>
+    <div><div class="mono" style="font-size:11px;color:var(--faint);margin-bottom:8px">agents this team leans on</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">${T.agents.map(a=>`<button class="chip k-agent" data-agent="${esc(a)}"><span class="dot"></span>${esc(a)}</button>`).join('')}</div>
+    <div class="mono" style="font-size:11px;color:var(--faint);margin-bottom:8px">connectors</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">${T.conns.map(c=>`<span class="chip k-mcp"><span class="dot"></span>${esc(c)}</span>`).join('')}</div>
+    ${T.id==='qa'?`<a class="btn btn-sm" href="#deval">See how QA uses DeepEval ↓</a>`:''}</div>`}
+renderTeam();
+$('#devalCode').innerHTML=DEEPEVAL_CODE;
+function renderMetrics(){
+  $('#metrics').innerHTML=DEEPEVAL_METRICS.map(m=>{const pass=m.higher?m.score>=m.th:m.score<=m.th;
+    return `<div class="metric"><span>${m.t}<br><small class="mono" style="color:var(--faint)">${m.higher?'≥':'≤'} ${m.th.toFixed(2)}</small></span>
+    <div><div class="bar" style="margin-bottom:8px"><i style="width:${m.score*100}%;background:${pass?'var(--green)':'var(--red)'}"></i></div>
+    <input type="range" min="0" max="1" step="0.01" value="${m.th}" data-m="${m.id}" aria-label="${m.t} threshold"></div>
+    <span class="mono" style="color:${pass?'var(--green)':'var(--red)'}">${m.score.toFixed(2)}</span></div>`}).join('');
+  const fails=DEEPEVAL_METRICS.filter(m=>!(m.higher?m.score>=m.th:m.score<=m.th));
+  const G=$('#gate');G.className='gate '+(fails.length?'fail':'pass');
+  G.innerHTML=fails.length?`<span>✕ Release gate: FAIL</span><span>${fails.map(f=>f.t).join(', ')}</span>`:`<span>✓ Release gate: PASS</span><span>record test run in OS</span>`;
+}
+$('#metrics').addEventListener('input',e=>{const r=e.target.closest('[data-m]');if(!r)return;DEEPEVAL_METRICS.find(m=>m.id===r.dataset.m).th=+r.value;
+  const pos=r.selectionStart;renderMetrics();const nr=$(`[data-m="${r.dataset.m}"]`);nr&&nr.focus()});
+renderMetrics();
+
+/* ══════════════════════════════════════════════════════════════
+   JEV AI
+   ══════════════════════════════════════════════════════════════ */
+(function(){const J=JEV_AI;const known=J.summary;
+  const slot=(k,label)=>`<div class="jev-slot"><b>${label}</b>${J[k]?esc(J[k]):'<span style="color:var(--faint)">Not provided yet</span>'}</div>`;
+  $('#jevBody').innerHTML=`<div><span class="chip ${known?'k-os':'k-human'}"><span class="dot"></span>${known?'Documented':'Awaiting details'}</span>
+    <h3 style="font-size:26px;letter-spacing:-.02em;margin:14px 0 10px">${esc(J.name)}</h3>
+    <p style="color:var(--muted)">${known?esc(J.summary):'The Engineering OS architecture document doesn\'t mention JEV AI, so its role isn\'t shown on the system map yet. Once the team supplies a description, this section and the map can show where it sits, what it reads, what it produces, and which permissions it holds.'}</p>
+    <p style="color:var(--faint);font-size:13px;margin-top:16px" class="mono">edit: const JEV_AI = { summary, owner, layer, inputs, outputs, access }</p></div>
+    <div>${slot('owner','Owner')}${slot('layer','Layer in the architecture')}${slot('inputs','Reads')}${slot('outputs','Produces')}${slot('access','Permissions and connectors')}</div>`})();
+
+/* ══════════════════════════════════════════════════════════════
+   ECOSYSTEM
+   ══════════════════════════════════════════════════════════════ */
+seg($('#ecoFilter'),ECO_CATS,'all',renderEco);
+function renderEco(c='all'){
+  $('#ecoGrid').innerHTML=ECOSYSTEM.filter(x=>c==='all'||x.c===c).map(x=>`<div class="eco${x.c==='use'?' use':''}"><header><b>${esc(x.n)}</b><span class="chip ${x.c==='use'?'k-os':'k-ext'}">${esc(x.tag)}</span></header><p>${esc(x.d)}</p><div class="fit">${esc(x.fit)}</div></div>`).join('');
+}
+renderEco();
+
+/* ══════════════════════════════════════════════════════════════
+   ACTIVITY + STATUS
+   ══════════════════════════════════════════════════════════════ */
+const ACTIVITY=[];(function(){let t=new Date();t.setHours(9,12,0,0);let ms=t.getTime();
+  SCENARIOS.forEach(s=>s.steps.forEach(st=>st.ev.forEach(ev=>{ms+=ev.dt*3;const x=ev.x;
+    const cat=ev.type==='error'?'errors':ev.type==='approval'?'approvals':ev.type==='tool'?'mcp':ev.type==='os'?'os':'agents';
+    ACTIVITY.push({time:fmt(ms),actor:x.actor||st.a,k:EV_KIND[ev.type]||'agent',action:x.event||ev.type,conn:[x.connector,x.tool].filter(Boolean).join(' · ')||'—',status:x.status||(ev.type==='error'?'BLOCKED':ev.type==='approval'?'APPROVAL':'COMPLETED'),result:ev.msg,cat})})))})();
+let actCat='all';
+seg($('#actFilter'),[['all','All'],['agents','Agents'],['mcp','MCP'],['os','OS'],['approvals','Approvals'],['errors','Errors']],'all',v=>{actCat=v;renderAct()});
+function renderAct(){const L=ACTIVITY.filter(a=>actCat==='all'||a.cat===actCat);$('#actCount').textContent=L.length+' events';
+  $('#actBody').innerHTML=L.map(a=>`<tr class="act-row"><td style="color:var(--faint)">${a.time}</td><td class="${KIND[a.k]}">${esc(a.actor)}</td><td>${esc(a.action)}</td><td class="c-teal">${esc(a.conn)}</td>
+  <td><span class="st-pill ${a.status==='BLOCKED'?'st-no':a.status==='APPROVAL'?'st-part':'st-impl'}">${a.status}</span></td><td class="m">${esc(a.result)}</td></tr>`).join('')}
+renderAct();
+$('#stBody').innerHTML=STATUS.map(([c,k,l,n])=>`<tr class="act-row"><td class="m" style="color:var(--text)">${esc(c)}</td><td><span class="st-pill st-${k}">${l}</span></td><td class="m">${esc(n)}</td></tr>`).join('');
+$('#recs').innerHTML=RECS.map(([t,d],i)=>`<div class="panel rec"><i>${String(i+1).padStart(2,'0')}</i><p><b>${esc(t)}.</b> ${esc(d)}</p></div>`).join('');
+
+/* ══════════════════════════════════════════════════════════════
+   LEARNING HUB (LMS)
+   ══════════════════════════════════════════════════════════════ */
+let lms=store.get('eos-lms-v1',{done:{},role:'all'});
+seg($('#sigSeg'),[['ai','AI engineer'],['swe','Software engineer'],['aug','Aug cross-check']],'ai',renderSignals);
+function renderSignals(k='ai'){const D=SIGNALS[k];const max=Math.max(...D.rows.map(r=>r[1]));
+  $('#sigBars').innerHTML=D.rows.map(([n,v])=>`<div class="sig"><span>${n}</span><div class="bar"><i style="width:0;background:linear-gradient(90deg,var(--indigo),var(--teal))" data-w="${v/max*100}"></i></div><span>${v.toFixed(1)}%</span></div>`).join('');
+  $('#sigNote').textContent=D.note;requestAnimationFrame(()=>requestAnimationFrame(()=>$$('#sigBars i').forEach(i=>i.style.width=i.dataset.w+'%')))}
+renderSignals();
+seg($('#roleSeg'),ROLES,lms.role,v=>{lms.role=v;store.set('eos-lms-v1',lms);renderModules()});
+function items(){const a=[];MODULES.forEach((m,i)=>{m.res.forEach((_,j)=>a.push(`m${i}r${j}`));a.push(`m${i}show`)});return a}
+function renderModules(){
+  $('#modules').innerHTML=MODULES.map((m,i)=>{const ids=[...m.res.map((_,j)=>`m${i}r${j}`),`m${i}show`];const done=ids.filter(x=>lms.done[x]).length;
+    const fit=lms.role==='all'||m.fit.includes(lms.role);
+    return `<details class="mod${fit?' fit':' faded'}${done===ids.length?' complete':''}" data-m="${i}"><summary><span class="mn">${done===ids.length?'✓':String(i+1).padStart(2,'0')}</span>
+      <div><b>${esc(m.t)}</b><span>${esc(m.w)} · best fit: ${m.fit.map(f=>ROLES.find(r=>r[0]===f)[1]).join(', ')}</span></div>
+      <span class="mp"><span class="bar"><i style="width:${done/ids.length*100}%;background:var(--green)"></i></span>${done}/${ids.length}</span></summary>
+      <div class="mod-body"><div>${m.res.map((r,j)=>`<label class="res"><input type="checkbox" data-id="m${i}r${j}" ${lms.done[`m${i}r${j}`]?'checked':''}><span><a href="${r[2]}" target="_blank" rel="noopener">${esc(r[0])} ↗</a><small>${esc(r[1])}</small></span></label>`).join('')}</div>
+      <div><div class="showit"><b>Show it — portfolio project</b>${esc(m.show)}</div><label class="res" style="margin-top:8px"><input type="checkbox" data-id="m${i}show" ${lms.done[`m${i}show`]?'checked':''}><span>I built and shipped this project</span></label></div></div></details>`}).join('');
+  updateProgress();
+}
+$('#modules').addEventListener('change',e=>{const c=e.target.closest('input[data-id]');if(!c)return;lms.done[c.dataset.id]=c.checked;store.set('eos-lms-v1',lms);
+  const open=$$('.mod[open]').map(d=>d.dataset.m);renderModules();open.forEach(o=>{const d=$(`.mod[data-m="${o}"]`);d&&(d.open=true)});if(c.checked)toast('Progress saved','os')});
+function updateProgress(){const all=items();const d=all.filter(x=>lms.done[x]).length;const p=Math.round(d/all.length*100);
+  $('#progPct').textContent=p+'%';$('#progTxt').textContent=`${d} of ${all.length} items done`;$('#ringFg').style.strokeDashoffset=263.9*(1-d/all.length)}
+$('#progReset').onclick=()=>{lms.done={};store.set('eos-lms-v1',lms);renderModules();toast('Progress reset','ext')};
+renderModules();
+$('#focusBody').innerHTML=FOCUS.map(r=>`<tr><td style="font-weight:500">${esc(r[0])}</td><td style="color:var(--muted)">${esc(r[1])}</td><td style="color:var(--muted)">${esc(r[2])}</td></tr>`).join('');
+$('#sources').innerHTML=SOURCES.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(t)} ↗</a>`).join('');
+/* Flashcards */
+const CARDS=Object.entries(GLOSSARY).filter(([k])=>k!=='Sub-agent');let fi=0;
+function card(){$('#flash').classList.remove('flip');setTimeout(()=>{$('#flashF').textContent=CARDS[fi][0];$('#flashB').textContent=CARDS[fi][1];$('#flashIdx').textContent=`${fi+1} / ${CARDS.length}`},RM?0:150)}
+const flip=()=>$('#flash').classList.toggle('flip');
+$('#flash').onclick=flip;$('#flash').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip()}};$('#flashFlip').onclick=flip;
+$('#flashNext').onclick=()=>{fi=(fi+1)%CARDS.length;card()};$('#flashPrev').onclick=()=>{fi=(fi-1+CARDS.length)%CARDS.length;card()};card();
+/* Quiz */
+let qi=0,score=0,answered=false;
+function quiz(){const Q=$('#quiz');
+  if(qi>=QUIZ.length){Q.innerHTML=`<h3>Check your understanding</h3><div style="font-size:44px;font-weight:600;letter-spacing:-.03em;margin:20px 0 4px">${score} / ${QUIZ.length}</div><p style="color:var(--muted)">${score===QUIZ.length?'Every answer right — you know how the system works.':'Revisit the sections behind the ones you missed, then try again.'}</p><button class="btn btn-sm" style="margin-top:16px" id="qAgain">Try again</button>`;$('#qAgain').onclick=()=>{qi=0;score=0;quiz()};return}
+  const q=QUIZ[qi];answered=false;
+  Q.innerHTML=`<div style="display:flex;justify-content:space-between"><h3>Check your understanding</h3><span class="mono" style="font-size:12px;color:var(--faint)">${qi+1} / ${QUIZ.length}</span></div>
+  <p style="margin-top:12px;font-size:15px">${esc(q.q)}</p><div class="q-opts">${q.o.map((o,i)=>`<button class="q-opt" data-o="${i}">${esc(o)}</button>`).join('')}</div><p id="qWhy" style="font-size:13px;color:var(--muted);min-height:20px"></p>`;
+  Q.querySelector('.q-opts').onclick=e=>{const b=e.target.closest('.q-opt');if(!b||answered)return;answered=true;const i=+b.dataset.o;
+    if(i===q.a)score++;$$('.q-opt',Q).forEach(x=>{if(+x.dataset.o===q.a)x.classList.add('right');else if(x===b)x.classList.add('wrong')});
+    $('#qWhy').innerHTML=esc(q.why)+` <button class="btn btn-sm" style="margin-left:8px" id="qNext">${qi===QUIZ.length-1?'See score':'Next'}</button>`;$('#qNext').onclick=()=>{qi++;quiz()}}}
+quiz();
+
+/* ══════════════════════════════════════════════════════════════
+   COMMAND PALETTE + KEYBOARD
+   ══════════════════════════════════════════════════════════════ */
+const go=id=>()=>$(id).scrollIntoView({behavior:RM?'auto':'smooth'});
+const COMMANDS=[
+  ['Run selected scenario','playground',()=>{go('#playground')();runScenario()}],
+  ['Reset playground','playground',()=>{selectScenario(PG.sc);go('#playground')()}],
+  ...SCENARIOS.map((s,i)=>[`Run scenario: ${s.t}`,'scenario',()=>{selectScenario(i);go('#playground')();runScenario()}]),
+  ['View architecture','map',go('#map')],['View events','playground',go('#stream')],['View coordinator','lifecycle',go('#lifecycle')],
+  ['View MCP','mcp',go('#mcp')],['View security','safety',go('#safety')],['View teams','teams',go('#teams')],['View DeepEval','qa',go('#deval')],
+  ['View JEV AI','jev',go('#jev')],['View ecosystem','market',go('#ecosystem')],['View agent activity','audit',go('#activity')],['Open learning hub','learn',go('#learn')],
+  ['Search agents','agents',()=>{go('#agents')();setTimeout(()=>$('#agSearch').focus(),400)}],
+  ...AGENTS.map(a=>[`Agent: ${a.n}`,'agent',()=>openAgent(a.n)])
+];
+let palIdx=0,palRes=[];
+function openPal(){lastFocus=document.activeElement;$('#palette').classList.add('on');$('#scrim').classList.add('on');$('#palIn').value='';renderPal();setTimeout(()=>$('#palIn').focus(),30)}
+function renderPal(){const q=$('#palIn').value.toLowerCase();palRes=COMMANDS.filter(c=>c[0].toLowerCase().includes(q)).slice(0,12);palIdx=Math.min(palIdx,Math.max(0,palRes.length-1));
+  $('#palList').innerHTML=palRes.length?palRes.map((c,i)=>`<button class="pal-item${i===palIdx?' act':''}" role="option" aria-selected="${i===palIdx}" data-i="${i}"><span>${esc(c[0])}</span><small>${c[1]}</small></button>`).join(''):'<div class="empty">No commands match. Try "run", "agent" or "mcp".</div>'}
+function runPal(i){const c=palRes[i];if(!c)return;$('#palette').classList.remove('on');$('#scrim').classList.remove('on');c[2]()}
+$('#palIn').addEventListener('input',()=>{palIdx=0;renderPal()});
+$('#palIn').addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();palIdx=(palIdx+1)%Math.max(1,palRes.length);renderPal()}
+  else if(e.key==='ArrowUp'){e.preventDefault();palIdx=(palIdx-1+palRes.length)%Math.max(1,palRes.length);renderPal()}else if(e.key==='Enter'){e.preventDefault();e.stopPropagation();runPal(palIdx)}});
+$('#palList').addEventListener('click',e=>{const b=e.target.closest('.pal-item');if(b)runPal(+b.dataset.i)});
+$('#palBtn').onclick=openPal;
+document.addEventListener('keydown',e=>{
+  const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPal();return}
+  if(e.key==='Escape'){closeAll();return}
+  if(typing)return;
+  if(e.key==='/'){e.preventDefault();$('#agents').scrollIntoView({behavior:RM?'auto':'smooth'});setTimeout(()=>$('#agSearch').focus(),350)}
+  else if(e.key===' '&&PG.running){e.preventDefault();togglePause()}
+  else if(e.key==='Enter'&&!e.target.closest('button,a,[role=button],summary,.ag-row,.gnode')){e.preventDefault();runScenario()}
+});
+
+/* Nav active */
+const navIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const a=$(`#navLinks a[href="#${e.target.id}"]`);if(a){$$('#navLinks a').forEach(x=>x.classList.remove('on'));a.classList.add('on');a.scrollIntoView({block:'nearest',inline:'nearest'})}}}),{rootMargin:'-40% 0px -55% 0px'});
+$$('main section[id]').forEach(s=>navIO.observe(s));
+</script>
+<script src="/tools/arsenal-dock.js" defer></script>
+</body>
+</html>

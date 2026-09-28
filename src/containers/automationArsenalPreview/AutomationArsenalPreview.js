@@ -1,99 +1,97 @@
 import React from "react";
-import { Fade } from "react-reveal";
-import { automationTools } from "../../pages/automationArsenal/AutomationArsenal";
+import { Link } from "react-router-dom";
+import { DEPTHS, STAGES, automationTools } from "../../pages/automationArsenal/arsenalData";
+import { themeVars, useInView, useSpotlight } from "../../pages/projects/lib/ui";
 import "./AutomationArsenalPreview.css";
 
-export default function AutomationArsenalPreview(props) {
-  const { theme } = props;
-  const featuredTools = automationTools;
+const toolsInStage = (stageId) => automationTools.filter((tool) => tool.stage === stageId);
+const flagships = automationTools.filter((tool) => tool.depth === "flagship");
 
-  const getToolHref = (tool) =>
-    tool.isReady && tool.docsPath ? tool.docsPath : "/automation-arsenal";
-
-  const handleToolClick = (event, tool) => {
-    if (!tool.isReady || !tool.docsPath) {
-      event.preventDefault();
-      window.location.assign("/automation-arsenal");
-      return;
-    }
-
-    event.preventDefault();
-    window.location.assign(tool.docsPath);
-  };
+export default function AutomationArsenalPreview({ theme }) {
+  const { dark, style } = themeVars(theme);
+  const [ref, inView] = useInView({ threshold: 0.15 });
+  const spotlight = useSpotlight();
 
   return (
     <section
-      className="home-arsenal-section"
+      className={`hap-root ${dark ? "hap-dark" : ""} ${inView ? "is-in" : ""}`}
       id="automation-arsenal-preview"
-      style={{ backgroundColor: theme.body }}
+      style={style}
+      ref={ref}
     >
-      <div className="home-arsenal-shell">
-        <Fade bottom duration={800} distance="18px">
-          <div className="home-arsenal-head">
-            <span
-              className="home-arsenal-chip"
-              style={{ borderColor: `${theme.highlight}66`, color: theme.text }}
-            >
-              AI + Automation + QA
+      <div className="hap-shell">
+        <header className="hap-head">
+          <div>
+            <span className="hap-kicker">
+              <span className="hap-kicker-dot" /> Automation Arsenal
             </span>
-            <h2 className="home-arsenal-title" style={{ color: theme.text }}>
-              Automation Arsenal
+            <h2>
+              {automationTools.length} tools. <span>One quality pipeline.</span>
             </h2>
-            <p className="home-arsenal-subtitle" style={{ color: theme.secondaryText }}>
-              As you scroll, explore the core tools and AI agents I use for modern
-              software quality engineering.
+            <p>
+              The frameworks, AI agents and platforms I use, from the first scenario to a gated release. Every
+              tool opens a hands-on case study.
             </p>
-            <a className="home-arsenal-cta" href="/automation-arsenal">
-              View Full Automation Arsenal
-            </a>
           </div>
-        </Fade>
+          <div className="hap-actions">
+            <Link to="/automation-arsenal" className="hap-btn hap-btn--primary">
+              Explore the arsenal <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+            </Link>
+            <Link to="/automation-arsenal#pipeline" className="hap-btn hap-btn--ghost">
+              <i className="fa-solid fa-terminal" aria-hidden="true" /> Run the pipeline
+            </Link>
+          </div>
+        </header>
 
-        <div className="home-arsenal-grid">
-          {featuredTools.map((tool, index) => (
-            <Fade key={tool.name} bottom duration={700} delay={90 + index * 70} distance="16px">
-              <a
-                href={getToolHref(tool)}
-                onClick={(event) => handleToolClick(event, tool)}
-                className={`home-arsenal-card ${tool.isReady ? "ready" : "coming-soon"}`}
-                style={{
-                  background: theme.body,
-                  borderColor: `${theme.highlight}33`,
-                }}
-              >
-                <div className="home-arsenal-card-image-wrap">
-                  <img
-                    src={tool.image}
-                    alt={`${tool.name} logo`}
-                    className="home-arsenal-card-image"
-                  />
-                </div>
+        <ol className="hap-board" aria-label="Quality pipeline">
+          <span className="hap-board-line" aria-hidden="true" />
+          {STAGES.map((stage, index) => (
+            <li className="hap-stage" key={stage.id} style={{ "--i": index }}>
+              <div className="hap-stage-head">
+                <span className="hap-stage-icon" aria-hidden="true">
+                  <i className={stage.icon} />
+                </span>
+                <span className="hap-stage-index">{stage.index}</span>
+                <strong>{stage.label}</strong>
+              </div>
+              <ul className="hap-tools">
+                {toolsInStage(stage.id).map((tool) => (
+                  <li key={tool.id} style={{ "--tool": tool.accent }}>
+                    <a href={tool.docsPath} className="hap-tool">
+                      <img src={tool.image} alt="" loading="lazy" />
+                      <span>{tool.name}</span>
+                      <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ol>
 
-                <div className="home-arsenal-card-content">
-                  <span className="home-arsenal-category" style={{ color: theme.highlight }}>
-                    {tool.category}
-                  </span>
-                  <h3 className="home-arsenal-card-title" style={{ color: theme.text }}>
-                    {tool.name}
-                  </h3>
-                  <p className="home-arsenal-card-description" style={{ color: theme.secondaryText }}>
-                    {tool.description}
-                  </p>
-                </div>
-
-                <div className="home-arsenal-card-footer">
-                  <span
-                    className="home-arsenal-link-text"
-                    style={{ color: tool.isReady ? theme.text : theme.secondaryText }}
-                  >
-                    {tool.isReady ? "Open Docs" : "Open Arsenal Page"}
-                  </span>
-                  <span className="home-arsenal-link-arrow" aria-hidden="true">
-                    {tool.isReady ? "->" : "=>"}
-                  </span>
-                </div>
-              </a>
-            </Fade>
+        <div className="hap-flagships">
+          {flagships.map((tool, index) => (
+            <a
+              key={tool.id}
+              href={tool.docsPath}
+              className="hap-flagship"
+              style={{ "--tool": tool.accent, "--i": index }}
+              onMouseMove={spotlight}
+            >
+              <span className="hap-flagship-spot" aria-hidden="true" />
+              <img src={tool.image} alt="" loading="lazy" />
+              <div>
+                <span className="hap-badge">
+                  <i className={DEPTHS.flagship.icon} aria-hidden="true" /> {DEPTHS.flagship.label} ·{" "}
+                  {tool.category}
+                </span>
+                <h3>{tool.name}</h3>
+                <p>{tool.description}</p>
+              </div>
+              <span className="hap-flagship-cta">
+                Open <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+              </span>
+            </a>
           ))}
         </div>
       </div>
