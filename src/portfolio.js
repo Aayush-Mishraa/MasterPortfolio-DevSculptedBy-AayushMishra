@@ -540,11 +540,22 @@ const experience = {
       work: true,
       experiences: [
         {
+          title: "Senior Software Test Engineer",
+          company: "Webority Technology",
+          company_url: "https://www.webority.com/",
+          logo_path: "webority_logo.jpg",
+          duration: "May 2026 - Present",
+          location: "India",
+          description:
+            "Leading the QA team and driving quality assurance strategy across projects. Building and maintaining test automation solutions, coordinating test planning and execution, mentoring QA engineers, and partnering with product and development teams to deliver reliable, high-quality releases.",
+          color: "#152C65",
+        },
+        {
           title: "Software Development Engineer In Test",
           company: "Keywords Studio",
           company_url: "https://www.keywordsstudios.com/en/",
           logo_path: "keywordsstudios_logo.jpg",
-          duration: "April 2023- Present",
+          duration: "April 2023 - April 2026",
           location: "Gurgaon, HR, India",
           description:
             "Leading test automation initiatives and quality assurance processes for gaming and software products. Developing comprehensive test frameworks using Selenium, TestNG, and REST Assured. Implementing CI/CD pipelines with Jenkins and Docker for automated testing. Designing and executing performance testing strategies using JMeter. Mentoring junior QA engineers and establishing best practices for test automation across multiple projects.",
