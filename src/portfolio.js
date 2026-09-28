@@ -2,7 +2,7 @@
 
 // Website related settings
 const settings = {
-  isSplash: true, // Change this to false if you don't want Splash screen.
+  isSplash: false, // Open the main portfolio and its Toolkit navigation at the root URL.
 };
 
 //SEO Related settings

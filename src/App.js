@@ -9,8 +9,12 @@ import Lenis from "@studio-freight/lenis";
 function AppContent() {
   const { currentTheme } = useTheme();
 
-  // Initialize Lenis smooth scrolling
+  // Initialize Lenis smooth scrolling (skipped when the user prefers reduced motion)
   useEffect(() => {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return undefined;
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -18,17 +22,21 @@ function AppContent() {
       smoothTouch: false,
       touchMultiplier: 2,
     });
+    // Shared so scroll-to-top and route changes go through Lenis instead of fighting it
+    window.__lenis = lenis;
 
+    let frame;
     function raf(time) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      frame = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    frame = requestAnimationFrame(raf);
 
-    // Cleanup function
     return () => {
+      cancelAnimationFrame(frame);
       lenis.destroy();
+      if (window.__lenis === lenis) delete window.__lenis;
     };
   }, []);
 
