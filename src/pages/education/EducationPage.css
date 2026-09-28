@@ -667,7 +667,7 @@ body.dark-theme .edu {
 
 .edu-git__head {
   background: var(--e-accent);
-  color: #fff;
+  color: var(--theme-onAccent, #fff);
 }
 
 .edu-git__branch {
@@ -770,7 +770,7 @@ body.dark-theme .edu {
 
 .edu-tab.is-active span {
   background: rgba(var(--e-accent-rgb), 0.9);
-  color: #fff;
+  color: var(--theme-onAccent, #fff);
 }
 
 .edu-tab:focus-visible {

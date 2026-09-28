@@ -72,7 +72,7 @@ export default function Greeting(props) {
                 >
                   <span className="cta-chip">Hot</span>
                   <span className="cta-text">
-                    <span className="cta-label">Enter Automation Arsenal:</span>
+                    <span className="cta-label">Enter Automation Arsenal</span>
                     <span className="cta-tools-viewport" aria-hidden="true">
                       <span
                         key={activeToolIndex}

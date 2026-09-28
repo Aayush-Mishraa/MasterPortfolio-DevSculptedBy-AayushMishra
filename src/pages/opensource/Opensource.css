@@ -228,7 +228,7 @@
 
 .os-btn--primary {
   background: var(--pj-accent);
-  color: #fff !important;
+  color: var(--theme-onAccent, #fff) !important;
   box-shadow: 0 10px 30px -10px var(--pj-accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
@@ -1736,7 +1736,7 @@
 
 .os-segment button.is-active {
   background: var(--pj-accent);
-  color: #fff;
+  color: var(--theme-onAccent, #fff);
   box-shadow: 0 6px 20px -8px var(--pj-accent-glow);
 }
 

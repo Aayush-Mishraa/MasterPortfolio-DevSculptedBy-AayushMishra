@@ -110,6 +110,10 @@
   white-space: nowrap;
 }
 
+.cta-label::after {
+  content: ":";
+}
+
 .cta-tools-viewport {
   position: relative;
   width: clamp(118px, 24vw, 180px);
@@ -395,12 +399,13 @@
     font-size: 0.9rem;
   }
 
+  /* Too narrow for both: keep the clear call to action, drop the rotating tool names */
   .cta-tools-viewport {
-    width: clamp(102px, 41vw, 150px);
+    display: none;
   }
 
-  .cta-label {
-    display: none;
+  .cta-label::after {
+    content: none;
   }
 
   .greeting-nickname {
