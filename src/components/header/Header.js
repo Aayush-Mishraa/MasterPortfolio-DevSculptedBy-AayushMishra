@@ -6,6 +6,8 @@ import SeoHeader from "../seoHeader/SeoHeader";
 import ThemeSelector from "../themeSelector/ThemeSelector";
 import CommandPalette from "./CommandPalette";
 import { MODULES as UNIVERSE_PAGES } from "../../pages/universe/modules";
+import { automationTools } from "../../pages/automationArsenal/arsenalData";
+import { loadSnapshot, prettyName } from "../../services/github/githubData";
 
 const NAV_LINKS = [
   {
@@ -55,7 +57,8 @@ let lastIndicator = null;
 class Header extends Component {
   state = {
     isScrolled: false,
-    paletteOpen: false
+    paletteOpen: false,
+    projects: []
   };
 
   linksRef = createRef();
@@ -91,6 +94,7 @@ class Header extends Component {
     cancelAnimationFrame(this.indicatorFrame);
     cancelAnimationFrame(this.scrollFrame);
     clearInterval(this.clockTimer);
+    this.unmounted = true;
   }
 
   tickClock = () => {
@@ -144,7 +148,18 @@ class Header extends Component {
 
   togglePalette = () => {
     this.closeMobileMenu();
+    this.loadProjects();
     this.setState((state) => ({ paletteOpen: !state.paletteOpen }));
+  }
+
+  // Projects come from the build-time GitHub snapshot, fetched on first open.
+  loadProjects = () => {
+    if (this.projectsRequested) return;
+    this.projectsRequested = true;
+    loadSnapshot().then((snapshot) => {
+      const repos = snapshot && Array.isArray(snapshot.repos) ? snapshot.repos : [];
+      if (!this.unmounted) this.setState({ projects: repos.filter((repo) => !repo.fork) });
+    });
   }
 
   closePalette = () => this.setState({ paletteOpen: false });
@@ -246,7 +261,27 @@ class Header extends Component {
         };
       });
 
-    return pages.concat(universe, socials);
+    const tools = automationTools.map((tool) => ({
+      id: `tool-${tool.id}`,
+      group: "Automation Arsenal",
+      label: tool.name,
+      keywords: `${tool.category} ${(tool.tags || []).join(" ")}`,
+      icon: "fa-solid fa-toolbox",
+      hint: tool.category,
+      run: () => { window.location.href = tool.docsPath; }
+    }));
+
+    const projects = this.state.projects.map((repo) => ({
+      id: `project-${repo.name}`,
+      group: "Projects",
+      label: prettyName(repo.name),
+      keywords: `${repo.name} ${repo.language || ""} ${(repo.topics || []).join(" ")}`,
+      icon: "fa-solid fa-folder-open",
+      hint: repo.language || "",
+      run: go(`/projects/${encodeURIComponent(repo.name)}`)
+    }));
+
+    return pages.concat(tools, projects, universe, socials);
   }
 
   render() {
@@ -271,7 +306,7 @@ class Header extends Component {
           <div className="hud-bar" ref={this.barRef}>
             <span className="hud-progress" aria-hidden="true"></span>
 
-            <NavLink to="/home" className="logo" aria-label="Aayush Mishra home" onClick={this.closeMobileMenu}>
+            <NavLink to="/splash" className="logo" aria-label="Aayush Mishra, replay intro" onClick={this.closeMobileMenu}>
               <span className="logo-bracket">&lt;</span>
               <span className="logo-name">{greeting.logo_name}</span>
               <span className="logo-bracket">/&gt;</span>

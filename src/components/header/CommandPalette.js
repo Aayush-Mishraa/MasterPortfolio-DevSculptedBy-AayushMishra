@@ -27,7 +27,7 @@ class CommandPalette extends Component {
     const query = this.state.query.trim().toLowerCase();
     if (!query) return this.props.items;
     return this.props.items.filter((item) =>
-      `${item.label} ${item.group} ${item.hint || ""}`.toLowerCase().includes(query)
+      `${item.label} ${item.group} ${item.hint || ""} ${item.keywords || ""}`.toLowerCase().includes(query)
     );
   }
 
