@@ -47,3 +47,6 @@ hostinger-deployment-latest/
 .ftp-deploy-sync-state.json
 
 !/package-lock.json
+
+# stray Windows cache folder created by tooling
+/%SystemDrive%/
