@@ -216,6 +216,15 @@
   padding: 20px;
 }
 
+/* Keep the portrait card visible on first load instead of centering it against
+   the taller introduction column. Mobile retains its stacked positioning. */
+@media (min-width: 769px) {
+  .greeting-image-div {
+    align-items: flex-start;
+    padding-top: 48px;
+  }
+}
+
 /* Media Query */
 /* Large Desktop */
 @media (min-width: 1920px) {

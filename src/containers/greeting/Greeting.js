@@ -4,10 +4,11 @@ import SocialMedia from "../../components/socialMedia/SocialMedia";
 import Button from "../../components/button/Button";
 import { greeting } from "../../portfolio";
 import { Fade } from "react-reveal";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import ProfileCard from "../../components/profileCard/ProfileCard";
 import ShinyText from "../../components/shinyText/ShinyText";
 import RotatingRoles from "../../components/RotatingRoles/RotatingRoles";
+import ProfileImage from "../../assets/images/ProfileImage.png";
 
 const AUTOMATION_TOOL_NAMES = [
   "AWS Services",
@@ -26,6 +27,7 @@ const AUTOMATION_TOOL_NAMES = [
 
 export default function Greeting(props) {
   const theme = props.theme;
+  const history = useHistory();
   const [activeToolIndex, setActiveToolIndex] = useState(0);
 
   useEffect(() => {
@@ -111,7 +113,22 @@ export default function Greeting(props) {
 							alt="saad sitting on table"
 							src={require("../../assets/images/feelingProud.svg")}
 						></img> */}
-            <ProfileCard theme={theme} />
+            <ProfileCard
+              name="Aayush Mishra"
+              title="Software Development Engineer in Test"
+              handle="Aayush-Mishraa"
+              status="Online"
+              contactText="Get In Touch"
+              avatarUrl={ProfileImage}
+              showUserInfo={true}
+              enableTilt={true}
+              enableMobileTilt={false}
+              onContactClick={() => history.push("/contact")}
+              iconUrl="/assets/demo/iconpattern.svg"
+              grainUrl="/assets/demo/grain.svg"
+              behindGlowEnabled={true}
+              innerGradient="linear-gradient(145deg,#60496e8c 0%,#71C4FF44 100%)"
+            />
           </div>
         </div>
       </div>
