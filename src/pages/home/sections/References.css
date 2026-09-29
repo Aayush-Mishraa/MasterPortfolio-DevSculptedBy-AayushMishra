@@ -1,0 +1,229 @@
+/* Kind words: one quote at a time, large and quiet */
+
+.hm-refs__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 54rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hm-refs__sample {
+  margin: 1rem 0 0;
+  padding: 0.35rem 0.8rem;
+  border: 1px dashed var(--hm-warn);
+  border-radius: 999px;
+  color: var(--hm-warn);
+  font-size: 0.68rem;
+}
+
+.hm-refs__stage {
+  width: 100%;
+  margin-top: 1.6rem;
+}
+
+/* Every slide shares one grid cell, so the height is the tallest quote's and
+   nothing jumps when they change */
+.hm-refs__slides {
+  display: grid;
+}
+
+.hm-ref {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 10px, 0);
+  transition: opacity 600ms var(--hm-ease), transform 800ms var(--hm-ease), visibility 0s linear 600ms;
+}
+
+.hm-ref.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 700ms var(--hm-ease) 120ms, transform 900ms var(--hm-ease) 120ms, visibility 0s;
+}
+
+.hm-ref__mark {
+  display: block;
+  height: 0.55em;
+  font-size: clamp(4rem, 3rem + 3vw, 6rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--hm-accent-ink);
+  opacity: 0.5;
+}
+
+.hm-ref blockquote {
+  margin: 0.4rem 0 0;
+}
+
+.hm-ref blockquote p {
+  margin: 0;
+  font-size: clamp(1.3rem, 1rem + 1.3vw, 2rem);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  color: var(--hm-text);
+  text-wrap: balance;
+}
+
+.hm-ref figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 0.9rem;
+  margin-top: 1.6rem;
+  text-align: left;
+}
+
+.hm-ref__avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--hm-line);
+  background: var(--hm-surface-2);
+  object-fit: cover;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--hm-text);
+}
+
+.hm-ref__who {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.hm-ref__who strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.hm-ref__who span,
+.hm-ref__who em {
+  font-size: 0.82rem;
+  font-style: normal;
+  color: var(--hm-muted);
+}
+
+.hm-ref__source {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--hm-line);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--hm-text);
+  transition: border-color var(--hm-fast) ease, color var(--hm-fast) ease;
+}
+
+.hm-ref__source:hover {
+  border-color: var(--hm-accent-ink);
+  color: var(--hm-accent-ink);
+}
+
+.hm-ref__source i {
+  font-size: 0.72em;
+}
+
+/* ---------- Controls ---------- */
+
+.hm-refs__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.8rem;
+}
+
+.hm-refs__arrow,
+.hm-refs__pause {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  border: 1px solid var(--hm-line);
+  border-radius: 999px;
+  background: var(--hm-glass);
+  color: var(--hm-text);
+  cursor: pointer;
+  transition: border-color var(--hm-fast) ease;
+}
+
+.hm-refs__arrow:hover,
+.hm-refs__pause:hover {
+  border-color: var(--hm-accent-ink);
+}
+
+.hm-refs__pause {
+  display: inline-flex;
+  gap: 0.45rem;
+  padding: 0 0.9rem;
+  font: 600 0.78rem/1 var(--hm-sans);
+}
+
+.hm-refs__pause i,
+.hm-refs__arrow i {
+  font-size: 0.8em;
+}
+
+.hm-refs__dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+/* Each dot is a 44px target around a small track that fills while it plays */
+.hm-refs__dot {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.hm-refs__dot span {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--hm-line-strong);
+  overflow: hidden;
+}
+
+.hm-refs__dot.is-active span {
+  background: rgba(var(--hm-accent-rgb), 0.25);
+}
+
+.hm-refs__dot.is-active span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--hm-accent-ink);
+}
+
+.hm-refs__dot.is-active.is-rotating span::after {
+  transform-origin: left center;
+  animation: hm-dot-fill var(--rotate, 7s) linear both;
+}
+
+@keyframes hm-dot-fill {
+  from {
+    transform: scaleX(0);
+  }
+}

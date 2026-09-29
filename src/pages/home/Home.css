@@ -1,0 +1,1198 @@
+/* ==========================================================================
+   Home — "Signed off".
+   The intro runs the test suite and signs the name; this page is the release
+   report that follows: verdict, evidence, process, work, history.
+
+   Speaks the same language as the redesigned pages (Experience, Projects,
+   Contact, Open Source): Inter display type, mono eyebrows, a masked grid
+   backdrop, glass consoles. Every colour comes from the active theme; text
+   only ever uses ink, secondary text or the WCAG-adjusted accent.
+   ========================================================================== */
+
+.hm {
+  --hm-bg: var(--theme-body, #edf9fe);
+  --hm-text: var(--theme-text, #001c55);
+  --hm-muted: var(--theme-secondaryText, #5b6d92);
+  --hm-accent: var(--theme-imageHighlight, #0e6ba8);
+  --hm-accent-ink: var(--theme-accentText, var(--hm-accent));
+  --hm-on-accent: var(--theme-onAccent, #ffffff);
+  --hm-soft: var(--theme-highlight, #a6e1fa);
+  --hm-text-rgb: var(--theme-text-rgb, 0, 28, 85);
+  --hm-accent-rgb: var(--theme-imageHighlight-rgb, 14, 107, 168);
+  --hm-soft-rgb: var(--theme-highlight-rgb, 166, 225, 250);
+
+  --hm-surface: rgba(var(--hm-text-rgb), 0.03);
+  --hm-surface-2: rgba(var(--hm-text-rgb), 0.06);
+  --hm-raised: color-mix(in srgb, var(--hm-bg) 86%, #ffffff);
+  --hm-glass: color-mix(in srgb, var(--hm-bg) 70%, transparent);
+  --hm-panel: color-mix(in srgb, var(--hm-bg) 62%, #ffffff);
+  --hm-line: rgba(var(--hm-text-rgb), 0.1);
+  --hm-line-strong: rgba(var(--hm-text-rgb), 0.18);
+  --hm-grad: linear-gradient(100deg, var(--hm-accent-ink) 0%, var(--hm-text) 115%);
+  --hm-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 30px 60px -36px rgba(var(--hm-text-rgb), 0.45);
+  --hm-glow: 0 30px 80px -40px rgba(var(--hm-accent-rgb), 0.7);
+
+  /* Pass green is computed per theme in HomeComponent (readableAccent), so it
+     clears 4.5:1 on every background; these are only fallbacks. */
+  --hm-pass: #15803d;
+  --hm-pass-rgb: 21, 128, 61;
+  --hm-on-pass: #ffffff;
+  --hm-pass-soft: rgba(var(--hm-pass-rgb), 0.12);
+  --hm-warn: #b45309;
+
+  --hm-sans: "Inter", "Google Sans Regular", system-ui, -apple-system, sans-serif;
+  --hm-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --hm-script: "Agustina Regular", "Segoe Script", cursive;
+
+  --hm-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --hm-fast: 200ms;
+  --hm-base: 450ms;
+  --hm-slow: 900ms;
+
+  --hm-radius-xl: 28px;
+  --hm-radius: 22px;
+  --hm-radius-md: 16px;
+  --hm-radius-sm: 14px;
+
+  /* Same box as the header bar, so the hero starts under the signature */
+  --hm-pad: clamp(12px, 2.5vw, 32px);
+  --hm-max: calc(1440px + 2 * var(--hm-pad));
+  --hm-inline: calc(var(--hm-pad) + 4px);
+  --hm-section: clamp(4.5rem, 3rem + 6vw, 8rem);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  color: var(--hm-text);
+  /* The body still inherits Montserrat 19px/23px from index.css */
+  font: 400 16px/1.6 var(--hm-sans);
+  isolation: isolate;
+  overflow-x: clip;
+}
+
+/* Below the header's desktop layout the logo sits 20px into the bar */
+@media (max-width: 1179px) {
+  .hm {
+    --hm-inline: calc(var(--hm-pad) + 20px);
+  }
+}
+
+@media (max-width: 599px) {
+  .hm {
+    --hm-inline: 24px;
+  }
+}
+
+body.dark-theme .hm {
+  --hm-surface: rgba(var(--hm-text-rgb), 0.045);
+  --hm-surface-2: rgba(var(--hm-text-rgb), 0.08);
+  --hm-raised: color-mix(in srgb, var(--hm-bg) 88%, #ffffff);
+  --hm-panel: color-mix(in srgb, var(--hm-bg) 94%, #ffffff);
+  --hm-line: rgba(var(--hm-text-rgb), 0.14);
+  --hm-line-strong: rgba(var(--hm-text-rgb), 0.26);
+  --hm-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 30px 60px -30px rgba(0, 0, 0, 0.75);
+  --hm-pass-soft: rgba(var(--hm-pass-rgb), 0.16);
+  --hm-warn: #fbbf24;
+}
+
+.hm *,
+.hm *::before,
+.hm *::after {
+  box-sizing: border-box;
+}
+
+.hm a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hm :focus-visible {
+  outline: 2px solid var(--hm-accent-ink);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+.hm-sr {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.hm-mono {
+  font-family: var(--hm-mono);
+}
+
+.hm-shell {
+  width: 100%;
+  max-width: var(--hm-max);
+  margin: 0 auto;
+  padding: 0 var(--hm-inline);
+}
+
+.hm-section {
+  position: relative;
+  padding-top: var(--hm-section);
+  scroll-margin-top: 96px;
+}
+
+/* ---------- Backdrop ---------- */
+
+.hm-backdrop {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 160vh;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+}
+
+.hm-backdrop__grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(var(--hm-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hm-line) 1px, transparent 1px);
+  /* 72px and centred, like the intro's grid, so it seems to stay put as the curtain lifts */
+  background-size: 72px 72px;
+  background-position: center top;
+  -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 25%, transparent 78%);
+  opacity: 0.55;
+}
+
+.hm-backdrop__glow {
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  max-width: 860px;
+  max-height: 860px;
+  border-radius: 50%;
+  filter: blur(120px);
+  animation: hm-drift 26s ease-in-out infinite alternate;
+}
+
+.hm-backdrop__glow--a {
+  top: -18%;
+  right: -10%;
+  background: var(--hm-accent);
+  opacity: 0.16;
+}
+
+.hm-backdrop__glow--b {
+  top: 28%;
+  left: -22%;
+  background: var(--hm-soft);
+  opacity: 0.3;
+  animation-delay: -13s;
+}
+
+body.dark-theme .hm-backdrop__glow--b {
+  opacity: 0.12;
+}
+
+@keyframes hm-drift {
+  to {
+    transform: translate3d(5%, 6%, 0) scale(1.08);
+  }
+}
+
+/* ---------- Type ---------- */
+
+.hm-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-family: var(--hm-mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--hm-accent-ink);
+}
+
+.hm-eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+}
+
+.hm-eyebrow b {
+  font-weight: 600;
+  color: var(--hm-text);
+}
+
+.hm-h2 {
+  margin: 0.9rem 0 0;
+  font-size: clamp(2rem, 1.3rem + 3vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: var(--hm-text);
+  text-wrap: balance;
+}
+
+.hm-grad {
+  background: var(--hm-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.hm-lead {
+  max-width: 60ch;
+  margin: 1.1rem 0 0;
+  font-size: clamp(1rem, 1.35vw, 1.12rem);
+  line-height: 1.7;
+  color: var(--hm-muted);
+  text-wrap: pretty;
+}
+
+.hm-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem 3rem;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+/* Wide enough for a section title to sit on one line on desktop */
+.hm-head > div {
+  max-width: 60rem;
+}
+
+/* ---------- Buttons ---------- */
+
+.hm-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 50px;
+  padding: 0 1.4rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font: 600 0.95rem/1 var(--hm-sans);
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform var(--hm-base) var(--hm-ease), box-shadow var(--hm-base) var(--hm-ease),
+    background-color var(--hm-fast) ease, border-color var(--hm-fast) ease, color var(--hm-fast) ease;
+}
+
+.hm-btn i {
+  font-size: 0.85em;
+  transition: transform var(--hm-base) var(--hm-ease);
+}
+
+.hm-btn:hover i.fa-arrow-right {
+  transform: translateX(4px);
+}
+
+.hm-btn:hover i.fa-arrow-up-right-from-square {
+  transform: translate(2px, -2px);
+}
+
+.hm .hm-btn--primary {
+  background: var(--hm-text);
+  color: var(--hm-bg);
+  box-shadow: 0 14px 34px -14px rgba(var(--hm-accent-rgb), 0.8);
+}
+
+.hm .hm-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -14px rgba(var(--hm-accent-rgb), 0.9);
+}
+
+.hm .hm-btn--ghost {
+  border-color: var(--hm-line-strong);
+  background: var(--hm-glass);
+  color: var(--hm-text);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.hm .hm-btn--ghost:hover {
+  border-color: var(--hm-accent-ink);
+  transform: translateY(-2px);
+}
+
+.hm .hm-btn--link {
+  min-height: 44px;
+  padding: 0 0.4rem;
+  color: var(--hm-text);
+}
+
+.hm .hm-btn--link:hover {
+  color: var(--hm-accent-ink);
+}
+
+.hm-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--hm-text);
+  border-bottom: 1px solid var(--hm-line-strong);
+  padding-bottom: 2px;
+  transition: color var(--hm-fast) ease, border-color var(--hm-fast) ease;
+}
+
+.hm-link:hover {
+  color: var(--hm-accent-ink);
+  border-color: currentColor;
+}
+
+.hm-link i {
+  font-size: 0.8em;
+  transition: transform var(--hm-base) var(--hm-ease);
+}
+
+.hm-link:hover i {
+  transform: translateX(4px);
+}
+
+/* ---------- Cards ---------- */
+
+/* Cards sit on a near-flat background, so a backdrop blur would buy nothing
+   visually and cost a lot of paint on low-end phones: a solid panel tone
+   gives the same look. Blur is kept for small elements over varied content. */
+.hm-card {
+  --mx: 50%;
+  --my: 0%;
+  position: relative;
+  border: 1px solid var(--hm-line);
+  border-radius: var(--hm-radius);
+  background: radial-gradient(520px circle at var(--mx) var(--my), rgba(var(--hm-accent-rgb), 0.1), transparent 45%),
+    var(--hm-panel);
+  box-shadow: var(--hm-shadow);
+}
+
+a.hm-card {
+  transition: transform var(--hm-base) var(--hm-ease), border-color var(--hm-fast) ease,
+    box-shadow var(--hm-base) var(--hm-ease);
+}
+
+a.hm-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(var(--hm-accent-rgb), 0.45);
+  box-shadow: var(--hm-shadow), var(--hm-glow);
+}
+
+/* Terminal-style title bar shared by the consoles */
+.hm-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px dashed var(--hm-line-strong);
+  font-family: var(--hm-mono);
+  font-size: 0.74rem;
+  color: var(--hm-muted);
+}
+
+.hm-bar__dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.hm-bar__dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--hm-line-strong);
+}
+
+.hm-bar__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Pills and chips ---------- */
+
+.hm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: 100%;
+  padding: 0.4rem 0.85rem 0.4rem 0.6rem;
+  border: 1px solid var(--hm-line);
+  border-radius: 999px;
+  background: var(--hm-glass);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--hm-text);
+  box-shadow: var(--hm-shadow);
+}
+
+.hm-pill__sep {
+  width: 1px;
+  height: 14px;
+  background: var(--hm-line-strong);
+}
+
+.hm-pill .hm-mono {
+  font-size: 0.76rem;
+  color: var(--hm-muted);
+}
+
+.hm-live {
+  position: relative;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hm-pass);
+}
+
+.hm-live::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid var(--hm-pass);
+  opacity: 0;
+  animation: hm-ping 2.4s var(--hm-ease) infinite;
+}
+
+.hm-live.is-away {
+  background: var(--hm-warn);
+}
+
+.hm-live.is-away::after {
+  border-color: var(--hm-warn);
+}
+
+@keyframes hm-ping {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.hm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--hm-line);
+  border-radius: 999px;
+  background: var(--hm-surface);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--hm-text);
+  white-space: nowrap;
+}
+
+.hm-chip .hm-ico {
+  width: 15px;
+  height: 15px;
+}
+
+.hm-chip img {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+}
+
+/* ---------- Reveal ---------- */
+
+/* Blocks fade up as they enter (useReveal sets data-in). */
+.hm-js [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+
+.hm-js [data-reveal][data-in] {
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--hm-slow) var(--hm-ease), transform var(--hm-slow) var(--hm-ease),
+    border-color var(--hm-fast) ease, box-shadow var(--hm-base) var(--hm-ease);
+  transition-delay: var(--d, 0ms), var(--d, 0ms), 0ms, 0ms;
+}
+
+/* ---------- Icons ---------- */
+
+.hm-ico {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
+  line-height: 0;
+}
+
+.hm-ico svg,
+.hm-ico .iconify {
+  width: 100%;
+  height: 100%;
+}
+
+.hm-ico.is-ink {
+  color: var(--hm-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm *,
+  .hm *::before,
+  .hm *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .hm-js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Recruiter brief (dialog)
+   ========================================================================== */
+
+html.hm-brief-open,
+html.hm-brief-open body {
+  overflow: hidden;
+}
+
+.hm.hm-brief {
+  position: fixed;
+  inset: 0;
+  z-index: 10020;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: rgba(var(--hm-text-rgb), 0.28);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+  animation: hm-fade var(--hm-base) var(--hm-ease) both;
+}
+
+body.dark-theme .hm.hm-brief {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.hm-brief__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(760px, 100%);
+  max-height: min(860px, calc(100dvh - 1.5rem));
+  border: 1px solid var(--hm-line-strong);
+  border-radius: 24px;
+  background: var(--hm-raised);
+  box-shadow: 0 40px 120px -40px rgba(var(--hm-text-rgb), 0.55), var(--hm-glow);
+  overflow: hidden;
+  animation: hm-pop var(--hm-slow) var(--hm-ease) both;
+}
+
+.hm-brief__panel:focus {
+  outline: none;
+}
+
+.hm-brief__close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin: -6px -8px -6px 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--hm-text);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color var(--hm-fast) ease;
+}
+
+.hm-brief__close:hover {
+  background: var(--hm-surface-2);
+}
+
+.hm-brief__film {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--hm-line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--hm-text);
+  font: 500 0.72rem/1 var(--hm-mono);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--hm-fast) ease, border-color var(--hm-fast) ease;
+}
+
+.hm-brief__film i {
+  font-size: 0.8em;
+  color: var(--hm-pass);
+}
+
+.hm-brief__film:hover {
+  border-color: var(--hm-pass);
+  background: var(--hm-pass-soft);
+}
+
+/* After the film: the card's rows roll in like end credits. */
+.hm-brief__panel--credits .hm-eyebrow,
+.hm-brief__panel--credits .hm-brief__title,
+.hm-brief__panel--credits .hm-brief__lead,
+.hm-brief__panel--credits .hm-brief__fact,
+.hm-brief__panel--credits .hm-brief__proof li,
+.hm-brief__panel--credits .hm-brief__log h3,
+.hm-brief__panel--credits .hm-brief__log li {
+  animation: hm-credit 800ms var(--hm-ease) both;
+}
+
+.hm-brief__panel--credits .hm-brief__log h3 {
+  animation-delay: 1400ms;
+}
+
+.hm-brief__panel--credits .hm-brief__log li {
+  animation-delay: calc(1500ms + var(--i, 0) * 110ms);
+}
+
+.hm-brief__panel--credits .hm-brief__title {
+  animation-name: hm-credit-title;
+  animation-duration: 1100ms;
+  animation-delay: 120ms;
+}
+
+.hm-brief__panel--credits .hm-brief__lead {
+  animation-delay: 260ms;
+}
+
+.hm-brief__panel--credits .hm-brief__fact {
+  animation-delay: calc(360ms + var(--i, 0) * 90ms);
+}
+
+.hm-brief__panel--credits .hm-brief__proof li {
+  animation-delay: calc(1000ms + var(--i, 0) * 110ms);
+}
+
+@keyframes hm-credit {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    filter: blur(6px);
+  }
+}
+
+@keyframes hm-credit-title {
+  from {
+    opacity: 0;
+    letter-spacing: 0.12em;
+    filter: blur(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-brief__panel--credits * {
+    animation: none !important;
+  }
+}
+
+.hm-brief__body {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.hm-brief__title {
+  margin: 0.6rem 0 0;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.hm-brief__lead {
+  margin: 0.6rem 0 0;
+  color: var(--hm-muted);
+  font-size: 0.95rem;
+}
+
+.hm-brief__facts {
+  display: grid;
+  gap: 0;
+  margin: 1.5rem 0 0;
+  border: 1px solid var(--hm-line);
+  border-radius: var(--hm-radius-sm);
+  overflow: hidden;
+}
+
+.hm-brief__fact {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+}
+
+.hm-brief__fact + .hm-brief__fact {
+  border-top: 1px solid var(--hm-line);
+}
+
+.hm-brief__fact dt {
+  font-family: var(--hm-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+  padding-top: 0.2rem;
+}
+
+.hm-brief__fact dd {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+}
+
+.hm-brief__fact strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.hm-brief__fact span {
+  font-size: 0.83rem;
+  line-height: 1.45;
+  color: var(--hm-muted);
+}
+
+.hm-brief__proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-brief__proof li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--hm-pass-soft);
+  color: var(--hm-text);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.hm-brief__proof i {
+  color: var(--hm-pass);
+  font-size: 0.75em;
+}
+
+/* The live audit of this page, from the film (or run when the card opens) */
+.hm-brief__proof .hm-brief__audit {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(var(--hm-pass-rgb), 0.45);
+}
+
+.hm-brief__proof .hm-brief__audit.is-warn {
+  box-shadow: inset 0 0 0 1px var(--hm-warn);
+}
+
+.hm-brief__proof .hm-brief__audit.is-warn i {
+  color: var(--hm-warn);
+}
+
+.hm-brief__proof .hm-brief__audit.is-fail {
+  box-shadow: inset 0 0 0 1px #dc2626;
+}
+
+.hm-brief__proof .hm-brief__audit.is-fail i {
+  color: #dc2626;
+}
+
+/* The bug log: real fix commits */
+.hm-brief__log {
+  margin: 1.25rem 0 0;
+  padding: 0.9rem 1rem 1rem;
+  border: 1px dashed var(--hm-line-strong);
+  border-radius: var(--hm-radius-sm);
+}
+
+.hm-brief__log h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.6rem;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.hm-brief__log h3 i {
+  color: var(--hm-pass);
+  font-size: 0.85em;
+}
+
+.hm-brief__log h3 span {
+  font-family: var(--hm-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--hm-muted);
+}
+
+.hm-brief__log ol {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-brief__log a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.65rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 10px;
+  color: var(--hm-text);
+  text-decoration: none;
+  transition: background-color var(--hm-fast) ease;
+}
+
+.hm-brief__log a:hover {
+  background: var(--hm-surface-2);
+}
+
+.hm-brief__log b {
+  grid-row: span 2;
+  align-self: start;
+  margin-top: 0.1rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 5px;
+  background: var(--hm-pass);
+  color: var(--hm-on-pass);
+  font: 600 0.62rem/1.4 var(--hm-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hm-brief__log-msg {
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.hm-brief__log-meta {
+  font-size: 0.75rem;
+  color: var(--hm-muted);
+}
+
+.hm-brief__log-meta code {
+  font-family: var(--hm-mono);
+  font-size: 0.95em;
+}
+
+.hm-brief__log-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--hm-accent-ink);
+  text-decoration: none;
+}
+
+.hm-brief__log-all:hover {
+  text-decoration: underline;
+}
+
+.hm-brief__log-all i {
+  font-size: 0.75em;
+}
+
+.hm-brief__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 1rem clamp(1.25rem, 3vw, 2rem) 1.25rem;
+  border-top: 1px dashed var(--hm-line-strong);
+  background: var(--hm-surface);
+}
+
+@keyframes hm-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes hm-pop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.97);
+  }
+}
+
+@media (max-width: 560px) {
+  .hm-brief__fact {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .hm-brief__actions .hm-btn {
+    flex: 1 1 100%;
+  }
+}
+
+/* ==========================================================================
+   Spec rail: section dots that run and pass like a test suite
+   ========================================================================== */
+
+.hm-rail {
+  position: fixed;
+  top: 50%;
+  right: 18px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px 10px;
+  border: 1px solid var(--hm-line);
+  border-radius: 999px;
+  background: var(--hm-glass);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--hm-shadow);
+  transform: translateY(-50%);
+}
+
+.hm-rail ol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-rail a {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.hm-rail a i {
+  display: grid;
+  place-items: center;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--hm-line-strong);
+  transition: width var(--hm-base) var(--hm-ease), height var(--hm-base) var(--hm-ease),
+    background-color var(--hm-base) ease, border-color var(--hm-base) ease;
+}
+
+.hm-rail a.is-running i {
+  width: 12px;
+  height: 12px;
+  border-color: rgba(var(--hm-accent-rgb), 0.3);
+  border-top-color: var(--hm-accent-ink);
+  animation: hm-spin 0.9s linear infinite;
+}
+
+.hm-rail a.is-passed i {
+  width: 16px;
+  height: 16px;
+  border-color: transparent;
+  background: var(--hm-pass);
+}
+
+.hm-rail svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: var(--hm-bg);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 12;
+  stroke-dashoffset: 12;
+  animation: hm-tick 420ms var(--hm-ease) 80ms forwards;
+}
+
+.hm-rail a span {
+  position: absolute;
+  right: 32px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 5px 10px;
+  border: 1px solid var(--hm-line);
+  border-radius: 8px;
+  background: var(--hm-raised);
+  box-shadow: var(--hm-shadow);
+  font: 500 0.74rem/1.2 var(--hm-sans);
+  white-space: nowrap;
+  color: var(--hm-text);
+  opacity: 0;
+  transform: translateX(6px);
+  pointer-events: none;
+  transition: opacity var(--hm-fast) ease, transform var(--hm-base) var(--hm-ease);
+}
+
+.hm-rail a em {
+  font: 500 0.64rem/1 var(--hm-mono);
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+}
+
+.hm-rail a.is-passed em {
+  color: var(--hm-pass);
+}
+
+.hm-rail a:hover span,
+.hm-rail a:focus-visible span {
+  opacity: 1;
+  transform: none;
+}
+
+.hm-rail__count {
+  margin: 2px 0 0;
+  font: 500 0.62rem/1 var(--hm-mono);
+  color: var(--hm-muted);
+}
+
+.hm-rail__count b {
+  font-weight: 600;
+  color: var(--hm-text);
+}
+
+.hm-rail.is-green .hm-rail__count b {
+  color: var(--hm-pass);
+}
+
+@keyframes hm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes hm-tick {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Only where the page gutter is wide enough to hold it without covering content */
+@media (max-width: 1599px) {
+  .hm-rail {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Skip link and the mobile action bar
+   ========================================================================== */
+
+.hm-skip {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10030;
+  padding: 0.7rem 1.1rem;
+  border-radius: 12px;
+  background: var(--theme-text, #001c55);
+  color: var(--theme-body, #ffffff);
+  font: 600 0.9rem/1 "Inter", system-ui, sans-serif;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 200ms ease;
+}
+
+.hm-skip:focus {
+  transform: none;
+  outline: 2px solid var(--theme-accentText, #0e6ba8);
+  outline-offset: 2px;
+}
+
+/* main takes focus from the skip link; it needs no ring of its own */
+.hm:focus {
+  outline: none;
+}
+
+.hm-mobilebar {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .hm-mobilebar {
+    position: fixed;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    z-index: 900;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--hm-line);
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--hm-bg) 82%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow: 0 20px 50px -20px rgba(var(--hm-text-rgb), 0.55);
+    opacity: 0;
+    transform: translateY(calc(100% + 24px));
+    pointer-events: none;
+    transition: transform var(--hm-slow) var(--hm-ease), opacity var(--hm-base) ease;
+  }
+
+  .hm-mobilebar.is-visible {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .hm-mobilebar .hm-btn {
+    min-height: 48px;
+    padding: 0 1rem;
+  }
+
+  /* The bar replaces the floating back-to-top button on phones */
+  .hm-page #topButton {
+    display: none;
+  }
+}

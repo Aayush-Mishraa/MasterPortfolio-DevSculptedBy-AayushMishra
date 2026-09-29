@@ -1,0 +1,415 @@
+/* Work: flagship builds, featured repos and a year of activity */
+
+/* ---------- Flagship builds ---------- */
+
+.hm-work__flagships {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 22px);
+}
+
+.hm-flagship {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: clamp(1.4rem, 1rem + 1.2vw, 2.1rem);
+  background: radial-gradient(
+      520px circle at var(--mx, 85%) var(--my, 0%),
+      color-mix(in srgb, var(--tool, var(--hm-accent)) 16%, transparent),
+      transparent 55%
+    ),
+    var(--hm-glass);
+}
+
+.hm-flagship__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.hm-flagship__top img {
+  width: 52px;
+  height: 52px;
+  padding: 8px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid var(--hm-line);
+  object-fit: contain;
+}
+
+.hm-flagship__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(var(--hm-accent-rgb), 0.12);
+  color: var(--hm-accent-ink);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hm-flagship__title {
+  font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.hm-flagship__cat {
+  font-size: 0.72rem;
+  color: var(--hm-muted);
+}
+
+.hm-flagship__desc {
+  max-width: 52ch;
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: var(--hm-muted);
+}
+
+.hm-flagship__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.hm-flagship__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--hm-text);
+}
+
+.hm-flagship__open i {
+  font-size: 0.8em;
+  transition: transform var(--hm-base) var(--hm-ease);
+}
+
+.hm-flagship:hover .hm-flagship__open {
+  color: var(--hm-accent-ink);
+}
+
+.hm-flagship:hover .hm-flagship__open i {
+  transform: translate(2px, -2px);
+}
+
+/* ---------- Repositories ---------- */
+
+.hm-work__repos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 22px);
+  margin-top: clamp(16px, 2vw, 22px);
+}
+
+.hm-work__more {
+  margin-top: 1.6rem;
+}
+
+.hm-repo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 1.4rem 1.5rem;
+}
+
+.hm-repo__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hm-repo__cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(var(--hm-accent-rgb), 0.1);
+  color: var(--hm-accent-ink);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.hm-repo__go {
+  color: var(--hm-muted);
+  font-size: 0.85rem;
+  transition: transform var(--hm-base) var(--hm-ease), color var(--hm-fast) ease;
+}
+
+.hm-repo:hover .hm-repo__go {
+  color: var(--hm-accent-ink);
+  transform: translateX(4px);
+}
+
+.hm-repo__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+.hm-repo__desc {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--hm-muted);
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.hm-repo__langs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.4rem;
+}
+
+.hm-repo__bar {
+  display: flex;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--hm-surface-2);
+}
+
+.hm-repo__bar i {
+  display: block;
+  height: 100%;
+}
+
+.hm-repo__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  font-size: 0.76rem;
+  color: var(--hm-muted);
+}
+
+.hm-repo__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hm-repo__legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.hm-repo__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--hm-line);
+  font-size: 0.7rem;
+  color: var(--hm-muted);
+}
+
+.hm-repo__meta i {
+  margin-right: 0.2rem;
+}
+
+/* Loading placeholders */
+.hm-repo--skeleton {
+  min-height: 230px;
+}
+
+.hm-repo--skeleton span {
+  display: block;
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--hm-surface-2), var(--hm-surface), var(--hm-surface-2));
+  background-size: 200% 100%;
+  animation: hm-shimmer 1.4s linear infinite;
+}
+
+.hm-repo--skeleton span:nth-child(1) {
+  width: 35%;
+}
+
+.hm-repo--skeleton span:nth-child(2) {
+  width: 70%;
+  height: 20px;
+}
+
+.hm-repo--skeleton span:nth-child(3) {
+  width: 90%;
+}
+
+@keyframes hm-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.hm-work__fallback {
+  margin: 0;
+  padding: 1.5rem;
+  color: var(--hm-muted);
+}
+
+/* ---------- Activity ---------- */
+
+.hm-activity {
+  display: grid;
+  grid-template-columns: 19rem minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: center;
+  margin-top: clamp(16px, 2vw, 22px);
+  padding: 1.5rem;
+}
+
+.hm-activity__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 1rem;
+  margin: 0;
+}
+
+.hm-activity__stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.3rem;
+}
+
+.hm-activity__stats dt {
+  font-family: var(--hm-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+}
+
+.hm-activity__stats dd {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.hm-activity__stats small {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--hm-muted);
+}
+
+/* No scroll container here: an auto-overflow box around an aspect-ratio SVG
+   can flip its scrollbar on and off forever, and the page stalls. */
+.hm-activity__map {
+  min-width: 0;
+}
+
+.hm-heat {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hm-heat__month {
+  font-family: var(--hm-mono);
+  font-size: 9px;
+  fill: var(--hm-muted);
+}
+
+/* The year sweeps in left to right once, as a single clip */
+.hm-heat {
+  clip-path: inset(0 100% 0 0);
+}
+
+.hm-activity[data-in] .hm-heat {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 1.1s var(--hm-ease) 0.15s;
+}
+
+.hm-heat__cells {
+  fill: var(--hm-surface-2);
+}
+
+.hm-heat__cells.l1 {
+  fill: rgba(var(--hm-accent-rgb), 0.28);
+}
+
+.hm-heat__cells.l2 {
+  fill: rgba(var(--hm-accent-rgb), 0.5);
+}
+
+.hm-heat__cells.l3 {
+  fill: rgba(var(--hm-accent-rgb), 0.75);
+}
+
+.hm-heat__cells.l4 {
+  fill: var(--hm-accent);
+}
+
+body.dark-theme .hm-heat__cells.l4 {
+  fill: color-mix(in srgb, var(--hm-accent) 75%, #ffffff);
+}
+
+.hm-activity__note {
+  margin: 0.8rem 0 0;
+  font-size: 0.7rem;
+  color: var(--hm-muted);
+}
+
+.hm-activity__note a {
+  color: var(--hm-text);
+  text-decoration: underline;
+  text-decoration-color: var(--hm-line-strong);
+  text-underline-offset: 3px;
+}
+
+.hm-activity__note a:hover {
+  color: var(--hm-accent-ink);
+}
+
+@media (max-width: 1100px) {
+  .hm-work__repos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hm-activity {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hm-activity__stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .hm-work__flagships,
+  .hm-work__repos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hm-activity__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .hm-activity__stats dd {
+    font-size: 1.35rem;
+  }
+}

@@ -1,0 +1,392 @@
+/* Evidence: four claims, each with receipts and a sketch that runs once */
+
+.hm-claims {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 22px);
+}
+
+.hm-claim {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+}
+
+.hm-claim--wide {
+  grid-column: span 7;
+}
+
+.hm-claim--narrow {
+  grid-column: span 5;
+}
+
+.hm-claim__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hm-claim__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: rgba(var(--hm-accent-rgb), 0.12);
+  border: 1px solid rgba(var(--hm-accent-rgb), 0.22);
+  color: var(--hm-accent-ink);
+  font-size: 1.05rem;
+}
+
+.hm-claim__index {
+  font-size: 0.72rem;
+  color: var(--hm-muted);
+}
+
+.hm-claim h3 {
+  margin: 1.2rem 0 0;
+  font-size: clamp(1.25rem, 1rem + 0.8vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.hm-claim__body {
+  max-width: 54ch;
+  margin: 0.6rem 0 0;
+  font-size: 0.97rem;
+  line-height: 1.65;
+  color: var(--hm-muted);
+}
+
+/* Receipts beside the sketch on wide cards, stacked on narrow ones */
+.hm-claim__split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.1rem;
+  margin-top: 1.4rem;
+}
+
+.hm-claim--wide .hm-claim__split {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: start;
+}
+
+.hm-claim__label {
+  margin: 0 0 0.35rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+}
+
+.hm-claim__principle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.8rem 0 0;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(var(--hm-accent-rgb), 0.1);
+  color: var(--hm-accent-ink);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.hm-claim__principle i {
+  font-size: 0.85em;
+}
+
+.hm-claim__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1.4rem;
+}
+
+.hm-claim__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- Sketches (shared) ---------- */
+
+.hm-sketch {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--hm-line);
+  border-radius: var(--hm-radius-md);
+  background: var(--hm-surface);
+  font-size: 0.78rem;
+}
+
+/* Everything waits at its first frame until the card is on screen */
+.hm-claim:not(.is-live) .hm-sketch *,
+.hm-claim:not(.is-live) .hm-sketch *::before,
+.hm-claim:not(.is-live) .hm-sketch *::after {
+  animation-play-state: paused !important;
+}
+
+.hm-sketch__bar {
+  margin-bottom: 0.6rem;
+  color: var(--hm-muted);
+  font-size: 0.72rem;
+}
+
+.hm-sketch__bar::before {
+  content: "$ ";
+  color: var(--hm-accent-ink);
+}
+
+/* Parallel browser lanes */
+.hm-lane {
+  display: grid;
+  grid-template-columns: 64px 1fr 18px;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.26rem 0;
+}
+
+.hm-lane__name {
+  font-size: 0.7rem;
+  color: var(--hm-muted);
+}
+
+.hm-lane__track {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--hm-surface-2);
+  overflow: hidden;
+}
+
+.hm-lane__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(var(--hm-accent-rgb), 0.55), var(--hm-accent));
+  transform-origin: left center;
+  animation: hm-lane-fill 1.5s var(--hm-ease) both;
+  animation-delay: calc(0.25s + var(--i) * 0.2s);
+}
+
+.hm-lane:nth-child(3) .hm-lane__fill {
+  animation-duration: 2s;
+}
+
+.hm-lane:nth-child(5) .hm-lane__fill {
+  animation-duration: 1.8s;
+}
+
+.hm-lane__ok {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--hm-pass);
+  color: var(--hm-on-pass);
+  font-size: 0.55rem;
+  animation: hm-pop 0.45s var(--hm-ease) both;
+  animation-delay: calc(1.85s + var(--i) * 0.2s);
+}
+
+@keyframes hm-lane-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes hm-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+/* Quality gate */
+.hm-gate {
+  position: relative;
+  padding: 1.2rem 1rem 1rem;
+}
+
+.hm-gate__line {
+  position: absolute;
+  top: calc(1.2rem + 13px);
+  left: calc(1rem + 14px);
+  right: calc(1rem + 14px);
+  height: 2px;
+  background: var(--hm-surface-2);
+}
+
+.hm-gate__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--hm-pass);
+  transform-origin: left center;
+  animation: hm-lane-fill 1.9s linear 0.3s both;
+}
+
+.hm-gate__nodes {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-gate__nodes li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.68rem;
+  color: var(--hm-muted);
+}
+
+.hm-gate__dot {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--hm-pass);
+  background: var(--hm-pass);
+  color: var(--hm-on-pass);
+  font-size: 0.6rem;
+  animation: hm-gate-pass 0.4s var(--hm-ease) both;
+  animation-delay: calc(0.3s + var(--i) * 0.47s);
+}
+
+@keyframes hm-gate-pass {
+  from {
+    border-color: var(--hm-line-strong);
+    background: var(--hm-raised);
+    color: transparent;
+  }
+}
+
+/* AI agent run */
+.hm-agent__prompt {
+  padding-bottom: 0.65rem;
+  margin-bottom: 0.55rem;
+  border-bottom: 1px dashed var(--hm-line-strong);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--hm-muted);
+}
+
+.hm-agent__prompt b {
+  font-weight: 500;
+  color: var(--hm-text);
+}
+
+.hm-agent__caret {
+  color: var(--hm-accent-ink);
+}
+
+.hm-agent__steps {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-agent__steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.74rem;
+  color: var(--hm-text);
+  animation: hm-step-in 0.5s var(--hm-ease) both;
+  animation-delay: calc(0.3s + var(--i) * 0.45s);
+}
+
+.hm-agent__steps li i {
+  color: var(--hm-pass);
+  font-size: 0.7rem;
+}
+
+.hm-agent__review,
+.hm-agent__review i {
+  color: var(--hm-accent-ink) !important;
+}
+
+.hm-agent__review {
+  margin-top: 0.3rem;
+}
+
+@keyframes hm-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+/* Leadership checklist */
+.hm-leadlist {
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+  list-style: none;
+}
+
+.hm-leadlist li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.hm-leadlist__box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--hm-accent);
+  background: var(--hm-accent);
+  color: var(--hm-on-accent);
+  font-size: 0.6rem;
+  animation: hm-box-tick 0.4s var(--hm-ease) both;
+  animation-delay: calc(0.3s + var(--i) * 0.4s);
+}
+
+@keyframes hm-box-tick {
+  from {
+    border-color: var(--hm-line-strong);
+    background: transparent;
+    color: transparent;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1100px) {
+  .hm-claim--wide,
+  .hm-claim--narrow {
+    grid-column: span 6;
+  }
+
+  .hm-claim--wide .hm-claim__split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .hm-claim--wide,
+  .hm-claim--narrow {
+    grid-column: 1 / -1;
+  }
+}

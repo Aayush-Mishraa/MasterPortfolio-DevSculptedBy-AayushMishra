@@ -27,26 +27,27 @@ function ScrollToTop() {
   return null;
 }
 
+// The intro plays over the home page, so its signature can land on the real
+// header logo. The header signature links to /splash to replay it.
+const SPLASH_PATHS = settings.isSplash ? ["/", "/splash"] : ["/splash"];
+
 export default class Main extends Component {
   render() {
     return (
       <BrowserRouter basename="/">
         <ScrollToTop />
+        <Route
+          exact
+          path={SPLASH_PATHS}
+          render={(props) => <Splash {...props} theme={this.props.theme} />}
+        />
         <Switch>
           <Route
-            path="/"
             exact
-            render={(props) =>
-              settings.isSplash ? (
-                <Splash {...props} theme={this.props.theme} />
-              ) : (
-                <Home {...props} theme={this.props.theme} />
-              )
-            }
-          />
-          <Route
-            path="/home"
-            render={(props) => <Home {...props} theme={this.props.theme} />}
+            path={["/", "/home", "/splash"]}
+            // Theme only: Home is pure, so switching between /home and /splash
+            // doesn't re-render the whole page under the intro.
+            render={() => <Home theme={this.props.theme} />}
           />
           <Route
             path="/experience"
@@ -76,12 +77,6 @@ export default class Main extends Component {
           <Route
             path="/contact"
             render={(props) => <Contact {...props} theme={this.props.theme} />}
-          />
-
-          {/* Always reachable: the header signature opens the splash screen */}
-          <Route
-            path="/splash"
-            render={(props) => <Splash {...props} theme={this.props.theme} />}
           />
 
           <Route

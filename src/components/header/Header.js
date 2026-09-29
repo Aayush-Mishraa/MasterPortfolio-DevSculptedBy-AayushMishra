@@ -8,6 +8,7 @@ import CommandPalette from "./CommandPalette";
 import { MODULES as UNIVERSE_PAGES } from "../../pages/universe/modules";
 import { automationTools } from "../../pages/automationArsenal/arsenalData";
 import { loadSnapshot, prettyName } from "../../services/github/githubData";
+import { unlockIntroSound } from "../../pages/splash/introSound";
 
 const NAV_LINKS = [
   {
@@ -70,6 +71,13 @@ class Header extends Component {
     if (menuBtn) {
       menuBtn.checked = false;
     }
+  }
+
+  // The logo replays the intro; unlocking audio inside this click is what lets
+  // browsers (Safari especially) play its sound.
+  replayIntro = () => {
+    unlockIntroSound();
+    this.closeMobileMenu();
   }
 
   componentDidMount() {
@@ -306,7 +314,7 @@ class Header extends Component {
           <div className="hud-bar" ref={this.barRef}>
             <span className="hud-progress" aria-hidden="true"></span>
 
-            <NavLink to="/splash" className="logo" aria-label="Aayush Mishra, replay intro" onClick={this.closeMobileMenu}>
+            <NavLink to="/splash" className="logo" aria-label="Aayush Mishra, replay intro" onClick={this.replayIntro}>
               <span className="logo-bracket">&lt;</span>
               <span className="logo-name">{greeting.logo_name}</span>
               <span className="logo-bracket">/&gt;</span>

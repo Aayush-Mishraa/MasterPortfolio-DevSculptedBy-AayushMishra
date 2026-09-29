@@ -7,13 +7,13 @@ const settings = {
 
 //SEO Related settings
 const seo = {
-  title: "Aayush Mishra's Portfolio",
+  title: "Aayush Mishra · SDET & QA Lead",
   description:
-    "A passionate Software Development Engineer in Test who creates innovative testing solutions and builds amazing web applications with modern technologies.",
+    "Aayush Mishra is a Senior Software Test Engineer in Mumbai, leading QA at Webority Technology: test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship.",
   og: {
-    title: "Aayush Mishra Portfolio",
+    title: "Aayush Mishra · SDET & QA Lead",
     type: "website",
-    url: "https://Aayush-Mishraa.github.io/",
+    url: "https://aayushmishra.engineer/",
   },
 };
 
@@ -29,6 +29,36 @@ const greeting = {
   portfolio_repository: "https://github.com/Aayush-Mishraa",
   githubProfile: "https://github.com/Aayush-Mishraa",
 };
+
+// Home page: what I'm open to, shown in the hero and the recruiter brief
+const availability = {
+  status: "Open to Senior SDET & QA Lead roles",
+  roles: ["Senior SDET", "QA Lead", "Test Architect"],
+  workModes: "Remote · Hybrid",
+};
+
+// Home page: the numbers behind the claims. Keep these to things you can back
+// up in an interview; the home page shows them exactly as written here.
+const highlights = {
+  testCases: { value: "5,000+", label: "test cases executed" },
+  bugs: { value: "600+", label: "bugs squashed" },
+  suites: { value: "50+", label: "test suites created" },
+  regression: { value: "80%", label: "less manual regression on an e-commerce automation suite" },
+  configs: { value: "15+", label: "browser and device configurations in one framework" },
+};
+
+// Home page: the repositories featured under "Work", in order. Any that go
+// missing are replaced by the next strongest repo from the GitHub snapshot.
+const featuredProjects = [
+  "AI-Agent-Test-Using-Amazon-Nova-Act",
+  "Phoenix-Inwarranty-Flow-API-Tests-",
+  "AutoCart-Engine-FW-",
+];
+
+// Home page: references. The section stays hidden until this has real,
+// attributable quotes with a link to where they were given (e.g. LinkedIn):
+// { quote: "...", name: "Full Name", role: "Title", company: "Company", relation: "Managed me at ...", link: "https://..." }
+const recommendations = [];
 
 const socialMediaLinks = [
   /* Your Social Media Link */
@@ -766,6 +796,10 @@ export {
   settings,
   seo,
   greeting,
+  availability,
+  highlights,
+  featuredProjects,
+  recommendations,
   socialMediaLinks,
   skills,
   competitiveSites,

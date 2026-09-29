@@ -1,0 +1,326 @@
+/* Trajectory: the career as a git graph, beside the hiring snapshot */
+
+.hm-journey__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(16px, 2vw, 22px);
+  align-items: start;
+}
+
+.hm-journey__graph {
+  overflow: hidden;
+}
+
+/* ---------- Graph ---------- */
+
+/* The list sets the height; the SVG is drawn to it and must never stretch it
+   (an inline SVG's descender space would, and the resize observer would loop). */
+.hm-graph {
+  --side: #7c3aed;
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: start;
+  padding: 1.4rem 1.4rem 0.4rem 0.9rem;
+}
+
+body.dark-theme .hm-graph {
+  --side: #c084fc;
+}
+
+.hm-graph__lines {
+  display: block;
+  grid-column: 1;
+  grid-row: 1;
+  overflow: visible;
+}
+
+.hm-graph__lines path {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.hm-graph__main {
+  stroke: var(--hm-accent);
+}
+
+.hm-graph__side {
+  stroke: var(--side);
+}
+
+.hm-graph.is-drawn .hm-graph__lines path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.hm-graph__node {
+  stroke-width: 2.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.hm-graph__node.lane-0 {
+  fill: var(--hm-accent);
+  stroke: var(--hm-raised);
+}
+
+.hm-graph__node.lane-1 {
+  fill: var(--side);
+  stroke: var(--hm-raised);
+}
+
+.hm-graph__node.is-root {
+  fill: var(--hm-raised);
+  stroke: var(--hm-accent);
+}
+
+.hm-graph__node.is-merge {
+  stroke: var(--hm-accent);
+  fill: var(--hm-raised);
+  stroke-width: 3;
+}
+
+.hm-graph__node.is-head {
+  fill: var(--hm-pass);
+  stroke: rgba(var(--hm-pass-rgb), 0.3);
+  stroke-width: 6;
+}
+
+.hm-graph.is-drawn .hm-graph__node {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.3s ease, transform 0.45s var(--hm-ease);
+  transition-delay: calc(var(--r) * 110ms);
+}
+
+/* HEAD pulses a few times once the graph has drawn, then rests */
+.hm-graph.is-drawn .hm-graph__node.is-head {
+  animation: hm-head 2.4s ease-in-out calc(var(--r) * 110ms + 0.5s) 3;
+}
+
+@keyframes hm-head {
+  50% {
+    stroke-width: 11;
+    stroke: rgba(var(--hm-pass-rgb), 0.12);
+  }
+}
+
+/* ---------- Rows ---------- */
+
+.hm-graph__rows {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-graph__row {
+  display: grid;
+  grid-template-columns: 10.5rem minmax(0, 1fr);
+  column-gap: 1rem;
+  padding-bottom: 1.05rem;
+  opacity: 0;
+  transform: translateX(-6px);
+}
+
+.hm-graph.is-drawn .hm-graph__row {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.4s ease, transform 0.5s var(--hm-ease);
+  transition-delay: calc(var(--r) * 110ms);
+}
+
+.hm-graph__date {
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  line-height: 26px;
+  color: var(--hm-muted);
+}
+
+.hm-graph__head {
+  order: 2;
+  padding: 0 0.45rem;
+  border-radius: 6px;
+  background: var(--hm-pass-soft);
+  color: var(--hm-pass);
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.08em;
+}
+
+.hm-graph__title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+  color: var(--hm-text);
+}
+
+.hm-graph__row.lane-1 .hm-graph__title {
+  font-weight: 500;
+}
+
+.hm-graph__org {
+  grid-column: 2;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--hm-muted);
+}
+
+.hm-graph__org em {
+  font-style: normal;
+  font-size: 0.72rem;
+  color: var(--hm-accent-ink);
+}
+
+/* ---------- Hiring snapshot ---------- */
+
+.hm-snapshot {
+  overflow: hidden;
+}
+
+.hm-snapshot__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  color: var(--hm-pass);
+  white-space: nowrap;
+}
+
+.hm-snapshot__live.is-away {
+  color: var(--hm-warn);
+}
+
+.hm-snapshot__facts {
+  display: grid;
+  margin: 0;
+  padding: 0.4rem 1.4rem;
+}
+
+.hm-snapshot__facts div {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.85rem 0;
+}
+
+.hm-snapshot__facts div + div {
+  border-top: 1px solid var(--hm-line);
+}
+
+.hm-snapshot__facts dt {
+  padding-top: 0.15rem;
+  font-family: var(--hm-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+}
+
+.hm-snapshot__facts dd {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.hm-snapshot__facts dd span {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--hm-muted);
+}
+
+.hm-snapshot__overlap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0 1.4rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--hm-radius-sm);
+  background: rgba(var(--hm-accent-rgb), 0.08);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.hm-snapshot__overlap i {
+  margin-top: 0.2rem;
+  color: var(--hm-accent-ink);
+}
+
+.hm-snapshot__overlap b {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.hm-snapshot__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  padding: 1.2rem 1.4rem 0;
+}
+
+.hm-snapshot__actions .hm-btn {
+  padding: 0 1rem;
+}
+
+.hm-snapshot__more {
+  margin: 1.1rem 1.4rem 1.4rem;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1100px) {
+  .hm-journey__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .hm-graph {
+    grid-template-columns: 48px minmax(0, 1fr);
+    padding-right: 1rem;
+  }
+
+  .hm-graph__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hm-graph__date {
+    grid-row: auto;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .hm-graph__head {
+    order: 0;
+  }
+
+  .hm-graph__org {
+    grid-column: 1;
+  }
+
+  .hm-snapshot__facts div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+  }
+
+  .hm-snapshot__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

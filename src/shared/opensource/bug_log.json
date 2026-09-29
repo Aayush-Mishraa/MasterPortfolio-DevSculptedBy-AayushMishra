@@ -1,0 +1,139 @@
+{
+  "generatedAt": "2026-09-29T18:11:16.679Z",
+  "user": "Aayush-Mishraa",
+  "total": 16,
+  "repos": 6,
+  "latest": "2026-03-08T11:53:02Z",
+  "fixes": [
+    {
+      "sha": "078e3829af4778d9239a93080e050be885e589bd",
+      "short": "078e382",
+      "date": "2026-02-11T14:09:36Z",
+      "repo": "playwright-automation-scenarios-ts-js",
+      "message": "Locator definitions in end-to-end test for username and password fields",
+      "url": "https://github.com/Aayush-Mishraa/playwright-automation-scenarios-ts-js/commit/078e3829af4778d9239a93080e050be885e589bd",
+      "verified": false,
+      "tier": 2
+    },
+    {
+      "sha": "b262f30cd8b1df2a5d40101614bca28346fe41e8",
+      "short": "b262f30",
+      "date": "2025-12-19T10:54:03Z",
+      "repo": "Phoenix-Inwarranty-Flow-API-Tests-",
+      "message": "Command formatting for Newman report generation",
+      "url": "https://github.com/Aayush-Mishraa/Phoenix-Inwarranty-Flow-API-Tests-/commit/b262f30cd8b1df2a5d40101614bca28346fe41e8",
+      "verified": true,
+      "tier": 2
+    },
+    {
+      "sha": "6b813636aae445904cc99bd62760332504f72e58",
+      "short": "6b81363",
+      "date": "2025-10-05T17:33:16Z",
+      "repo": "BankAPI-SecureFlow-Automation-Framework",
+      "message": "TestNG classpath issue",
+      "url": "https://github.com/Aayush-Mishraa/BankAPI-SecureFlow-Automation-Framework/commit/6b813636aae445904cc99bd62760332504f72e58",
+      "verified": false,
+      "tier": 2
+    },
+    {
+      "sha": "1b54047ab4a52c7b53c8ae0bd9981c4699c9d462",
+      "short": "1b54047",
+      "date": "2025-12-17T00:05:13Z",
+      "repo": "Phoenix-Inwarranty-Flow-API-Tests-",
+      "message": "Postman collection file reference in workflow",
+      "url": "https://github.com/Aayush-Mishraa/Phoenix-Inwarranty-Flow-API-Tests-/commit/1b54047ab4a52c7b53c8ae0bd9981c4699c9d462",
+      "verified": true,
+      "tier": 2
+    },
+    {
+      "sha": "232c5a86903e2603ec26cd4d30f3361dc2058f00",
+      "short": "232c5a8",
+      "date": "2025-12-17T00:01:46Z",
+      "repo": "Phoenix-Inwarranty-Flow-API-Tests-",
+      "message": "Postman collection run command in workflow",
+      "url": "https://github.com/Aayush-Mishraa/Phoenix-Inwarranty-Flow-API-Tests-/commit/232c5a86903e2603ec26cd4d30f3361dc2058f00",
+      "verified": true,
+      "tier": 2
+    },
+    {
+      "sha": "011fff520113791e640c6be9c34683a376d51586",
+      "short": "011fff5",
+      "date": "2026-03-08T11:53:02Z",
+      "repo": "MasterPortfolio-DevSculptedBy-AayushMishra",
+      "message": "Harden FTP host and port resolution in deploy workflow",
+      "url": "https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra/commit/011fff520113791e640c6be9c34683a376d51586",
+      "verified": false,
+      "tier": 1
+    },
+    {
+      "sha": "d369aa29417c593ac947c6d09fcf6f3b95434031",
+      "short": "d369aa2",
+      "date": "2026-03-08T11:49:41Z",
+      "repo": "MasterPortfolio-DevSculptedBy-AayushMishra",
+      "message": "Preserve and conditionally deploy legacy app folders",
+      "url": "https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra/commit/d369aa29417c593ac947c6d09fcf6f3b95434031",
+      "verified": false,
+      "tier": 1
+    },
+    {
+      "sha": "64f38f8c9d8128cdebea0c2aa994eb068a5a3a9e",
+      "short": "64f38f8",
+      "date": "2026-03-08T10:44:02Z",
+      "repo": "MasterPortfolio-DevSculptedBy-AayushMishra",
+      "message": "Force IPv4 endpoint for FTP deploy",
+      "url": "https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra/commit/64f38f8c9d8128cdebea0c2aa994eb068a5a3a9e",
+      "verified": false,
+      "tier": 1
+    },
+    {
+      "sha": "a2241137fc45620c9b408ffbb404e5180a459bfd",
+      "short": "a224113",
+      "date": "2026-03-07T15:35:56Z",
+      "repo": "MasterPortfolio-DevSculptedBy-AayushMishra",
+      "message": "Allow build warnings in CI environment",
+      "url": "https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra/commit/a2241137fc45620c9b408ffbb404e5180a459bfd",
+      "verified": false,
+      "tier": 1
+    },
+    {
+      "sha": "edcf8ee81e9317c9c772b7492353f2dfb79a6b6c",
+      "short": "edcf8ee",
+      "date": "2026-03-07T15:27:28Z",
+      "repo": "MasterPortfolio-DevSculptedBy-AayushMishra",
+      "message": "Deployment: Build React app before deploying",
+      "url": "https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra/commit/edcf8ee81e9317c9c772b7492353f2dfb79a6b6c",
+      "verified": false,
+      "tier": 1
+    },
+    {
+      "sha": "ca327a7007aa95f9f2eb56d1c27a5a2866d7a7c2",
+      "short": "ca327a7",
+      "date": "2026-03-08T10:41:26Z",
+      "repo": "MasterPortfolio-DevSculptedBy-AayushMishra",
+      "message": "Define githubDashboard in counter animation",
+      "url": "https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra/commit/ca327a7007aa95f9f2eb56d1c27a5a2866d7a7c2",
+      "verified": false,
+      "tier": 0
+    },
+    {
+      "sha": "7d729d78e019a34d8135ea80ae2a1a7be7ccf9e5",
+      "short": "7d729d7",
+      "date": "2025-12-19T10:40:01Z",
+      "repo": "Phoenix-Inwarranty-Flow-API-Tests-",
+      "message": "Typo in GitHub page branch creation step",
+      "url": "https://github.com/Aayush-Mishraa/Phoenix-Inwarranty-Flow-API-Tests-/commit/7d729d78e019a34d8135ea80ae2a1a7be7ccf9e5",
+      "verified": true,
+      "tier": 0
+    },
+    {
+      "sha": "8d2e28de6a08779e2d671daeaef88515e9fe8803",
+      "short": "8d2e28d",
+      "date": "2026-03-07T15:30:07Z",
+      "repo": "MasterPortfolio-DevSculptedBy-AayushMishra",
+      "message": "Remove NODE_OPTIONS flag (Node 16 doesn't need it)",
+      "url": "https://github.com/Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra/commit/8d2e28de6a08779e2d671daeaef88515e9fe8803",
+      "verified": false,
+      "tier": 0
+    }
+  ]
+}

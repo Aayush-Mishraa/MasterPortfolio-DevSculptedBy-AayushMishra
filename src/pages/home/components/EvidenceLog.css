@@ -1,0 +1,263 @@
+/* Evidence log: the intro's test-log row, reused for every claim on the page */
+
+.hm-elog {
+  position: relative;
+  border: 1px solid var(--hm-line);
+  border-radius: 18px;
+  background: var(--hm-raised);
+  box-shadow: var(--hm-shadow);
+  font-size: 0.86rem;
+}
+
+.hm-elog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px dashed var(--hm-line-strong);
+}
+
+.hm-elog__file {
+  font-size: 0.74rem;
+  color: var(--hm-muted);
+}
+
+.hm-elog__file::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background: var(--hm-accent);
+  vertical-align: 1px;
+  transition: background-color var(--hm-base) ease;
+}
+
+.hm-elog.is-passed .hm-elog__file::before {
+  background: var(--hm-pass);
+}
+
+/* RUNNING flips to PASSED */
+.hm-elog__state {
+  position: relative;
+  display: inline-grid;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  overflow: hidden;
+  transition: background-color var(--hm-base) ease, color var(--hm-base) ease;
+}
+
+.hm-elog__state > span {
+  grid-area: 1 / 1;
+  transition: transform var(--hm-base) var(--hm-ease), opacity var(--hm-base) ease;
+}
+
+.hm-elog.is-running .hm-elog__state {
+  background: rgba(var(--hm-accent-rgb), 0.12);
+  color: var(--hm-accent-ink);
+}
+
+.hm-elog.is-running .hm-elog__state-pass,
+.hm-elog.is-passed .hm-elog__state-run {
+  opacity: 0;
+  transform: translateY(-110%);
+}
+
+.hm-elog.is-running .hm-elog__state-pass {
+  transform: translateY(110%);
+}
+
+.hm-elog.is-passed .hm-elog__state {
+  background: var(--hm-pass-soft);
+  color: var(--hm-pass);
+}
+
+.hm-elog__rows {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.65rem 1rem;
+  list-style: none;
+}
+
+.hm-elog__rows li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.28rem 0;
+}
+
+.hm-elog__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+.hm-elog__spin {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(var(--hm-accent-rgb), 0.25);
+  border-top-color: var(--hm-accent-ink);
+  animation: hm-spin 0.8s linear infinite;
+  transition: opacity 200ms ease;
+}
+
+.hm-check {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--hm-pass);
+  fill: none;
+  stroke: var(--hm-on-pass);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 12;
+  stroke-dashoffset: 0;
+  transform: scale(1);
+  transition: transform 420ms var(--hm-ease), opacity 200ms ease, stroke-dashoffset 420ms var(--hm-ease);
+  /* rows tick one after another, and each tick draws just after its dot pops */
+  transition-delay: calc(var(--i, 0) * 90ms), calc(var(--i, 0) * 90ms), calc(var(--i, 0) * 90ms + 120ms);
+}
+
+.hm-elog.is-running .hm-check {
+  opacity: 0;
+  transform: scale(0.4);
+  stroke-dashoffset: 12;
+  transition: none;
+}
+
+.hm-elog.is-passed .hm-elog__spin {
+  opacity: 0;
+  animation: none;
+}
+
+.hm-elog__name {
+  flex: 0 1 auto;
+  min-width: 0;
+  color: var(--hm-text);
+  font-weight: 500;
+}
+
+.hm-elog__name a {
+  text-decoration: underline;
+  text-decoration-color: var(--hm-line-strong);
+  text-underline-offset: 3px;
+}
+
+.hm-elog__name a:hover {
+  color: var(--hm-accent-ink);
+  text-decoration-color: currentColor;
+}
+
+.hm-elog__lead {
+  flex: 1;
+  min-width: 12px;
+  height: 1px;
+  margin-top: 0.4em;
+  background-image: radial-gradient(circle, var(--hm-line-strong) 1px, transparent 1.4px);
+  background-size: 6px 2px;
+  background-repeat: repeat-x;
+}
+
+.hm-elog__value {
+  flex: none;
+  font-family: var(--hm-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--hm-text);
+}
+
+.hm-elog__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border-top: 1px dashed var(--hm-line-strong);
+  font-size: 0.7rem;
+  color: var(--hm-muted);
+}
+
+.hm-elog__sum b {
+  font-weight: 600;
+  color: var(--hm-pass);
+}
+
+.hm-elog.is-running .hm-elog__sum {
+  visibility: hidden;
+}
+
+.hm-elog__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--hm-text);
+  font-weight: 600;
+}
+
+.hm-elog__more:hover {
+  color: var(--hm-accent-ink);
+}
+
+.hm-elog__more i {
+  font-size: 0.8em;
+  transition: transform var(--hm-base) var(--hm-ease);
+}
+
+.hm-elog__more:hover i {
+  transform: translateY(2px);
+}
+
+/* Receipts inside cards: no chrome, just rows */
+.hm-elog--compact {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.hm-elog--compact .hm-elog__rows {
+  padding: 0;
+}
+
+.hm-elog--compact .hm-elog__rows li {
+  align-items: flex-start;
+  padding: 0.35rem 0;
+}
+
+.hm-elog--compact .hm-elog__icon {
+  margin-top: 0.1rem;
+}
+
+.hm-elog--compact .hm-elog__name {
+  flex: 1;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.hm-elog__figure {
+  font-weight: 700;
+  color: var(--hm-text);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-elog__spin {
+    animation: none;
+  }
+}
