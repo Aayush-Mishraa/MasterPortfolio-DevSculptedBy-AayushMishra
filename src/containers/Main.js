@@ -2,6 +2,7 @@ import React, { Component, useEffect } from "react";
 import { Route, Switch, BrowserRouter, useLocation } from "react-router-dom";
 import Home from "../pages/home/HomeComponent";
 import Splash from "../pages/splash/Splash";
+import { introPlaysAt } from "../pages/splash/introPolicy";
 import Education from "../pages/education/EducationComponent";
 import Experience from "../pages/experience/Experience";
 import AutomationArsenal from "../pages/automationArsenal/AutomationArsenal";
@@ -10,7 +11,6 @@ import Contact from "../pages/contact/ContactComponent";
 import ProjectsPage from "../pages/projects/ProjectsPage";
 import ProjectDetail from "../pages/projects/ProjectDetail";
 import Universe from "../pages/universe/Universe";
-import { settings } from "../portfolio.js";
 import Error404 from "../pages/errors/error404/Error";
 
 // Start every new page at the top (hash links like #commits scroll themselves)
@@ -28,8 +28,8 @@ function ScrollToTop() {
 }
 
 // The intro plays over the home page, so its signature can land on the real
-// header logo. The header signature links to /splash to replay it.
-const SPLASH_PATHS = settings.isSplash ? ["/", "/splash"] : ["/splash"];
+// header logo: on the first visit to / (see introPolicy) and whenever the
+// header signature links to /splash.
 
 export default class Main extends Component {
   render() {
@@ -38,8 +38,10 @@ export default class Main extends Component {
         <ScrollToTop />
         <Route
           exact
-          path={SPLASH_PATHS}
-          render={(props) => <Splash {...props} theme={this.props.theme} />}
+          path={["/", "/splash"]}
+          render={(props) =>
+            introPlaysAt(props.location.pathname) ? <Splash {...props} theme={this.props.theme} /> : null
+          }
         />
         <Switch>
           <Route

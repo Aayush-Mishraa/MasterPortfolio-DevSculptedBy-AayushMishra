@@ -4,6 +4,7 @@ import { greeting } from "../../portfolio";
 import { createIntroSound } from "./introSound";
 import { createGridFx, createSparks } from "./introSparks";
 import { tracePen } from "./introPen";
+import { markIntroSeen } from "./introPolicy";
 import "./Splash.css";
 
 /*
@@ -47,6 +48,11 @@ const FLIGHT_FOR = 1.05;
 const INK_SETTLED = 1.3;
 
 const FONT_WAIT_MS = 900;
+// The signature is measured to fit the screen, so it has to be measured in its
+// own font: sized against the fallback, it overflows narrow phones once
+// Agustina arrives (a first visit on a slow connection).
+const SIGNATURE_FONT = 'bold 64px "Agustina Regular"';
+const SIGNATURE_FONT_WAIT_MS = 5000;
 const FAILSAFE_MS = 10000;
 const DEFAULT_ACCENT = [14, 107, 168];
 const PASS_RGB = [52, 211, 153];
@@ -67,6 +73,18 @@ function waitForFonts() {
     document.fonts.load('500 16px "Inter"')
   ]).catch(() => {});
   return Promise.race([loads, new Promise((resolve) => setTimeout(resolve, FONT_WAIT_MS))]);
+}
+
+function waitForSignatureFont() {
+  if (!document.fonts || !document.fonts.load) return Promise.resolve();
+  return Promise.race([
+    document.fonts.load(SIGNATURE_FONT).catch(() => {}),
+    new Promise((resolve) => setTimeout(resolve, SIGNATURE_FONT_WAIT_MS))
+  ]);
+}
+
+function signatureFontLoaded() {
+  return !document.fonts || !document.fonts.check || document.fonts.check(SIGNATURE_FONT);
 }
 
 function formatCount(value) {
@@ -148,9 +166,7 @@ function Splash({ history, theme }) {
     const sparksCanvas = $(".intro-sparks");
     const cursor = $(".intro-cursor");
     const cursorText = $(".intro-cursor__text");
-    const soundButton = $(".intro-sound");
-    const soundLabel = $(".intro-sound__label");
-    const bars = $$(".intro-sound__bars i");
+    const gate = $(".intro-gate");
 
     const accent = hexToRgb(theme && theme.imageHighlight) || DEFAULT_ACCENT;
     const glowRgb = mixRgb(accent, [255, 255, 255], 0.45);
@@ -161,7 +177,10 @@ function Splash({ history, theme }) {
     let skipped = false;
     let finished = false;
     let cancelled = false;
-    let sound = null;
+    let gated = false;
+    let failsafe = null;
+    let fittedInFont = false;
+    let retracePen = null;
     const startedAt = performance.now();
 
     // intro-active hides the header logo until the signature lands on it;
@@ -177,24 +196,10 @@ function Splash({ history, theme }) {
       finished = true;
       history.replace("/home");
     };
-    const failsafe = setTimeout(finish, FAILSAFE_MS);
 
-    // Sound ------------------------------------------------------------------
-
-    const syncSoundButton = () => {
-      const on = Boolean(sound && sound.isAudible());
-      soundButton.classList.toggle("is-muted", !on);
-      soundLabel.textContent = on ? "Sound on" : "Sound off";
-    };
-    sound = createIntroSound({ onChange: syncSoundButton });
-    if (!sound) soundButton.hidden = true;
-    syncSoundButton();
-
-    const toggleSound = () => {
-      if (!sound) return;
-      sound.setEnabled(!sound.isAudible());
-      syncSoundButton();
-    };
+    // Sound is always on. Browsers keep it blocked until the visitor clicks or
+    // presses a key, so a first visit waits on the Enter screen (below).
+    const sound = createIntroSound();
 
     // Visual helpers -----------------------------------------------------------
 
@@ -230,9 +235,11 @@ function Splash({ history, theme }) {
       const widthAt100 = lockup.getBoundingClientRect().width || 1000;
       const vw = document.documentElement.clientWidth || window.innerWidth;
       const vh = window.innerHeight;
-      const share = vw < 480 ? 0.9 : vw < 720 ? 0.84 : 0.62;
-      const targetWidth = Math.min(vw * share, 1040);
-      const size = Math.max(22, Math.min((targetWidth / widthAt100) * 100, vh * 0.2, 150));
+      const share = vw < 480 ? 0.86 : vw < 720 ? 0.84 : 0.62;
+      // Capped at 1040px on ordinary screens, allowed to grow on big ones
+      // (QHD, 4K, ultrawide) so the signature doesn't look lost.
+      const targetWidth = Math.min(vw * share, Math.max(1040, vw * 0.5));
+      const size = Math.max(22, Math.min((targetWidth / widthAt100) * 100, vh * 0.2, 220));
       lockup.style.fontSize = `${size}px`;
       root.style.setProperty("--lockup-size", `${size}px`);
       return size;
@@ -277,8 +284,7 @@ function Splash({ history, theme }) {
       if (fx) fx.setCursor(null);
     };
 
-    // One frame loop for the particles and the live equaliser bars.
-    const levels = [0, 0, 0, 0];
+    // One frame loop for the particles and the lit grid.
     const onFrame = (time, deltaMs) => {
       pointer.x += (pointer.tx - pointer.x) * 0.08;
       pointer.y += (pointer.ty - pointer.y) * 0.08;
@@ -287,15 +293,24 @@ function Splash({ history, theme }) {
         sparks.setParallax(pointer.x * 28, pointer.y * 18);
         sparks.frame(deltaMs);
       }
-      if (sound && sound.isAudible()) {
-        sound.readLevels(levels);
-        for (let i = 0; i < bars.length; i++) {
-          bars[i].style.transform = `scaleY(${(0.2 + levels[i] * 0.9).toFixed(3)})`;
-        }
-      }
     };
     if (!reduced) gsap.ticker.add(onFrame);
+    // The Enter screen's signature, sized to fit like the intro's own: the
+    // script font is so wide that any vw-based size overflows narrow phones.
+    // Measures the text itself (its box is clamped to the screen) and leaves
+    // room for the swashes that reach past the letters.
+    const fitGate = () => {
+      const nameEl = $(".intro-gate__name");
+      nameEl.style.fontSize = "100px";
+      const range = document.createRange();
+      range.selectNodeContents(nameEl);
+      const textWidth = range.getBoundingClientRect().width || 1000;
+      const available = gate.getBoundingClientRect().width * 0.84;
+      nameEl.style.fontSize = `${Math.min(76, (available / textWidth) * 100)}px`;
+    };
+
     const onResize = () => {
+      if (gated) fitGate();
       if (sparks) sparks.resize();
       if (fx) fx.resize();
     };
@@ -396,7 +411,10 @@ function Splash({ history, theme }) {
     const playFull = (size) => {
       // Trace the pen's path now rather than when it touches down, so the
       // measuring doesn't stutter the first stroke.
-      const pen = tracePen(ink);
+      let pen = tracePen(ink);
+      retracePen = () => {
+        pen = tracePen(ink);
+      };
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
       timeline = tl;
       if (skipped) tl.timeScale(8);
@@ -559,7 +577,42 @@ function Splash({ history, theme }) {
 
     // Controls ---------------------------------------------------------------
 
+    // Enter screen: the click (or key press) that lifts the browser's audio
+    // block, then the intro plays with full sound.
+    let beginWith = null;
+    const enter = () => {
+      if (!gated) return;
+      gated = false;
+      root.classList.remove("is-gated");
+      html.classList.remove("intro-gated");
+      const unlocked = sound ? sound.unlock() : Promise.resolve(true);
+      gsap.to(gate, {
+        opacity: 0,
+        duration: 0.45,
+        ease: "power2.in",
+        onComplete: () => {
+          gate.hidden = true;
+        }
+      });
+      unlocked.then(() => {
+        if (!cancelled) gsap.delayedCall(0.3, beginWith);
+      });
+    };
+
+    // Esc on the Enter screen: straight to the page, no intro.
+    const leave = () => {
+      gated = false;
+      html.classList.remove("intro-gated");
+      exit = gsap.timeline({ onComplete: finish })
+        .call(() => html.classList.remove("intro-active", "intro-cover"))
+        .to(root, { opacity: 0, duration: 0.35, ease: "power1.out" });
+    };
+
     const skip = () => {
+      if (gated) {
+        enter();
+        return;
+      }
       if (skipped || finished) return;
       skipped = true;
       if (sound) sound.skipped();
@@ -578,12 +631,11 @@ function Splash({ history, theme }) {
 
     const onKey = (event) => {
       if (event.ctrlKey || event.metaKey || event.altKey) return;
-      if (event.key === "m" || event.key === "M") {
-        toggleSound();
+      if (gated && event.key === "Escape") {
+        event.preventDefault();
+        leave();
         return;
       }
-      // Let Enter/Space press the focused sound button instead of skipping.
-      if (event.target === soundButton && (event.key === "Enter" || event.key === " ")) return;
       if (["Escape", "Enter", " ", "Spacebar"].includes(event.key)) {
         event.preventDefault();
         skip();
@@ -591,30 +643,70 @@ function Splash({ history, theme }) {
         event.preventDefault();
       }
     };
-    const onSoundClick = (event) => {
-      event.stopPropagation();
-      toggleSound();
-    };
     const blockScroll = (event) => event.preventDefault();
 
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
-    soundButton.addEventListener("click", onSoundClick);
     root.addEventListener("click", skip);
     root.addEventListener("pointermove", onPointer);
     root.addEventListener("pointerleave", onPointerLeave);
     root.addEventListener("wheel", blockScroll, { passive: false });
     root.addEventListener("touchmove", blockScroll, { passive: false });
 
-    waitForFonts().then(() => {
+    waitForFonts().then(async () => {
       if (cancelled) return;
-      const size = fitLockup();
-      root.classList.add("is-ready");
-      if (reduced) playReduced();
-      else playFull(size);
+      beginWith = async () => {
+        await waitForSignatureFont();
+        if (cancelled) return;
+        const size = fitLockup();
+        fittedInFont = signatureFontLoaded();
+        root.classList.add("is-ready");
+        failsafe = setTimeout(finish, FAILSAFE_MS);
+        if (reduced) playReduced();
+        else playFull(size);
+      };
+      // Already allowed to play sound (e.g. the logo was just clicked): go.
+      const unlocked = !sound || (await sound.unlock());
+      if (cancelled) return;
+      if (unlocked) {
+        beginWith();
+        return;
+      }
+      gated = true;
+      root.classList.add("is-gated");
+      // Tells the home page the intro is waiting on the visitor, not stuck.
+      html.classList.add("intro-gated");
+      gate.hidden = false;
+      fitGate();
+      $(".intro-gate__enter").focus({ preventScroll: true });
+      // It may still be showing the fallback font: refit when Agustina lands.
+      waitForSignatureFont().then(() => {
+        if (gated && !cancelled) fitGate();
+      });
     });
 
+    // Safety net: if the font arrives after the wait gave up, refit (and
+    // re-trace the pen) at once so the signature can't stay oversized.
+    const onFontsLoaded = () => {
+      if (fittedInFont || handedOff || !signatureFontLoaded()) return;
+      if (gated) {
+        fitGate();
+        return;
+      }
+      if (!root.classList.contains("is-ready")) return;
+      fittedInFont = true;
+      fitLockup();
+      if (retracePen) retracePen();
+    };
+    if (document.fonts && document.fonts.addEventListener) {
+      document.fonts.addEventListener("loadingdone", onFontsLoaded);
+    }
+
     return () => {
+      // Seen once (played through, skipped or left): / won't auto-play it again
+      // this session. Marked on the way out so a re-render mid-intro can't
+      // unmount it.
+      markIntroSeen();
       cancelled = true;
       clearTimeout(failsafe);
       if (timeline) timeline.kill();
@@ -625,13 +717,15 @@ function Splash({ history, theme }) {
       if (sound) sound.dispose();
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);
-      soundButton.removeEventListener("click", onSoundClick);
+      if (document.fonts && document.fonts.removeEventListener) {
+        document.fonts.removeEventListener("loadingdone", onFontsLoaded);
+      }
       root.removeEventListener("click", skip);
       root.removeEventListener("pointermove", onPointer);
       root.removeEventListener("pointerleave", onPointerLeave);
       root.removeEventListener("wheel", blockScroll);
       root.removeEventListener("touchmove", blockScroll);
-      html.classList.remove("intro-active", "intro-cover");
+      html.classList.remove("intro-active", "intro-cover", "intro-gated");
       if (window.__lenis) window.__lenis.start();
       // Hand keyboard focus to the logo the signature just landed on.
       setTimeout(() => {
@@ -770,16 +864,21 @@ function Splash({ history, theme }) {
         <span className="intro-cursor__text" />
       </div>
 
-      <div className="intro-actions">
-        <button type="button" className="intro-sound" title="Toggle sound (M)">
-          <span className="intro-sound__bars" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-            <i />
-          </span>
-          <span className="intro-sound__label">Sound off</span>
+      <div className="intro-gate" hidden>
+        <p className="intro-gate__name">
+          <span className="intro-gate__bracket">&lt;</span>
+          {greeting.logo_name}
+          <span className="intro-gate__bracket">/&gt;</span>
+        </p>
+        <p className="intro-gate__role">{ROLE}</p>
+        <button type="button" className="intro-gate__enter">
+          <span className="intro-gate__play" aria-hidden="true" />
+          Enter
         </button>
+        <p className="intro-gate__hint">Sound on · best with headphones</p>
+      </div>
+
+      <div className="intro-actions">
         <button type="button" className="intro-skip">
           Skip intro <kbd>esc</kbd>
         </button>

@@ -20,7 +20,6 @@
   also be rendered offline.
 */
 
-const STORAGE_KEY = "portfolio:intro-sound";
 const MASTER_LEVEL = 0.8;
 
 const NOTE = {
@@ -71,22 +70,6 @@ function getContext() {
 export function unlockIntroSound() {
   const ctx = getContext();
   if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
-}
-
-export function readSoundPreference() {
-  try {
-    return window.localStorage.getItem(STORAGE_KEY) !== "off";
-  } catch (error) {
-    return true;
-  }
-}
-
-function saveSoundPreference(on) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, on ? "on" : "off");
-  } catch (error) {
-    // Private mode: the choice just isn't remembered.
-  }
 }
 
 // Pink noise (Paul Kellet's filter): equal energy per octave, so it sounds
@@ -146,13 +129,12 @@ function impulseResponse(ctx, seconds, decay) {
   return buffer;
 }
 
-export function createIntroSound({ onChange, context } = {}) {
+export function createIntroSound({ context } = {}) {
   const ctx = context || getContext();
   if (!ctx) return null;
   const offline = Boolean(context);
   clearTimeout(suspendTimer);
 
-  let enabled = offline ? true : readSoundPreference();
   let quiet = false; // set once a skipped intro starts fast-forwarding
   let disposed = false;
 
@@ -173,14 +155,10 @@ export function createIntroSound({ onChange, context } = {}) {
   glue.ratio.value = 2.5;
   glue.attack.value = 0.012;
   glue.release.value = 0.3;
-  const analyser = ctx.createAnalyser();
-  analyser.fftSize = 64;
-  analyser.smoothingTimeConstant = 0.7;
   master.connect(rumble);
   rumble.connect(air);
   air.connect(glue);
-  glue.connect(analyser);
-  analyser.connect(ctx.destination);
+  glue.connect(ctx.destination);
 
   // One shared, dark room glues the palette together.
   const reverb = ctx.createConvolver();
@@ -191,17 +169,16 @@ export function createIntroSound({ onChange, context } = {}) {
   reverbReturn.connect(master);
 
   const noise = cached(ctx, "pink", (c) => pinkNoise(c, 2));
-  const spectrum = new Uint8Array(analyser.frequencyBinCount);
   const live = new Set();
 
   const running = () => offline || ctx.state === "running";
-  const audible = () => !disposed && enabled && running();
+  const audible = () => !disposed && running();
   // One-shots are dropped (not queued) while the context is suspended, so
   // unmuting later doesn't release a burst of stale sounds.
   const canPlay = (evenWhenQuiet) => audible() && (evenWhenQuiet || !quiet);
   const at = (when) => (when !== undefined ? when : ctx.currentTime + 0.01);
 
-  master.gain.setTargetAtTime(enabled ? MASTER_LEVEL : 0, ctx.currentTime, 0.05);
+  master.gain.setTargetAtTime(MASTER_LEVEL, ctx.currentTime, 0.05);
 
   function route(node, { pan = 0, panTo, send = 0, t = 0, span = 0 } = {}) {
     let tail = node;
@@ -573,50 +550,15 @@ export function createIntroSound({ onChange, context } = {}) {
     penUp(when);
   }
 
-  // Controls ---------------------------------------------------------------
-
-  function confirmOn() {
-    const t = at();
-    bell(NOTE.A5, t, { peak: 0.07, decay: 0.35, partials: [[1, 1, 1], [2, 0.2, 0.5]], send: 0.4 });
-    bell(NOTE.E6, t + 0.08, { peak: 0.05, decay: 0.45, partials: [[1, 1, 1], [2, 0.15, 0.5]], send: 0.4 });
-  }
-
-  function setEnabled(on) {
-    enabled = on;
-    saveSoundPreference(on);
-    master.gain.setTargetAtTime(on ? MASTER_LEVEL : 0, ctx.currentTime, 0.05);
-    if (on) {
-      if (running()) confirmOn();
-      else
-        ctx.resume()
-          .then(() => {
-            if (enabled && !disposed) confirmOn();
-          })
-          .catch(() => {});
-    }
-    if (onChange) onChange();
-  }
-
-  // Four bands for the equaliser bars: pad, body, pen, air.
-  function readLevels(target) {
-    if (!audible()) {
-      target.fill(0);
-      return target;
-    }
-    analyser.getByteFrequencyData(spectrum);
-    const bins = [0, 1, 2, 4];
-    for (let i = 0; i < target.length; i++) target[i] = spectrum[bins[i]] / 255;
-    return target;
-  }
-
-  const onState = () => {
-    if (onChange) onChange();
-  };
-  if (!offline) {
-    if (ctx.addEventListener) ctx.addEventListener("statechange", onState);
-    // Works when the page already has user activation; otherwise the sound
-    // toggle stays available to turn it on.
-    if (enabled && ctx.state === "suspended") ctx.resume().catch(() => {});
+  // Resolves true once the context is running. Called inside a click or key
+  // press it lifts the browser's autoplay block; called without one it only
+  // succeeds when the page was already allowed to play sound.
+  function unlock() {
+    if (running()) return Promise.resolve(true);
+    const attempt = ctx.resume().then(() => running(), () => false);
+    // Without a gesture resume() just stays pending, so don't wait on it long.
+    const timeout = new Promise((resolve) => setTimeout(() => resolve(running()), 250));
+    return Promise.race([attempt, timeout]);
   }
 
   function dispose() {
@@ -624,7 +566,6 @@ export function createIntroSound({ onChange, context } = {}) {
     padOut(0.8);
     penUp();
     disposed = true;
-    if (!offline && ctx.removeEventListener) ctx.removeEventListener("statechange", onState);
     const t = ctx.currentTime;
     // Let the chord and the landing ring out before going silent.
     master.gain.setTargetAtTime(0, t + 1.6, 0.15);
@@ -664,9 +605,7 @@ export function createIntroSound({ onChange, context } = {}) {
     whoosh,
     land,
     skipped,
-    setEnabled,
-    isAudible: audible,
-    readLevels,
+    unlock,
     dispose
   };
 }

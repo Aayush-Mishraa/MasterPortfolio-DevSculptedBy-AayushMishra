@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { gsap } from "gsap";
 import { CustomEase } from "gsap/CustomEase";
-import { settings } from "../../../portfolio";
+import { introPlaysAt } from "../../splash/introPolicy";
 
 gsap.registerPlugin(CustomEase);
 
@@ -26,18 +26,17 @@ export const hasFinePointer = () =>
 /* ------------------------------------------------------------------ */
 
 /*
-  Splash.js plays over the home page on /splash (and on / when
-  settings.isSplash is on). It sets html.intro-cover while the page is hidden
-  and html.intro-active until its signature lands on the header logo.
+  Splash.js plays over the home page on /splash, and on the first visit to /
+  in a session (introPolicy.js decides for both sides). It sets
+  html.intro-cover while the page is hidden, html.intro-gated while its Enter
+  screen waits for a click, and html.intro-active until its signature lands on
+  the header logo.
 
   The route has to decide whether to wait: our effects run before the intro's
   own effect adds those classes, so checking the classes alone would start the
   hero behind the curtain.
 */
-const introExpected = () => {
-  const path = window.location.pathname;
-  return path === "/splash" || (settings.isSplash && path === "/");
-};
+const introExpected = () => introPlaysAt(window.location.pathname);
 
 const LAND_WITHOUT_INTRO_MS = 700;
 const REVEAL_AFTER_CURTAIN_S = 0.4;
@@ -71,10 +70,17 @@ export const watchIntro = ({ onHold, onReveal, onLand }) => {
     clearTimeout(failsafe);
     waiting = true;
     onHold();
-    failsafe = setTimeout(() => {
+    const guard = () => {
+      // A visitor can sit on the intro's Enter screen as long as they like;
+      // only guard against an intro that never finishes once it's running.
+      if (html.classList.contains("intro-gated")) {
+        failsafe = setTimeout(guard, FAILSAFE_MS);
+        return;
+      }
       onReveal(0);
       land();
-    }, FAILSAFE_MS);
+    };
+    failsafe = setTimeout(guard, FAILSAFE_MS);
   };
 
   const observer = new MutationObserver(() => {

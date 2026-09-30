@@ -2,7 +2,7 @@
 
 // Website related settings
 const settings = {
-  isSplash: false, // Open the main portfolio and its Toolkit navigation at the root URL.
+  isSplash: true, // Play the intro on the first visit to / in a browser session (the logo always replays it).
 };
 
 //SEO Related settings
