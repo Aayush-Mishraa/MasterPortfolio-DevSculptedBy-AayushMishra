@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
-import { ARSENAL_TOOLS, CAPABILITIES, CURRENT_ROLE, HIGHLIGHTS } from "../homeData";
+import { ARSENAL_TOOLS, CAPABILITIES, HIGHLIGHTS } from "../homeData";
 import { PROOFS } from "../../automationArsenal/arsenalData";
 import { prefersReducedMotion, useOnScreen, useReveal } from "../lib/motion";
 import { scrollToId } from "../lib/scroll";
@@ -165,7 +165,8 @@ const CLAIMS = [
     index: "04",
     icon: "fa-solid fa-people-group",
     title: "Owns quality end to end, and leads the team.",
-    body: `Leading the QA team at ${CURRENT_ROLE.company}: quality strategy, test planning and execution, and mentoring QA engineers, side by side with product and development.`,
+    body:
+      "Leading the QA team: quality strategy, test planning and execution, and mentoring QA engineers, side by side with product and development.",
     receipts: [
       { name: HIGHLIGHTS.testCases.label, value: HIGHLIGHTS.testCases.value },
       { name: HIGHLIGHTS.bugs.label, value: HIGHLIGHTS.bugs.value },

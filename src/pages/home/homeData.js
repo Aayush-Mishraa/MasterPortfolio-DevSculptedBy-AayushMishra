@@ -131,6 +131,7 @@ export const TRAJECTORY = (() => {
   const masters = EDUCATION.find((item) => /master/i.test(item.degree));
   const bachelors = EDUCATION.find((item) => !/master/i.test(item.degree));
 
+  // The current employer's name stays off the home page (by request).
   const rows = work.map((role, i) => ({
     key: `${role.title}-${role.company}`,
     lane: 0,
@@ -138,7 +139,7 @@ export const TRAJECTORY = (() => {
     type: "work",
     date: span(role.start, role.end),
     title: role.title,
-    org: role.company,
+    org: role.company === CURRENT_ROLE.company ? "" : role.company,
   }));
 
   // The master's sits just above the first QA role it ran alongside.
@@ -201,7 +202,6 @@ export const PROFILE = {
   resume: greeting.resumeLink,
   github: greeting.githubProfile,
   linkedin: socialLink("LinkedIn"),
-  city: address.locality,
   country: address.country,
   timeZone: contact.timezone,
   utcOffset: contact.utcOffsetMinutes,
@@ -262,12 +262,15 @@ const degreeCaption = (degree) =>
     ? "Master's, Data Science & AI"
     : degree.replace(/\.\s*in\s+/i, ", ").replace(/^B\.Tech/i, "B.Tech");
 
-export const AFFILIATIONS = COMPANIES.map((company) => ({
-  key: company.name,
-  name: tidyName(company.name),
-  caption: `${yearSpan(company.from, company.to)}${company.type === "intern" ? " · internship" : ""}`,
-  logo: company.logo,
-}))
+// The current employer stays off the home page (by request); the Experience
+// page still lists it.
+export const AFFILIATIONS = COMPANIES.filter((company) => company.name !== CURRENT_ROLE.company)
+  .map((company) => ({
+    key: company.name,
+    name: tidyName(company.name),
+    caption: `${yearSpan(company.from, company.to)}${company.type === "intern" ? " · internship" : ""}`,
+    logo: company.logo,
+  }))
   .concat(
     COMMUNITY.filter((role) => role.logo && LOGO_MISMATCH.indexOf(role.company) === -1).map((role) => ({
       key: `${role.company}-${role.title}`,

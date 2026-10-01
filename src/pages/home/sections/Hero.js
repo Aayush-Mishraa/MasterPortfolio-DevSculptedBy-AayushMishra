@@ -114,7 +114,7 @@ export default function Hero({ onOpenBrief }) {
             <span>{PROFILE.status}</span>
             <span className="hm-pill__sep" aria-hidden="true" />
             <span className="hm-mono" aria-hidden="true">
-              {PROFILE.city} · {status.time} IST
+              {PROFILE.country} · {status.time} IST
             </span>
           </p>
 
@@ -129,9 +129,7 @@ export default function Hero({ onOpenBrief }) {
                 {" "}
                 ·{" "}
               </span>
-              <span className="hm-hero__role">
-                {CURRENT_ROLE.title}, leading QA at {CURRENT_ROLE.company}
-              </span>
+              <span className="hm-hero__role">{CURRENT_ROLE.title}, leading QA</span>
             </span>
           </p>
 
@@ -171,7 +169,7 @@ export default function Hero({ onOpenBrief }) {
             <div>
               <dt>Based in</dt>
               <dd>
-                {PROFILE.city}, {PROFILE.country} · IST ({utcLabel()})
+                {PROFILE.country} · IST ({utcLabel()})
               </dd>
             </div>
             <div>

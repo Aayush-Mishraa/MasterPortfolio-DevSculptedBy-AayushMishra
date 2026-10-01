@@ -235,7 +235,8 @@ const downloadVCard = () => {
     `TITLE:${esc((greeting.nickname || "").replace(/[^\w\s&/()-]/g, "").trim())}`,
     `EMAIL;TYPE=INTERNET,PREF:${EMAIL}`,
     `URL:${window.location.origin}`,
-    `ADR;TYPE=WORK:;;;${esc(address.locality)};;;${esc(address.country)}`,
+    // Country only: no city on the card (ADR is box;ext;street;city;region;postcode;country).
+    `ADR;TYPE=WORK:;;;;;;${esc(address.country)}`,
     ...socialMediaLinks
       .filter((s) => /^https?:/.test(s.link))
       .map((s) => `X-SOCIALPROFILE;TYPE=${s.name.toLowerCase()}:${s.link}`),
@@ -548,7 +549,7 @@ const Beacon = ({ clock, status }) => {
 
         <dl className="ct-beacon__meta">
           <div>
-            <dt>Mumbai</dt>
+            <dt>India</dt>
             <dd className="ct-mono">{clock}</dd>
           </div>
           <div>
@@ -969,13 +970,13 @@ const BaseStation = ({ now }) => {
   const youNow = zoneMinutes(now, visitorOffset);
   const meNow = zoneMinutes(now, OFFSET);
   const best = sync.both.length ? sync.both.reduce((a, b) => (b[1] - b[0] > a[1] - a[0] ? b : a)) : null;
-  // put the visitor's blip left/right of Mumbai by timezone distance
+  // put the visitor's blip left/right of India by timezone distance
   const blipX = Math.max(-1, Math.min(1, diff / 720)) * 38;
 
   const relation =
     diff === 0
       ? "You're in the same timezone as me. Any working hour is a good hour."
-      : `You're ${fmtDuration(Math.abs(diff))} ${diff < 0 ? "behind" : "ahead of"} Mumbai.`;
+      : `You're ${fmtDuration(Math.abs(diff))} ${diff < 0 ? "behind" : "ahead of"} India.`;
 
   return (
     <div className="ct-base__grid">
@@ -987,7 +988,7 @@ const BaseStation = ({ now }) => {
           <span className="ct-radar__cross" />
           <span className="ct-radar__sweep" />
           <span className="ct-radar__blip is-me">
-            <b>MUM</b>
+            <b>IND</b>
           </span>
           <span className="ct-radar__blip is-you" style={{ "--x": `${blipX}%`, "--y": diff === 0 ? "14%" : "-16%" }}>
             <b>YOU</b>
@@ -996,7 +997,7 @@ const BaseStation = ({ now }) => {
         <div className="ct-radar-card__info">
           <span className="ct-mono ct-kicker">base station</span>
           <strong>
-            {address.locality}, {address.country}
+            {address.country}
           </strong>
           <span className="ct-mono">
             {info.coordinates.lat.toFixed(4)}° N · {info.coordinates.lng.toFixed(4)}° E
@@ -1010,7 +1011,7 @@ const BaseStation = ({ now }) => {
       <div className="ct-sync">
         <div className="ct-clocks">
           <div>
-            <span className="ct-kicker ct-mono">Mumbai · {fmtOffset(OFFSET)}</span>
+            <span className="ct-kicker ct-mono">India · {fmtOffset(OFFSET)}</span>
             <strong className="ct-mono">{hhmm(meNow)}</strong>
           </div>
           <span className="ct-clocks__link" aria-hidden="true">
@@ -1129,7 +1130,7 @@ const Contact = ({ theme }) => {
                 <span className="ct-status__dot" />
                 {status.online ? "Online now" : `Away · back in ${fmtDuration(status.until)}`}
                 <span className="ct-status__sep" />
-                <span className="ct-mono">Mumbai {clock}</span>
+                <span className="ct-mono">India {clock}</span>
               </div>
               <h1 className="ct-title">
                 <span className="ct-title__line">Let's build software</span>{" "}

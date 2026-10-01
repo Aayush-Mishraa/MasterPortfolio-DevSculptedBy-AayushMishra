@@ -114,11 +114,13 @@ function Graph() {
               {row.date}
             </span>
             <span className="hm-graph__title">{row.title}</span>
-            <span className="hm-graph__org">
-              {row.org}
-              {row.kind === "merge" && <em className="hm-mono"> · merge</em>}
-              {row.kind === "root" && <em className="hm-mono"> · root</em>}
-            </span>
+            {(row.org || row.kind === "merge" || row.kind === "root") && (
+              <span className="hm-graph__org">
+                {row.org}
+                {row.kind === "merge" && <em className="hm-mono"> · merge</em>}
+                {row.kind === "root" && <em className="hm-mono"> · root</em>}
+              </span>
+            )}
           </li>
         ))}
       </ol>
@@ -159,15 +161,12 @@ function Snapshot({ onOpenBrief }) {
         </div>
         <div>
           <dt>Now</dt>
-          <dd>
-            {PROFILE.role}
-            <span>{PROFILE.company}</span>
-          </dd>
+          <dd>{PROFILE.role}</dd>
         </div>
         <div>
           <dt>Based in</dt>
           <dd>
-            {PROFILE.city}, {PROFILE.country}
+            {PROFILE.country}
             <span>
               IST ({utcLabel()}) · works {hours}
             </span>

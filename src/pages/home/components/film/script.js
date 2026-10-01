@@ -148,7 +148,7 @@ export const narration = ({ audit }) => {
     "Film slate: Signed Off, scene one, take one.",
     `Release night, 23:59. The release ships at midnight. ${STATS[0].value} tests stand between it and your users.`,
     "One test is failing. One bug is still hiding, and midnight is 60 seconds away.",
-    `Starring ${PROFILE.name}, ${PROFILE.role} at ${PROFILE.company}. ${YEARS}+ years finding what others miss.`,
+    `Starring ${PROFILE.name}, ${PROFILE.role}. ${YEARS}+ years finding what others miss.`,
     `The record: a real Newman run from the Phoenix API suite, then the bug log, ${
       LOG.total
     } fixes from public GitHub commits, starting with "${LOG.rows[0] ? LOG.rows[0].message : ""}".`,

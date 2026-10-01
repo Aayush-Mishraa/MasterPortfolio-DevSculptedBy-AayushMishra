@@ -9,7 +9,7 @@ const settings = {
 const seo = {
   title: "Aayush Mishra · SDET & QA Lead",
   description:
-    "Aayush Mishra is a Senior Software Test Engineer in Mumbai, leading QA at Webority Technology: test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship.",
+    "Aayush Mishra is a Senior Software Test Engineer and QA lead in India, building test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship.",
   og: {
     title: "Aayush Mishra · SDET & QA Lead",
     type: "website",
@@ -749,7 +749,8 @@ const contactPageData = {
     utcOffsetMinutes: 330,
     // Working window in local (IST) hours, used for the "sync window" planner
     workingHours: { start: 10, end: 19 },
-    coordinates: { lat: 19.076, lng: 72.8777 },
+    // Country level only: the geographic centre of India.
+    coordinates: { lat: 20.5937, lng: 78.9629 },
     topics: [
       { id: "frameworks", label: "Test automation frameworks", icon: "fa-solid fa-cubes" },
       { id: "ai-testing", label: "AI-powered testing", icon: "fa-solid fa-brain" },
@@ -777,14 +778,13 @@ const contactPageData = {
   },
   addressSection: {
     title: "Address",
-    subtitle: "Mumbai, India 400001",
-    locality: "Mumbai",
+    subtitle: "India",
     country: "India",
     region: "",
     postalCode: "",
     streetAddress: " ",
     avatar_image_path: "address_image.svg",
-    location_map_link: "https://www.google.co.in/maps/place/Mumbai,+Maharashtra/@19.0824822,72.71413,11z/data=!3m1!4b1!4m6!3m5!1s0x3be7c6306644edc1:0x5da4ed8f8d648c69!8m2!3d18.9581934!4d72.8320729!16zL20vMDR2bXA?entry=ttu&g_ep=EgoyMDI1MDcyOC4wIKXMDSoASAFQAw%3D%3D",
+    location_map_link: "https://www.google.com/maps/place/India",
   },
   phoneSection: {
     title: "",

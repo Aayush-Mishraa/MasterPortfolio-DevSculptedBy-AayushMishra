@@ -151,9 +151,7 @@ export function Hunter() {
               </span>
             ))}
         </h3>
-        <p className="sf-hunter__role">
-          {PROFILE.role} · {PROFILE.company}
-        </p>
+        <p className="sf-hunter__role">{PROFILE.role}</p>
         <p className="sf-hunter__line">{YEARS}+ years finding what others miss.</p>
       </div>
     </div>

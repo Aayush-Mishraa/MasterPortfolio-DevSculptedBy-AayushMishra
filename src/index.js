@@ -8,7 +8,6 @@ import "./index.css";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import "./assets/font-awesome/css/all.css";
 
 const engine = new Styletron();
 

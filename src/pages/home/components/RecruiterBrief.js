@@ -63,7 +63,7 @@ export default function RecruiterBrief({ open, onClose, github, style }) {
     () => [
       {
         label: "Now",
-        value: `${PROFILE.role} · ${PROFILE.company}`,
+        value: PROFILE.role,
         note: `Leading the QA team since ${formatMonth(PROFILE.since)}`,
       },
       {
@@ -78,7 +78,7 @@ export default function RecruiterBrief({ open, onClose, github, style }) {
       },
       {
         label: "Location",
-        value: `${PROFILE.city}, ${PROFILE.country}`,
+        value: PROFILE.country,
         note: `IST (${utcLabel()}) · replies in ${PROFILE.responseTime}`,
       },
       {
@@ -105,7 +105,7 @@ export default function RecruiterBrief({ open, onClose, github, style }) {
     .concat(contributions ? [`${contributions.toLocaleString("en-US")} GitHub contributions in the last year`] : []);
 
   const plainText = () =>
-    [`${PROFILE.name} — ${PROFILE.role}, ${PROFILE.company}`]
+    [`${PROFILE.name} — ${PROFILE.role}`]
       .concat(facts.map((fact) => `${fact.label}: ${fact.value}${fact.note ? ` (${fact.note})` : ""}`))
       .concat([
         `Highlights: ${proof.join(" · ")}`,
