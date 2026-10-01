@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240" fill="none">
+  <rect width="240" height="240" fill="black"/>
+  <g stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.95">
+    <path d="M24 30 L10 44 L24 58"/>
+    <path d="M36 24 L28 64"/>
+    <path d="M46 30 L60 44 L46 58"/>
+
+    <path d="M160 36 L146 50 L160 64"/>
+    <path d="M172 30 L164 70"/>
+    <path d="M182 36 L196 50 L182 64"/>
+
+    <path d="M76 124 L62 138 L76 152"/>
+    <path d="M88 118 L80 158"/>
+    <path d="M98 124 L112 138 L98 152"/>
+
+    <path d="M176 138 L162 152 L176 166"/>
+    <path d="M188 132 L180 172"/>
+    <path d="M198 138 L212 152 L198 166"/>
+
+    <path d="M44 186 L30 200 L44 214"/>
+    <path d="M56 180 L48 220"/>
+    <path d="M66 186 L80 200 L66 214"/>
+  </g>
+  <g fill="white" opacity="0.35">
+    <rect x="128" y="90" width="3" height="3"/>
+    <rect x="132" y="96" width="3" height="3"/>
+    <rect x="134" y="102" width="3" height="3"/>
+    <rect x="138" y="94" width="3" height="3"/>
+    <rect x="141" y="100" width="3" height="3"/>
+    <rect x="20" y="108" width="2.5" height="2.5"/>
+    <rect x="24" y="112" width="2.5" height="2.5"/>
+    <rect x="28" y="108" width="2.5" height="2.5"/>
+    <rect x="200" y="198" width="2.5" height="2.5"/>
+    <rect x="204" y="202" width="2.5" height="2.5"/>
+    <rect x="208" y="198" width="2.5" height="2.5"/>
+  </g>
+</svg>

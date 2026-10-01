@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" role="img" aria-label="Postman logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1f2937"/>
+    </linearGradient>
+    <linearGradient id="pm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff9f43"/>
+      <stop offset="100%" stop-color="#ff6c37"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="56" fill="url(#bg)"/>
+  <circle cx="160" cy="160" r="72" fill="none" stroke="url(#pm)" stroke-width="16"/>
+  <path d="M126 182l72-50" stroke="#fff0e7" stroke-width="11" stroke-linecap="round"/>
+  <circle cx="202" cy="132" r="13" fill="#ff6c37" stroke="#ffe2d1" stroke-width="4"/>
+</svg>

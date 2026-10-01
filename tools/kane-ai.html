@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kane AI Test Authoring · Automation Arsenal · Aayush Mishra</title>
+  <meta name="description" content="How I use Kane AI to go from plain-English intent to reviewed, exported test code, and why every AI-drafted test gets a human review. Includes an interactive intent-to-test demo." />
+  <meta property="og:title" content="Kane AI Test Authoring · Automation Arsenal" />
+  <meta property="og:description" content="Plain-English intent to reviewed test code: AI drafts, humans approve." />
+  <meta property="og:image" content="/tool-logos/kane-ai.svg" />
+  <link rel="icon" href="/tool-logos/kane-ai.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tools/field-guide.css" />
+  <style>
+    :root { --accent: #8b7cf6; --accent-2: #38bdf8; }
+
+    .stories { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .story {
+      padding: 9px 14px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface);
+      color: var(--ink-soft); font: 600 13.5px/1.3 var(--display); text-align: left; cursor: pointer;
+      transition: border-color .2s ease, background .2s ease, color .2s ease;
+    }
+    .story:hover { border-color: var(--accent); color: var(--ink); }
+    .story[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+    .studio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; }
+    .pane { border: 1px solid var(--line); border-radius: 16px; background: rgba(0,0,0,.25); overflow: hidden; display: flex; flex-direction: column; }
+    .pane-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .phase { display: flex; gap: 6px; }
+    .phase span { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); font-size: 10.5px; color: var(--muted); transition: all .25s ease; }
+    .phase span.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--ink); }
+    .phase span.done { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, transparent); }
+
+    .intent { margin: 14px; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 8%, transparent); font-size: 15px; min-height: 76px; }
+    .intent small { display: block; margin-bottom: 6px; font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .caret { display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: text-bottom; background: var(--accent); animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .steps { list-style: none; margin: 0; padding: 0 14px 14px; display: grid; gap: 8px; counter-reset: s; }
+    .step {
+      display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: start; padding: 10px 12px;
+      border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 14px;
+      animation: rise .4s var(--ease) both;
+    }
+    .step .tag { padding: 3px 6px; border-radius: 6px; font: 700 10.5px/1.2 var(--mono); text-align: center; letter-spacing: .06em; }
+    .tag.nav { background: rgba(56,189,248,.16); color: #7dd3fc; }
+    .tag.type { background: rgba(167,139,250,.16); color: #c4b5fd; }
+    .tag.click { background: rgba(251,191,36,.14); color: #fcd34d; }
+    .tag.assert { background: rgba(74,222,128,.14); color: #86efac; }
+    .step code { font: 500 12.5px/1.4 var(--mono); color: var(--ink-soft); }
+    .step.flagged { border-color: var(--warn); background: rgba(251,191,36,.06); }
+    .step .old { display: block; text-decoration: line-through; color: var(--muted); }
+    .step .note { display: block; margin-top: 6px; font: 500 12px/1.45 var(--mono); color: var(--warn); }
+    .step.added { border-color: color-mix(in srgb, var(--ok) 55%, transparent); background: rgba(74,222,128,.06); }
+    .step.added::after { content: "added in review"; grid-column: 2; font: 600 10.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ok); }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+
+    .code { flex: 1; margin: 0; padding: 16px 18px; overflow: auto; font: 400 13px/1.7 var(--mono); color: #e2e8f0; background: #050810; min-height: 320px; transition: opacity .3s ease; }
+    .code.dim { opacity: .25; }
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }
+    .controls p { margin: 0; font-size: 14px; color: var(--muted); }
+
+    @media (max-width: 900px) { .studio { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="fg-backdrop" aria-hidden="true"><span class="fg-orb fg-orb--a"></span><span class="fg-orb fg-orb--b"></span></div>
+
+  <div class="fg-wrap">
+    <header class="fg-top">
+      <a class="fg-back" href="/automation-arsenal#tool-kane-ai">← Automation Arsenal</a>
+      <div class="fg-top-meta">
+        <span class="fg-pill">Field notes</span>
+        <span class="fg-pill fg-pill--accent"><i></i>Stage 01 · Author</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="fg-hero">
+        <div data-reveal>
+          <img class="fg-logo" src="/tool-logos/kane-ai.svg" alt="" />
+          <span class="fg-kicker">Case study · AI test authoring</span>
+          <h1>Kane AI<span>intent → test</span></h1>
+          <p class="fg-lede">
+            Kane AI, LambdaTest's AI testing agent, turns plain-English intent into runnable test steps. I use it
+            to get from acceptance criteria to a first draft fast, and I treat that draft the way I treat any
+            pull request: it gets reviewed before it ships.
+          </p>
+          <div class="fg-actions">
+            <a class="fg-btn fg-btn--primary" href="#studio">Watch a test get written ↓</a>
+            <a class="fg-btn" href="https://www.lambdatest.com/kane-ai" target="_blank" rel="noopener noreferrer">Official site ↗</a>
+          </div>
+        </div>
+        <dl class="fg-facts" data-reveal>
+          <div class="fg-fact"><dt>What it is</dt><dd>AI agent for planning and authoring tests</dd></div>
+          <div class="fg-fact"><dt>Input</dt><dd>Plain-English objectives and steps</dd></div>
+          <div class="fg-fact"><dt>Output</dt><dd>Test steps you can export as framework code</dd></div>
+          <div class="fg-fact"><dt>My rule</dt><dd>AI drafts. Humans approve.</dd></div>
+        </dl>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">How it works</span>
+          <h2>Four steps from a user story to a test in the repo</h2>
+          <p>The speed comes from the agent. The trust comes from step three.</p>
+        </header>
+        <div class="fg-steps" data-reveal>
+          <article class="fg-step"><span class="fg-step-num">1</span><h3>Describe intent</h3><p>Start from the acceptance criteria, written the way a product owner would say it.</p></article>
+          <article class="fg-step"><span class="fg-step-num">2</span><h3>Agent plans</h3><p>The agent breaks the intent into navigate, type, click and assert steps against the real app.</p></article>
+          <article class="fg-step"><span class="fg-step-num">3</span><h3>Human review</h3><p>I check each assertion against the spec, add the edge cases, and fix anything that tests the wrong thing.</p></article>
+          <article class="fg-step"><span class="fg-step-num">4</span><h3>Export and gate</h3><p>Reviewed tests become code in the repo, follow its conventions, and run in CI like everything else.</p></article>
+        </div>
+      </section>
+
+      <section class="fg-section" id="studio">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">Interactive · intent to test</span>
+          <h2>Watch a draft become a trustworthy test</h2>
+          <p>Pick a user story. The agent plans it, then the review step catches the one thing the AI got subtly wrong.</p>
+        </header>
+
+        <div class="fg-demo" data-reveal>
+          <div class="fg-demo-bar"><strong>authoring session</strong><span class="fg-sim">Simulated workflow · not the Kane AI UI</span></div>
+          <div class="fg-demo-body">
+            <div class="stories" role="group" aria-label="Choose a user story" id="stories"></div>
+
+            <div class="studio">
+              <div class="pane">
+                <div class="pane-head">
+                  <span>Plan</span>
+                  <span class="phase" id="phase"><span data-p="intent">Intent</span><span data-p="plan">Plan</span><span data-p="review">Review</span><span data-p="export">Export</span></span>
+                </div>
+                <div class="intent" id="intent"><small>Intent</small><span id="intentText"></span></div>
+                <ol class="steps" id="steps" aria-live="polite"></ol>
+              </div>
+              <div class="pane">
+                <div class="pane-head"><span id="file">login.spec.ts</span><span>Exported · Playwright</span></div>
+                <pre class="code dim" id="code"><code></code></pre>
+              </div>
+            </div>
+
+            <div class="controls">
+              <button class="fg-btn fg-btn--primary" id="replay" type="button">↻ Replay</button>
+              <p id="status" aria-live="polite">Pick a story to start.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">The code</span>
+          <h2>What a reviewed, exported test looks like</h2>
+          <p>Once it lands in the repo, AI-drafted code is held to the same standard as hand-written code.</p>
+        </header>
+        <div class="fg-code" data-tabs data-reveal>
+          <div class="fg-tabs" role="tablist" aria-label="Code samples">
+            <button class="fg-tab" role="tab">negative-cases.spec.ts</button>
+            <button class="fg-tab" role="tab">review-checklist.md</button>
+            <button class="fg-copy" type="button">Copy</button>
+          </div>
+          <figure class="fg-panel" role="tabpanel" style="margin:0">
+<pre><code data-lang="ts">
+import { test, expect } from "@playwright/test";
+
+// The agent proposed the first case; review widened it into a table.
+const cases = [
+  { name: "wrong password", email: "ada@example.com", password: "nope", error: "Invalid email or password" },
+  { name: "unknown email", email: "ghost@example.com", password: "Secret123!", error: "Invalid email or password" },
+  { name: "empty password", email: "ada@example.com", password: "", error: "Password is required" },
+];
+
+for (const c of cases) {
+  test(`login rejects ${c.name}`, async ({ page, context }) => {
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(c.email);
+    await page.getByLabel("Password").fill(c.password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    await expect(page.getByRole("alert")).toHaveText(c.error);
+    // Added in review: the outcome, not just the message
+    await expect(page).toHaveURL(/\/login/);
+    const cookies = await context.cookies();
+    expect(cookies.find((cookie) => cookie.name === "session")).toBeUndefined();
+  });
+}
+</code></pre>
+            <figcaption>Same error message for "wrong password" and "unknown email" is deliberate: it stops account enumeration, and now a test enforces it.</figcaption>
+          </figure>
+          <figure class="fg-panel" role="tabpanel" style="margin:0" hidden>
+<pre><code data-lang="md">
+# Review checklist for AI-drafted tests
+
+- [ ] Every assertion maps to an acceptance criterion, not just to "what the page showed"
+- [ ] Asserts the outcome (state, data, session), not only the UI message
+- [ ] Negative and boundary cases exist, not just the happy path
+- [ ] Locators are role/label based; no brittle CSS chains
+- [ ] Test data is synthetic: no real customer data in prompts or fixtures
+- [ ] Follows repo conventions: fixtures, page objects, naming
+- [ ] Runs green 3x in a row locally before it joins CI
+</code></pre>
+            <figcaption>The checklist is what makes "AI-assisted" safe to put in a release pipeline.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">Where it fits</span>
+          <h2>Stage 01 of my quality pipeline</h2>
+          <p>Authoring comes first: better drafts in, faster, means more coverage by the time the execution stage runs.</p>
+        </header>
+        <nav class="fg-fit" aria-label="Quality pipeline" data-reveal>
+          <a class="fg-fit-stage is-here" href="#studio" aria-current="page"><span>01</span><b>Author</b><small>Kane AI · Nova Act</small></a>
+          <a class="fg-fit-stage" href="/tools/playwright.html"><span>02</span><b>Execute</b><small>Playwright · Selenium · TestNG</small></a>
+          <a class="fg-fit-stage" href="/tools/postman.html"><span>03</span><b>Verify APIs</b><small>Postman · Newman</small></a>
+          <a class="fg-fit-stage" href="/tools/github-actions.html"><span>04</span><b>Ship</b><small>GitHub Actions</small></a>
+          <a class="fg-fit-stage" href="/tools/Engineering-OS-Architecture-Interactive.html"><span>05</span><b>Orchestrate</b><small>AgentOps · NeuralForge</small></a>
+        </nav>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">Trade-offs</span>
+          <h2>Where it shines, and what I guard against</h2>
+        </header>
+        <div class="fg-tradeoffs" data-reveal>
+          <div class="fg-list fg-list--pro">
+            <h3>Strengths</h3>
+            <ul>
+              <li><b>Intent to first draft in minutes</b>, which frees review time for the hard cases.</li>
+              <li><b>Wider coverage.</b> It's good at proposing negative and boundary cases people skip.</li>
+              <li><b>More contributors.</b> Manual testers and PMs can describe tests without writing code.</li>
+              <li><b>Exportable code</b> keeps the tests in your repo, not only in a vendor's UI.</li>
+            </ul>
+          </div>
+          <div class="fg-list fg-list--con">
+            <h3>Watch-outs</h3>
+            <ul>
+              <li><b>It asserts what it sees</b>, not what the spec says. A bug can get "confirmed" as expected behaviour.</li>
+              <li><b>Data privacy.</b> Prompts and test data must be synthetic, never real customer records.</li>
+              <li><b>Generated code needs shaping</b> into the repo's fixtures and page objects before it's maintainable.</li>
+              <li><b>Cloud dependency and cost</b> need to be weighed against the time saved.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="fg-verdict" data-reveal>
+        <div>
+          <span class="fg-kicker">My rule of thumb</span>
+          <h2>AI drafts. Humans approve.</h2>
+          <p>AI makes writing tests cheap. It doesn't make knowing what to test cheap. That part stays with the engineer.</p>
+          <div class="fg-actions">
+            <a class="fg-btn fg-btn--primary" href="/tools/nova-act.html">Next: agents that act →</a>
+            <a class="fg-btn" href="/automation-arsenal#tool-kane-ai">Back to the arsenal</a>
+          </div>
+        </div>
+        <ul class="fg-checks">
+          <li>Every generated test is reviewed against acceptance criteria.</li>
+          <li>Assertions check outcomes, not just on-screen text.</li>
+          <li>Exported code follows repo conventions before merge.</li>
+          <li>Flaky means fixed or deleted, never ignored.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script src="/tools/field-guide.js"></script>
+  <script>
+    (function () {
+      var STORIES = [
+        {
+          id: "login",
+          label: "Wrong password is rejected",
+          file: "login.spec.ts",
+          intent: "A user who enters the wrong password sees an error and is not signed in.",
+          steps: [
+            { tag: "nav", text: 'goto "/login"' },
+            { tag: "type", text: 'Email ← "ada@example.com"' },
+            { tag: "type", text: 'Password ← "nope"' },
+            { tag: "click", text: 'button "Sign in"' },
+            { tag: "assert", text: 'alert shows "Invalid email or password"' },
+          ],
+          review: {
+            flag: 4,
+            note: "The message is right, but that alone doesn't prove the user isn't signed in.",
+            add: [
+              { tag: "assert", text: "URL is still /login" },
+              { tag: "assert", text: 'no "session" cookie was set' },
+            ],
+          },
+          code: [
+            'import { test, expect } from "@playwright/test";',
+            "",
+            'test("wrong password is rejected", async ({ page, context }) => {',
+            '  await page.goto("/login");',
+            '  await page.getByLabel("Email").fill("ada@example.com");',
+            '  await page.getByLabel("Password").fill("nope");',
+            '  await page.getByRole("button", { name: "Sign in" }).click();',
+            "",
+            '  await expect(page.getByRole("alert")).toHaveText("Invalid email or password");',
+            "  // added in review: assert the outcome, not just the message",
+            "  await expect(page).toHaveURL(/\\/login/);",
+            "  const cookies = await context.cookies();",
+            '  expect(cookies.find((c) => c.name === "session")).toBeUndefined();',
+            "});",
+          ],
+        },
+        {
+          id: "cart",
+          label: "Cart total is correct",
+          file: "cart.spec.ts",
+          intent: "Adding two of the cheapest USB-C cable updates the cart total correctly.",
+          steps: [
+            { tag: "nav", text: 'goto "/search?q=usb-c cable"' },
+            { tag: "click", text: 'sort "Price: low to high"' },
+            { tag: "click", text: 'first result → "Add to cart"' },
+            { tag: "type", text: 'Quantity ← "2"' },
+            { tag: "assert", text: 'cart total shows "$17.98"' },
+          ],
+          review: {
+            flag: 4,
+            note: "Hard-coded total copies today's price. The test should compute it, or it breaks on the next price change.",
+            replace: 'cart total = 2 × unit price (read from the page)',
+            add: [{ tag: "assert", text: "cart badge shows 2 items" }],
+          },
+          code: [
+            'import { test, expect } from "@playwright/test";',
+            "",
+            'test("cart total is correct for two units", async ({ page }) => {',
+            '  await page.goto("/search?q=usb-c%20cable");',
+            '  await page.getByRole("combobox", { name: "Sort" }).selectOption("price-asc");',
+            '  const first = page.getByTestId("product-card").first();',
+            '  const unit = Number((await first.getByTestId("price").innerText()).replace(/[^0-9.]/g, ""));',
+            '  await first.getByRole("button", { name: "Add to cart" }).click();',
+            '  await page.getByLabel("Quantity").fill("2");',
+            "",
+            "  // changed in review: derive the expectation instead of hard-coding it",
+            '  await expect(page.getByTestId("cart-total")).toHaveText(`$${(unit * 2).toFixed(2)}`);',
+            '  await expect(page.getByTestId("cart-badge")).toHaveText("2");',
+            "});",
+          ],
+        },
+        {
+          id: "search",
+          label: "Search handles no results",
+          file: "search.spec.ts",
+          intent: "Searching for something that doesn't exist shows a helpful empty state.",
+          steps: [
+            { tag: "nav", text: 'goto "/"' },
+            { tag: "type", text: 'Search ← "zzqxv-not-a-product"' },
+            { tag: "click", text: "press Enter" },
+            { tag: "assert", text: 'page contains "No results"' },
+          ],
+          review: {
+            flag: 3,
+            note: '"Page contains" also passes if "No results" appears in a hidden template. Scope it to the results region.',
+            replace: 'results region shows "No results for zzqxv-not-a-product"',
+            add: [
+              { tag: "assert", text: "zero product cards rendered" },
+              { tag: "assert", text: 'suggestion link "Browse all products" is visible' },
+            ],
+          },
+          code: [
+            'import { test, expect } from "@playwright/test";',
+            "",
+            'test("search shows a helpful empty state", async ({ page }) => {',
+            '  const term = "zzqxv-not-a-product";',
+            '  await page.goto("/");',
+            '  await page.getByRole("searchbox").fill(term);',
+            '  await page.keyboard.press("Enter");',
+            "",
+            "  // changed in review: scope the assertion to the results region",
+            '  const results = page.getByRole("region", { name: "Search results" });',
+            "  await expect(results).toContainText(`No results for ${term}`);",
+            '  await expect(results.getByTestId("product-card")).toHaveCount(0);',
+            '  await expect(page.getByRole("link", { name: "Browse all products" })).toBeVisible();',
+            "});",
+          ],
+        },
+      ];
+
+      var $ = function (id) { return document.getElementById(id); };
+      var runId = 0;
+      var active = STORIES[0];
+
+      var setPhase = function (name) {
+        var order = ["intent", "plan", "review", "export"];
+        var at = order.indexOf(name);
+        document.querySelectorAll("#phase span").forEach(function (node) {
+          var i = order.indexOf(node.getAttribute("data-p"));
+          node.className = i < at ? "done" : i === at ? "on" : "";
+        });
+      };
+
+      var stepHtml = function (step, extra) {
+        return '<span class="tag ' + step.tag + '">' + step.tag.toUpperCase() + "</span><div>" + (extra || "") + "<code>" + FG.escape(step.text) + "</code></div>";
+      };
+
+      var play = async function (story) {
+        var id = ++runId;
+        var alive = function () { return id === runId; };
+        active = story;
+        document.querySelectorAll(".story").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-id") === story.id ? "true" : "false"); });
+        $("file").textContent = story.file;
+        $("steps").innerHTML = "";
+        $("code").classList.add("dim");
+        $("code").firstChild.innerHTML = "";
+        $("status").textContent = "Reading the intent…";
+
+        setPhase("intent");
+        var text = story.intent;
+        for (var i = 0; i <= text.length; i += 2) {
+          if (!alive()) return;
+          $("intentText").innerHTML = FG.escape(text.slice(0, i)) + '<span class="caret"></span>';
+          await FG.sleep(18);
+        }
+        $("intentText").textContent = text;
+
+        setPhase("plan");
+        $("status").textContent = "Agent is planning steps…";
+        var nodes = [];
+        for (var s = 0; s < story.steps.length; s += 1) {
+          await FG.sleep(420);
+          if (!alive()) return;
+          var li = document.createElement("li");
+          li.className = "step";
+          li.innerHTML = stepHtml(story.steps[s]);
+          $("steps").appendChild(li);
+          nodes.push(li);
+        }
+
+        await FG.sleep(700);
+        if (!alive()) return;
+        setPhase("review");
+        $("status").textContent = "Human review: checking each assertion against the spec…";
+        var flagged = nodes[story.review.flag];
+        flagged.classList.add("flagged");
+        await FG.sleep(900);
+        if (!alive()) return;
+        var original = story.steps[story.review.flag];
+        var replaced = story.review.replace ? { tag: original.tag, text: story.review.replace } : original;
+        flagged.innerHTML = stepHtml(replaced, story.review.replace ? '<span class="old">' + FG.escape(original.text) + "</span>" : "") +
+          "";
+        flagged.lastChild.insertAdjacentHTML("beforeend", '<span class="note">⚑ ' + FG.escape(story.review.note) + "</span>");
+        for (var a = 0; a < story.review.add.length; a += 1) {
+          await FG.sleep(500);
+          if (!alive()) return;
+          var add = document.createElement("li");
+          add.className = "step added";
+          add.innerHTML = stepHtml(story.review.add[a]);
+          $("steps").appendChild(add);
+        }
+
+        await FG.sleep(700);
+        if (!alive()) return;
+        setPhase("export");
+        $("code").firstChild.innerHTML = FG.highlight(story.code.join("\n"), "ts");
+        $("code").classList.remove("dim");
+        $("status").textContent = "Exported. Reviewed and ready for CI.";
+        document.querySelectorAll("#phase span").forEach(function (node) { node.className = "done"; });
+      };
+
+      $("stories").innerHTML = STORIES.map(function (s) {
+        return '<button class="story" type="button" data-id="' + s.id + '" aria-pressed="false">' + FG.escape(s.label) + "</button>";
+      }).join("");
+      document.querySelectorAll(".story").forEach(function (button) {
+        button.addEventListener("click", function () {
+          play(STORIES.filter(function (s) { return s.id === button.getAttribute("data-id"); })[0]);
+        });
+      });
+      $("replay").addEventListener("click", function () { play(active); });
+
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(function (entries) {
+          if (entries[0].isIntersecting) { io.disconnect(); play(STORIES[0]); }
+        }, { threshold: 0.35 });
+        io.observe($("studio"));
+      } else {
+        play(STORIES[0]);
+      }
+    })();
+  </script>
+  <script src="/tools/arsenal-dock.js" defer></script>
+</body>
+</html>

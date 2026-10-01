@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browser Use AI Agents · Automation Arsenal · Aayush Mishra</title>
+  <meta name="description" content="How I use Browser Use to let LLM agents drive a real browser for goal-based and exploratory QA, with guardrails and deterministic verification. Includes an interactive agent-loop demo." />
+  <meta property="og:title" content="Browser Use AI Agents · Automation Arsenal" />
+  <meta property="og:description" content="LLM agents that drive a real browser. Agents explore, scripts assert." />
+  <meta property="og:image" content="/tool-logos/browser-use-ai.svg" />
+  <link rel="icon" href="/tool-logos/browser-use-ai.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tools/field-guide.css" />
+  <style>
+    :root { --accent: #a78bfa; --accent-2: #22d3ee; }
+
+    .task { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 8%, transparent); font-size: 15px; }
+    .task b { font: 600 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .guards { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+    .guards span { padding: 4px 8px; border: 1px solid var(--line-strong); border-radius: 7px; font: 500 11px/1.2 var(--mono); color: var(--ink-soft); }
+
+    .arena { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; }
+
+    /* Mock browser (always light, like a real web page) */
+    .browser { border-radius: 14px; overflow: hidden; border: 1px solid var(--line-strong); background: #f8fafc; color: #0f172a; box-shadow: 0 30px 60px -30px rgba(0,0,0,.7); }
+    .chrome { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: #e2e8f0; }
+    .chrome i { width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; }
+    .addr { flex: 1; margin-left: 8px; padding: 6px 10px; border-radius: 8px; background: #fff; font: 500 12px/1 var(--mono); color: #475569; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .page { position: relative; min-height: 330px; padding: 14px; font-family: var(--display); }
+    .shop-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .logo { font-weight: 800; letter-spacing: -.02em; }
+    .search { flex: 1; display: flex; align-items: center; min-height: 34px; padding: 0 10px; border: 1.5px solid #cbd5e1; border-radius: 9px; background: #fff; font-size: 13px; color: #64748b; }
+    .search.typed { color: #0f172a; }
+    .cart { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 9px; background: #0f172a; color: #fff; font-size: 13px; font-weight: 600; }
+    .cart em { display: grid; place-items: center; min-width: 18px; height: 18px; border-radius: 9px; background: #a78bfa; color: #0f172a; font-style: normal; font-size: 11px; }
+    .hero-card { padding: 22px; border-radius: 12px; background: linear-gradient(120deg, #ede9fe, #cffafe); }
+    .hero-card h4 { margin: 0 0 4px; font-size: 20px; }
+    .hero-card p { margin: 0; color: #475569; font-size: 13px; }
+    .nav { display: flex; gap: 8px; margin-top: 12px; }
+    .nav span { padding: 6px 10px; border-radius: 8px; background: #fff; border: 1px solid #e2e8f0; font-size: 12.5px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .product { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; font-size: 12.5px; }
+    .thumb { height: 54px; border-radius: 8px; background: repeating-linear-gradient(45deg, #e2e8f0 0 6px, #f1f5f9 6px 12px); }
+    .product b { font-size: 13px; }
+    .price { font-family: var(--mono); color: #334155; }
+    .add { margin-top: auto; padding: 6px; border: 0; border-radius: 7px; background: #7c3aed; color: #fff; font: 600 12px/1 var(--display); }
+    .redesign .grid { grid-template-columns: 1fr; }
+    .redesign .product { flex-direction: row; align-items: center; }
+    .redesign .thumb { width: 44px; height: 44px; flex: none; }
+    .redesign .add { margin: 0 0 0 auto; padding: 7px 10px; background: #0891b2; }
+    .redesign .product .meta { display: flex; flex-direction: column; }
+    .cartpanel { padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; }
+    .cartpanel h4 { margin: 0 0 10px; }
+    .line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; }
+    .total { display: flex; justify-content: space-between; padding-top: 10px; font-weight: 700; }
+
+    .el { position: relative; }
+    .idx {
+      position: absolute; top: -8px; left: -8px; z-index: 2; padding: 2px 5px; border-radius: 5px;
+      background: #7c3aed; color: #fff; font: 700 10px/1.2 var(--mono); opacity: 0; transform: scale(.6);
+      transition: opacity .25s ease, transform .25s var(--ease); pointer-events: none;
+    }
+    .observing .idx { opacity: 1; transform: none; }
+    .el.target { outline: 2.5px solid #f59e0b; outline-offset: 3px; border-radius: 9px; }
+    .cursor { position: absolute; z-index: 5; width: 18px; height: 18px; pointer-events: none; transition: left .6s var(--ease), top .6s var(--ease), opacity .3s ease; opacity: 0; }
+    .cursor.on { opacity: 1; }
+    .cursor svg { width: 18px; height: 18px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.4)); }
+
+    .log { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 14px; background: #050810; overflow: hidden; }
+    .log-head { display: flex; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--line); font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .entries { flex: 1; margin: 0; padding: 10px; list-style: none; overflow: auto; max-height: 390px; display: grid; gap: 6px; align-content: start; }
+    .entry { display: grid; grid-template-columns: 70px 1fr; gap: 10px; padding: 8px 10px; border-radius: 9px; background: var(--surface); font: 400 12.5px/1.5 var(--mono); color: var(--ink-soft); animation: rise .35s var(--ease) both; }
+    .entry b { font-weight: 700; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; padding-top: 1px; }
+    .entry.observe b { color: #7dd3fc; }
+    .entry.think b { color: #c4b5fd; }
+    .entry.act b { color: #fcd34d; }
+    .entry.done { background: rgba(74,222,128,.08); }
+    .entry.done b { color: var(--ok); }
+    .entry.verify { background: rgba(34,211,238,.08); }
+    .entry.verify b { color: #67e8f9; }
+    .entry.fail { background: rgba(248,113,113,.08); }
+    .entry.fail b { color: var(--bad); }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+
+    .versus { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .vs { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); font-size: 14px; }
+    .vs b { display: block; margin-bottom: 6px; font: 600 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .vs code { font: 500 12.5px/1.5 var(--mono); }
+    .vs.ok { border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+    .vs.bad { border-color: color-mix(in srgb, var(--bad) 45%, transparent); }
+    .vs .res { display: block; margin-top: 6px; font-weight: 600; }
+    .vs.ok .res { color: var(--ok); }
+    .vs.bad .res { color: var(--bad); }
+
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }
+    .toggle { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-soft); cursor: pointer; }
+    .toggle input { appearance: none; -webkit-appearance: none; width: 40px; height: 22px; margin: 0; border-radius: 22px; background: var(--line-strong); position: relative; cursor: pointer; transition: background .2s ease; }
+    .toggle input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .25s var(--ease); }
+    .toggle input:checked { background: var(--accent); }
+    .toggle input:checked::after { transform: translateX(18px); }
+    .controls p { margin: 0; font-size: 14px; color: var(--muted); }
+
+    @media (max-width: 900px) { .arena, .versus { grid-template-columns: 1fr; } .guards { margin-left: 0; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } .product { flex-direction: row; align-items: center; } .thumb { width: 44px; height: 44px; flex: none; } .add { margin: 0 0 0 auto; padding: 7px 10px; } }
+  </style>
+</head>
+<body>
+  <div class="fg-backdrop" aria-hidden="true"><span class="fg-orb fg-orb--a"></span><span class="fg-orb fg-orb--b"></span></div>
+
+  <div class="fg-wrap">
+    <header class="fg-top">
+      <a class="fg-back" href="/automation-arsenal#tool-browser-use">← Automation Arsenal</a>
+      <div class="fg-top-meta">
+        <span class="fg-pill">Field notes</span>
+        <span class="fg-pill fg-pill--accent"><i></i>Stage 02 · Execute</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="fg-hero">
+        <div data-reveal>
+          <img class="fg-logo" src="/tool-logos/browser-use-ai.svg" alt="" />
+          <span class="fg-kicker">Case study · agentic browser testing</span>
+          <h1>Browser Use<span>goals, not selectors</span></h1>
+          <p class="fg-lede">
+            Browser Use is an open-source Python library that lets an LLM agent drive a real browser. Instead of
+            scripting every click, you give it a goal. I use it for the checks scripts are bad at: exploratory
+            runs, long-tail flows, and "can a real user actually do this?"
+          </p>
+          <div class="fg-actions">
+            <a class="fg-btn fg-btn--primary" href="#arena">Run the agent ↓</a>
+            <a class="fg-btn" href="https://github.com/browser-use/browser-use" target="_blank" rel="noopener noreferrer">GitHub repo ↗</a>
+          </div>
+        </div>
+        <dl class="fg-facts" data-reveal>
+          <div class="fg-fact"><dt>What it is</dt><dd>Open-source library for LLM browser agents</dd></div>
+          <div class="fg-fact"><dt>Language</dt><dd>Python, async</dd></div>
+          <div class="fg-fact"><dt>Finds elements by</dt><dd>Meaning on the page, not CSS selectors</dd></div>
+          <div class="fg-fact"><dt>Best for</dt><dd>Exploratory and goal-based checks</dd></div>
+        </dl>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">How it works</span>
+          <h2>An observe → think → act loop</h2>
+          <p>The agent repeats one cycle until the goal is met, it gives up, or it hits the step limit.</p>
+        </header>
+        <div class="fg-steps" data-reveal>
+          <article class="fg-step"><span class="fg-step-num">1</span><h3>Observe</h3><p>The page's interactive elements are extracted and numbered, so the model can refer to them.</p></article>
+          <article class="fg-step"><span class="fg-step-num">2</span><h3>Think</h3><p>The LLM compares the page with the goal and picks the next action, such as "click element 4".</p></article>
+          <article class="fg-step"><span class="fg-step-num">3</span><h3>Act</h3><p>The action runs in a real browser: click, type, scroll, navigate or open a tab.</p></article>
+          <article class="fg-step"><span class="fg-step-num">4</span><h3>Verify</h3><p>My addition: a deterministic check confirms the outcome, because an agent's "done" is a claim, not proof.</p></article>
+        </div>
+      </section>
+
+      <section class="fg-section" id="arena">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">Interactive · agent loop</span>
+          <h2>Watch the agent shop, then ship a redesign</h2>
+          <p>Run it once. Then flip "Ship a UI redesign" and run again: the selector script breaks, the agent adapts, and the final check still decides.</p>
+        </header>
+
+        <div class="fg-demo" data-reveal>
+          <div class="fg-demo-bar"><strong>agent run · staging</strong><span class="fg-sim">Simulated agent · mock storefront</span></div>
+          <div class="fg-demo-body">
+            <div class="task">
+              <b>Task</b>
+              <span>Add the cheapest USB-C cable to the cart and report the cart total.</span>
+              <span class="guards" aria-label="Guardrails"><span>allowed: staging.shop.local</span><span>max_steps: 25</span><span>test account only</span></span>
+            </div>
+
+            <div class="arena">
+              <div class="browser">
+                <div class="chrome"><i></i><i></i><i></i><span class="addr" id="addr">https://staging.shop.local/</span></div>
+                <div class="page" id="page"></div>
+              </div>
+              <div class="log">
+                <div class="log-head"><span>Agent log</span><span id="stepCount">step 0 / 25</span></div>
+                <ol class="entries" id="log" aria-live="polite"></ol>
+              </div>
+            </div>
+
+            <div class="versus" id="versus" hidden>
+              <div class="vs" id="vsScript"><b>Scripted test</b><code id="scriptLine"></code><span class="res" id="scriptRes"></span></div>
+              <div class="vs" id="vsAgent"><b>Agent + deterministic check</b><code id="agentLine"></code><span class="res" id="agentRes"></span></div>
+            </div>
+
+            <div class="controls">
+              <button class="fg-btn fg-btn--primary" id="run" type="button">▶ Run agent</button>
+              <label class="toggle"><input type="checkbox" id="redesign" /> Ship a UI redesign</label>
+              <p id="status" aria-live="polite"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">The code</span>
+          <h2>A goal, a model, and a check that doesn't trust the agent</h2>
+          <p>The agent does the exploring. A plain assertion against the system of record decides pass or fail.</p>
+        </header>
+        <div class="fg-code" data-tabs data-reveal>
+          <div class="fg-tabs" role="tablist" aria-label="Code samples">
+            <button class="fg-tab" role="tab">agent.py</button>
+            <button class="fg-tab" role="tab">test_checkout_agentic.py</button>
+            <button class="fg-copy" type="button">Copy</button>
+          </div>
+          <figure class="fg-panel" role="tabpanel" style="margin:0">
+<pre><code data-lang="py">
+import asyncio
+from browser_use import Agent, ChatAnthropic  # the API moves fast; check the current README
+
+TASK = (
+    "Open https://staging.shop.local, add the cheapest USB-C cable "
+    "to the cart, and report the cart total."
+)
+
+async def main():
+    agent = Agent(task=TASK, llm=ChatAnthropic(model="claude-sonnet-5"))
+    # Guardrails: staging only, a throwaway test account, and a hard step cap
+    history = await agent.run(max_steps=25)
+    print(history.final_result())
+
+asyncio.run(main())
+</code></pre>
+            <figcaption>Seven lines to a working agent. The guardrails matter more than the code.</figcaption>
+          </figure>
+          <figure class="fg-panel" role="tabpanel" style="margin:0" hidden>
+<pre><code data-lang="py">
+import pytest
+from browser_use import Agent, ChatAnthropic
+
+@pytest.mark.agentic   # nightly job, not a per-PR gate: agents are slower and non-deterministic
+@pytest.mark.asyncio
+async def test_user_can_buy_the_cheapest_cable(cart_api):
+    agent = Agent(task=TASK, llm=ChatAnthropic(model="claude-sonnet-5"))
+    history = await agent.run(max_steps=25)
+
+    assert history.is_done(), "agent stopped before finishing the task"
+
+    # Don't trust the agent's summary. Check the system of record.
+    cart = cart_api.get_cart(user="qa-bot")
+    cheapest = min(cart_api.search("usb-c cable"), key=lambda p: p.price)
+    assert [(item.sku, item.qty) for item in cart.items] == [(cheapest.sku, 1)]
+    assert cart.total == cheapest.price
+</code></pre>
+            <figcaption>Agents explore, scripts assert: the test passes only if the backend agrees with the agent.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">Where it fits</span>
+          <h2>Stage 02 of my quality pipeline</h2>
+          <p>It runs alongside the scripted suites. It doesn't replace them.</p>
+        </header>
+        <nav class="fg-fit" aria-label="Quality pipeline" data-reveal>
+          <a class="fg-fit-stage" href="/tools/kane-ai.html"><span>01</span><b>Author</b><small>Kane AI · Nova Act</small></a>
+          <a class="fg-fit-stage is-here" href="#arena" aria-current="page"><span>02</span><b>Execute</b><small>Playwright · Selenium · Browser Use</small></a>
+          <a class="fg-fit-stage" href="/tools/postman.html"><span>03</span><b>Verify APIs</b><small>Postman · Newman</small></a>
+          <a class="fg-fit-stage" href="/tools/github-actions.html"><span>04</span><b>Ship</b><small>GitHub Actions</small></a>
+          <a class="fg-fit-stage" href="/tools/Engineering-OS-Architecture-Interactive.html"><span>05</span><b>Orchestrate</b><small>AgentOps · NeuralForge</small></a>
+        </nav>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">Trade-offs</span>
+          <h2>Powerful, and it needs guardrails</h2>
+        </header>
+        <div class="fg-tradeoffs" data-reveal>
+          <div class="fg-list fg-list--pro">
+            <h3>Strengths</h3>
+            <ul>
+              <li><b>Survives UI churn.</b> It targets intent, so a redesign doesn't break it the way selectors break.</li>
+              <li><b>Finds the long tail.</b> It's good for exploratory passes over flows nobody wrote a script for.</li>
+              <li><b>Works on legacy apps</b> with no test IDs and no page objects.</li>
+              <li><b>Tasks read like requirements</b>, so non-engineers can follow along.</li>
+            </ul>
+          </div>
+          <div class="fg-list fg-list--con">
+            <h3>Watch-outs</h3>
+            <ul>
+              <li><b>Non-deterministic.</b> The same task can take a different path, so it's not a per-PR regression gate.</li>
+              <li><b>Slower and costs model tokens</b> on every step, compared with a script.</li>
+              <li><b>Needs guardrails:</b> allowed domains, test accounts only, step caps, no production data.</li>
+              <li><b>"Done" is a claim.</b> Always confirm the outcome with a deterministic check.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="fg-verdict" data-reveal>
+        <div>
+          <span class="fg-kicker">My rule of thumb</span>
+          <h2>Agents explore. Scripts assert.</h2>
+          <p>Use the agent to discover and adapt, and plain code to decide. That keeps the flexibility without giving up trust.</p>
+          <div class="fg-actions">
+            <a class="fg-btn fg-btn--primary" href="/tools/playwright.html">Next: the scripted side →</a>
+            <a class="fg-btn" href="/automation-arsenal#tool-browser-use">Back to the arsenal</a>
+          </div>
+        </div>
+        <ul class="fg-checks">
+          <li>Agentic runs are nightly or exploratory, not the PR gate.</li>
+          <li>Every run is scoped to staging with a test account.</li>
+          <li>Outcomes are checked against the backend, not the agent's summary.</li>
+          <li>Anything the agent finds twice becomes a scripted test.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script src="/tools/field-guide.js"></script>
+  <script>
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+      var PRODUCTS = [
+        { name: "VoltWeave USB-C 2m", price: 12.99 },
+        { name: "BoltLink USB-C 1m", price: 8.99 },
+        { name: "ArcFlex USB-C 3m", price: 15.49 },
+      ];
+      var state = { view: "home", typed: false, cart: 0, redesign: false };
+      var running = false;
+      var runId = 0;
+
+      var idx = function (n) { return '<span class="idx">' + n + "</span>"; };
+
+      var render = function () {
+        var page = $("page");
+        page.className = "page" + (state.redesign ? " redesign" : "");
+        var addLabel = state.redesign ? "Add to bag" : "Add to cart";
+        var head =
+          '<div class="shop-head"><span class="logo">' + (state.redesign ? "shop/" : "Shop.") + "</span>" +
+          '<span class="search el' + (state.typed ? " typed" : "") + '" data-el="1">' + idx(1) + (state.typed ? "usb-c cable" : "Search products…") + "</span>" +
+          '<span class="cart el" data-el="' + (state.view === "results" ? 5 : 2) + '">' + idx(state.view === "results" ? 5 : 2) + (state.redesign ? "Bag" : "Cart") + " <em>" + state.cart + "</em></span></div>";
+        var body = "";
+        if (state.view === "home") {
+          body = '<div class="hero-card"><h4>Cables for everything</h4><p>Fast charging, tough braids, fair prices.</p></div>' +
+            '<div class="nav"><span>Deals</span><span>New</span><span>Accessories</span></div>';
+        } else if (state.view === "results") {
+          body = '<div class="grid">' + PRODUCTS.map(function (p, i) {
+            return '<div class="product"><span class="thumb"></span><span class="meta"><b>' + p.name + '</b><span class="price">$' + p.price.toFixed(2) + "</span></span>" +
+              '<button class="add el" tabindex="-1" data-el="' + (i + 2) + '"' + (state.redesign ? "" : ' id="add-to-cart-' + i + '"') + ">" + idx(i + 2) + addLabel + "</button></div>";
+          }).join("") + "</div>";
+        } else {
+          body = '<div class="cartpanel"><h4>Your ' + (state.redesign ? "bag" : "cart") + '</h4><div class="line"><span>BoltLink USB-C 1m × 1</span><span>$8.99</span></div>' +
+            '<div class="total"><span>Total</span><span>$8.99</span></div></div>';
+        }
+        page.innerHTML = head + body + '<span class="cursor" id="cursor"><svg viewBox="0 0 24 24"><path d="M4 2l16 10-7 1.5L9.5 21z" fill="#0f172a" stroke="#fff" stroke-width="1.5"/></svg></span>';
+      };
+
+      var log = function (kind, text) {
+        var li = document.createElement("li");
+        li.className = "entry " + kind;
+        li.innerHTML = "<b>" + kind + "</b><span>" + text + "</span>";
+        $("log").appendChild(li);
+        $("log").scrollTop = $("log").scrollHeight;
+      };
+
+      var moveTo = async function (n) {
+        var page = $("page");
+        var el = page.querySelector('[data-el="' + n + '"]');
+        var cursor = $("cursor");
+        if (!el || !cursor) return;
+        page.querySelectorAll(".target").forEach(function (t) { t.classList.remove("target"); });
+        el.classList.add("target");
+        var pr = page.getBoundingClientRect();
+        var er = el.getBoundingClientRect();
+        cursor.classList.add("on");
+        cursor.style.left = er.left - pr.left + er.width / 2 + "px";
+        cursor.style.top = er.top - pr.top + er.height / 2 + "px";
+        await FG.sleep(700);
+      };
+
+      var observe = async function (count) {
+        $("page").classList.add("observing");
+        log("observe", count + " interactive elements indexed");
+        await FG.sleep(700);
+      };
+
+      var run = async function () {
+        if (running) return;
+        running = true;
+        var id = ++runId;
+        $("run").disabled = true;
+        $("redesign").disabled = true;
+        $("log").innerHTML = "";
+        $("versus").hidden = true;
+        state = { view: "home", typed: false, cart: 0, redesign: $("redesign").checked };
+        $("addr").textContent = "https://staging.shop.local/";
+        render();
+        $("status").textContent = "Agent running…";
+        var step = function (n) { $("stepCount").textContent = "step " + n + " / 25"; };
+
+        step(1);
+        await observe(2);
+        log("think", "Goal needs USB-C cables. The search box [1] is the fastest route.");
+        await FG.sleep(700);
+        await moveTo(1);
+        log("act", 'input_text(index=1, "usb-c cable") + Enter');
+        state.typed = true; state.view = "results";
+        $("addr").textContent = "https://staging.shop.local/search?q=usb-c+cable";
+        render();
+        await FG.sleep(600);
+
+        step(2);
+        await observe(5);
+        log("think", "Three results. Cheapest is BoltLink USB-C 1m at $8.99, so its button is [3]" + (state.redesign ? ", labelled “Add to bag” now." : "."));
+        await FG.sleep(900);
+        await moveTo(3);
+        log("act", "click_element(index=3)");
+        state.cart = 1;
+        render();
+        await FG.sleep(600);
+
+        step(3);
+        await observe(5);
+        log("think", (state.redesign ? "Bag" : "Cart") + " badge shows 1. Open it [5] to read the total.");
+        await FG.sleep(800);
+        await moveTo(5);
+        log("act", "click_element(index=5)");
+        state.view = "cart";
+        $("addr").textContent = "https://staging.shop.local/" + (state.redesign ? "bag" : "cart");
+        render();
+        await FG.sleep(700);
+
+        step(4);
+        log("done", 'final_result: "Cart total is $8.99 (1 × BoltLink USB-C 1m)"');
+        await FG.sleep(700);
+        log("verify", "cart_api.get_cart(\"qa-bot\").total == min(prices) → 8.99 == 8.99 ✓");
+
+        $("versus").hidden = false;
+        $("scriptLine").textContent = "page.locator('#add-to-cart-1').click()";
+        if (state.redesign) {
+          $("vsScript").className = "vs bad";
+          $("scriptRes").textContent = "✕ TimeoutError: locator('#add-to-cart-1') not found, because the redesign dropped the ID";
+        } else {
+          $("vsScript").className = "vs ok";
+          $("scriptRes").textContent = "✓ passed";
+        }
+        $("vsAgent").className = "vs ok";
+        $("agentLine").textContent = 'goal: "add the cheapest USB-C cable" → verified via cart API';
+        $("agentRes").textContent = state.redesign ? "✓ passed: adapted to the new layout and labels" : "✓ passed";
+        $("status").textContent = state.redesign
+          ? "The redesign broke the selector script. The agent adapted, and the backend check confirmed it."
+          : "Now flip “Ship a UI redesign” and run it again.";
+
+        if (id === runId) {
+          running = false;
+          $("run").disabled = false;
+          $("redesign").disabled = false;
+          $("run").textContent = "↻ Run again";
+        }
+      };
+
+      $("run").addEventListener("click", run);
+      $("redesign").addEventListener("change", function () {
+        state = { view: "home", typed: false, cart: 0, redesign: $("redesign").checked };
+        render();
+        $("status").textContent = $("redesign").checked ? "Redesign shipped: new layout, new labels, no IDs. Run the agent." : "";
+      });
+      render();
+
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(function (entries) {
+          if (entries[0].isIntersecting) { io.disconnect(); run(); }
+        }, { threshold: 0.35 });
+        io.observe($("arena"));
+      }
+    })();
+  </script>
+  <script src="/tools/arsenal-dock.js" defer></script>
+</body>
+</html>

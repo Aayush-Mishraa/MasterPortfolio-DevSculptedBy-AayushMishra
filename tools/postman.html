@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Postman API Testing · Automation Arsenal · Aayush Mishra</title>
+  <meta name="description" content="How I use Postman for API contract testing: collections, environments, pm.test assertions, and Newman quality gates in CI. Includes an interactive assertion lab." />
+  <meta property="og:title" content="Postman API Testing · Automation Arsenal" />
+  <meta property="og:description" content="Collections, contract assertions and Newman in CI, with an interactive assertion lab." />
+  <meta property="og:image" content="/tool-logos/postman.svg" />
+  <link rel="icon" href="/tool-logos/postman.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tools/field-guide.css" />
+  <style>
+    :root { --accent: #ff6c37; --accent-2: #ffb86b; }
+
+    .lab { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+    .faults { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .fault {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px;
+      border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface);
+      color: var(--ink-soft); font: 600 13.5px/1 var(--display); cursor: pointer;
+      transition: border-color .2s ease, background .2s ease, color .2s ease;
+    }
+    .fault:hover { border-color: var(--accent); color: var(--ink); }
+    .fault[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+    .fault i { width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--ok)); }
+    .faults-label { width: 100%; margin: 0 0 2px; font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+    .pane { border: 1px solid var(--line); border-radius: 16px; background: rgba(0,0,0,.25); overflow: hidden; }
+    .pane-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); font: 500 13px/1 var(--mono); color: var(--muted); }
+    .method { padding: 4px 8px; border-radius: 6px; background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); font-weight: 700; }
+    .url { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .url b { color: var(--accent); font-weight: 500; }
+    .send { margin-left: auto; padding: 8px 14px; border: 0; border-radius: 9px; background: var(--accent); color: #1a0a03; font: 700 13px/1 var(--display); cursor: pointer; }
+    .send:disabled { opacity: .55; cursor: progress; }
+    .meta { display: flex; gap: 16px; padding: 12px 14px; border-bottom: 1px solid var(--line); font: 500 12.5px/1 var(--mono); color: var(--muted); flex-wrap: wrap; }
+    .meta b { color: var(--ink); font-weight: 500; }
+    .meta .st-ok { color: var(--ok); }
+    .meta .st-bad { color: var(--bad); }
+    .meta .st-warn { color: var(--warn); }
+    .body { margin: 0; padding: 14px 16px; min-height: 190px; font: 400 13px/1.7 var(--mono); color: #e2e8f0; white-space: pre-wrap; word-break: break-word; transition: opacity .25s ease; }
+    .body.is-loading { opacity: .3; }
+
+    .results { display: flex; flex-direction: column; }
+    .summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font: 500 13px/1 var(--mono); }
+    .bar { flex: 1; height: 6px; border-radius: 6px; background: rgba(255,255,255,.08); overflow: hidden; display: flex; }
+    .bar span { height: 100%; transition: width .4s var(--ease); }
+    .bar .p { background: var(--ok); }
+    .bar .f { background: var(--bad); }
+    .tests { list-style: none; margin: 0; padding: 6px; }
+    .test { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 10px; border-radius: 10px; font-size: 14px; transition: background .25s ease; }
+    .test .ic { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; font: 700 11px/1 var(--mono); background: rgba(255,255,255,.06); color: var(--muted); }
+    .test.pass .ic { background: color-mix(in srgb, var(--ok) 20%, transparent); color: var(--ok); }
+    .test.fail { background: color-mix(in srgb, var(--bad) 8%, transparent); }
+    .test.fail .ic { background: color-mix(in srgb, var(--bad) 22%, transparent); color: var(--bad); }
+    .test.running .ic { animation: spin 0.8s linear infinite; }
+    .test code { font: 500 12.5px/1.2 var(--mono); color: var(--ink-soft); }
+    .test small { display: block; margin-top: 4px; font: 400 12px/1.5 var(--mono); color: #fca5a5; }
+    .verdict { margin: auto 6px 6px; padding: 12px 14px; border-radius: 12px; font-size: 14px; background: var(--surface); color: var(--ink-soft); }
+    .verdict b { color: var(--ink); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) { .lab { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="fg-backdrop" aria-hidden="true"><span class="fg-orb fg-orb--a"></span><span class="fg-orb fg-orb--b"></span></div>
+
+  <div class="fg-wrap">
+    <header class="fg-top">
+      <a class="fg-back" href="/automation-arsenal#tool-postman">← Automation Arsenal</a>
+      <div class="fg-top-meta">
+        <span class="fg-pill">Field notes</span>
+        <span class="fg-pill fg-pill--accent"><i></i>Stage 03 · Verify APIs</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="fg-hero">
+        <div data-reveal>
+          <img class="fg-logo" src="/tool-logos/postman.svg" alt="" />
+          <span class="fg-kicker">Case study · API testing</span>
+          <h1>Postman<span>contract lab</span></h1>
+          <p class="fg-lede">
+            The UI is only as stable as the APIs underneath it. I use Postman to pin down every critical
+            contract (status, shape, speed and auth) and run those checks as a gate in CI, so a broken API fails
+            the build before a UI test has to find it.
+          </p>
+          <div class="fg-actions">
+            <a class="fg-btn fg-btn--primary" href="#lab">Break the API ↓</a>
+            <a class="fg-btn" href="https://learning.postman.com/docs/tests-and-scripts/write-scripts/test-scripts/" target="_blank" rel="noopener noreferrer">Official docs ↗</a>
+          </div>
+        </div>
+        <dl class="fg-facts" data-reveal>
+          <div class="fg-fact"><dt>What it is</dt><dd>API client and test platform</dd></div>
+          <div class="fg-fact"><dt>Test language</dt><dd>JavaScript: <code>pm.*</code> with Chai</dd></div>
+          <div class="fg-fact"><dt>Runs in CI via</dt><dd>Newman or the Postman CLI</dd></div>
+          <div class="fg-fact"><dt>Best for</dt><dd>Contracts, smoke checks and shared API docs</dd></div>
+        </dl>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">How it works</span>
+          <h2>From a request to a quality gate</h2>
+          <p>Four layers turn one-off API calls into a regression suite the whole team can run.</p>
+        </header>
+        <div class="fg-steps" data-reveal>
+          <article class="fg-step"><span class="fg-step-num">1</span><h3>Collections</h3><p>Requests grouped by feature, so the suite reads like the API's own map.</p></article>
+          <article class="fg-step"><span class="fg-step-num">2</span><h3>Environments</h3><p><code>{{baseUrl}}</code>, tokens and IDs swap per environment, so one suite covers dev, staging and prod.</p></article>
+          <article class="fg-step"><span class="fg-step-num">3</span><h3>Test scripts</h3><p><code>pm.test</code> assertions on status, schema, timing and headers, and they chain values into the next call.</p></article>
+          <article class="fg-step"><span class="fg-step-num">4</span><h3>CI gate</h3><p>Newman runs the collection on every pull request and publishes a report. A red run blocks the merge.</p></article>
+        </div>
+      </section>
+
+      <section class="fg-section" id="lab">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">Interactive · assertion lab</span>
+          <h2>Break the API. Watch the tests catch it.</h2>
+          <p>Pick a failure, send the request, and see which assertion stops it. Each of these is a bug I'd want caught before a UI test ever runs.</p>
+        </header>
+
+        <div class="fg-demo" data-reveal>
+          <div class="fg-demo-bar"><strong>users-api · contract suite</strong><span class="fg-sim">Simulated responses</span></div>
+          <div class="fg-demo-body">
+            <div class="faults" role="group" aria-label="Choose an API behaviour">
+              <p class="faults-label">Inject a fault</p>
+              <button class="fault" data-fault="healthy" aria-pressed="true"><i></i>Healthy</button>
+              <button class="fault" data-fault="server" aria-pressed="false" style="--dot: var(--bad)"><i></i>500 error</button>
+              <button class="fault" data-fault="slow" aria-pressed="false" style="--dot: var(--warn)"><i></i>Slow response</button>
+              <button class="fault" data-fault="contract" aria-pressed="false" style="--dot: var(--bad)"><i></i>Renamed field</button>
+              <button class="fault" data-fault="auth" aria-pressed="false" style="--dot: var(--bad)"><i></i>Expired token</button>
+            </div>
+
+            <div class="lab">
+              <div class="pane">
+                <div class="pane-head">
+                  <span class="method">GET</span>
+                  <span class="url"><b>{{baseUrl}}</b>/users/42</span>
+                  <button class="send" id="send">Send</button>
+                </div>
+                <div class="meta" id="meta" aria-live="polite"></div>
+                <pre class="body" id="body"></pre>
+              </div>
+
+              <div class="pane results">
+                <div class="summary">
+                  <span id="score">0 / 6</span>
+                  <span class="bar" aria-hidden="true"><span class="p" id="barPass" style="width:0"></span><span class="f" id="barFail" style="width:0"></span></span>
+                </div>
+                <ol class="tests" id="tests" aria-live="polite"></ol>
+                <p class="verdict" id="verdict">Press <b>Send</b> to run the suite.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">The code</span>
+          <h2>What sits behind those checks</h2>
+          <p>Post-response scripts for the assertions, a schema to lock the contract, and one CI step to enforce it.</p>
+        </header>
+        <div class="fg-code" data-tabs data-reveal>
+          <div class="fg-tabs" role="tablist" aria-label="Code samples">
+            <button class="fg-tab" role="tab">tests.js</button>
+            <button class="fg-tab" role="tab">schema.js</button>
+            <button class="fg-tab" role="tab">api-tests.yml</button>
+            <button class="fg-copy" type="button">Copy</button>
+          </div>
+          <figure class="fg-panel" role="tabpanel" style="margin:0">
+<pre><code data-lang="js">
+// Post-response script on GET /users/:id
+pm.test("status is 200", () => {
+  pm.response.to.have.status(200);
+});
+
+pm.test("responds in under 800 ms", () => {
+  pm.expect(pm.response.responseTime).to.be.below(800);
+});
+
+pm.test("content-type is JSON", () => {
+  pm.response.to.have.header("Content-Type", /application\/json/);
+});
+
+pm.test("user matches the contract", () => {
+  const user = pm.response.json();
+  pm.expect(user).to.have.all.keys("id", "name", "email", "role");
+  pm.expect(user.email).to.match(/^[^@\s]+@[^@\s]+$/);
+});
+
+// Chain: hand the id to the next request in the collection
+pm.collectionVariables.set("userId", pm.response.json().id);
+</code></pre>
+            <figcaption>Small, named assertions: when one fails, the report tells you exactly what broke.</figcaption>
+          </figure>
+          <figure class="fg-panel" role="tabpanel" style="margin:0" hidden>
+<pre><code data-lang="js">
+// Lock the response shape: extra or missing fields fail the run
+const userSchema = {
+  type: "object",
+  required: ["id", "name", "email", "role"],
+  additionalProperties: false,
+  properties: {
+    id: { type: "integer" },
+    name: { type: "string", minLength: 1 },
+    email: { type: "string", format: "email" },
+    role: { enum: ["admin", "editor", "viewer"] },
+  },
+};
+
+pm.test("response matches the user schema", () => {
+  pm.response.to.have.jsonSchema(userSchema);
+});
+</code></pre>
+            <figcaption>A schema catches the "renamed field" class of bug in one place, not in every UI test that reads it.</figcaption>
+          </figure>
+          <figure class="fg-panel" role="tabpanel" style="margin:0" hidden>
+<pre><code data-lang="yaml">
+# .github/workflows/api-tests.yml: runs on every pull request
+name: API contract tests
+on: [pull_request]
+
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install -g newman newman-reporter-htmlextra
+      - run: |
+          newman run collections/users.postman_collection.json \
+            -e environments/staging.postman_environment.json \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export reports/api.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-report
+          path: reports/api.html
+</code></pre>
+            <figcaption>Newman exits non-zero on any failed assertion, which turns the check red and blocks the merge.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">Where it fits</span>
+          <h2>Stage 03 of my quality pipeline</h2>
+          <p>API checks run before the slower UI suites. A contract failure is cheaper to find here.</p>
+        </header>
+        <nav class="fg-fit" aria-label="Quality pipeline" data-reveal>
+          <a class="fg-fit-stage" href="/tools/kane-ai.html"><span>01</span><b>Author</b><small>Kane AI · Nova Act</small></a>
+          <a class="fg-fit-stage" href="/tools/playwright.html"><span>02</span><b>Execute</b><small>Playwright · Selenium · TestNG</small></a>
+          <a class="fg-fit-stage is-here" href="#lab" aria-current="page"><span>03</span><b>Verify APIs</b><small>Postman · Newman</small></a>
+          <a class="fg-fit-stage" href="/tools/github-actions.html"><span>04</span><b>Ship</b><small>GitHub Actions</small></a>
+          <a class="fg-fit-stage" href="/tools/Engineering-OS-Architecture-Interactive.html"><span>05</span><b>Orchestrate</b><small>AgentOps · NeuralForge</small></a>
+        </nav>
+      </section>
+
+      <section class="fg-section">
+        <header class="fg-section-head" data-reveal>
+          <span class="fg-kicker">Trade-offs</span>
+          <h2>Where it shines, and where I reach for something else</h2>
+        </header>
+        <div class="fg-tradeoffs" data-reveal>
+          <div class="fg-list fg-list--pro">
+            <h3>Strengths</h3>
+            <ul>
+              <li><b>Fast feedback.</b> Contract checks run in seconds, long before a browser starts.</li>
+              <li><b>Living documentation.</b> The collection doubles as up-to-date API docs for devs and PMs.</li>
+              <li><b>Mock servers</b> let UI work and UI tests continue while a service is still being built.</li>
+              <li><b>Easy to gate.</b> One Newman step turns the suite into a merge blocker.</li>
+            </ul>
+          </div>
+          <div class="fg-list fg-list--con">
+            <h3>Watch-outs</h3>
+            <ul>
+              <li><b>Exported JSON diffs poorly</b> in code review. I keep collections small and focused per feature.</li>
+              <li><b>Script sprawl.</b> Heavy logic in scripts is hard to maintain, so complex flows move to code (REST Assured, or Playwright's request API).</li>
+              <li><b>Not a load tool.</b> Performance budgets here are smoke-level; real load testing needs a dedicated tool.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="fg-verdict" data-reveal>
+        <div>
+          <span class="fg-kicker">My rule of thumb</span>
+          <h2>Test the contract where it lives.</h2>
+          <p>If a bug can be caught at the API layer, catching it in a UI test is slower, flakier and harder to debug.</p>
+          <div class="fg-actions">
+            <a class="fg-btn fg-btn--primary" href="/tools/github-actions.html">Next: the CI gate →</a>
+            <a class="fg-btn" href="/automation-arsenal#tool-postman">Back to the arsenal</a>
+          </div>
+        </div>
+        <ul class="fg-checks">
+          <li>Every critical endpoint has status, schema, timing and auth checks.</li>
+          <li>Environments keep secrets out of the collection file.</li>
+          <li>The suite runs on every pull request and blocks the merge when red.</li>
+          <li>Heavy logic lives in code, not in giant test scripts.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script src="/tools/field-guide.js"></script>
+  <script>
+    (function () {
+      var USER = { id: 42, name: "Ada Lovelace", email: "ada@example.com", role: "editor" };
+      var SCENARIOS = {
+        healthy: { status: 200, time: 184, type: "application/json", body: USER },
+        server: { status: 500, time: 96, type: "application/json", body: { error: "Internal Server Error", traceId: "7f3c9a" } },
+        slow: { status: 200, time: 1240, type: "application/json", body: USER },
+        contract: { status: 200, time: 171, type: "application/json", body: { id: 42, name: "Ada Lovelace", mail: "ada@example.com", role: "editor" } },
+        auth: { status: 401, time: 58, type: "application/json", body: { error: "token expired" } },
+      };
+      var KEYS = ["email", "id", "name", "role"];
+
+      var TESTS = [
+        { name: "status is 200", run: function (r) { return r.status === 200 ? null : "expected response to have status code 200 but got " + r.status; } },
+        { name: "responds in under 800 ms", run: function (r) { return r.time < 800 ? null : "expected " + r.time + " to be below 800"; } },
+        { name: "content-type is JSON", run: function (r) { return /json/.test(r.type) ? null : "expected header Content-Type to match /application\\/json/"; } },
+        { name: "user matches the contract", run: function (r) {
+          var keys = Object.keys(r.body).sort();
+          return keys.join() === KEYS.join() ? null : "expected { " + keys.join(", ") + " } to have all keys 'id', 'name', 'email', 'role'";
+        } },
+        { name: "email is valid", run: function (r) { return /^[^@\s]+@[^@\s]+$/.test(r.body.email || "") ? null : "expected undefined to match /^[^@\\s]+@[^@\\s]+$/"; } },
+        { name: "auth token accepted", run: function (r) { return r.status !== 401 ? null : "expected 401 Unauthorized: refresh the token in the environment"; } },
+      ];
+
+      var VERDICTS = {
+        healthy: "<b>All green.</b> The contract holds, so the UI suites can run on a solid base.",
+        server: "<b>Caught at the source.</b> Without this check, every UI test touching users would fail with a vague timeout.",
+        slow: "<b>Only the budget failed.</b> The data is right but the endpoint regressed, which is a performance bug a UI test would hide.",
+        contract: "<b>The classic silent break.</b> <code>email</code> was renamed to <code>mail</code>. Status is still 200, so only a contract check notices.",
+        auth: "<b>Environment problem, not a product bug.</b> The token expired, and a named test says exactly that, so nobody has to decode a wall of red.",
+      };
+
+      var fault = "healthy";
+      var busy = false;
+      var $ = function (id) { return document.getElementById(id); };
+
+      var statusClass = function (r) {
+        if (r.status >= 400) return "st-bad";
+        return r.time >= 800 ? "st-warn" : "st-ok";
+      };
+
+      var renderResponse = function (r) {
+        $("meta").innerHTML =
+          'Status <b class="' + (r.status >= 400 ? "st-bad" : "st-ok") + '">' + r.status + "</b>" +
+          'Time <b class="' + statusClass(r) + '">' + r.time + " ms</b>" +
+          "Type <b>" + r.type + "</b>";
+        $("body").innerHTML = FG.highlight(JSON.stringify(r.body, null, 2), "js");
+      };
+
+      var renderTests = function (states) {
+        $("tests").innerHTML = TESTS.map(function (test, i) {
+          var s = states[i] || { state: "idle" };
+          var icon = s.state === "pass" ? "✓" : s.state === "fail" ? "✕" : s.state === "running" ? "◌" : "·";
+          return '<li class="test ' + s.state + '"><span class="ic">' + icon + '</span><div><code>pm.test("' + test.name + '")</code>' +
+            (s.error ? "<small>AssertionError: " + FG.escape(s.error) + "</small>" : "") + "</div></li>";
+        }).join("");
+        var pass = states.filter(function (s) { return s && s.state === "pass"; }).length;
+        var fail = states.filter(function (s) { return s && s.state === "fail"; }).length;
+        $("score").textContent = pass + " / " + TESTS.length + " passed";
+        $("barPass").style.width = (pass / TESTS.length) * 100 + "%";
+        $("barFail").style.width = (fail / TESTS.length) * 100 + "%";
+      };
+
+      var run = async function () {
+        if (busy) return;
+        busy = true;
+        $("send").disabled = true;
+        $("send").textContent = "Sending…";
+        $("verdict").innerHTML = "Running the suite…";
+        $("body").classList.add("is-loading");
+        var r = SCENARIOS[fault];
+        await FG.sleep(Math.min(r.time, 700));
+        $("body").classList.remove("is-loading");
+        renderResponse(r);
+        var states = [];
+        for (var i = 0; i < TESTS.length; i += 1) {
+          states[i] = { state: "running" };
+          renderTests(states);
+          await FG.sleep(220);
+          var error = TESTS[i].run(r);
+          states[i] = error ? { state: "fail", error: error } : { state: "pass" };
+          renderTests(states);
+        }
+        $("verdict").innerHTML = VERDICTS[fault];
+        $("send").disabled = false;
+        $("send").textContent = "Send";
+        busy = false;
+      };
+
+      document.querySelectorAll(".fault").forEach(function (button) {
+        button.addEventListener("click", function () {
+          if (busy) return;
+          fault = button.getAttribute("data-fault");
+          document.querySelectorAll(".fault").forEach(function (b) { b.setAttribute("aria-pressed", b === button ? "true" : "false"); });
+          run();
+        });
+      });
+      $("send").addEventListener("click", run);
+
+      renderResponse(SCENARIOS.healthy);
+      renderTests([]);
+
+      // First run starts on its own once the lab scrolls into view.
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(function (entries) {
+          if (entries[0].isIntersecting) { io.disconnect(); run(); }
+        }, { threshold: 0.4 });
+        io.observe($("lab"));
+      }
+    })();
+  </script>
+  <script src="/tools/arsenal-dock.js" defer></script>
+</body>
+</html>

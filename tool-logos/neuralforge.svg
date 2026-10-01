@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" role="img" aria-label="NeuralForge logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#042f2e"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="nf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="100%" stop-color="#14b8a6"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="56" fill="url(#bg)"/>
+  <!-- A neural hexagon forged around a bright core -->
+  <g stroke="#5eead4" stroke-opacity="0.45" stroke-width="6" fill="none">
+    <path d="M160 72 L236 116 L236 204 L160 248 L84 204 L84 116 Z"/>
+    <path d="M160 72 L160 160 M236 116 L160 160 M236 204 L160 160 M160 248 L160 160 M84 204 L160 160 M84 116 L160 160"/>
+  </g>
+  <g fill="url(#nf)">
+    <circle cx="160" cy="72" r="15"/>
+    <circle cx="236" cy="116" r="15"/>
+    <circle cx="236" cy="204" r="15"/>
+    <circle cx="160" cy="248" r="15"/>
+    <circle cx="84" cy="204" r="15"/>
+    <circle cx="84" cy="116" r="15"/>
+  </g>
+  <circle cx="160" cy="160" r="30" fill="#f0fdfa"/>
+  <path d="M166 138 L148 164 H162 L154 184 L174 156 H160 Z" fill="#0d9488"/>
+</svg>

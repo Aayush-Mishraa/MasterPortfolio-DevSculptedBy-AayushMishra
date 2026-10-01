@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Agent Architecture">
+  <rect rx="18" ry="18" width="120" height="120" fill="#eef6fb"/>
+  <g transform="translate(20,20)">
+    <circle cx="40" cy="20" r="10" fill="#3b5ac7" />
+    <rect x="8" y="48" width="64" height="16" rx="4" fill="#3b5ac7" />
+    <path d="M40 30 L40 48" stroke="#2b47a6" stroke-width="3" stroke-linecap="round" />
+    <circle cx="8" cy="56" r="4" fill="#67b3ff" />
+    <circle cx="72" cy="56" r="4" fill="#67b3ff" />
+    <text x="8" y="-2" font-size="8" fill="#0b2545">Agent</text>
+    <text x="8" y="82" font-size="8" fill="#0b2545">MCP</text>
+  </g>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" role="img" aria-label="Playwright logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="pw" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7ed957"/>
+      <stop offset="100%" stop-color="#2ead33"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="320" rx="56" fill="url(#bg)"/>
+  <path d="M98 98c36-26 88-16 111 23 22 37 10 86-27 109-37 23-87 11-110-26-22-36-11-83 26-106z" fill="url(#pw)"/>
+  <circle cx="132" cy="154" r="14" fill="#0f172a"/>
+  <circle cx="186" cy="132" r="12" fill="#0f172a"/>
+</svg>
