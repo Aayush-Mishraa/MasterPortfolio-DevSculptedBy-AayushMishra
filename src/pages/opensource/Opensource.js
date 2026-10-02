@@ -15,7 +15,7 @@ import {
   mergeRepos,
   timeAgo,
 } from "../../services/github/githubData";
-import { prefersReducedMotion, themeVars, useCountUp, useDocumentTitle, useInView, useNow } from "../projects/lib/ui";
+import { prefersReducedMotion, themeVars, useCountUp, useInView, useNow } from "../projects/lib/ui";
 import Skyline from "./components/Skyline";
 import TechPulse from "./components/TechPulse";
 import { PullRequestLedger, Terminal, describeEvent, normalizeLegacyPR, normalizeSearchPR } from "./components/Transmission";
@@ -241,7 +241,6 @@ export default function Opensource({ theme }) {
   const [pulseRef, pulseIn] = useInView({ threshold: 0.01, rootMargin: "0px 0px 300px 0px" });
   const [briefRef, briefIn] = useInView({ threshold: 0.2 });
 
-  useDocumentTitle("Open Source · Aayush Mishra: building in public");
 
   // Scroll-spy for the section rail.
   useEffect(() => {

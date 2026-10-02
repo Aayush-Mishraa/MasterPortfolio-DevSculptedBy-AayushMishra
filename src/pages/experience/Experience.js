@@ -941,7 +941,7 @@ const Experience = ({ theme }) => {
               </div>
               <p className="xp-note">
                 Every tool and practice mentioned across my roles, plotted against the years those roles were active.
-                Hover a cell to see which roles it came from.
+                <span className="xp-hint-pointer"> Hover a cell to see which roles it came from.</span>
               </p>
             </div>
             <StackHeatmap />

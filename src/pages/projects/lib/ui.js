@@ -36,6 +36,28 @@ const luminance = (hex) => {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
 
+const contrast = (a, b) => {
+  const x = luminance(a);
+  const y = luminance(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+};
+
+/**
+ * `color` nudged toward the ink (or toward black/white when even the ink is
+ * faint) until it reads as small text on `bg`: WCAG AA, 4.5:1.
+ */
+const legible = (color, bg, ink) => {
+  // fall back to whichever of white/black contrasts more (on a mid-tone
+  // background white alone can't reach 4.5:1)
+  const toward =
+    contrast(ink, bg) >= 4.5 ? ink : contrast("#ffffff", bg) >= contrast("#000000", bg) ? "#ffffff" : "#000000";
+  for (let t = 0; t <= 1.001; t += 0.05) {
+    const candidate = mix(color, toward, t);
+    if (contrast(candidate, bg) >= 4.5) return candidate;
+  }
+  return toward;
+};
+
 /**
  * Every theme in the portfolio is a handful of hex colors. The projects pages
  * derive a full surface system from them so all 20+ themes stay coherent.
@@ -48,6 +70,9 @@ export const themeVars = (theme = {}) => {
   const accent2 = theme.jacketColor || ink;
   const white = "#ffffff";
   const black = "#000000";
+  // the theme's muted colour, nudged toward the ink when it can't be read as small text
+  const mutedCheck = theme.secondaryText || mix(bg, ink, 0.6);
+  const muted = contrast(mutedCheck, bg) >= 4.5 ? theme.secondaryText || rgba(ink, 0.6) : legible(mutedCheck, bg, ink);
 
   return {
     dark,
@@ -55,9 +80,11 @@ export const themeVars = (theme = {}) => {
       "--pj-bg": bg,
       "--pj-bg-deep": dark ? mix(bg, black, 0.25) : mix(bg, ink, 0.035),
       "--pj-ink": ink,
-      "--pj-ink-soft": rgba(ink, 0.78),
-      "--pj-muted": theme.secondaryText || rgba(ink, 0.6),
+      "--pj-ink-soft": rgba(ink, dark ? 0.86 : 0.78),
+      "--pj-muted": muted,
       "--pj-accent": accent,
+      /* accent for small text (kickers, commit ids, links); --pj-accent stays for fills and icons */
+      "--pj-accent-ink": legible(accent, bg, ink),
       "--pj-accent-2": accent2,
       "--pj-accent-soft": rgba(accent, dark ? 0.2 : 0.12),
       "--pj-accent-glow": rgba(accent, 0.45),
@@ -111,6 +138,50 @@ export const useInView = (options = { threshold: 0.15, rootMargin: "0px 0px -8% 
   }, [node, inView]);
 
   return [ref, inView];
+};
+
+/**
+ * True while the element is on screen, and false again once it leaves: for
+ * pausing decorative loops nobody can see. Starts true so nothing is paused
+ * before the observer's first callback.
+ */
+export const useOnScreen = (margin = "120px") => {
+  const [node, ref] = useState(null);
+  const [onScreen, setOnScreen] = useState(true);
+
+  useEffect(() => {
+    if (!node || !("IntersectionObserver" in window)) return undefined;
+    const observer = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), { rootMargin: margin });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [node, margin]);
+
+  return [ref, onScreen];
+};
+
+/**
+ * Puts `className` on the element while it's scrolled out of view, straight on
+ * the DOM: for page-level sections, so crossing the viewport pauses their
+ * decorations without re-rendering the whole page. Leave `className` out of
+ * the element's JSX className (React only rewrites it when that prop changes).
+ */
+export const useOffScreenClass = (className = "is-off", margin = "120px") => {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || !("IntersectionObserver" in window)) return undefined;
+    const observer = new IntersectionObserver(([entry]) => node.classList.toggle(className, !entry.isIntersecting), {
+      rootMargin: margin,
+    });
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      node.classList.remove(className);
+    };
+  }, [className, margin]);
+
+  return ref;
 };
 
 /** Eased count-up that starts when `start` flips true and re-runs when `target` changes. */

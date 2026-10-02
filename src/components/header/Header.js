@@ -63,7 +63,7 @@ class Header extends Component {
   };
 
   linksRef = createRef();
-  barRef = createRef();
+  progressRef = createRef();
   headerRef = createRef();
 
   closeMobileMenu = () => {
@@ -128,11 +128,13 @@ class Header extends Component {
       this.setState({ isScrolled });
     }
 
-    const bar = this.barRef.current;
-    if (bar) {
+    // Set on the progress line itself: custom properties inherit, so setting it on the
+    // whole bar restyled every element in the header on every scroll frame.
+    const line = this.progressRef.current;
+    if (line) {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const progress = max > 0 ? Math.min(y / max, 1) : 0;
-      bar.style.setProperty("--hud-progress", progress.toFixed(4));
+      line.style.setProperty("--hud-progress", progress.toFixed(4));
     }
   }
 
@@ -311,8 +313,8 @@ class Header extends Component {
           className={`header hud${isScrolled ? " is-scrolled" : ""}`}
           style={themeVars}
         >
-          <div className="hud-bar" ref={this.barRef}>
-            <span className="hud-progress" aria-hidden="true"></span>
+          <div className="hud-bar">
+            <span className="hud-progress" ref={this.progressRef} aria-hidden="true"></span>
 
             <NavLink to="/splash" className="logo" aria-label="Aayush Mishra, replay intro" onClick={this.replayIntro}>
               <span className="logo-bracket">&lt;</span>

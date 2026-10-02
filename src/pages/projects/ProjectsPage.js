@@ -22,7 +22,8 @@ import { onRateLimitChange, rateLimit as initialRateLimit } from "../../services
 import { AreaChart, BarList, Donut, Heatmap, PunchCard, Radar } from "./components/Charts";
 import RepoCard from "./components/RepoCard";
 import SyncPill from "./components/SyncPill";
-import { themeVars, useCountUp, useDocumentTitle, useInView, useNow } from "./lib/ui";
+import { themeVars, useCountUp, useInView, useNow, useOffScreenClass } from "./lib/ui";
+import useReloadScroll from "./lib/useReloadScroll";
 import "./ProjectsPage.css";
 
 const REFRESH_MS = 3 * 60 * 1000;
@@ -217,12 +218,14 @@ export default function ProjectsPage({ theme }) {
   const [filters, setFilters] = useState(() => readQuery(location.search));
   const [copied, setCopied] = useState(false);
   const searchRef = useRef(null);
+  // pauses the hero's decorations while it's scrolled away, without
+  // re-rendering this whole page each time it crosses the viewport
+  const heroRef = useOffScreenClass();
   const [kpiRef, kpiIn] = useInView();
   const [featRef, featIn] = useInView();
   const [telRef, telIn] = useInView({ threshold: 0.05 });
   const [briefRef, briefIn] = useInView();
 
-  useDocumentTitle("Projects · Aayush Mishra — SDET & Automation Engineer");
 
   // Keep filters shareable through the URL.
   useEffect(() => {
@@ -296,6 +299,8 @@ export default function ProjectsPage({ theme }) {
   const monthly = stats.monthly.slice(-12);
   const days = contributionData?.contributions || [];
   const loading = !repos.length;
+  // A refresh returns to the old position once the repositories have rendered
+  useReloadScroll(!loading && !["loading", "syncing"].includes(status.state));
 
   const peakHour = useMemo(() => {
     const hours = new Array(24).fill(0);
@@ -338,7 +343,7 @@ export default function ProjectsPage({ theme }) {
 
       <main className="pj-main">
         {/* ------------------------------- HERO ------------------------------- */}
-        <section className="pj-hero">
+        <section className="pj-hero" ref={heroRef}>
           <div className="pj-hero-copy">
             <SyncPill status={status} limit={limit} onRefresh={refresh} now={now} />
             <span className="pj-kicker pj-kicker--hero">Projects · Live engineering log</span>

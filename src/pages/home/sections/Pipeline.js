@@ -230,17 +230,28 @@ export default function Pipeline() {
             aria-labelledby={`hm-tab-${current.id}`}
             ref={panelRef}
           >
-            <div className="hm-run__copy">
-              <span className="hm-run__index hm-mono">
-                <i className={current.icon} aria-hidden="true" /> Stage {current.index}
-              </span>
-              <h3>{current.label}</h3>
-              <p>{current.summary}</p>
-              <div className="hm-run__tools">
-                {current.tools.map((tool) => (
-                  <ToolCard tool={tool} key={tool.id} />
-                ))}
-              </div>
+            {/* Every stage sits in the same grid cell and only the current one is
+                shown, so the panel always has the tallest stage's height and
+                switching stages doesn't move the page below it */}
+            <div className="hm-run__stack">
+              {PIPELINE.map((item) => (
+                <div
+                  className={`hm-run__copy${item.id === current.id ? "" : " hm-run__sizer"}`}
+                  aria-hidden={item.id === current.id ? undefined : true}
+                  key={item.id}
+                >
+                  <span className="hm-run__index hm-mono">
+                    <i className={item.icon} aria-hidden="true" /> Stage {item.index}
+                  </span>
+                  <h3>{item.label}</h3>
+                  <p>{item.summary}</p>
+                  <div className="hm-run__tools">
+                    {item.tools.map((tool) => (
+                      <ToolCard tool={tool} key={tool.id} />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="hm-card hm-term">
@@ -257,7 +268,17 @@ export default function Pipeline() {
                   </span>
                 )}
               </div>
-              <Terminal stage={current} animate={!reduced && mode !== "idle"} key={`${current.id}-${runId}`} />
+              <div className="hm-run__stack">
+                {PIPELINE.map((item) =>
+                  item.id === current.id ? (
+                    <Terminal stage={current} animate={!reduced && mode !== "idle"} key={`${current.id}-${runId}`} />
+                  ) : (
+                    <div className="hm-run__sizer" aria-hidden="true" key={`sizer-${item.id}`}>
+                      <Terminal stage={item} animate={false} />
+                    </div>
+                  )
+                )}
+              </div>
             </div>
           </div>
 

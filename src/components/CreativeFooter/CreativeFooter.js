@@ -235,16 +235,26 @@ function BackToTop() {
   const ref = useRef(null);
   useEffect(() => {
     let frame = null;
+    let near = true;
     const update = () => {
       frame = null;
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const progress = max > 0 ? Math.min(window.scrollY / max, 1) : 0;
       if (ref.current) ref.current.style.setProperty("--progress", progress);
     };
-    const onScroll = () => { if (frame === null) frame = requestAnimationFrame(update); };
+    // The ring only shows at the bottom of the page, so skip the per-frame layout read and repaint elsewhere
+    const onScroll = () => { if (near && frame === null) frame = requestAnimationFrame(update); };
+    const observer = "IntersectionObserver" in window && ref.current
+      ? new IntersectionObserver(([entry]) => { near = entry.isIntersecting; if (near) update(); }, { rootMargin: "200px 0px" })
+      : null;
+    if (observer) observer.observe(ref.current);
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); if (frame !== null) cancelAnimationFrame(frame); };
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (observer) observer.disconnect();
+      if (frame !== null) cancelAnimationFrame(frame);
+    };
   }, []);
   return (
     <button ref={ref} className="back-to-top" type="button" aria-label="Back to top" onClick={scrollToTop}>

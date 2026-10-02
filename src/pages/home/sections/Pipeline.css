@@ -206,6 +206,21 @@ body.dark-theme .hm-pipeline {
   border-top: 1px dashed var(--hm-line-strong);
 }
 
+/* All stages share one grid cell; hidden ones only lend their height */
+.hm-run__stack {
+  display: grid;
+  min-width: 0;
+}
+
+.hm-run__stack > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.hm-run__sizer {
+  visibility: hidden;
+}
+
 .hm-run__index {
   display: inline-flex;
   align-items: center;

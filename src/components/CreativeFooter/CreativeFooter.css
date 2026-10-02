@@ -665,7 +665,9 @@ body.dark-theme .creative-footer {
 }
 
 .quiet-links button {
-  padding: 0;
+  /* 27px-tall tap target; the negative margin keeps the row's layout unchanged */
+  padding: 6px 3px;
+  margin: -6px -3px;
   border: 0;
   background: none;
   color: var(--f-muted);

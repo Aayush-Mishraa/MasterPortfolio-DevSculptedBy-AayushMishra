@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import Header from "../../components/header/Header";
 import CreativeFooter from "../../components/CreativeFooter/CreativeFooter";
 import TopButton from "../../components/topButton/TopButton";
@@ -26,6 +27,7 @@ import { AreaChart, BarList, Donut, PunchCard } from "./components/Charts";
 import RepoCard, { LanguageBar } from "./components/RepoCard";
 import SyncPill from "./components/SyncPill";
 import { prefersReducedMotion, themeVars, useCountUp, useDocumentTitle, useInView, useNow } from "./lib/ui";
+import useReloadScroll from "./lib/useReloadScroll";
 import "./ProjectsPage.css";
 import "./ProjectDetail.css";
 
@@ -437,9 +439,10 @@ export default function ProjectDetail({ theme }) {
 
   useDocumentTitle(`${model?.repo.title || name} · Projects · Aayush Mishra`);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [name]);
+  // No scroll-to-top here: ScrollToTop (Main.js) already starts each new
+  // project at the top. A refresh returns to the old position once the
+  // repository data (or the snapshot fallback) has rendered.
+  useReloadScroll(Boolean(model) && !["loading", "syncing"].includes(status.state));
 
   // Honour #commits deep links once the timeline exists.
   useEffect(() => {
@@ -478,6 +481,11 @@ export default function ProjectDetail({ theme }) {
     return (
       <div className={`pj-root ${dark ? "pj-dark" : ""}`} style={style}>
         <Header theme={theme} />
+        {/* a soft 404: keep search engines from indexing /projects/<anything> */}
+        <Helmet>
+          <title>Repository not found · Aayush Mishra</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
         <main className="pj-main pd-missing">
           <span className="pj-kicker">404 — repository not found</span>
           <h1 className="pj-hero-title">“{name}” isn't on GitHub.</h1>
@@ -514,7 +522,8 @@ export default function ProjectDetail({ theme }) {
         </nav>
 
         {/* ------------------------------- HERO ------------------------------- */}
-        <section className="pd-hero">
+        {/* is-loading reserves the hero's usual height, so the stats below don't jump when the data arrives */}
+        <section className={`pd-hero${loading ? " is-loading" : ""}`}>
           <div className="pd-hero-top pj-reveal" style={{ "--d": "0ms" }}>
             {category && (
               <span className="pj-chip pj-chip--category">

@@ -8,8 +8,9 @@ import {
   prefersReducedMotion,
   themeVars,
   useCountUp,
-  useDocumentTitle,
   useInView,
+  useOffScreenClass,
+  useOnScreen,
 } from "../projects/lib/ui";
 import { DEPTHS, GRID_ORDER, PROOFS, SCENARIOS, STAGES, automationTools, toolById } from "./arsenalData";
 import "./AutomationArsenal.css";
@@ -359,8 +360,11 @@ const Pipeline = ({ onShowStage }) => {
 /* Arsenal grid                                                        */
 /* ------------------------------------------------------------------ */
 
-const SystemGlyph = () => (
-  <svg className="aa-glyph" viewBox="0 0 160 120" aria-hidden="true">
+// The dashes and the hub pulse repaint the SVG every frame: paused off-screen
+const SystemGlyph = () => {
+  const [glyphRef, onScreen] = useOnScreen();
+  return (
+  <svg className={`aa-glyph ${onScreen ? "" : "is-off"}`} viewBox="0 0 160 120" aria-hidden="true" ref={glyphRef}>
     <g className="aa-glyph-edges">
       <path d="M80 60 L28 24" />
       <path d="M80 60 L136 22" />
@@ -379,7 +383,8 @@ const SystemGlyph = () => (
       <circle cx="80" cy="8" r="4" />
     </g>
   </svg>
-);
+  );
+};
 
 /** Cursor spotlight plus a subtle 3D tilt toward the pointer. */
 const handleCardMove = (event) => {
@@ -822,10 +827,12 @@ const HireBand = () => (
 /* ------------------------------------------------------------------ */
 
 const AutomationArsenal = ({ theme }) => {
-  useDocumentTitle("Automation Arsenal · Aayush Mishra");
   const { dark, style } = themeVars(theme);
   const rootStyle = useMemo(() => ({ ...style, "--aa-accent-text": readableAccent(theme) }), [style, theme]);
   const [heroRef, heroIn] = useInView({ threshold: 0.2 });
+  // the title shimmer repaints every frame: paused once it's scrolled away
+  // (a class toggled on the DOM, so it doesn't re-render the whole page)
+  const titleRef = useOffScreenClass();
   const [filter, setFilter] = useState("all");
   const [query, setQuery] = useState("");
   const [flashId, setFlashId] = useState(null);
@@ -902,7 +909,7 @@ const AutomationArsenal = ({ theme }) => {
               <span className="aa-status-dot" />
               Systems online · Automation + AI + QA engineering
             </span>
-            <h1 className="aa-hero-title">
+            <h1 className="aa-hero-title" ref={titleRef}>
               Automation
               <span className="aa-hero-title-accent">Arsenal</span>
             </h1>

@@ -27,6 +27,7 @@
   --c-intern: #d97706;
   --c-community: #9333ea;
   --c-live: #16a34a;
+  --c-live-ink: #15803d; /* the live green as small text: AA on light pages */
 
   position: relative;
   display: block;
@@ -41,6 +42,7 @@ body.dark-theme .xp {
   --c-intern: #fbbf24;
   --c-community: #c084fc;
   --c-live: #4ade80;
+  --c-live-ink: #4ade80;
 }
 
 .xp *,
@@ -217,7 +219,7 @@ body.dark-theme .xp {
   padding: 0.1rem 0.5rem;
   border-radius: 999px;
   background: rgba(22, 163, 74, 0.12);
-  color: var(--c-live);
+  color: var(--c-live-ink);
   font-family: var(--x-mono);
   font-size: 0.66rem;
   font-weight: 600;
@@ -429,7 +431,7 @@ body.dark-theme .xp {
   font-size: 0.62rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--c-live);
+  color: var(--c-live-ink);
 }
 
 .xp-now__text strong {
@@ -519,7 +521,8 @@ body.dark-theme .xp {
 .xp-gantt__canvas {
   position: relative;
   min-width: 900px;
-  padding: 1.2rem 1.6rem 1.4rem;
+  /* extra top room: the "today" badge sits above the year labels */
+  padding: 2.2rem 1.6rem 1.4rem;
 }
 
 .xp-gantt__axis {
@@ -562,7 +565,7 @@ body.dark-theme .xp {
 
 .xp-gantt__today span {
   position: absolute;
-  top: -1.9rem;
+  top: -2.75rem;
   left: 50%;
   transform: translateX(-50%);
   padding: 0.1rem 0.45rem;
@@ -1199,6 +1202,47 @@ body.dark-theme .xp {
   .xp-hint {
     display: none;
   }
+
+  /* The chart opens scrolled to "today", so labels placed next to their bars
+     were cut off at the left edge. Give each label its own line and pin it to
+     the visible left edge instead (sticky inside the sideways scroller). */
+  .xp-gantt__row {
+    display: flex;
+    align-items: flex-start;
+    height: 52px;
+  }
+
+  .xp-gantt__bar {
+    top: 27px;
+    height: 16px;
+  }
+
+  .xp-gantt__label,
+  .xp-gantt__label.is-inside {
+    position: sticky;
+    left: 0.6rem !important;
+    right: auto !important;
+    top: auto;
+    transform: none;
+    max-width: calc(100vw - 4.5rem);
+    margin-top: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--x-muted);
+    text-shadow: none;
+  }
+
+  .xp-gantt__label.is-inside strong {
+    color: var(--x-text);
+    text-shadow: none;
+  }
+}
+
+/* "Hover a cell…" means nothing on a touch screen */
+@media (hover: none) {
+  .xp-hint-pointer {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1638,7 +1682,7 @@ tr.is-practice .xp-heat__cell[data-level="3"] {
   margin-left: 0.6rem;
   font-style: normal;
   font-size: 0.72rem;
-  color: #6b7385;
+  color: #7a83a0; /* 5.3:1 on the terminal's #0b0d14 (was 4.1:1) */
 }
 
 .xp-term__body {
@@ -2061,4 +2105,13 @@ tr.is-practice .xp-heat__cell[data-level="3"] {
 
 .xp-music__meta a:hover {
   color: var(--x-accent) !important;
+}
+
+/* On phones the chart's year labels, the today badge and the live chip stay at 12px or more */
+@media (max-width: 599px) {
+  .xp .xp-gantt__axis span,
+  .xp .xp-gantt__today span,
+  .xp .xp-live-chip {
+    font-size: 0.75rem;
+  }
 }

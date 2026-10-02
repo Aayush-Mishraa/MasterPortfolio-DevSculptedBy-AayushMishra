@@ -152,7 +152,7 @@
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .pj-kicker::before {
@@ -189,6 +189,11 @@
   to {
     background-position: -200% 0;
   }
+}
+
+/* background-position repaints the headline every frame: not while it's off-screen */
+.pj-hero.is-off .pj-gradient-text {
+  animation-play-state: paused;
 }
 
 /* entrance used on above-the-fold content */
@@ -264,7 +269,7 @@
 }
 
 .pj-btn--link:hover {
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .pj-btn--block {
@@ -301,7 +306,18 @@
 
 .pj-sync--live .pj-sync-dot {
   background: #22c55e;
-  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+}
+
+/* The pulse is a ring scaling up on the compositor, not an animated box-shadow */
+.pj-sync--live .pj-sync-dot::after,
+.pj-live-dot i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 197, 94, 0.6);
+  /* hidden unless the pulse is animating (reduced motion stops it) */
+  opacity: 0;
   animation: pj-beat 2s infinite;
 }
 
@@ -357,11 +373,14 @@
 }
 
 @keyframes pj-beat {
-  70% {
-    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  0% {
+    transform: scale(1);
+    opacity: 1;
   }
+  70%,
   100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    transform: scale(3);
+    opacity: 0;
   }
 }
 
@@ -519,6 +538,10 @@
 }
 
 .pj-radar svg {
+  position: relative;
+  /* above the moving layer, so the sweep and pings pass under the dots and
+     labels as they did inside the SVG (its background is translucent) */
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
@@ -554,15 +577,48 @@
   stroke: var(--pj-line);
 }
 
+/* The moving parts (sweep, pings, origin pulse) are HTML elements under the
+   SVG that animate transform and opacity only, so the compositor runs them
+   and the chart isn't repainted every frame. Paused while scrolled away. */
+.pj-radar-motion {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.pj-radar-motion i {
+  position: absolute;
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
 .pj-radar-sweep {
-  transform-origin: 220px 220px;
+  position: absolute;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg 324deg, var(--pj-accent-glow) 360deg);
+  background: conic-gradient(from 0deg, transparent 0deg 324deg, color-mix(in srgb, var(--pj-accent) 35%, transparent) 360deg);
   animation: pj-spin linear infinite;
 }
 
-.pj-radar-beam {
-  stroke: var(--pj-accent);
-  stroke-width: 1.5;
+/* the beam at the leading edge of the sweep */
+.pj-radar-sweep::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1.5px;
+  height: 50%;
+  margin-left: -0.75px;
+  background: var(--pj-accent);
   opacity: 0.8;
+}
+
+.pj-radar.is-paused .pj-radar-sweep,
+.pj-radar.is-paused .pj-radar-ping,
+.pj-radar.is-paused .pj-radar-origin-pulse {
+  animation-play-state: paused;
 }
 
 .pj-radar-dot {
@@ -583,11 +639,9 @@
 }
 
 .pj-radar-ping {
-  fill: var(--pj-accent);
+  background: var(--pj-accent);
   opacity: 0;
   animation: pj-ping ease-out infinite;
-  transform-box: fill-box;
-  transform-origin: center;
 }
 
 .pj-radar-dot.is-hot .pj-radar-core {
@@ -613,10 +667,7 @@
 }
 
 .pj-radar-origin-pulse {
-  fill: none;
-  stroke: var(--pj-ink);
-  transform-box: fill-box;
-  transform-origin: center;
+  border: 1px solid var(--pj-ink);
   animation: pj-origin 2.4s var(--pj-ease) infinite;
 }
 
@@ -734,11 +785,11 @@
 }
 
 .pj-live-dot i {
+  position: relative;
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: #22c55e;
-  animation: pj-beat 2s infinite;
 }
 
 /* ---------- Cards ---------- */
@@ -905,7 +956,7 @@
 }
 
 .pj-card-topics li a:hover {
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .pj-card-topics li.is-more {
@@ -922,8 +973,8 @@
 
 .pj-card-activity-label {
   font: 400 10.5px/1 var(--pj-font-mono);
+  /* no opacity: at 80% the muted colour fell to 3.2:1 on warm themes */
   color: var(--pj-muted);
-  opacity: 0.8;
 }
 
 .pj-spark {
@@ -1016,7 +1067,7 @@
   gap: 8px;
   font-weight: 600;
   font-size: 13px;
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
   opacity: 0;
   transform: translateX(-6px);
   transition: opacity 0.3s, transform 0.3s var(--pj-ease);
@@ -1676,7 +1727,7 @@
 }
 
 .pj-stream-msg:hover {
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .pj-stream-meta {
@@ -1690,7 +1741,7 @@
 
 .pj-stream-meta code {
   font: inherit;
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 /* ---------- Explorer ---------- */

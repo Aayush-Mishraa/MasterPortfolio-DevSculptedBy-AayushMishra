@@ -10,7 +10,6 @@ import {
   useInView,
   useNow,
   useSpotlight,
-  useDocumentTitle,
 } from "../projects/lib/ui";
 import "./ContactComponent.css";
 
@@ -283,10 +282,13 @@ const accentVars = (theme) => {
   const bg = theme.body || "#EDF9FE";
   const ink = theme.text || "#001C55";
   const accent = theme.imageHighlight || "#0E6BA8";
-  const accentInk = legible(accent, bg, ink, 3.2);
+  // 4.5:1 is WCAG AA for the small labels this colours (3.2 only covered large text)
+  const accentInk = legible(accent, bg, ink, 4.5);
   const button = contrast(accent, bg) >= 1.8 ? accent : accentInk;
   const onButton = contrast(button, "#ffffff") >= contrast(button, "#111111") ? "#ffffff" : "#111111";
-  return { "--c-accent-ink": accentInk, "--c-btn": button, "--c-on-btn": onButton };
+  // the headline gradient is large text, so 3:1 keeps more of the accent
+  const accentDisplay = legible(accent, bg, ink, 3);
+  return { "--c-accent-ink": accentInk, "--c-accent-display": accentDisplay, "--c-btn": button, "--c-on-btn": onButton };
 };
 
 /* Sticky dot rail that tracks which section is on screen */
@@ -1086,7 +1088,6 @@ const BaseStation = ({ now }) => {
 /* ------------------------------------------------------------------ */
 
 const Contact = ({ theme }) => {
-  useDocumentTitle(`Contact · ${greeting.title}`);
   const vars = useMemo(() => {
     const base = themeVars(theme);
     return { dark: base.dark, style: { ...base.style, ...accentVars(theme) } };
@@ -1307,7 +1308,9 @@ const Contact = ({ theme }) => {
             <div className="ct-outro__card" onMouseMove={spotlight}>
               <span className="ct-mono ct-kicker">rather skip the form?</span>
               <a className="ct-outro__mail" href={`mailto:${EMAIL}`}>
-                {EMAIL}
+                {/* a narrow screen breaks after the @, never mid-word */}
+                {EMAIL.split("@")[0]}@<wbr />
+                {EMAIL.split("@")[1]}
               </a>
               <div className="ct-actions">
                 <button type="button" className="ct-btn ct-btn--ghost" onClick={() => copy(EMAIL, "outro", "Email address copied")}>

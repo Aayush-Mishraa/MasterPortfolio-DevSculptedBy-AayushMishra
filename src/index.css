@@ -67,3 +67,13 @@ body {
     line-height: normal;
   }
 }
+
+/* iOS Safari zooms the page in when a field under 16px gets focus,
+   so form fields are at least 16px on phones and touch screens. */
+@media (max-width: 600px), (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

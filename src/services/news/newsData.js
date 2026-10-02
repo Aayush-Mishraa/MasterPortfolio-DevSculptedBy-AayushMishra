@@ -1,4 +1,5 @@
 import { cachedJSON } from "../github/githubClient";
+import { isBlocked } from "../universe/sources";
 
 /**
  * Free, key-less, CORS-enabled tech news sources:
@@ -118,5 +119,8 @@ export const fetchRisingRepos = (topic) => {
   ).then((data) => (data.items || []).map(fromGithub));
 };
 
+// Same keyword filter as the Tech Universe feeds: this list is shown to recruiters too
 export const fetchNews = (sourceId, topic) =>
-  ({ hn: fetchHackerNews, devto: fetchDevto, github: fetchRisingRepos }[sourceId] || fetchHackerNews)(topic);
+  ({ hn: fetchHackerNews, devto: fetchDevto, github: fetchRisingRepos }[sourceId] || fetchHackerNews)(topic).then((items) =>
+    items.filter((item) => !isBlocked(item.title, item.summary, item.tags.join(" ")))
+  );

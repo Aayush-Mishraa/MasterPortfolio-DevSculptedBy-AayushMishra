@@ -39,10 +39,17 @@ const hnStory = (hit) => ({
   date: hit.created_at,
 });
 
+// Live feeds end up in front of recruiters: drop items whose id, title or
+// blurb carries adult or hateful keywords (e.g. an "-Uncensored-" model on
+// the trending list). Applied here, once, so every module and the Hub agree.
+const BLOCKED = /\b(uncensored|nsfw|porn|porno|hentai|sex|sexual|sexy|nude|nudes|nudity|erotic|erotica|xxx|fetish|gore|rape|racist|nazi)\b/i;
+export const isBlocked = (...fields) => fields.some((field) => BLOCKED.test(String(field || "").replace(/[-_./]/g, " ")));
+const clean = (item) => !isBlocked(item.id, item.name, item.title, item.summary, item.description);
+
 export const fetchShowHN = () =>
   json(
     `https://hn.algolia.com/api/v1/search?tags=show_hn&numericFilters=created_at_i>${nowS() - 7 * DAY_S},points>20&hitsPerPage=30`
-  ).then((data) => data.hits.map(hnStory).sort((a, b) => b.points - a.points));
+  ).then((data) => data.hits.map(hnStory).filter(clean).sort((a, b) => b.points - a.points));
 
 /** Popular stories on a topic from the last week; no topic means the live front page. */
 export const fetchHNTopic = (query) =>
@@ -51,7 +58,7 @@ export const fetchHNTopic = (query) =>
         `https://hn.algolia.com/api/v1/search?tags=story&query=${encodeURIComponent(query)}&numericFilters=created_at_i>${
           nowS() - 7 * DAY_S
         },points>30&hitsPerPage=30`
-      ).then((data) => data.hits.filter((hit) => hit.title).map(hnStory).sort((a, b) => b.points - a.points))
+      ).then((data) => data.hits.filter((hit) => hit.title).map(hnStory).filter(clean).sort((a, b) => b.points - a.points))
     : fetchHNFront();
 
 export const fetchDevArticles = (tag) =>
@@ -71,12 +78,12 @@ export const fetchDevArticles = (tag) =>
       tags: article.tag_list || [],
       readMinutes: article.reading_time_minutes || null,
       summary: article.description || "",
-    }))
+    })).filter(clean)
   );
 
 export const fetchHNFront = () =>
   json("https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=30").then((data) =>
-    data.hits.map(hnStory).sort((a, b) => b.points - a.points)
+    data.hits.map(hnStory).filter(clean).sort((a, b) => b.points - a.points)
   );
 
 /* ------------------------------------------------------------------ */
@@ -99,7 +106,7 @@ export const fetchTrendingModels = (pipeline = "") =>
       license: (model.tags || []).find((tag) => tag.startsWith("license:"))?.slice(8) || null,
       createdAt: model.createdAt,
       url: `https://huggingface.co/${model.id}`,
-    }))
+    })).filter(clean)
   );
 
 export const fetchTrendingSpaces = () =>
@@ -116,7 +123,7 @@ export const fetchTrendingSpaces = () =>
       author: space.author || space.id.split("/")[0],
       url: `https://huggingface.co/spaces/${space.id}`,
       createdAt: space.createdAt,
-    }))
+    })).filter(clean)
   );
 
 export const fetchDailyPapers = (date) =>
@@ -174,7 +181,7 @@ export const fetchOpenRouterModels = () =>
             .slice(0, 220),
         };
       })
-      .filter((model) => model.input !== null)
+      .filter((model) => model.input !== null && clean(model))
   );
 
 /* ------------------------------------------------------------------ */
@@ -203,7 +210,7 @@ export const fetchRisingRepos = (topic) => {
         url: repo.html_url,
         avatar: repo.owner?.avatar_url,
         createdAt: repo.created_at,
-      }))
+      })).filter(clean)
   );
 };
 

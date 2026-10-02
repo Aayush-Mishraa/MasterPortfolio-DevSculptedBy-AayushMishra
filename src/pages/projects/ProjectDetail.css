@@ -44,6 +44,12 @@
   padding: clamp(36px, 6vw, 72px) 0 12px;
 }
 
+/* While the repository loads, hold roughly the loaded hero's height (title,
+   description, topics, buttons), so the stats below don't jump down */
+.pd-hero.is-loading {
+  min-height: 520px;
+}
+
 .pd-hero-top {
   display: flex;
   flex-wrap: wrap;
@@ -518,7 +524,8 @@
   padding: 3px 8px;
   border-radius: 6px;
   background: color-mix(in srgb, var(--kind) 16%, transparent);
-  color: var(--kind);
+  /* the tint and the dot carry the colour; the raw kind colours fail as text (1.9-3:1) */
+  color: var(--pj-ink);
   font-weight: 600;
   text-transform: lowercase;
 }
@@ -545,7 +552,7 @@
 }
 
 .pd-commit-title:hover {
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .pd-commit-body {
@@ -592,7 +599,7 @@
   border: 1px solid var(--pj-line);
   border-radius: 8px;
   font: 500 12px var(--pj-font-mono);
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .pd-sha .pd-copy {
@@ -668,7 +675,7 @@
 }
 
 .pd-readme a {
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-color: var(--pj-accent-soft);
@@ -893,6 +900,15 @@
   }
   .pd-hero-top .pj-sync {
     margin-left: 0;
+  }
+  /* Chips and the sync pill on their own rows: the pill's text changes while
+     it syncs, and wrapping in and out of one row made the hero jump 36px */
+  .pd-hero-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .pd-hero.is-loading {
+    min-height: 500px;
   }
   .pd-anatomy {
     grid-template-columns: 1fr;

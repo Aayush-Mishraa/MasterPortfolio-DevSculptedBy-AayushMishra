@@ -15,6 +15,39 @@ const seo = {
     type: "website",
     url: "https://aayushmishra.engineer/",
   },
+  // Per-route title and description (the home page uses the values above)
+  pages: {
+    "/experience": {
+      title: "Experience · Aayush Mishra",
+      description:
+        "Aayush Mishra's QA career: the roles, the companies and the test automation, CI and quality work behind each one.",
+    },
+    "/education": {
+      title: "Education & Certifications · Aayush Mishra",
+      description:
+        "Aayush Mishra's education and certifications in test automation, API testing, machine learning and cloud.",
+    },
+    "/automation-arsenal": {
+      title: "Automation Arsenal · Aayush Mishra",
+      description:
+        "The tools Aayush Mishra tests software with, from Selenium, Playwright, TestNG and Postman to AI testing agents and CI, with hands-on field guides.",
+    },
+    "/opensource": {
+      title: "Open Source · Aayush Mishra: building in public",
+      description:
+        "Aayush Mishra's open-source work on GitHub: contributions, pull requests, activity and the ecosystems behind them.",
+    },
+    "/contact": {
+      title: "Contact · Aayush Mishra",
+      description:
+        "Get in touch with Aayush Mishra about SDET, QA lead and test automation roles, by email, LinkedIn or the contact form.",
+    },
+    "/projects": {
+      title: "Projects · Aayush Mishra — SDET & Automation Engineer",
+      description:
+        "Aayush Mishra's projects, synced from GitHub: test automation frameworks, API suites and AI agents, with their commits and READMEs.",
+    },
+  },
 };
 
 //Home Page
@@ -90,7 +123,7 @@ const socialMediaLinks = [
   },
   {
     name: "Gmail",
-    link: "mailto:aayushmishra@gmail.com", // Add your actual email here
+    link: "mailto:contact@aayushmishra.engineer", // same inbox as the Contact page
     fontAwesomeIcon: "fa-google", // Reference https://fontawesome.com/icons/google?style=brands
     backgroundColor: "#D14836", // Reference https://simpleicons.org/?q=gmail
   },
@@ -514,8 +547,8 @@ const certifications = {
       subtitle: "- Rahul",
       logo_path: "rest-assured-1.webp",
       certificate_link:
-        "https://google.qwiklabs.com/public_profiles/",
-      alt_name: "GCP",
+        "", // the old Qwiklabs profile link was a 404; add the Udemy certificate URL here
+      alt_name: "Udemy",
       color_code: "#feffffff",
     },
     {

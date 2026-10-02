@@ -181,7 +181,26 @@ function Splash({ history, theme }) {
     let failsafe = null;
     let fittedInFont = false;
     let retracePen = null;
+    // Keyboard visitor? True when the intro was launched from a keyboard-focused
+    // logo (Enter on the link), or when any key is pressed while it plays.
+    let usedKeyboard = false;
+    try {
+      usedKeyboard = !!(
+        document.activeElement &&
+        document.activeElement !== document.body &&
+        document.activeElement.matches(":focus-visible")
+      );
+    } catch (error) {
+      // Browsers without :focus-visible (Safari before 15.4) throw on the
+      // selector; treat the visitor as a mouse user rather than crash the intro.
+    }
     const startedAt = performance.now();
+    // On a first load Lenis is created after this effect runs (App's effect
+    // comes after its children's), so the stop() below misses it; this is
+    // called again once the Enter screen or the intro actually shows.
+    const holdScroll = () => {
+      if (window.__lenis) window.__lenis.stop();
+    };
 
     // intro-active hides the header logo until the signature lands on it;
     // intro-cover stops the page underneath painting while nobody can see it.
@@ -631,6 +650,7 @@ function Splash({ history, theme }) {
 
     const onKey = (event) => {
       if (event.ctrlKey || event.metaKey || event.altKey) return;
+      usedKeyboard = true;
       if (gated && event.key === "Escape") {
         event.preventDefault();
         leave();
@@ -658,6 +678,7 @@ function Splash({ history, theme }) {
       beginWith = async () => {
         await waitForSignatureFont();
         if (cancelled) return;
+        holdScroll();
         const size = fitLockup();
         fittedInFont = signatureFontLoaded();
         root.classList.add("is-ready");
@@ -676,6 +697,8 @@ function Splash({ history, theme }) {
       root.classList.add("is-gated");
       // Tells the home page the intro is waiting on the visitor, not stuck.
       html.classList.add("intro-gated");
+      // The wheel used to scroll the hidden page behind the Enter screen.
+      holdScroll();
       gate.hidden = false;
       fitGate();
       $(".intro-gate__enter").focus({ preventScroll: true });
@@ -727,13 +750,17 @@ function Splash({ history, theme }) {
       root.removeEventListener("touchmove", blockScroll);
       html.classList.remove("intro-active", "intro-cover", "intro-gated");
       if (window.__lenis) window.__lenis.start();
-      // Hand keyboard focus to the logo the signature just landed on.
-      setTimeout(() => {
-        const logo = document.querySelector(".hud .logo");
-        if (logo && (document.activeElement === document.body || !document.activeElement)) {
-          logo.focus({ preventScroll: true });
-        }
-      }, 0);
+      // Keyboard visitors get focus on the logo the signature just landed on.
+      // Not for mouse and touch visitors: Chrome shows a focus ring for a
+      // programmatic focus, which stayed on the logo until the next click.
+      if (usedKeyboard) {
+        setTimeout(() => {
+          const logo = document.querySelector(".hud .logo");
+          if (logo && (document.activeElement === document.body || !document.activeElement)) {
+            logo.focus({ preventScroll: true });
+          }
+        }, 0);
+      }
     };
   }, [history]);
 

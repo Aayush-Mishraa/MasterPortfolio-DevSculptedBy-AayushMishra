@@ -15,6 +15,9 @@
   --os-open: #22c55e;
   --os-closed: #ef4444;
   --os-draft: #94a3b8;
+  /* the same green and red as small text: AA on light pages (dark pages below) */
+  --os-open-ink: #15803d;
+  --os-closed-ink: #b91c1c;
 
   position: relative;
   width: 100%;
@@ -24,6 +27,12 @@
   color: var(--pj-ink);
   font-family: var(--os-font-ui);
   -webkit-font-smoothing: antialiased;
+}
+
+.os-root.os-dark,
+.os-dark .os-root {
+  --os-open-ink: #4ade80;
+  --os-closed-ink: #f87171;
 }
 
 .os-root *,
@@ -168,7 +177,7 @@
   font-size: 0.78rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .os-kicker b {
@@ -255,7 +264,7 @@
 }
 
 .os-btn--link:hover {
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .os-btn--link i {
@@ -390,6 +399,22 @@
   }
 }
 
+/* The headline is the page's largest element: it still slides in, but it's
+   visible from the first frame (fading it in from opacity 0 pushed the
+   page's Largest Contentful Paint to 3-4 s) */
+@keyframes os-slide {
+  from {
+    transform: translateY(22px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.os-hero-title .os-reveal:not(.os-glitch) {
+  animation-name: os-slide;
+}
+
 /* ================================================================== */
 /* HERO                                                                */
 /* ================================================================== */
@@ -430,7 +455,7 @@
   padding: 3px 10px;
   border-radius: 999px;
   background: var(--pj-accent-soft);
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
   font-weight: 600;
 }
 
@@ -452,7 +477,7 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: os-rise 0.9s var(--os-ease) both, os-shimmer 7s linear 1s infinite;
+  animation: os-slide 0.9s var(--os-ease) both, os-shimmer 7s linear 1s infinite;
   animation-delay: var(--d, 0ms), 1s;
 }
 
@@ -518,7 +543,7 @@
 }
 
 .os-prompt {
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
   font-weight: 700;
 }
 
@@ -544,7 +569,7 @@
 }
 
 .os-cli-out b {
-  color: var(--os-open);
+  color: var(--os-open-ink);
   font-weight: 700;
 }
 
@@ -819,7 +844,7 @@
 
 .os-panel-head a {
   font: 500 0.78rem var(--os-font-mono);
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .os-panel-head a:hover {
@@ -1075,6 +1100,9 @@
   padding: 16px 12px 16px 16px;
   font-size: 0.8rem;
   line-height: 1.5;
+  /* Same height while "connecting" as with the feed in, so the sections
+     below don't jump when GitHub answers */
+  min-height: 520px;
   max-height: 520px;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -1396,7 +1424,7 @@
 
 .os-pr-meta code {
   font: inherit;
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 /* ================================================================== */
@@ -1502,7 +1530,7 @@
 .os-gauge summary {
   cursor: pointer;
   font: 500 0.74rem var(--os-font-mono);
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
   list-style: none;
 }
 
@@ -1592,7 +1620,7 @@
   font: 500 0.72rem var(--os-font-mono);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .os-eco-track,
@@ -1670,7 +1698,7 @@
   flex: none;
   font: 700 0.72rem var(--os-font-mono);
   letter-spacing: 0.14em;
-  color: var(--os-closed);
+  color: var(--os-closed-ink);
 }
 
 .os-ticker-label .os-live-dot i,
@@ -1792,7 +1820,7 @@
 .os-topics button.is-active {
   border-color: var(--pj-accent);
   background: var(--pj-accent-soft);
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .os-news-grid {
@@ -1859,7 +1887,7 @@
   padding: 4px 10px;
   border-radius: 999px;
   background: var(--pj-accent-soft);
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
   font: 600 0.7rem var(--os-font-mono);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -1935,8 +1963,7 @@
 
 .os-news-rank {
   font: 700 1rem var(--os-font-mono);
-  color: var(--pj-accent);
-  opacity: 0.7;
+  color: var(--pj-accent-ink);
 }
 
 .os-news-row-body {
@@ -1974,14 +2001,14 @@
 
 .os-news-row:hover .os-news-go {
   opacity: 1;
-  color: var(--pj-accent);
+  color: var(--pj-accent-ink);
 }
 
 .os-pulse-credit {
   margin-top: 16px !important;
   font: 0.72rem var(--os-font-mono);
+  /* no opacity: at 80% the muted colour dropped to 3.2:1 on warm themes */
   color: var(--pj-muted);
-  opacity: 0.8;
 }
 
 .os-empty {

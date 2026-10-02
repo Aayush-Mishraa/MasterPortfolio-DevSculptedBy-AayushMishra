@@ -2,18 +2,44 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/icons/favicon.ico?v=2" />
-    <link rel="shortcut icon" href="%PUBLIC_URL%/icons/favicon.ico?v=2" />
+    <script>
+      // Paint the saved theme's background before anything else loads, so a
+      // dark theme doesn't flash white on every visit or refresh
+      // (ThemeContext saves it whenever the theme changes).
+      (function () {
+        try {
+          var bg = localStorage.getItem("portfolioThemeBg");
+          if (bg && /^#[0-9a-f]{3,8}$/i.test(bg)) document.documentElement.style.setProperty("--page-bg", bg);
+        } catch (e) {}
+        // The Projects pages fill in after the GitHub data arrives, so they
+        // restore their own scroll position on a refresh (useReloadScroll.js)
+        if (/^\/projects(\/|$)/.test(location.pathname) && "scrollRestoration" in history) {
+          history.scrollRestoration = "manual";
+        }
+      })();
+    </script>
+    <!-- A variable, not an inline background, so page rules like Tech Universe's html.uv-standalone still win -->
+    <style>
+      html {
+        background-color: var(--page-bg, transparent);
+      }
+    </style>
+    <link rel="icon" href="%PUBLIC_URL%/icons/favicon.ico?v=3" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/icons/favicon.ico?v=3" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta property="og:title" content="Aayush Mishra - SDET Portfolio" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://aayushmishra.engineer/" />
-    <meta name="description" content="Aayush Mishra's Professional SDET Portfolio - Test Automation & AI Testing Expert" />
-    <meta property="og:description" content="Aayush Mishra's Professional SDET Portfolio - Test Automation & AI Testing Expert" />
-    <meta property="og:image" content="/icons/desc.png" />
+    <!-- data-react-helmet: defaults for crawlers without JS; the app replaces them per page -->
+    <meta property="og:title" content="Aayush Mishra · SDET & QA Lead" data-react-helmet="true" />
+    <meta property="og:type" content="website" data-react-helmet="true" />
+    <meta property="og:url" content="https://aayushmishra.engineer/" data-react-helmet="true" />
+    <meta name="description" content="Aayush Mishra is a Senior Software Test Engineer and QA lead in India, building test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship." data-react-helmet="true" />
+    <meta property="og:description" content="Aayush Mishra is a Senior Software Test Engineer and QA lead in India, building test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship." data-react-helmet="true" />
+    <meta property="og:image" content="https://aayushmishra.engineer/icons/desc.png" />
+    <meta property="og:image:width" content="893" />
+    <meta property="og:image:height" content="509" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="keywords" content="Aayush Mishra, SDET, Test Automation, AI Testing, Portfolio, Software Testing" />
     <meta name="author" content="Aayush Mishra" />
     <meta name="application-name" content="Aayush Mishra's SDET Portfolio" />
@@ -28,13 +54,13 @@
     <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=2">
-    <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png?v=2">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png?v=3">
     <link rel="manifest" href="/manifest.json">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#EDF9FE">
 
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -42,10 +68,14 @@
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
+    <!-- icons only: load without blocking the first paint -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      media="print"
+      onload="this.media=&#39;all&#39;"
     />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" /></noscript>
     <script defer src="https://code.iconify.design/1/1.0.4/iconify.min.js"></script>
     
     <!--

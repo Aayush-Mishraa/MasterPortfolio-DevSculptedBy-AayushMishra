@@ -8,6 +8,7 @@ import {
   competitiveSites,
   experience,
 } from "../../portfolio";
+import { useOnScreen } from "../projects/lib/ui";
 import "./EducationComponent.css";
 import "./EducationPage.css";
 
@@ -122,6 +123,8 @@ const resetTilt = (e) => {
 };
 
 const Orbit = () => {
+  // the rings and logos spin forever: paused while scrolled out of view
+  const [orbitRef, onScreen] = useOnScreen();
   const inner = credentials.filter((c) => c.logo).slice(0, 5);
   const outer = credentials.filter((c) => c.logo).slice(5, 12);
   const ring = (items, cls) => (
@@ -139,7 +142,7 @@ const Orbit = () => {
     </div>
   );
   return (
-    <div className="edu-orbit" aria-hidden="true">
+    <div className={`edu-orbit ${onScreen ? "" : "is-off"}`} aria-hidden="true" ref={orbitRef}>
       {ring(outer, "edu-orbit__ring--outer")}
       {ring(inner, "edu-orbit__ring--inner")}
       <div className="edu-orbit__core">
@@ -312,6 +315,8 @@ const Credential = ({ cred, index }) => {
 };
 
 const CredentialWallet = () => {
+  // the certificate seals spin forever: paused while the wallet is off-screen
+  const [walletRef, walletOn] = useOnScreen();
   const [filter, setFilter] = useState("all");
   const [query, setQuery] = useState("");
 
@@ -336,7 +341,7 @@ const CredentialWallet = () => {
   );
 
   return (
-    <section className="edu-section" aria-labelledby="edu-creds-title">
+    <section className={`edu-section ${walletOn ? "" : "is-off"}`} aria-labelledby="edu-creds-title" ref={walletRef}>
       <div className="edu-section__head edu-section__head--row">
         <div>
           <span className="edu-eyebrow">

@@ -412,7 +412,8 @@ html.uv-standalone body {
   font-family: var(--uv-font-mono);
   font-size: 0.66rem;
   color: var(--pj-muted);
-  opacity: 0.7;
+  /* was 0.7 opacity: 3.3:1 on the dark rail; the muted colour alone is 6:1 */
+  opacity: 1;
 }
 
 .uv-app:not(.is-rail-open) .uv-rail .uv-brand-text,

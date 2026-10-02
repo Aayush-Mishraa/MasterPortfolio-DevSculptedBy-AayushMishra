@@ -1,4 +1,4 @@
-import React, { Component, useEffect } from "react";
+import React, { Component, useEffect, useRef } from "react";
 import { Route, Switch, BrowserRouter, useLocation } from "react-router-dom";
 import Home from "../pages/home/HomeComponent";
 import Splash from "../pages/splash/Splash";
@@ -13,15 +13,28 @@ import ProjectDetail from "../pages/projects/ProjectDetail";
 import Universe from "../pages/universe/Universe";
 import Error404 from "../pages/errors/error404/Error";
 
-// Start every new page at the top (hash links like #commits scroll themselves)
+// Start every new page at the top (hash links like #commits scroll themselves).
+// A fresh load or a refresh keeps the position the browser restores: scrolling
+// to the top there ran before Lenis existed, and with html's
+// scroll-behavior: smooth it animated the whole page back up after a refresh.
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
+  const firstRender = useRef(true);
   useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
     if (hash) return;
     if (window.__lenis) {
       window.__lenis.scrollTo(0, { immediate: true });
     } else {
-      window.scrollTo(0, 0);
+      // Jump, don't glide (no Lenis means reduced motion is on)
+      try {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      } catch (error) {
+        window.scrollTo(0, 0);
+      }
     }
   }, [pathname, hash]);
   return null;

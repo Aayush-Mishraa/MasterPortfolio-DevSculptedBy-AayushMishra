@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useLayoutEffect } from 'react';
 import { 
   blueTheme, 
   brownTheme, 
@@ -68,7 +68,11 @@ export const readableAccent = (accentHex, bodyHex) => {
   const accent = hexToRgb(accentHex);
   const body = hexToRgb(bodyHex);
   if (!accent || !body) return accentHex;
-  const target = luminance(body) < 0.3 ? [255, 255, 255] : [0, 0, 0];
+  // Head for whichever end contrasts more with the page: on a mid-tone
+  // background white can never reach 4.5:1 even below the dark/light cut-off
+  const white = [255, 255, 255];
+  const black = [0, 0, 0];
+  const target = contrast(white, body) >= contrast(black, body) ? white : black;
   for (let t = 0; t <= 1; t += 0.05) {
     const mixed = accent.map((c, i) => c + (target[i] - c) * t);
     if (contrast(mixed, body) >= 4.5) return rgbToHex(mixed);
@@ -90,7 +94,7 @@ export const themes = {
   purple: { ...purpleTheme, name: 'Royal Purple', id: 'purple' },
   green: { ...greenTheme, name: 'Nature Green', id: 'green' },
   red: { ...redTheme, name: 'Sunset Red', id: 'red' },
-  black: { ...blackTheme, name: 'Classic Dark', id: 'black' },
+  black: { ...blackTheme, name: 'Classic Grey', id: 'black' },
   pink: { ...pinkTheme, name: 'Cherry Blossom', id: 'pink' },
   violet: { ...violetTheme, name: 'Deep Violet', id: 'violet' },
   teal: { ...tealTheme, name: 'Ocean Teal', id: 'teal' },
@@ -123,8 +127,9 @@ export const ThemeProvider = ({ children }) => {
     }
   };
 
-  // Apply theme to CSS custom properties
-  useEffect(() => {
+  // Apply theme to CSS custom properties. A layout effect runs before the
+  // browser paints, so the first frame already has the theme's colours.
+  useLayoutEffect(() => {
     const root = document.documentElement;
     const body = document.body;
     
@@ -162,6 +167,18 @@ export const ThemeProvider = ({ children }) => {
     
     // Also update body background
     document.body.style.backgroundColor = currentTheme.body;
+
+    // The page behind the body (and the inline script in index.html on the
+    // next load) uses the same colour, so nothing light shows around a dark
+    // theme. A variable, so rules like Tech Universe's html.uv-standalone win.
+    root.style.setProperty('--page-bg', currentTheme.body);
+    try {
+      localStorage.setItem('portfolioThemeBg', currentTheme.body);
+    } catch (error) {
+      // Storage blocked: the next load starts on the default background.
+    }
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) themeColor.setAttribute('content', currentTheme.body);
   }, [currentTheme]);
 
   const value = {

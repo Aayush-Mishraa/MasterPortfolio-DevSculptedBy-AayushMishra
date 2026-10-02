@@ -4,18 +4,118 @@
 
 /* Clear the fixed header and give the message room to breathe */
 .error-main > .error-class {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   min-height: 60vh;
-  padding: clamp(110px, 18vh, 170px) 5% 80px;
+  padding: clamp(120px, 20vh, 190px) 20px 96px;
   text-align: center;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--theme-text, #001c55);
 }
 
-.error-main .error-404 {
-  font-size: clamp(5rem, 18vw, 9rem);
-  line-height: 1;
-  margin: 12px 0 18px;
+.error-req {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 100%;
+  margin: 0 0 1.4rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(var(--theme-text-rgb, 0, 28, 85), 0.14);
+  border-radius: 999px;
+  background: rgba(var(--theme-text-rgb, 0, 28, 85), 0.04);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  color: var(--theme-secondaryText, #5b6d92);
+  overflow-wrap: anywhere;
 }
 
-.error-main .error-class p {
-  font-size: 1.4em;
-  margin: 0 0 24px;
+.error-req span {
+  font-weight: 600;
+  color: var(--theme-text, #001c55);
+}
+
+.error-req b {
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+  background: #b91c1c;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.error-title {
+  margin: 0 0 1rem;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--theme-text, #001c55);
+}
+
+.error-lead {
+  max-width: 34rem;
+  margin: 0 0 2rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--theme-secondaryText, #5b6d92);
+}
+
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.error-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border: 1px solid rgba(var(--theme-text-rgb, 0, 28, 85), 0.18);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--theme-text, #001c55);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.error-btn:hover,
+.error-btn:focus-visible {
+  border-color: var(--theme-accentText, #0e6ba8);
+  color: var(--theme-text, #001c55);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.error-btn:focus-visible {
+  outline: 2px solid var(--theme-accentText, #0e6ba8);
+  outline-offset: 2px;
+}
+
+.error-btn--primary {
+  border-color: transparent;
+  background: var(--theme-imageHighlight, #0e6ba8);
+  color: var(--theme-onAccent, #ffffff);
+}
+
+.error-btn--primary:hover,
+.error-btn--primary:focus-visible {
+  border-color: transparent;
+  color: var(--theme-onAccent, #ffffff);
+  filter: brightness(0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .error-btn {
+    transition: none;
+  }
+
+  .error-btn:hover,
+  .error-btn:focus-visible {
+    transform: none;
+  }
 }

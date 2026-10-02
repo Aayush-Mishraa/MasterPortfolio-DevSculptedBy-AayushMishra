@@ -1,36 +1,45 @@
 import React, { Component } from "react";
+import { Helmet } from "react-helmet";
 import Header from "../../../components/header/Header";
 import CreativeFooter from "../../../components/CreativeFooter/CreativeFooter";
 import TopButton from "../../../components/topButton/TopButton";
-import { Fade } from "react-reveal";
 import "./Error.css";
 import { Link } from "react-router-dom";
 
 export default class Error extends Component {
   render() {
-    const theme = this.props.theme;
+    const path = (this.props.location && this.props.location.pathname) || "/";
     return (
       <div className="error-main">
         <Header theme={this.props.theme} />
-        <div className="error-class">
-          <Fade bottom duration={2000} distance="40px">
-            <h1>Woops</h1>
-            <h1 className="error-404">404</h1>
-            <p>The requested page is unavailable at the moment!</p>
-            <Link
-              className="main-button"
-              to="/home"
-              style={{
-                color: theme.body,
-                backgroundColor: theme.text,
-                border: `solid 1px ${theme.text}`,
-                display: "inline-flex",
-              }}
-            >
-              Go Home
+        {/* After the header, so this title wins over the header's SEO tags;
+            noindex keeps unknown URLs out of search results (the server answers 200) */}
+        <Helmet>
+          <title>Page not found · Aayush Mishra</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
+        <main className="error-class" id="main-content">
+          <p className="error-req">
+            <span>GET</span> {path} <b>404</b>
+          </p>
+          <h1 className="error-title">Page not found</h1>
+          <p className="error-lead">
+            There's no page at this address. It may have moved, or the link may have a typo. Start again from one of
+            these:
+          </p>
+          <div className="error-actions">
+            <Link className="error-btn error-btn--primary" to="/">
+              Back to home
+              <i className="fa-solid fa-arrow-right" aria-hidden="true" />
             </Link>
-          </Fade>
-        </div>
+            <Link className="error-btn" to="/projects">
+              Projects
+            </Link>
+            <Link className="error-btn" to="/contact">
+              Contact
+            </Link>
+          </div>
+        </main>
         <CreativeFooter theme={this.props.theme} />
         <TopButton theme={this.props.theme} />
       </div>

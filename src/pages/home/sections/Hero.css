@@ -191,15 +191,21 @@
   display: flex;
   justify-content: flex-end;
   min-width: 0;
+  /* lets .hm-shot size itself against this column's width (cqi) */
+  container-type: inline-size;
 }
 
 .hm-hero__stage {
   position: relative;
 }
 
+/* The frame's height follows the window height, but it must never get wider
+   than its column (125cqi tall = 100% of the column wide at 4:5): on tall
+   900-1229px screens it used to grow left over the headline and buttons. */
 .hm-shot {
   position: relative;
   height: clamp(420px, calc(100svh - 186px), 620px);
+  height: min(clamp(420px, calc(100svh - 186px), 620px), 125cqi);
   aspect-ratio: 4 / 5;
   margin: 0;
   border: 1px solid var(--hm-line-strong);
@@ -475,9 +481,18 @@ body.dark-theme .hm-shot__light {
     gap: 0.25rem 1rem;
   }
 
+  /* Icon in its own column; the label and the value share the column next to
+     it, so they stay aligned however the label wraps */
   .hm-hero__log .hm-elog__rows li {
-    flex-wrap: wrap;
-    align-items: baseline;
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    column-gap: 0.6rem;
+    row-gap: 0.15rem;
+    align-items: start;
+  }
+
+  .hm-hero__log .hm-elog__icon {
+    margin-top: 0.1em;
   }
 
   .hm-hero__log .hm-elog__name {
@@ -489,8 +504,7 @@ body.dark-theme .hm-shot__light {
   }
 
   .hm-hero__log .hm-elog__value {
-    flex-basis: 100%;
-    margin-left: calc(18px + 0.6rem);
+    grid-column: 2;
     font-size: 1rem;
   }
 

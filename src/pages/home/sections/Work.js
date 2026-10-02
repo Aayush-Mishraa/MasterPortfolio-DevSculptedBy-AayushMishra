@@ -133,7 +133,11 @@ function Heatmap({ days }) {
       levels[level] += cellPath(col * STEP, 16 + row * STEP);
       const month = Number(day.date.slice(5, 7)) - 1;
       const last = months[months.length - 1];
-      if (row === 0 && (!last || last.month !== month)) months.push({ month, col });
+      if (row === 0 && (!last || last.month !== month)) {
+        // a partial first month leaves two labels side by side ("SepOct"): keep the later one
+        if (last && col - last.col < 3) months[months.length - 1] = { month, col };
+        else months.push({ month, col });
+      }
     });
     return { levels, cols, months: months.filter((item) => item.col < cols - 2) };
   }, [days]);
@@ -238,7 +242,7 @@ export default function Work({ github, onNear }) {
                   <dt>Active days</dt>
                   <dd>
                     {stats.activeDays}
-                    <small> / {github.days.length}</small>
+                    <small> / {Math.min(365, github.days.length)}</small>
                   </dd>
                 </div>
                 <div>

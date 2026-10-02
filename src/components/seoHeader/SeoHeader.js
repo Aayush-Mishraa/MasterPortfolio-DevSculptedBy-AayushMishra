@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import { useLocation } from "react-router-dom";
 import {
   greeting,
   seo,
@@ -9,7 +10,32 @@ import {
   certifications,
 } from "../../portfolio.js";
 
+const SITE = "https://aayushmishra.engineer";
+
+/*
+  Title, description and canonical URL for the current route. A project page
+  sets its own title (useDocumentTitle), so it gets no <title> here; an
+  unknown path gets no canonical (the 404 page adds noindex itself).
+*/
+function routeMeta(pathname) {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  if (path === "/" || path === "/home" || path === "/splash") {
+    return { title: seo.title, description: seo.description, url: `${SITE}/` };
+  }
+  if (seo.pages[path]) return { ...seo.pages[path], url: `${SITE}${path}` };
+  const project = path.match(/^\/projects\/([^/]+)$/);
+  if (project) {
+    const name = decodeURIComponent(project[1]);
+    return {
+      description: `${name}: a project by Aayush Mishra, with its README, commits and stats from GitHub.`,
+      url: `${SITE}/projects/${project[1]}`,
+    };
+  }
+  return { title: seo.title, description: seo.description };
+}
+
 function SeoHeader() {
+  const meta = routeMeta(useLocation().pathname);
   let sameAs = [];
   socialMediaLinks
     .filter(
@@ -63,11 +89,13 @@ function SeoHeader() {
   };
   return (
     <Helmet>
-      <title>{seo.title}</title>
-      <meta name="description" content={seo.description} />
-      <meta property="og:title" content={seo?.og?.title} />
+      {meta.title && <title>{meta.title}</title>}
+      <meta name="description" content={meta.description} />
+      <meta property="og:title" content={meta.title || seo?.og?.title} />
+      <meta property="og:description" content={meta.description} />
       <meta property="og:type" content={seo?.og?.type} />
-      <meta property="og:url" content={seo?.og?.url} />
+      {meta.url && <meta property="og:url" content={meta.url} />}
+      {meta.url && <link rel="canonical" href={meta.url} />}
       <script type="application/ld+json">{JSON.stringify(data)}</script>
     </Helmet>
   );

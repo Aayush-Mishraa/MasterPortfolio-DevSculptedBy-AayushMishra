@@ -1,5 +1,6 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { formatDate, timeAgo } from "../../../services/github/githubData";
+import { useOnScreen } from "../lib/ui";
 
 let uid = 0;
 const useUid = (prefix) => {
@@ -67,6 +68,15 @@ const Tooltip = ({ tip }) =>
 export const AreaChart = ({ values = [], labels = [], height = 180, inView = true, unit = "commits", tickEvery }) => {
   const id = useUid("area");
   const [hover, setHover] = useState(null);
+  const boxRef = useRef(null);
+  const [boxW, setBoxW] = useState(0);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(([entry]) => setBoxW(Math.round(entry.contentRect.width)));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   const width = 640;
   const pad = { top: 16, right: 8, bottom: 26, left: 8 };
   const max = Math.max(1, ...values);
@@ -80,7 +90,15 @@ export const AreaChart = ({ values = [], labels = [], height = 180, inView = tru
   const area = points.length
     ? `${line}L${points[points.length - 1][0]},${pad.top + innerH}L${points[0][0]},${pad.top + innerH}Z`
     : "";
-  const every = tickEvery || Math.max(1, Math.ceil(values.length / 6));
+  // Axis labels: as many as fit the rendered width. The first and last labels
+  // hang off one side of their point (not centred), so a neighbour needs about
+  // one and a half label widths of room; on phones "Sep 26" printed over "Oct 26".
+  const base = tickEvery || Math.max(1, Math.ceil(values.length / 6));
+  const labelPx = Math.max(0, ...labels.map((label) => String(label).length)) * 6.4; // 10.5px mono
+  const stepPx = boxW && values.length > 1 ? (boxW * innerW) / width / (values.length - 1) : 0;
+  const room = stepPx ? Math.ceil((labelPx * 1.5 + 10) / stepPx) : 0;
+  const every = Math.max(base, room);
+  const gapToLast = stepPx ? every : Math.ceil(every / 2);
 
   const onMove = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -95,7 +113,7 @@ export const AreaChart = ({ values = [], labels = [], height = 180, inView = tru
   const hovered = hover !== null && points[hover];
 
   return (
-    <div className={`pj-chart pj-area ${inView ? "is-in" : ""}`}>
+    <div className={`pj-chart pj-area ${inView ? "is-in" : ""}`} ref={boxRef}>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="none"
@@ -135,7 +153,7 @@ export const AreaChart = ({ values = [], labels = [], height = 180, inView = tru
       </svg>
       <div className="pj-axis" aria-hidden="true">
         {labels.map((label, index) =>
-          (index % every === 0 && labels.length - 1 - index >= Math.ceil(every / 2)) || index === labels.length - 1 ? (
+          (index % every === 0 && labels.length - 1 - index >= gapToLast) || index === labels.length - 1 ? (
             <span key={index} style={{ left: `${(points[index]?.[0] / width) * 100}%` }}>
               {label}
             </span>
@@ -462,6 +480,8 @@ const RADAR_PERIOD = 6; // seconds per sweep
 
 export const Radar = ({ repos = [], categories = [], onSelect, now = Date.now() }) => {
   const [hover, setHover] = useState(null);
+  // pauses the sweep and pings while the chart is scrolled out of view
+  const [boxRef, onScreen] = useOnScreen();
   const size = 440;
   const c = size / 2;
   const inner = 34;
@@ -497,9 +517,10 @@ export const Radar = ({ repos = [], categories = [], onSelect, now = Date.now() 
   });
 
   const hovered = hover !== null ? dots[hover] : null;
+  const pct = (value) => `${(value / size) * 100}%`;
 
   return (
-    <div className="pj-radar">
+    <div className={`pj-radar ${onScreen ? "" : "is-paused"}`} ref={boxRef}>
       <svg viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Radar of repositories by recency of last push">
         <defs>
           <radialGradient id="pj-radar-bg">
@@ -507,10 +528,6 @@ export const Radar = ({ repos = [], categories = [], onSelect, now = Date.now() 
             <stop offset="70%" stopColor="var(--pj-accent)" stopOpacity="0.03" />
             <stop offset="100%" stopColor="var(--pj-accent)" stopOpacity="0" />
           </radialGradient>
-          <linearGradient id="pj-radar-sweep" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="var(--pj-accent)" stopOpacity="0" />
-            <stop offset="100%" stopColor="var(--pj-accent)" stopOpacity="0.35" />
-          </linearGradient>
         </defs>
         <circle cx={c} cy={c} r={outer + 14} fill="url(#pj-radar-bg)" />
         {rings.map((ring) => (
@@ -538,14 +555,6 @@ export const Radar = ({ repos = [], categories = [], onSelect, now = Date.now() 
             </g>
           );
         })}
-        <g className="pj-radar-sweep" style={{ animationDuration: `${RADAR_PERIOD}s` }}>
-          <path
-            d={`M${c},${c} L${c},${c - outer} A${outer},${outer} 0 0,1 ${c + outer * Math.sin(Math.PI / 5)},${c - outer * Math.cos(Math.PI / 5)} Z`}
-            fill="url(#pj-radar-sweep)"
-            transform={`rotate(-36 ${c} ${c})`}
-          />
-          <line x1={c} y1={c} x2={c} y2={c - outer} className="pj-radar-beam" />
-        </g>
         {dots.map((dot, index) => (
           <g
             key={dot.repo.name}
@@ -561,17 +570,37 @@ export const Radar = ({ repos = [], categories = [], onSelect, now = Date.now() 
             role="link"
             aria-label={`${dot.repo.title}, pushed ${timeAgo(dot.repo.pushedAt, now)}`}
           >
-            <circle
-              r={dot.size + 6}
-              className="pj-radar-ping"
-              style={{ animationDuration: `${RADAR_PERIOD}s`, animationDelay: `${(dot.angle / 360) * RADAR_PERIOD}s` }}
-            />
             <circle r={dot.size} fill={dot.repo.languages[0]?.color || "var(--pj-accent)"} className="pj-radar-core" />
           </g>
         ))}
         <circle cx={c} cy={c} r="7" className="pj-radar-origin" />
-        <circle cx={c} cy={c} r="7" className="pj-radar-origin-pulse" />
       </svg>
+      {/* Sweep, pings and origin pulse live outside the SVG and animate only
+          transform and opacity, so the compositor runs them and the chart
+          isn't repainted every frame (the old SVG versions were). */}
+      <div className="pj-radar-motion" aria-hidden="true">
+        <div
+          className="pj-radar-sweep"
+          style={{ left: pct(c - outer), top: pct(c - outer), width: pct(outer * 2), height: pct(outer * 2), animationDuration: `${RADAR_PERIOD}s` }}
+        />
+        {dots.map((dot) => {
+          const r = dot.size + 6;
+          return (
+            <i
+              key={dot.repo.name}
+              className="pj-radar-ping"
+              style={{
+                left: pct(dot.x - r),
+                top: pct(dot.y - r),
+                width: pct(r * 2),
+                animationDuration: `${RADAR_PERIOD}s`,
+                animationDelay: `${(dot.angle / 360) * RADAR_PERIOD}s`,
+              }}
+            />
+          );
+        })}
+        <i className="pj-radar-origin-pulse" style={{ left: pct(c - 7), top: pct(c - 7), width: pct(14) }} />
+      </div>
       {hovered && (
         <div className="pj-tip" style={{ left: `${(hovered.x / size) * 100}%`, top: `${(hovered.y / size) * 100}%` }}>
           <strong>{hovered.repo.title}</strong>

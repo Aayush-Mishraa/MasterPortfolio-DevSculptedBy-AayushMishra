@@ -364,6 +364,11 @@
   }
 }
 
+/* background-position repaints the title every frame: not while it's off-screen */
+.aa-hero-title.is-off .aa-hero-title-accent {
+  animation-play-state: paused;
+}
+
 .aa-hero-sub {
   max-width: 540px;
   margin: 0;
@@ -487,12 +492,24 @@
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, var(--pj-surface-raised), var(--pj-surface-solid));
   box-shadow: 0 0 0 1px var(--pj-line), 0 0 60px -6px var(--pj-accent-glow), inset 0 0 24px var(--pj-accent-soft);
+}
+
+/* The breathing glow fades a second shadow in and out (opacity, on the
+   compositor) instead of re-rendering a 90px box-shadow every frame */
+.aa-core-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 90px 0 var(--pj-accent-glow);
+  opacity: 0;
+  pointer-events: none;
   animation: aa-breathe 4s ease-in-out infinite;
 }
 
 @keyframes aa-breathe {
   50% {
-    box-shadow: 0 0 0 1px var(--pj-line), 0 0 90px 0 var(--pj-accent-glow), inset 0 0 30px var(--pj-accent-soft);
+    opacity: 1;
   }
 }
 
@@ -1577,6 +1594,11 @@
   50% {
     transform: scale(1.25);
   }
+}
+
+.aa-glyph.is-off path,
+.aa-glyph.is-off circle {
+  animation-play-state: paused;
 }
 
 .aa-empty {

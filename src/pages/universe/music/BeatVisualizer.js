@@ -98,7 +98,9 @@ export default function BeatVisualizer({ variant = "bars", count, className = ""
       for (let i = 0; i < n; i += 1) {
         const h = Math.max(2, levels[i] * height * (mini ? 1 : 0.92));
         const x = i * (barWidth + gap);
-        const r = Math.min(barWidth / 2, 3);
+        // never negative: a canvas narrower than its gaps gave roundRect a
+        // negative radius (RangeError on the Universe pages)
+        const r = Math.max(0, Math.min(barWidth / 2, h / 2, 3));
         ctx.globalAlpha = mini ? 0.95 : 0.35 + levels[i] * 0.65;
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(x, height - h, barWidth, h, [r, r, 1, 1]);

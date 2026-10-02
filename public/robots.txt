@@ -1,2 +1,3 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
+Sitemap: https://aayushmishra.engineer/sitemap.xml

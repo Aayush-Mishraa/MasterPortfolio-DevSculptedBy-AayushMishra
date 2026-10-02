@@ -27,9 +27,10 @@
   --c-acc-rgb: var(--theme-imageHighlight-rgb, 14, 107, 168);
   --c-ink-rgb: var(--theme-text-rgb, 0, 28, 85);
   --c-accent-ink: var(--c-accent);
+  --c-accent-display: var(--c-accent-ink);
   --c-btn: var(--c-accent);
   --c-on-btn: #fff;
-  --c-grad: linear-gradient(100deg, var(--c-accent-ink) 0%, var(--c-ink) 115%);
+  --c-grad: linear-gradient(100deg, var(--c-accent-display) 0%, var(--c-ink) 115%);
   --c-ok: #16a34a;
   --c-warn: #d97706;
   --c-err: #dc2626;
@@ -1926,8 +1927,8 @@
 
 .ct-outro__mail {
   max-width: 100%;
-  overflow-wrap: anywhere;
-  font-size: clamp(1.6rem, 5vw, 3.4rem);
+  overflow-wrap: break-word;
+  font-size: clamp(1.3rem, 5vw, 3.4rem);
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 1.1;
@@ -2046,6 +2047,13 @@
   display: block;
   margin-top: 0.35rem;
   font-size: 0.74rem;
+}
+
+/* no keyboard shortcut to show on a touch screen */
+@media (hover: none) {
+  .ct-kbd-hint {
+    display: none;
+  }
 }
 
 .ct-kbd-hint kbd {

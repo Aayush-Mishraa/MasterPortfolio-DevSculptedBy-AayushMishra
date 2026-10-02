@@ -418,7 +418,8 @@ export const aggregateStats = (repos, contributions) => {
   });
 
   const busiestDay = days.reduce((best, day) => (day.count > (best?.count || 0) ? day : best), null);
-  const activeDays = days.filter((day) => day.count > 0).length;
+  // the calendar pads out to whole weeks (up to 371 cells); count the last 365 days only
+  const activeDays = days.slice(-365).filter((day) => day.count > 0).length;
 
   return {
     repoCount: repos.length,

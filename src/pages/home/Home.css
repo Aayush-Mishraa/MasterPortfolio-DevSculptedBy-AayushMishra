@@ -1196,3 +1196,18 @@ body.dark-theme .hm.hm-brief {
     display: none;
   }
 }
+
+/* On phones no label goes under 12px (these mono labels were 9.9-10.9px) */
+@media (max-width: 599px) {
+  body .hm-hero__facts dt,
+  body .hm-elog__state,
+  body .hm-logo__text .hm-mono,
+  body .hm-logos__label,
+  body .hm-flagship__badge,
+  body .hm-activity__stats dt,
+  body .hm-graph__head,
+  body .hm-claim__label,
+  body .hm-run__label .hm-mono {
+    font-size: 0.75rem;
+  }
+}

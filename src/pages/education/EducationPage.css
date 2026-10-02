@@ -952,6 +952,13 @@ body.dark-theme .edu {
   animation: edu-spin 14s linear infinite;
 }
 
+/* Decorative spins stop while their section is scrolled out of view */
+.edu-orbit.is-off .edu-orbit__ring,
+.edu-orbit.is-off .edu-orbit__node img,
+.edu-section.is-off .edu-cred__seal svg {
+  animation-play-state: paused;
+}
+
 .edu-cred__seal text {
   font-family: var(--e-mono);
   font-size: 11.5px;
