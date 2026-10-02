@@ -97,8 +97,9 @@ jobs:
           # Keep remote files that are not in local repo (safer default)
           dangerous-clean-slate: false
 
-          # Sync state file helps reduce unnecessary uploads
-          state-name: .ftp-deploy-sync-state.json
+          # Sync state file helps reduce unnecessary uploads (renamed to v2 on 2026-10-02 to force a
+          # full re-upload after index.html/.htaccess/robots.txt were deleted on the server)
+          state-name: .ftp-deploy-sync-state-v2.json
 
           # Exclude files/folders that should never be deployed
           exclude: |
