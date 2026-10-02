@@ -434,6 +434,13 @@ body.dark-theme .creative-footer {
   border-radius: 50%;
   border: 1px solid var(--f-line-strong);
   color: var(--f-accent-ink);
+  text-decoration: none !important;
+  transition: border-color 0.25s, transform 0.25s;
+}
+
+a.panel-mark:hover {
+  border-color: var(--f-accent);
+  transform: rotate(-12deg);
 }
 
 .panel-intro {
@@ -444,13 +451,13 @@ body.dark-theme .creative-footer {
   line-height: 1.55;
 }
 
-.automation-grid {
+.channel-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
-.automation-tool {
+.channel-tile {
   position: relative;
   display: flex;
   min-height: 62px;
@@ -465,7 +472,7 @@ body.dark-theme .creative-footer {
   transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.25s, background 0.25s;
 }
 
-.automation-tool:hover {
+.channel-tile:hover {
   transform: translateY(-3px);
   border-color: var(--f-accent);
   background: var(--f-surface-2);
@@ -480,6 +487,61 @@ body.dark-theme .creative-footer {
   border-radius: 9px;
   background: rgba(var(--f-accent-rgb), 0.12);
   color: var(--f-accent-ink);
+}
+
+/* Rotating Tech Universe tiles: the tile stays put, its face flips to the next channel */
+.channel-tile {
+  perspective: 600px;
+}
+
+.channel-face {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  transform-origin: 50% 50%;
+  animation: channel-flip-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Only swapped faces animate; the first nine render still. */
+.channel-grid:not(.is-rotating) .channel-face {
+  animation: none;
+}
+
+@keyframes channel-flip-in {
+  0% {
+    opacity: 0;
+    transform: rotateX(-90deg);
+    filter: blur(2px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .channel-face {
+    animation: none;
+  }
+}
+
+/* Universe glyphs without Universe.css: fill their accent layer with the tile colour */
+.tool-icon .uv-glyph {
+  display: grid;
+  place-items: center;
+}
+
+.tool-icon .g-acc {
+  fill: currentColor;
+}
+
+.tool-icon .g-acc-s {
+  stroke: currentColor;
 }
 
 .tool-info {
@@ -507,7 +569,7 @@ body.dark-theme .creative-footer {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.automation-tool:hover .tool-arrow {
+.channel-tile:hover .tool-arrow {
   opacity: 1;
   transform: translate(2px, -2px);
 }
@@ -887,7 +949,7 @@ body.dark-theme .creative-footer {
     grid-template-columns: 1fr 1fr;
   }
 
-  .arsenal-panel {
+  .universe-panel {
     grid-column: 1 / -1;
   }
 }
@@ -956,7 +1018,7 @@ body.dark-theme .creative-footer {
     padding: 22px 18px;
   }
 
-  .automation-grid {
+  .channel-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

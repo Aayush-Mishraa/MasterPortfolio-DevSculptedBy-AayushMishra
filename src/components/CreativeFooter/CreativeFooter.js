@@ -4,29 +4,40 @@ import { createPortal } from "react-dom";
 import "./CreativeFooter.css";
 import { greeting, socialMediaLinks, experience } from "../../portfolio";
 import ThemeSelector from "../themeSelector/ThemeSelector";
+import { MODULES, moduleById } from "../../pages/universe/modules";
+import { Glyph } from "../../pages/universe/icons";
 
 const buttondownEndpoint = process.env.REACT_APP_BUTTONDOWN_ENDPOINT;
 const CONTACT_EMAIL = "contact@aayushmishra.engineer";
 const currentRole = experience.sections[0].experiences[0];
 
-const automationTools = [
-  ["Selenium", "fa-solid fa-robot", "Web automation", "selenium"],
-  ["Cypress", "fa-solid fa-circle-check", "E2E testing", "cypress"],
-  ["Playwright", "fa-solid fa-theater-masks", "Cross-browser", "playwright"],
-  ["JUnit", "fa-solid fa-flask", "Unit testing", "junit"],
-  ["TestNG", "fa-solid fa-vial", "Test framework", "testng"],
-  ["Postman", "fa-solid fa-paper-plane", "API testing", "postman"],
-  ["Jenkins", "fa-solid fa-gear", "CI/CD pipeline", "jenkins"],
-  ["GitHub Actions", "fa-brands fa-github", "Automation", "github-actions"],
-  ["Docker", "fa-brands fa-docker", "Containerization", "docker"]
-];
+// Footer captions for every Tech Universe channel (titles and glyphs come from modules.js).
+// The card shows nine at a time and rotates the rest through.
+const universeCaptions = {
+  news: "Live tech headlines",
+  launches: "This week's launches",
+  status: "Is it down?",
+  history: "On this day in tech",
+  models: "Trending AI models",
+  papers: "Top AI research",
+  "ai-engineer": "Free LLM APIs",
+  testing: "Framework wars",
+  studio: "Badges & dev tools",
+  contribute: "First open-source PR",
+  music: "Music for deep work",
+  arcade: "Games for engineers",
+  screen: "Films & books on tech"
+};
+const universeChannels = MODULES.map(module => module.id);
+const CHANNEL_SLOTS = 9;
+const CHANNEL_SWAP_MS = 2200;
 
 const sitemap = [
   ["Home", "/home"],
   ["Experience", "/experience"],
   ["Education", "/education"],
   ["Projects", "/projects"],
-  ["Automation Arsenal", "/automation-arsenal"],
+  ["Tech Universe", "/universe"],
   ["Open Source", "/opensource"],
   ["Contact", "/contact"]
 ];
@@ -163,19 +174,64 @@ function FooterHero() {
   );
 }
 
-function Arsenal() {
+// Swaps one tile at a time for a channel that isn't showing, so all 13 cycle through.
+// Holds still while hovered or focused, off-screen, in a hidden tab, or with reduced motion.
+function useChannelRotation(ref) {
+  const [slots, setSlots] = useState(() => universeChannels.slice(0, CHANNEL_SLOTS));
+  const queue = useRef(universeChannels.slice(CHANNEL_SLOTS));
+  const lastSlot = useRef(-1);
+  const paused = useRef(false);
+  const [inView, setInView] = useState(false);
+  const [rotating, setRotating] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === "undefined") return undefined;
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  useEffect(() => {
+    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!inView || reduced || !queue.current.length) return undefined;
+    const id = setInterval(() => {
+      if (paused.current || document.hidden) return;
+      let slot;
+      do slot = Math.floor(Math.random() * CHANNEL_SLOTS); while (slot === lastSlot.current);
+      lastSlot.current = slot;
+      setRotating(true);
+      setSlots(current => {
+        const next = current.slice();
+        queue.current.push(next[slot]);
+        next[slot] = queue.current.shift();
+        return next;
+      });
+    }, CHANNEL_SWAP_MS);
+    return () => clearInterval(id);
+  }, [inView]);
+
+  const pause = useCallback(() => { paused.current = true; }, []);
+  const resume = useCallback(() => { paused.current = false; }, []);
+  return [slots, rotating, { onMouseEnter: pause, onMouseLeave: resume, onFocus: pause, onBlur: resume }];
+}
+
+function TechUniverse() {
   const [ref, revealClass] = useReveal();
+  const [slots, rotating, pauseHandlers] = useChannelRotation(ref);
   return (
-    <section ref={ref} className={`footer-panel arsenal-panel footer-reveal ${revealClass}`} aria-labelledby="arsenal-title">
-      <div className="panel-heading"><div><span className="footer-eyebrow"><i aria-hidden="true"></i>Proof of work</span><h3 id="arsenal-title">Automation Arsenal</h3></div><span className="panel-mark"><i className="fa-solid fa-crosshairs" aria-hidden="true"></i></span></div>
-      <p className="panel-intro">500+ test cases automated across the tools I use to turn quality into momentum.</p>
-      <div className="automation-grid">
-        {automationTools.map(([name, icon, description, topic]) => (
-          <a key={name} className="automation-tool" href={`https://github.com/Aayush-Mishraa?tab=repositories&q=${topic}`} target="_blank" rel="noopener noreferrer">
-            <span className="tool-icon"><i className={icon} aria-hidden="true"></i></span>
-            <span className="tool-info"><strong>{name}</strong><small>{description}</small></span>
-            <i className="fa-solid fa-arrow-up-right-from-square tool-arrow" aria-hidden="true"></i>
-          </a>
+    <section ref={ref} className={`footer-panel universe-panel footer-reveal ${revealClass}`} aria-labelledby="universe-title">
+      <div className="panel-heading"><div><span className="footer-eyebrow"><i aria-hidden="true"></i>Free playground</span><h3 id="universe-title">Tech Universe</h3></div><Link to="/universe" className="panel-mark" aria-label="Enter the Tech Universe"><i className="fa-solid fa-satellite-dish" aria-hidden="true"></i></Link></div>
+      <p className="panel-intro">{universeChannels.length} live channels for the tech world: AI models, research, launches, dev tools, music and games, all on free and open APIs.</p>
+      <div className={`channel-grid ${rotating ? "is-rotating" : ""}`} {...pauseHandlers}>
+        {slots.map((id, slot) => (
+          <Link key={slot} className="channel-tile" to={`/universe/${id}`}>
+            <span key={id} className="channel-face">
+              <span className="tool-icon"><Glyph id={id} size={20} /></span>
+              <span className="tool-info"><strong>{moduleById(id).title}</strong><small>{universeCaptions[id]}</small></span>
+            </span>
+            <i className="fa-solid fa-arrow-right tool-arrow" aria-hidden="true"></i>
+          </Link>
         ))}
       </div>
     </section>
@@ -359,7 +415,7 @@ export default function CreativeFooter() {
         <div className="footer-container">
           <StatusBar />
           <FooterHero />
-          <div className="footer-link-grid"><Arsenal /><Navigate /><Now /></div>
+          <div className="footer-link-grid"><TechUniverse /><Navigate /><Now /></div>
           <ClosingBar />
         </div>
         <Wordmark />
