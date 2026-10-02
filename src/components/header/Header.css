@@ -43,8 +43,14 @@
   pointer-events: none;
 }
 
+/* Pages whose backdrop should run up behind the fixed bar pull themselves
+   up by this much and pad it back (see .hm, .edu, .xp, .ct). */
+:root {
+  --header-space: 90px;
+}
+
 .header-spacer {
-  height: 90px;
+  height: var(--header-space);
 }
 
 .hud-bar {
@@ -562,8 +568,8 @@
     padding: 8px 10px 0;
   }
 
-  .header-spacer {
-    height: 72px;
+  :root {
+    --header-space: 72px;
   }
 
   .hud-bar {

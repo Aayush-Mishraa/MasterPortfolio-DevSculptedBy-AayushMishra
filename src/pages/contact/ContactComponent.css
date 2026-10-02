@@ -41,6 +41,8 @@
 
   position: relative;
   display: block;
+  margin-top: calc(-1 * var(--header-space, 90px));
+  padding-top: var(--header-space, 90px);
   padding-bottom: clamp(3rem, 6vw, 5rem);
   color: var(--c-ink);
   font-family: var(--c-sans);
@@ -64,11 +66,13 @@
 }
 
 .ct__inner {
+  /* Content edges line up with the 1440px header bar, as on Home. */
+  --ct-pad: clamp(1rem, 4vw, 3rem);
   position: relative;
   width: 100%;
-  max-width: 1320px;
+  max-width: calc(1440px + 2 * var(--ct-pad));
   margin: 0 auto;
-  padding: 0 clamp(1rem, 4vw, 3rem);
+  padding: 0 var(--ct-pad);
 }
 
 /* ---------- Background ---------- */
@@ -390,7 +394,7 @@
 
 .ct-hero {
   position: relative;
-  padding: clamp(7rem, 12vw, 9.5rem) 0 clamp(2rem, 4vw, 3rem);
+  padding: clamp(2rem, 4vw, 2.75rem) 0 clamp(2rem, 4vw, 3rem);
 }
 
 .ct-hero__grid {

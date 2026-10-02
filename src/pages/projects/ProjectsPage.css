@@ -11,7 +11,9 @@
   --pj-radius: 20px;
   --pj-radius-sm: 12px;
   --pj-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --pj-max: 1240px;
+  /* Content edges line up with the 1440px header bar, as on Home. */
+  --pj-pad: clamp(16px, 4vw, 40px);
+  --pj-max: calc(1440px + 2 * var(--pj-pad));
 
   position: relative;
   width: 100%;
@@ -110,7 +112,7 @@
   z-index: 1;
   max-width: var(--pj-max);
   margin: 0 auto;
-  padding: 24px clamp(16px, 4vw, 40px) 96px;
+  padding: 24px var(--pj-pad) 96px;
 }
 
 .pj-section {
@@ -480,6 +482,10 @@
 
 .pj-hero-visual {
   position: relative;
+  /* Sized by the screen's height as well as the column, so the whole card
+     fits on short or zoomed-in screens */
+  justify-self: center;
+  width: min(100%, 540px, max(380px, calc((100svh - 250px) * 1.16)));
 }
 
 .pj-radar-frame {
@@ -533,7 +539,10 @@
 .pj-radar,
 .pj-radar-skeleton {
   position: relative;
-  width: 100%;
+  /* The sector labels (LEARNING, API) sit just outside the SVG's box; the
+     side margin keeps them inside the card */
+  width: 88%;
+  margin: 0 auto;
   aspect-ratio: 1;
 }
 
@@ -1668,9 +1677,6 @@
   margin: 0;
   padding: 0 0 0 4px;
   list-style: none;
-  max-height: 540px;
-  overflow-y: auto;
-  scrollbar-width: thin;
 }
 
 .pj-stream::before {

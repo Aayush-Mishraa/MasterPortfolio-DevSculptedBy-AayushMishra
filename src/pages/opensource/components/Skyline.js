@@ -16,7 +16,21 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 
 const levelMix = [0.1, 0.38, 0.58, 0.78, 1];
 
-export default function Skyline({ days = [], accent = "#0E6BA8", bg = "#0b1020", dark = true, inView = true }) {
+// ~1,100 polygons: memoised so hovering or a parent re-render doesn't re-diff the whole city.
+const Towers = React.memo(function Towers({ towers, colors }) {
+  return towers.map((tower, index) => {
+    const color = colors[tower.level];
+    return (
+      <g key={tower.key} data-i={index} className="os-tower" style={{ "--d": `${tower.delay}ms` }}>
+        <polygon points={tower.side} fill={color.side} />
+        <polygon points={tower.front} fill={color.front} />
+        <polygon points={tower.top} fill={color.top} />
+      </g>
+    );
+  });
+});
+
+function Skyline({ days = [], accent = "#0E6BA8", bg = "#0b1020", dark = true, inView = true }) {
   const [hover, setHover] = useState(null);
   const frame = useRef(null);
 
@@ -91,6 +105,14 @@ export default function Skyline({ days = [], accent = "#0E6BA8", bg = "#0b1020",
     if (frame.current) frame.current.scrollLeft = frame.current.scrollWidth;
   }, [model]);
 
+  // The highlight is a class set straight on the hovered tower, so <Towers> never re-renders for it.
+  useEffect(() => {
+    const node = hover != null && frame.current && frame.current.querySelector(`[data-i="${hover}"]`);
+    if (!node) return undefined;
+    node.classList.add("is-hover");
+    return () => node.classList.remove("is-hover");
+  }, [hover, model]);
+
   if (!model) return <div className="os-skeleton-block os-skeleton-block--tall" aria-busy="true" />;
 
   const hovered = hover != null ? model.towers[hover] : null;
@@ -117,21 +139,7 @@ export default function Skyline({ days = [], accent = "#0E6BA8", bg = "#0b1020",
           </linearGradient>
         </defs>
         <polygon points={model.groundPath} fill="url(#os-ground)" className="os-skyline-ground" />
-        {model.towers.map((tower, index) => {
-          const color = model.colors[tower.level];
-          return (
-            <g
-              key={tower.key}
-              data-i={index}
-              className={`os-tower ${hover === index ? "is-hover" : ""}`}
-              style={{ "--d": `${tower.delay}ms` }}
-            >
-              <polygon points={tower.side} fill={color.side} />
-              <polygon points={tower.front} fill={color.front} />
-              <polygon points={tower.top} fill={color.top} />
-            </g>
-          );
-        })}
+        <Towers towers={model.towers} colors={model.colors} />
         {model.months.map((month) => (
           <text key={`${month.label}-${month.x}`} x={month.x} y={model.groundY + 18} className="os-skyline-month">
             {month.label}
@@ -158,3 +166,5 @@ export default function Skyline({ days = [], accent = "#0E6BA8", bg = "#0b1020",
     </div>
   );
 }
+
+export default React.memo(Skyline);

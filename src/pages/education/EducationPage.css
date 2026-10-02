@@ -29,7 +29,8 @@
 
   position: relative;
   display: block;
-  padding: clamp(7rem, 12vw, 9rem) 0 clamp(4rem, 8vw, 6rem);
+  margin-top: calc(-1 * var(--header-space, 90px));
+  padding: calc(var(--header-space, 90px) + clamp(2rem, 4vw, 2.75rem)) 0 clamp(4rem, 8vw, 6rem);
   color: var(--e-text);
   font-family: var(--e-sans);
   overflow: hidden;

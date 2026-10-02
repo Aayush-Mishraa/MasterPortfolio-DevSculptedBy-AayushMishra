@@ -10,7 +10,9 @@
   --os-radius: 20px;
   --os-radius-sm: 12px;
   --os-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --os-max: 1240px;
+  /* Content edges line up with the 1440px header bar, as on Home. */
+  --os-pad: clamp(16px, 4vw, 40px);
+  --os-max: calc(1440px + 2 * var(--os-pad));
   --os-merged: #8b5cf6;
   --os-open: #22c55e;
   --os-closed: #ef4444;
@@ -76,19 +78,31 @@
   right: -50%;
   bottom: 0;
   height: 70%;
-  background-image: linear-gradient(var(--pj-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--pj-grid) 1px, transparent 1px);
-  background-size: 64px 64px;
+  overflow: hidden;
   transform: perspective(700px) rotateX(62deg);
   transform-origin: 50% 0;
   mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 55%, transparent);
   -webkit-mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 55%, transparent);
+}
+
+/* The grid slides on its own layer (transform) so it never repaints; animating
+   background-position repainted the whole floor every frame. */
+.os-backdrop-floor::before {
+  content: "";
+  position: absolute;
+  top: -64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(var(--pj-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pj-grid) 1px, transparent 1px);
+  background-size: 64px 64px;
   animation: os-floor 14s linear infinite;
 }
 
 @keyframes os-floor {
   to {
-    background-position: 0 64px;
+    transform: translateY(64px);
   }
 }
 
@@ -139,7 +153,7 @@
   z-index: 1;
   max-width: var(--os-max);
   margin: 0 auto;
-  padding: 24px clamp(16px, 4vw, 40px) 96px;
+  padding: 24px var(--os-pad) 96px;
 }
 
 .os-section {
@@ -376,6 +390,13 @@
 @media (max-width: 1320px) {
   .os-rail {
     display: none;
+  }
+}
+
+/* While the rail shows, keep the content gutter clear of it. */
+@media (min-width: 1321px) {
+  .os-root {
+    --os-pad: 68px;
   }
 }
 
@@ -642,21 +663,27 @@
   display: block;
 }
 
+/* A tall strip of repeating scan bands moved with transform instead of
+   background-position, so the sweep runs on the compositor. Each band repeats
+   every 2.5 avatar heights (31.25% of the 800% strip), as before. */
 .os-core-scan {
   position: absolute;
-  inset: 0;
+  top: -500%;
+  left: 0;
+  right: 0;
+  height: 800%;
   background: linear-gradient(to bottom, transparent 40%, var(--pj-accent-glow) 50%, transparent 60%);
-  background-size: 100% 250%;
+  background-size: 100% 31.25%;
   mix-blend-mode: screen;
   animation: os-scan 3.6s ease-in-out infinite;
 }
 
 @keyframes os-scan {
   from {
-    background-position: 0 100%;
+    transform: translateY(-18.75%);
   }
   to {
-    background-position: 0 -150%;
+    transform: translateY(28.125%);
   }
 }
 
@@ -2349,6 +2376,26 @@
 }
 
 /* ---------- Motion ---------- */
+
+/* Looping decoration only runs while its part of the page is on screen
+   (data-offscreen is set from Opensource.js). Off-screen loops still cost a
+   style, paint and composite pass on every scroll frame. */
+[data-offscreen] .os-backdrop-floor::before,
+[data-offscreen] .os-backdrop-orb,
+[data-offscreen] .os-live-dot::after,
+[data-offscreen] .os-glitch,
+[data-offscreen] .os-glitch::before,
+[data-offscreen] .os-glitch::after,
+[data-offscreen] .os-gradient-text,
+[data-offscreen] .os-caret,
+[data-offscreen] .os-core-ring,
+[data-offscreen] .os-core-orbit,
+[data-offscreen] .os-core-chip > span,
+[data-offscreen] .os-core-scan,
+[data-offscreen] .os-eco-run,
+[data-offscreen] .os-ticker-run {
+  animation-play-state: paused;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .os-root *,

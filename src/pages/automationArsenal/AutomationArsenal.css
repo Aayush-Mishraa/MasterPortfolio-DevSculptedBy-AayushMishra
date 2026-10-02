@@ -12,7 +12,8 @@
   --aa-radius: 22px;
   --aa-radius-sm: 12px;
   --aa-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --aa-max: 1240px;
+  /* Content edges line up with the 1440px header bar, as on Home. */
+  --aa-max: calc(1440px + 2 * var(--aa-gutter));
   --aa-gutter: clamp(16px, 4vw, 40px);
 
   position: relative;

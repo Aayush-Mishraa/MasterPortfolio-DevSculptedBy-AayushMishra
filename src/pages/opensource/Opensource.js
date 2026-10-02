@@ -259,6 +259,18 @@ export default function Opensource({ theme }) {
     return () => observer.disconnect();
   }, []);
 
+  // Flag regions that are off screen so their looping decoration pauses (see "Motion" in
+  // Opensource.css). An attribute, not a class, so React re-renders never clear it.
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => entry.target.toggleAttribute("data-offscreen", !entry.isIntersecting)),
+      { rootMargin: "100px 0px" }
+    );
+    document.querySelectorAll(".os-backdrop, .os-hero, .os-section, .os-brief").forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, []);
+
   const loading = !repos.length;
   const own = repos.filter((repo) => !repo.fork);
   const mergedPrs = prs ? prs.filter((pr) => pr.state === "merged").length : 0;
