@@ -47,5 +47,15 @@ Fill these in once checked (plan v3.1 asks for them before the backend goes live
 | SMTP host / port | smtp.hostinger.com, 465 (SSL) — _to confirm_ |
 | CDN | Hostinger CDN (`Server: hcdn`); flush in hPanel after changes to `.htaccess` or HTML |
 
+## hPanel settings (Hostinger)
+
+| Where | Setting | Why |
+|---|---|---|
+| Websites → aayushmishra.engineer → Dashboard → Performance → CDN → AI Audit | **Allow** GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, Claude-User, PerplexityBot, Perplexity-User, Applebot, CCBot | F08: approved AI crawlers get 200 (GPTBot got 429 on 3 Oct 2026) |
+| Same page | Security level / bot protection at default, never "under attack" | crawlers and webhooks must not get a JS challenge |
+| Same page → Flush cache | after any change to `.htaccess`, robots.txt or prerendered HTML | the CDN can keep an old copy for days |
+
+Check access any time with `node scripts/qa/check-bots.mjs` (or Actions → **Live check** → Run workflow, which runs from a GitHub datacenter IP like the webhook senders).
+
 ## Leftovers to remove by hand
 The three manual workflows `deploy-ftp.yml`, `deploy-hostinger.yml` and `urgent-fix.yml` in `.github/workflows/` still exist (Claude's auto-mode blocked deleting CI files). They only run on `workflow_dispatch` but upload to `FTP_SERVER_DIR`, which may be the wrong folder. Delete them in a commit of your own.

@@ -196,6 +196,14 @@
     "ecommerce",
     "Tetris",
     "parameterised",
-    "Segoe"
+    "Segoe",
+    "Applebot",
+    "Bingbot",
+    "CCBot",
+    "Googlebot",
+    "GPTBot",
+    "ClaudeBot",
+    "PerplexityBot",
+    "robotstxt"
   ]
 }

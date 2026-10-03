@@ -1,0 +1,34 @@
+name: Live check
+
+# Runs against the live site after every deploy, once a day, and on demand.
+# F08: crawlers (Googlebot, Bingbot, the approved AI bots) must get the real
+# page, and server user agents (Cal.com, Buttondown, GitHub Actions) must reach
+# /api/. Hostinger's CDN decides per user agent and per IP, so this run from a
+# GitHub datacenter IP is the one webhooks will see.
+
+on:
+  workflow_run:
+    workflows: ["Deploy Static Website to Hostinger"]
+    types: [completed]
+  schedule:
+    - cron: "30 3 * * *" # 09:00 IST
+  workflow_dispatch:
+
+jobs:
+  live:
+    name: Bots and API reachability
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Let the new files settle
+        if: ${{ github.event_name == 'workflow_run' }}
+        run: sleep 45
+
+      - name: Crawler and server user agents
+        run: node scripts/qa/check-bots.mjs https://aayushmishra.engineer

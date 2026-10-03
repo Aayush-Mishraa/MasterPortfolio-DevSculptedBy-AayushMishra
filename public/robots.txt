@@ -1,3 +1,25 @@
 # https://www.robotstxt.org/robotstxt.html
+# Search engines and AI crawlers are welcome on every page (decision of 3 Oct 2026).
+# The AI crawlers are listed by name so the choice is explicit; they share one
+# set of rules with everyone else.
 User-agent: *
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: CCBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /splash
+
 Sitemap: https://aayushmishra.engineer/sitemap.xml
