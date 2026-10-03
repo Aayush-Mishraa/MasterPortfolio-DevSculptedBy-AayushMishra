@@ -1,0 +1,40 @@
+# Local stand-in for Hostinger: the built site (build/, with api/ staged into
+# it) on Apache + PHP 8.2, a MySQL 8 database and Mailpit catching mail.
+#
+#   docker compose -f tests/server/docker-compose.yml up -d --build
+#   site  http://localhost:8080      mail UI  http://localhost:8025
+name: aayush-site
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ../../build:/var/www/html
+      - ./api-config.php:/var/www/private/api-config.php:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      mail:
+        condition: service_started
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: portfolio
+      MYSQL_USER: portfolio
+      MYSQL_PASSWORD: portfolio
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  mail:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"
+      - "1025:1025"

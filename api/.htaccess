@@ -1,0 +1,29 @@
+# /api/: only the endpoint scripts are public. Everything here answers JSON,
+# is never cached (CDN or browser) and never indexed. These rules replace the
+# site's SPA rules for this folder, so unknown paths get a JSON 404.
+
+Options -Indexes -MultiViews
+DirectoryIndex health.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Apache keeps Authorization from PHP; hand it over for the admin endpoints.
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+  # Internals: code, migrations, tests, dependencies and any config file.
+  RewriteRule ^(lib|migrations|tests|vendor)(/|$) - [F,L]
+  RewriteRule (^|/)\. - [F,L]
+  RewriteRule \.(sql|md|json|lock|xml|dist|log|ini|txt|cnt)$ - [F,L]
+  RewriteRule ^config(\.example)?\.php$ - [F,L]
+</IfModule>
+
+# The PHP endpoints send these too; "set" replaces theirs rather than doubling them.
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-store, private, max-age=0"
+  Header set X-Robots-Tag "noindex, nofollow"
+  Header set X-Content-Type-Options "nosniff"
+  Header unset Access-Control-Allow-Origin
+</IfModule>
+
+ErrorDocument 403 /api/not-found.php
+ErrorDocument 404 /api/not-found.php

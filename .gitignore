@@ -56,3 +56,9 @@ hostinger-deployment-latest/
 /tests/.report/
 /playwright-report/
 /test-results/
+
+# PHP API
+/api/vendor/
+/api/config.php
+/api/.phpunit.cache/
+/api/vendor-dist/

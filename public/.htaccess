@@ -11,6 +11,10 @@ RewriteEngine On
 # Set base directory
 RewriteBase /
 
+# The PHP API and the admin area answer for themselves (each has its own
+# .htaccess); they never fall through to the React app below.
+RewriteRule ^(api|admin)(/|$) - [L]
+
 # Handle Angular and React Router (History API) - Hostinger Optimized
 # Don't rewrite files or directories that exist
 RewriteCond %{REQUEST_FILENAME} -f [OR]
