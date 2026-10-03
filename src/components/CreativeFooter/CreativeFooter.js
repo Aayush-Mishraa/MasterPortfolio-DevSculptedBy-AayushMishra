@@ -324,11 +324,11 @@ const legalNotes = {
   privacy: {
     title: "Privacy",
     body: [
-      "This site uses Google Analytics and Google Ads/AdSense, which may set cookies to measure visits and serve ads. See Google's privacy policy for how that data is handled.",
+      "This site runs no analytics, ads or tracking scripts, and sets no tracking cookies.",
       "Your theme choice, contact-form drafts and cached GitHub data are kept in your own browser's local storage and never sent to me.",
       "If you email me, subscribe or send the contact form, your address is used only to reply. It is never sold or shared."
     ],
-    link: ["Google privacy policy", "https://policies.google.com/privacy"]
+    link: ["Email me", `mailto:${CONTACT_EMAIL}`]
   },
   terms: {
     title: "Terms",
