@@ -13,8 +13,6 @@
   "scripts": {
     "build": "react-scripts build",
     "prebuild": "node scripts/automation/fetch_projects_snapshot.mjs && node scripts/automation/build_bug_log.mjs",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -b gh-pages -d build",
     "eject": "react-scripts eject",
     "start": "react-scripts start",
     "test": "react-scripts test",
@@ -27,7 +25,6 @@
     "apollo-boost": "^0.4.4",
     "baseui": "^9.65.3",
     "chart.js": "^2.9.3",
-    "gh-pages": "^2.1.1",
     "gsap": "^3.13.0",
     "node-fetch": "^2.6.0",
     "prettier-package-json": "^2.1.3",
