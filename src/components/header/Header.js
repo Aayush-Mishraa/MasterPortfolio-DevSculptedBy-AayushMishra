@@ -9,10 +9,11 @@ import { MODULES as UNIVERSE_PAGES } from "../../pages/universe/modules";
 import { automationTools } from "../../pages/automationArsenal/arsenalData";
 import { loadSnapshot, prettyName } from "../../services/github/githubData";
 import { unlockIntroSound } from "../../pages/splash/introSound";
+import { introSoundOn } from "../../pages/splash/introPolicy";
 
 const NAV_LINKS = [
   {
-    to: "/home",
+    to: "/",
     label: "Home",
     icon: "fa-solid fa-house",
     isActive: (match, location) => Boolean(match || location.pathname === "/")
@@ -76,7 +77,8 @@ class Header extends Component {
   // The logo replays the intro; unlocking audio inside this click is what lets
   // browsers (Safari especially) play its sound.
   replayIntro = () => {
-    unlockIntroSound();
+    // Inside the click, so the intro may play sound (only if it's turned on).
+    if (introSoundOn()) unlockIntroSound();
     this.closeMobileMenu();
   }
 
@@ -237,7 +239,7 @@ class Header extends Component {
       label: link.label,
       icon: link.icon,
       hint: String(index + 1).padStart(2, "0"),
-      current: path === link.to || (link.to === "/home" && path === "/"),
+      current: path === link.to || (link.to === "/" && path === "/home"),
       run: go(link.to)
     }));
 

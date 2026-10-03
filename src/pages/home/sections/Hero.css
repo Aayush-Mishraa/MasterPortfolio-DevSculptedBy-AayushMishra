@@ -451,8 +451,8 @@ body.dark-theme .hm-shot__light {
     min-height: 48px;
   }
 
+  /* the two text buttons (brief, intro) share the last row */
   .hm-hero__actions .hm-btn--link {
-    grid-column: 1 / -1;
     justify-content: flex-start;
   }
 

@@ -214,6 +214,45 @@ html.intro-cover .intro ~ * *::after {
   padding: 0 8px 0 14px;
 }
 
+.intro-sound {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid var(--intro-line);
+  border-radius: 999px;
+  background: rgba(14, 15, 19, 0.72);
+  color: var(--intro-dim);
+  font: 500 11px/1 var(--intro-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 200ms ease, border-color 200ms ease, background-color 200ms ease;
+}
+
+.intro-sound[aria-pressed="true"] {
+  color: var(--intro-ink);
+  border-color: rgba(245, 245, 247, 0.28);
+}
+
+.intro-sound:hover,
+.intro-sound:focus-visible {
+  border-color: rgba(245, 245, 247, 0.28);
+  background: rgba(30, 32, 38, 0.85);
+  color: var(--intro-ink);
+}
+
+.intro-sound:focus {
+  outline: none;
+}
+
+.intro-sound:focus-visible {
+  outline: 2px solid var(--intro-glow);
+  outline-offset: 3px;
+}
+
 .intro-skip:hover,
 .intro-skip:focus-visible {
   border-color: rgba(245, 245, 247, 0.28);
@@ -240,162 +279,6 @@ html.intro-cover .intro ~ * *::after {
   font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: lowercase;
-}
-
-/* Enter screen ----------------------------------------------------------
-   First visits only: browsers block sound until the visitor clicks, so this
-   one click starts the intro with full sound. */
-
-.intro-gate {
-  position: absolute;
-  inset: 0;
-  z-index: 8;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background:
-    radial-gradient(ellipse 55% 45% at 50% 46%, color-mix(in srgb, var(--intro-accent) 20%, transparent), transparent 72%),
-    var(--intro-bg);
-  text-align: center;
-  cursor: pointer;
-}
-
-.intro-gate[hidden] {
-  display: none;
-}
-
-.intro-gate > * {
-  animation: intro-gate-in 900ms var(--intro-ease) both;
-}
-
-.intro-gate > :nth-child(2) {
-  animation-delay: 120ms;
-}
-
-.intro-gate > :nth-child(3) {
-  animation-delay: 260ms;
-}
-
-.intro-gate > :nth-child(4) {
-  animation-delay: 380ms;
-}
-
-.intro-gate__name {
-  margin: 0;
-  color: var(--intro-ink);
-  font-family: "Agustina Regular", cursive;
-  /* Fallback only: Splash.js sizes this to fit the screen. */
-  font-size: clamp(24px, 6vw, 76px);
-  font-weight: bold;
-  line-height: 1.2;
-  white-space: nowrap;
-  text-shadow: 0 0 0.3em color-mix(in srgb, var(--intro-glow) 40%, transparent);
-}
-
-.intro-gate__bracket {
-  margin: 0 0.25em;
-  color: var(--intro-dim);
-  font-family: var(--intro-sans);
-  font-size: 0.72em;
-  font-weight: 400;
-  text-shadow: none;
-}
-
-.intro-gate__role {
-  margin: 18px 0 46px;
-  color: var(--intro-dim);
-  font: 500 12px/1.4 var(--intro-mono);
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-}
-
-.intro-gate__enter {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  height: 54px;
-  margin: 0;
-  padding: 0 32px 0 26px;
-  border: 1px solid rgba(245, 245, 247, 0.3);
-  border-radius: 999px;
-  background: rgba(245, 245, 247, 0.06);
-  color: var(--intro-ink);
-  font: 500 13px/1 var(--intro-mono);
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background-color 200ms ease, border-color 200ms ease, transform 200ms var(--intro-ease);
-}
-
-/* Slow ping around the button so the one action reads at a glance. */
-.intro-gate__enter::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border: 1px solid var(--intro-glow);
-  border-radius: inherit;
-  opacity: 0;
-  animation: intro-gate-ping 2.4s ease-out 1.2s infinite;
-  pointer-events: none;
-}
-
-.intro-gate__enter:hover,
-.intro-gate__enter:focus-visible {
-  border-color: var(--intro-glow);
-  background: rgba(245, 245, 247, 0.12);
-  transform: translateY(-1px);
-}
-
-.intro-gate__enter:focus {
-  outline: none;
-}
-
-.intro-gate__enter:focus-visible {
-  outline: 2px solid var(--intro-glow);
-  outline-offset: 4px;
-}
-
-.intro-gate__play {
-  width: 0;
-  height: 0;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-  border-left: 10px solid currentColor;
-}
-
-.intro-gate__hint {
-  margin: 22px 0 0;
-  color: var(--intro-faint);
-  font: 400 11px/1 var(--intro-mono);
-  letter-spacing: 0.12em;
-}
-
-/* The rest of the chrome waits behind the Enter screen. */
-.intro.is-gated .intro-actions,
-.intro.is-gated .intro-cursor {
-  display: none;
-}
-
-@keyframes intro-gate-in {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-}
-
-@keyframes intro-gate-ping {
-  0% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(1.18, 1.5);
-  }
 }
 
 /* Bottom: test log + suite counter -------------------------------------- */

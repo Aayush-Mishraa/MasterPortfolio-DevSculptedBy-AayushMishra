@@ -33,7 +33,7 @@ const CHANNEL_SLOTS = 9;
 const CHANNEL_SWAP_MS = 2200;
 
 const sitemap = [
-  ["Home", "/home"],
+  ["Home", "/"],
   ["Experience", "/experience"],
   ["Education", "/education"],
   ["Projects", "/projects"],

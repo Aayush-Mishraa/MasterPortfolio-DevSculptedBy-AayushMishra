@@ -71,12 +71,7 @@ export const watchIntro = ({ onHold, onReveal, onLand }) => {
     waiting = true;
     onHold();
     const guard = () => {
-      // A visitor can sit on the intro's Enter screen as long as they like;
-      // only guard against an intro that never finishes once it's running.
-      if (html.classList.contains("intro-gated")) {
-        failsafe = setTimeout(guard, FAILSAFE_MS);
-        return;
-      }
+      // Guard against an intro that never finishes.
       onReveal(0);
       land();
     };

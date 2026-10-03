@@ -4,6 +4,11 @@ All notable changes to aayushmishra.engineer. Newest first.
 
 ## 2026-10-03
 
+### F05 · Intro without the wait
+- The intro no longer plays on its own: every visit lands on the hero. "Play intro" (hero) and the header logo play it.
+- Sound is off by default, with a remembered on/off toggle in the intro; the "Enter" screen is gone.
+- The intro ends on `/`, which is now where the Home links point.
+
 ### F04 · Newsletter → backend
 - The footer no longer fakes a successful sign-up and drops the address: it says "Newsletter coming soon" until issue #1.
 - `/api/subscribe.php` sends sign-ups to Buttondown, which emails the confirmation link (double opt-in); `/api/buttondown-webhook.php` (HMAC-signed) keeps each subscriber's status in MySQL.

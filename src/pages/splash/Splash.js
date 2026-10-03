@@ -4,7 +4,7 @@ import { greeting } from "../../portfolio";
 import { createIntroSound } from "./introSound";
 import { createGridFx, createSparks } from "./introSparks";
 import { tracePen } from "./introPen";
-import { markIntroSeen } from "./introPolicy";
+import { introSoundOn, markIntroSeen, setIntroSound } from "./introPolicy";
 import "./Splash.css";
 
 /*
@@ -17,6 +17,9 @@ import "./Splash.css";
   3. Pass      the snapshot matches: a chord, a shockwave through the grid,
                and the role line decodes
   4. Handoff   the curtain lifts and the signature flies into the header logo
+
+  It only plays when asked (F05): the home page's "Play intro" button or the
+  header logo. Sound is off unless the visitor turns it on (remembered).
 
   It plays over the home page, which is already mounted underneath, so the
   handoff lands on the real header logo instead of cutting to a new page.
@@ -166,7 +169,7 @@ function Splash({ history, theme }) {
     const sparksCanvas = $(".intro-sparks");
     const cursor = $(".intro-cursor");
     const cursorText = $(".intro-cursor__text");
-    const gate = $(".intro-gate");
+    const soundButton = $(".intro-sound");
 
     const accent = hexToRgb(theme && theme.imageHighlight) || DEFAULT_ACCENT;
     const glowRgb = mixRgb(accent, [255, 255, 255], 0.45);
@@ -177,7 +180,6 @@ function Splash({ history, theme }) {
     let skipped = false;
     let finished = false;
     let cancelled = false;
-    let gated = false;
     let failsafe = null;
     let fittedInFont = false;
     let retracePen = null;
@@ -197,7 +199,7 @@ function Splash({ history, theme }) {
     const startedAt = performance.now();
     // On a first load Lenis is created after this effect runs (App's effect
     // comes after its children's), so the stop() below misses it; this is
-    // called again once the Enter screen or the intro actually shows.
+    // called again once the intro actually shows.
     const holdScroll = () => {
       if (window.__lenis) window.__lenis.stop();
     };
@@ -213,12 +215,33 @@ function Splash({ history, theme }) {
     const finish = () => {
       if (finished) return;
       finished = true;
-      history.replace("/home");
+      history.replace("/");
     };
 
-    // Sound is always on. Browsers keep it blocked until the visitor clicks or
-    // presses a key, so a first visit waits on the Enter screen (below).
-    const sound = createIntroSound();
+    // Off unless the visitor turned it on. The click that opened the intro
+    // lets the audio start; if the browser still blocks it, the run is silent.
+    let sound = introSoundOn() ? createIntroSound() : null;
+
+    const renderSoundButton = () => {
+      const on = Boolean(sound);
+      soundButton.setAttribute("aria-pressed", on ? "true" : "false");
+      soundButton.querySelector(".intro-sound__label").textContent = on ? "Sound on" : "Sound off";
+      soundButton.querySelector("i").className = on ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
+    };
+    const toggleSound = (event) => {
+      // Any other click on the intro skips it.
+      event.stopPropagation();
+      if (sound) {
+        sound.dispose();
+        sound = null;
+      } else {
+        sound = createIntroSound();
+        if (sound) sound.unlock();
+      }
+      setIntroSound(Boolean(sound));
+      renderSoundButton();
+    };
+    renderSoundButton();
 
     // Visual helpers -----------------------------------------------------------
 
@@ -314,22 +337,7 @@ function Splash({ history, theme }) {
       }
     };
     if (!reduced) gsap.ticker.add(onFrame);
-    // The Enter screen's signature, sized to fit like the intro's own: the
-    // script font is so wide that any vw-based size overflows narrow phones.
-    // Measures the text itself (its box is clamped to the screen) and leaves
-    // room for the swashes that reach past the letters.
-    const fitGate = () => {
-      const nameEl = $(".intro-gate__name");
-      nameEl.style.fontSize = "100px";
-      const range = document.createRange();
-      range.selectNodeContents(nameEl);
-      const textWidth = range.getBoundingClientRect().width || 1000;
-      const available = gate.getBoundingClientRect().width * 0.84;
-      nameEl.style.fontSize = `${Math.min(76, (available / textWidth) * 100)}px`;
-    };
-
     const onResize = () => {
-      if (gated) fitGate();
       if (sparks) sparks.resize();
       if (fx) fx.resize();
     };
@@ -596,42 +604,7 @@ function Splash({ history, theme }) {
 
     // Controls ---------------------------------------------------------------
 
-    // Enter screen: the click (or key press) that lifts the browser's audio
-    // block, then the intro plays with full sound.
-    let beginWith = null;
-    const enter = () => {
-      if (!gated) return;
-      gated = false;
-      root.classList.remove("is-gated");
-      html.classList.remove("intro-gated");
-      const unlocked = sound ? sound.unlock() : Promise.resolve(true);
-      gsap.to(gate, {
-        opacity: 0,
-        duration: 0.45,
-        ease: "power2.in",
-        onComplete: () => {
-          gate.hidden = true;
-        }
-      });
-      unlocked.then(() => {
-        if (!cancelled) gsap.delayedCall(0.3, beginWith);
-      });
-    };
-
-    // Esc on the Enter screen: straight to the page, no intro.
-    const leave = () => {
-      gated = false;
-      html.classList.remove("intro-gated");
-      exit = gsap.timeline({ onComplete: finish })
-        .call(() => html.classList.remove("intro-active", "intro-cover"))
-        .to(root, { opacity: 0, duration: 0.35, ease: "power1.out" });
-    };
-
     const skip = () => {
-      if (gated) {
-        enter();
-        return;
-      }
       if (skipped || finished) return;
       skipped = true;
       if (sound) sound.skipped();
@@ -651,11 +624,8 @@ function Splash({ history, theme }) {
     const onKey = (event) => {
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       usedKeyboard = true;
-      if (gated && event.key === "Escape") {
-        event.preventDefault();
-        leave();
-        return;
-      }
+      // Enter or Space on the sound button toggles it rather than skipping.
+      if (event.target === soundButton && event.key !== "Escape") return;
       if (["Escape", "Enter", " ", "Spacebar"].includes(event.key)) {
         event.preventDefault();
         skip();
@@ -668,6 +638,7 @@ function Splash({ history, theme }) {
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
     root.addEventListener("click", skip);
+    soundButton.addEventListener("click", toggleSound);
     root.addEventListener("pointermove", onPointer);
     root.addEventListener("pointerleave", onPointerLeave);
     root.addEventListener("wheel", blockScroll, { passive: false });
@@ -675,47 +646,23 @@ function Splash({ history, theme }) {
 
     waitForFonts().then(async () => {
       if (cancelled) return;
-      beginWith = async () => {
-        await waitForSignatureFont();
-        if (cancelled) return;
-        holdScroll();
-        const size = fitLockup();
-        fittedInFont = signatureFontLoaded();
-        root.classList.add("is-ready");
-        failsafe = setTimeout(finish, FAILSAFE_MS);
-        if (reduced) playReduced();
-        else playFull(size);
-      };
-      // Already allowed to play sound (e.g. the logo was just clicked): go.
-      const unlocked = !sound || (await sound.unlock());
+      if (sound) await sound.unlock();
       if (cancelled) return;
-      if (unlocked) {
-        beginWith();
-        return;
-      }
-      gated = true;
-      root.classList.add("is-gated");
-      // Tells the home page the intro is waiting on the visitor, not stuck.
-      html.classList.add("intro-gated");
-      // The wheel used to scroll the hidden page behind the Enter screen.
+      await waitForSignatureFont();
+      if (cancelled) return;
       holdScroll();
-      gate.hidden = false;
-      fitGate();
-      $(".intro-gate__enter").focus({ preventScroll: true });
-      // It may still be showing the fallback font: refit when Agustina lands.
-      waitForSignatureFont().then(() => {
-        if (gated && !cancelled) fitGate();
-      });
+      const size = fitLockup();
+      fittedInFont = signatureFontLoaded();
+      root.classList.add("is-ready");
+      failsafe = setTimeout(finish, FAILSAFE_MS);
+      if (reduced) playReduced();
+      else playFull(size);
     });
 
     // Safety net: if the font arrives after the wait gave up, refit (and
     // re-trace the pen) at once so the signature can't stay oversized.
     const onFontsLoaded = () => {
       if (fittedInFont || handedOff || !signatureFontLoaded()) return;
-      if (gated) {
-        fitGate();
-        return;
-      }
       if (!root.classList.contains("is-ready")) return;
       fittedInFont = true;
       fitLockup();
@@ -744,11 +691,12 @@ function Splash({ history, theme }) {
         document.fonts.removeEventListener("loadingdone", onFontsLoaded);
       }
       root.removeEventListener("click", skip);
+      soundButton.removeEventListener("click", toggleSound);
       root.removeEventListener("pointermove", onPointer);
       root.removeEventListener("pointerleave", onPointerLeave);
       root.removeEventListener("wheel", blockScroll);
       root.removeEventListener("touchmove", blockScroll);
-      html.classList.remove("intro-active", "intro-cover", "intro-gated");
+      html.classList.remove("intro-active", "intro-cover");
       if (window.__lenis) window.__lenis.start();
       // Keyboard visitors get focus on the logo the signature just landed on.
       // Not for mouse and touch visitors: Chrome shows a focus ring for a
@@ -891,21 +839,11 @@ function Splash({ history, theme }) {
         <span className="intro-cursor__text" />
       </div>
 
-      <div className="intro-gate" hidden>
-        <p className="intro-gate__name">
-          <span className="intro-gate__bracket">&lt;</span>
-          {greeting.logo_name}
-          <span className="intro-gate__bracket">/&gt;</span>
-        </p>
-        <p className="intro-gate__role">{ROLE}</p>
-        <button type="button" className="intro-gate__enter">
-          <span className="intro-gate__play" aria-hidden="true" />
-          Enter
-        </button>
-        <p className="intro-gate__hint">Sound on · best with headphones</p>
-      </div>
-
       <div className="intro-actions">
+        <button type="button" className="intro-sound" aria-pressed="false">
+          <i className="fa-solid fa-volume-xmark" aria-hidden="true" />
+          <span className="intro-sound__label">Sound off</span>
+        </button>
         <button type="button" className="intro-skip">
           Skip intro <kbd>esc</kbd>
         </button>

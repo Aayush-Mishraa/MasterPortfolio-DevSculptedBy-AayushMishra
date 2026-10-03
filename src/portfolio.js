@@ -7,7 +7,8 @@ const SITE_TITLE = `Aayush Mishra · ${JOB_TITLE}`;
 
 // Website related settings
 const settings = {
-  isSplash: true, // Play the intro on the first visit to / in a browser session (the logo always replays it).
+  // The intro is opt-in: "Play intro" on the home page and the header logo play it (see introPolicy.js).
+  isSplash: false,
 };
 
 //SEO Related settings

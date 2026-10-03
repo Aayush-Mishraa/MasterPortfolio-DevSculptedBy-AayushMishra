@@ -6,6 +6,8 @@ import { CAREER_START, HIGHLIGHTS, PROFILE, availabilityAt, utcLabel, yearsSince
 import { EASE, gsap, hasFinePointer, prefersReducedMotion, useGsap, useNow, watchIntro } from "../lib/motion";
 import EvidenceLog from "../components/EvidenceLog";
 import { scrollToId } from "../lib/scroll";
+import { introSoundOn } from "../../splash/introPolicy";
+import { unlockIntroSound } from "../../splash/introSound";
 import "./Hero.css";
 
 /*
@@ -163,6 +165,16 @@ export default function Hero({ onOpenBrief }) {
             <button type="button" className="hm-btn hm-btn--link" onClick={onOpenBrief}>
               <i className="fa-solid fa-circle-play" aria-hidden="true" /> 30-second brief
             </button>
+            {/* The intro is opt-in (F05): it plays over this page on /splash. */}
+            <Link
+              to="/splash"
+              className="hm-btn hm-btn--link hm-hero__intro"
+              onClick={() => {
+                if (introSoundOn()) unlockIntroSound();
+              }}
+            >
+              <i className="fa-solid fa-signature" aria-hidden="true" /> Play intro
+            </Link>
           </div>
 
           <dl className="hm-hero__facts" data-rise>
