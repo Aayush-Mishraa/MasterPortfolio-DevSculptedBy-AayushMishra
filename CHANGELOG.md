@@ -4,6 +4,13 @@ All notable changes to aayushmishra.engineer. Newest first.
 
 ## 2026-10-03
 
+### F06 · Prerender + real 404
+- Every page is prerendered at build time: real title, description, canonical URL, share image and text in the HTML, for 8 pages, every repository and every Tech Universe channel.
+- Unknown URLs now return a real 404 with the site's 404 page; `/home` redirects to `/`, `www.` to the bare domain.
+- Generated `sitemap.xml`, `llms.txt` and a 1200×630 share image per page; Tech Universe pages get proper titles and descriptions.
+- The app adopts the prerendered HTML instead of rebuilding it, fonts no longer shift text when they load, Google Fonts no longer block the first paint, and the contact photo is 24 KB instead of 262 KB.
+- CI checks the raw HTML of every page before deploying, and the live site after.
+
 ### F05 · Intro without the wait
 - The intro no longer plays on its own: every visit lands on the hero. "Play intro" (hero) and the header logo play it.
 - Sound is off by default, with a remembered on/off toggle in the intro; the "Enter" screen is gone.

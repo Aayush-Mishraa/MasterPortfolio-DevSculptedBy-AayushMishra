@@ -9,29 +9,54 @@ import {
   contactPageData,
   certifications,
 } from "../../portfolio.js";
+import { prettyName } from "../../services/github/githubData";
+import { MODULES } from "../../pages/universe/modules";
 
 const SITE = "https://aayushmishra.engineer";
 
+/**
+ * The Open Graph image the prerender draws for a route (1200x630):
+ * /og/home.jpg, /og/contact.jpg, /og/projects/<repo>.jpg, /og/universe/<id>.jpg.
+ * Must match ogImageFile() in scripts/prerender/routes.mjs.
+ */
+export const ogImagePath = (path) => `/og/${path === "/" ? "home" : path.replace(/^\//, "")}.jpg`;
+
 /*
-  Title, description and canonical URL for the current route. A project page
-  sets its own title (useDocumentTitle), so it gets no <title> here; an
-  unknown path gets no canonical (the 404 page adds noindex itself).
+  Title, description, canonical URL and share image for the current route.
+  An unknown path gets no canonical (the 404 page adds noindex itself).
 */
-function routeMeta(pathname) {
+export function routeMeta(pathname) {
   const path = pathname.replace(/\/+$/, "") || "/";
+  const withImage = (meta, imagePath) => ({ ...meta, image: `${SITE}${ogImagePath(imagePath)}` });
   if (path === "/" || path === "/home" || path === "/splash") {
-    return { title: seo.title, description: seo.description, url: `${SITE}/` };
+    return withImage({ title: seo.title, description: seo.description, url: `${SITE}/` }, "/");
   }
-  if (seo.pages[path]) return { ...seo.pages[path], url: `${SITE}${path}` };
+  if (seo.pages[path]) return withImage({ ...seo.pages[path], url: `${SITE}${path}` }, path);
   const project = path.match(/^\/projects\/([^/]+)$/);
   if (project) {
     const name = decodeURIComponent(project[1]);
-    return {
-      description: `${name}: a project by Aayush Mishra, with its README, commits and stats from GitHub.`,
-      url: `${SITE}/projects/${project[1]}`,
-    };
+    return withImage(
+      {
+        title: `${prettyName(name)} · Projects · Aayush Mishra`,
+        description: `${prettyName(name)}: a project by Aayush Mishra, with its README, commits and stats from GitHub.`,
+        url: `${SITE}/projects/${project[1]}`,
+      },
+      `/projects/${name}`
+    );
   }
-  return { title: seo.title, description: seo.description };
+  const channel = path.match(/^\/universe\/([^/]+)$/);
+  const module = channel && MODULES.find((item) => item.id === channel[1]);
+  if (module) {
+    return withImage(
+      {
+        title: `${module.title} · Tech Universe · Aayush Mishra`,
+        description: `${module.tagline} A free Tech Universe channel by Aayush Mishra (${module.source}).`,
+        url: `${SITE}/universe/${module.id}`,
+      },
+      `/universe/${module.id}`
+    );
+  }
+  return withImage({ title: seo.title, description: seo.description }, "/");
 }
 
 const isWebUrl = (value) => /^https?:\/\/\S+$/i.test(String(value || "").trim());
@@ -119,6 +144,10 @@ function SeoHeader() {
       <meta property="og:type" content={seo.og.type} />
       {meta.url && <meta property="og:url" content={meta.url} />}
       {meta.url && <link rel="canonical" href={meta.url} />}
+      <meta property="og:image" content={meta.image} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta name="twitter:image" content={meta.image} />
       <script type="application/ld+json">{PERSON}</script>
     </Helmet>
   );

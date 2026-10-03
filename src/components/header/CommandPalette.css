@@ -42,7 +42,7 @@
     0 40px 100px -30px color-mix(in srgb, var(--nav-text) 45%, transparent),
     0 0 0 1px color-mix(in srgb, var(--nav-text) 4%, transparent);
   color: var(--cmdk-text);
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
   animation: cmdk-rise 320ms var(--cmdk-ease) both;
 }
 
@@ -56,7 +56,7 @@
 
 .cmdk-prompt {
   color: var(--cmdk-cyan);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, monospace;
   font-size: 14px;
   font-weight: 600;
 }
@@ -86,7 +86,7 @@
   border-radius: 5px;
   background: var(--cmdk-surface);
   color: var(--cmdk-faint);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, monospace;
   font-size: 10.5px;
   line-height: 1;
   text-align: center;
@@ -104,7 +104,7 @@
 .cmdk-group {
   padding: 12px 12px 6px;
   color: var(--cmdk-faint);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, monospace;
   font-size: 10.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -169,7 +169,7 @@
   border: 1px solid color-mix(in srgb, #10b981 35%, transparent);
   border-radius: 999px;
   color: var(--cmdk-status);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, monospace;
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -177,7 +177,7 @@
 
 .cmdk-hint {
   color: var(--cmdk-faint);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, monospace;
   font-size: 11px;
 }
 
@@ -208,7 +208,7 @@
   padding: 12px 18px;
   border-top: 1px solid var(--cmdk-line);
   color: var(--cmdk-faint);
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, monospace;
   font-size: 11px;
 }
 

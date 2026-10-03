@@ -11,8 +11,8 @@
   --sf-green: #22c55e;
   --sf-green-rgb: 34, 197, 94;
   --sf-red: #ef4444;
-  --sf-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --sf-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sf-sans: "Inter", "Inter Fallback", system-ui, -apple-system, sans-serif;
+  --sf-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --sf-top: clamp(48px, 8vh, 78px);
   --sf-bottom: clamp(84px, 13vh, 116px);
   --sf-gutter: clamp(16px, 3vw, 40px);

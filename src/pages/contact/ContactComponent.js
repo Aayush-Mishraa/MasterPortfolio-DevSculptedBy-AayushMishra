@@ -95,6 +95,14 @@ const channels = [
 ];
 const orbiters = channels.filter((c) => c.id !== "resume");
 
+const profileImageWebp = (() => {
+  try {
+    return require(`../../assets/images/${info.profile_image_path.replace(/\.png$/i, ".webp")}`);
+  } catch (e) {
+    return null;
+  }
+})();
+
 const profileImage = (() => {
   try {
     return require(`../../assets/images/${info.profile_image_path}`);
@@ -543,7 +551,12 @@ const Beacon = ({ clock, status }) => {
             ))}
           </div>
           <div className="ct-avatar">
-            {profileImage && <img src={profileImage} alt={greeting.title} />}
+            {profileImage && (
+              <picture>
+                {profileImageWebp && <source srcSet={profileImageWebp} type="image/webp" />}
+                <img src={profileImage} alt={greeting.title} width="160" height="160" />
+              </picture>
+            )}
             <span className="ct-avatar__scan" />
           </div>
         </div>

@@ -5,9 +5,9 @@
    ========================================================================== */
 
 .hap-root {
-  --hap-font-display: "Google Sans Bold", "Inter", system-ui, sans-serif;
-  --hap-font-ui: "Inter", "Google Sans Regular", system-ui, sans-serif;
-  --hap-font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --hap-font-display: "Google Sans Bold", "Inter", "Inter Fallback", system-ui, sans-serif;
+  --hap-font-ui: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, sans-serif;
+  --hap-font-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, Consolas, monospace;
   --hap-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   position: relative;

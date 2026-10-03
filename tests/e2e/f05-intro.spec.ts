@@ -10,7 +10,8 @@ import { test, expect } from "@playwright/test";
 */
 
 test.describe("F05 intro without the wait", () => {
-  for (const url of ["/", "/?utm_source=linkedin&utm_medium=post", "/?ref=producthunt", "/home"]) {
+  // (/home is a 301 to / on the server; f06-prerender checks that redirect.)
+  for (const url of ["/", "/?utm_source=linkedin&utm_medium=post", "/?ref=producthunt"]) {
     test(`a first visit to ${url} lands on the hero`, async ({ page }) => {
       await page.goto(url, { waitUntil: "domcontentloaded" });
       await expect(page.locator("#hm-hero-title")).toBeVisible();

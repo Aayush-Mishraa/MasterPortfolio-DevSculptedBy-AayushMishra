@@ -4,9 +4,9 @@
  */
 
 .os-root {
-  --os-font-display: "Google Sans Bold", "Inter", system-ui, sans-serif;
-  --os-font-ui: "Inter", "Google Sans Regular", system-ui, sans-serif;
-  --os-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --os-font-display: "Google Sans Bold", "Inter", "Inter Fallback", system-ui, sans-serif;
+  --os-font-ui: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, sans-serif;
+  --os-font-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", Consolas, monospace;
   --os-radius: 20px;
   --os-radius-sm: 12px;
   --os-ease: cubic-bezier(0.22, 1, 0.36, 1);

@@ -15,7 +15,7 @@ const settings = {
 const seo = {
   title: SITE_TITLE,
   description:
-    "Aayush Mishra is a Senior Software Test Engineer and QA lead in India, building test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship.",
+    "Aayush Mishra is a Senior SDET and QA lead in India, building test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship.",
   og: {
     title: SITE_TITLE,
     type: "website",
@@ -47,6 +47,11 @@ const seo = {
       title: "Contact · Aayush Mishra",
       description:
         "Get in touch with Aayush Mishra about SDET, QA lead and test automation roles, by email, LinkedIn or the contact form.",
+    },
+    "/universe": {
+      title: "Tech Universe · Aayush Mishra",
+      description:
+        "Tech Universe by Aayush Mishra: free live channels for the tech world, from AI models, research and launches to dev tools, music and games.",
     },
     "/projects": {
       title: "Projects · Aayush Mishra",

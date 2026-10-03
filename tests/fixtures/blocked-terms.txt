@@ -1,0 +1,3 @@
+# Client names that must never appear on the site (plan v3.1, client-data guard).
+# One term per line, case-insensitive.
+Inwarranty

@@ -204,6 +204,10 @@
     "GPTBot",
     "ClaudeBot",
     "PerplexityBot",
-    "robotstxt"
+    "robotstxt",
+    "prerendered",
+    "prerender",
+    "Prerender",
+    "prerendering"
   ]
 }

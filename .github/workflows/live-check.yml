@@ -32,3 +32,9 @@ jobs:
 
       - name: Crawler and server user agents
         run: node scripts/qa/check-bots.mjs https://aayushmishra.engineer
+
+      # F06: raw HTML per page (titles, canonicals, contact text), real 404s, /home → /.
+      # The pages come from this commit's route list, so a stale CDN copy shows up here.
+      - name: Raw HTML, status codes and redirects
+        if: ${{ always() }}
+        run: node scripts/prerender/check-html.mjs --live https://aayushmishra.engineer

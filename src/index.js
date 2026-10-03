@@ -10,15 +10,32 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
 const engine = new Styletron();
+const root = document.getElementById("root");
 
-ReactDOM.render(
+const app = (
   <StyletronProvider value={engine}>
     <BaseProvider theme={LightTheme}>
       <App />
     </BaseProvider>
-  </StyletronProvider>,
-  document.getElementById("root")
+  </StyletronProvider>
 );
+
+// A prerendered page (scripts/prerender) is already complete HTML. React adopts
+// it (hydrate) when it is the HTML of this very URL in the default theme, so
+// nothing is rebuilt or repainted; otherwise (the 404 page under another URL,
+// /splash, a visitor's own theme) the app renders over it. Either way the
+// HTML paints first: without the wait, a fast device runs the bundle before
+// the first paint.
+const html = document.documentElement;
+const path = window.location.pathname.replace(/\/+$/, "") || "/";
+const adopt = html.getAttribute("data-prerendered") === path && !html.classList.contains("theme-pending");
+const start = () => (adopt ? ReactDOM.hydrate(app, root) : ReactDOM.render(app, root));
+
+if (root.hasChildNodes() && typeof window.requestAnimationFrame === "function") {
+  window.requestAnimationFrame(() => setTimeout(start, 0));
+} else {
+  start();
+}
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

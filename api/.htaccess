@@ -23,6 +23,9 @@ DirectoryIndex health.php
   Header set X-Robots-Tag "noindex, nofollow"
   Header set X-Content-Type-Options "nosniff"
   Header unset Access-Control-Allow-Origin
+  # The site-wide versions from the root .htaccess would double PHP's own
+  Header always unset X-Content-Type-Options
+  Header always unset Referrer-Policy
 </IfModule>
 
 ErrorDocument 403 /api/not-found.php

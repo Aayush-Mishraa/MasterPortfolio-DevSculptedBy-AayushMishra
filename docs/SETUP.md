@@ -103,5 +103,17 @@ On Windows Git Bash, prefix docker commands with `MSYS_NO_PATHCONV=1` and use `$
 
 Check access any time with `node scripts/qa/check-bots.mjs` (or Actions → **Live check** → Run workflow, which runs from a GitHub datacenter IP like the webhook senders).
 
+## Prerender (F06)
+`npm run build` is followed in CI by `node scripts/prerender/prerender.mjs` (needs `npx playwright install chromium` once) and `node scripts/prerender/check-html.mjs`. Locally:
+
+```bash
+NODE_OPTIONS=--openssl-legacy-provider npx react-scripts build
+node scripts/prerender/prerender.mjs        # ~2 min: build/_pages, 404.html, sitemap.xml, llms.txt, og/
+node scripts/prerender/check-html.mjs       # raw-HTML gate
+node scripts/prerender/check-html.mjs --live https://aayushmishra.engineer   # after a deploy
+```
+
+**After every deploy that changes `.htaccess` or page HTML:** hPanel → Websites → aayushmishra.engineer → Performance → CDN → **Flush cache**, then open a page with `?v=<random>` and compare with the plain URL.
+
 ## Leftovers to remove by hand
 The three manual workflows `deploy-ftp.yml`, `deploy-hostinger.yml` and `urgent-fix.yml` in `.github/workflows/` still exist (Claude's auto-mode blocked deleting CI files). They only run on `workflow_dispatch` but upload to `FTP_SERVER_DIR`, which may be the wrong folder. Delete them in a commit of your own.

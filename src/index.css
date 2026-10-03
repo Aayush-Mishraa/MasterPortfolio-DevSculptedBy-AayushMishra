@@ -1,4 +1,24 @@
+/* Metric-matched stand-ins for the web fonts (F09: CLS stays 0). Until Inter and
+   JetBrains Mono arrive from Google Fonts, text is set in local Arial / Courier
+   New scaled to the same metrics, so nothing moves when the real font swaps in. */
 @font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Helvetica"), local("Roboto");
+  ascent-override: 90.2%;
+  descent-override: 22.48%;
+  line-gap-override: 0%;
+  size-adjust: 107.4%;
+}
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  src: local("Courier New"), local("Courier"), local("Liberation Mono");
+  ascent-override: 102%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+  size-adjust: 100%;
+}
+@font-face {
+  font-display: swap;
   font-family: "Agustina Regular";
   font-style: normal;
   font-weight: normal;
@@ -6,36 +26,43 @@
     url("./assets/fonts/Agustina.woff") format("woff");
 }
 @font-face {
+  font-display: swap;
   font-family: "Montserrat";
   src: local("Montserrat"),
     url("./assets/fonts/Montserrat-Regular.ttf") format("woff");
 }
 @font-face {
+  font-display: swap;
   font-family: "Google Sans Bold";
   src: local("Google Sans Bold"),
     url("./assets/fonts/GoogleSans-Bold.ttf") format("woff");
 }
 @font-face {
+  font-display: swap;
   font-family: "Google Sans Bold Italic";
   src: local("Google Sans Bold Italic"),
     url("./assets/fonts/GoogleSans-BoldItalic.ttf") format("woff");
 }
 @font-face {
+  font-display: swap;
   font-family: "Google Sans Italic";
   src: local("Google Sans Italic"),
     url("./assets/fonts/GoogleSans-Italic.ttf") format("woff");
 }
 @font-face {
+  font-display: swap;
   font-family: "Google Sans Medium";
   src: local("Google Sans Medium"),
     url("./assets/fonts/GoogleSans-Medium.ttf") format("woff");
 }
 @font-face {
+  font-display: swap;
   font-family: "Google Sans Medium Italic";
   src: local("Google Sans Medium Italic"),
     url("./assets/fonts/GoogleSans-MediumItalic.ttf") format("woff");
 }
 @font-face {
+  font-display: swap;
   font-family: "Google Sans Regular";
   src: local("Google Sans Regular"),
     url("./assets/fonts/GoogleSans-Regular.ttf") format("woff");

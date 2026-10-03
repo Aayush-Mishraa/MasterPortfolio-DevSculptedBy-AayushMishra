@@ -34,8 +34,8 @@ html.intro-cover .intro ~ * *::after {
   --intro-diff: #ff4d8d;
   --intro-live: #ff5c5c;
   --intro-glow: color-mix(in srgb, var(--intro-accent) 55%, #ffffff);
-  --intro-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --intro-sans: "Inter", "Google Sans Regular", system-ui, sans-serif;
+  --intro-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --intro-sans: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, sans-serif;
   --intro-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --intro-gutter: clamp(16px, 3vw, 40px);
   --lockup-size: 96px;

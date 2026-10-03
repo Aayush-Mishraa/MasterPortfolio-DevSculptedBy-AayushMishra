@@ -128,6 +128,13 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      # The same prerender the deploy runs; the tests then see real HTML and 404s.
+      - name: Prerender
+        run: node scripts/prerender/prerender.mjs
+
+      - name: Check the prerendered HTML
+        run: node scripts/prerender/check-html.mjs
+
       - name: Playwright
         run: npx playwright test
         env:

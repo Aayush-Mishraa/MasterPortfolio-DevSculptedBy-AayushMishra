@@ -34,8 +34,8 @@
   --c-ok: #16a34a;
   --c-warn: #d97706;
   --c-err: #dc2626;
-  --c-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --c-sans: "Inter", "Google Sans Regular", system-ui, -apple-system, sans-serif;
+  --c-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --c-sans: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, -apple-system, sans-serif;
   --c-radius: 22px;
   --c-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -648,6 +648,12 @@
   background: conic-gradient(from 0deg, var(--c-accent), transparent 40%, var(--c-accent-2) 70%, var(--c-accent));
   animation: ct-spin 12s linear infinite;
   overflow: hidden;
+}
+
+.ct-avatar picture {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .ct-avatar img {

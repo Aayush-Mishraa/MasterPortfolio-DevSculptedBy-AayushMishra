@@ -19,8 +19,8 @@
   --e-line: rgba(var(--e-text-rgb), 0.1);
   --e-line-strong: rgba(var(--e-text-rgb), 0.2);
   --e-grad: linear-gradient(100deg, var(--e-accent) 0%, var(--e-text) 110%);
-  --e-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --e-sans: "Inter", "Google Sans Regular", system-ui, -apple-system, sans-serif;
+  --e-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --e-sans: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, -apple-system, sans-serif;
   --e-radius: 22px;
   --c-edu: var(--e-accent);
   --c-work: #16a34a;

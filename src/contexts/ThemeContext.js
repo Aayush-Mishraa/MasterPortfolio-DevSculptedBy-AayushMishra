@@ -179,6 +179,9 @@ export const ThemeProvider = ({ children }) => {
     }
     const themeColor = document.querySelector('meta[name="theme-color"]');
     if (themeColor) themeColor.setAttribute('content', currentTheme.body);
+
+    // The prerendered HTML was hidden while it showed the default theme (index.html).
+    root.classList.remove('theme-pending');
   }, [currentTheme]);
 
   const value = {

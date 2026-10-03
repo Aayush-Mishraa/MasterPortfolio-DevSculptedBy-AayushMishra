@@ -20,8 +20,8 @@
   --f-dim: var(--f-muted);
   --f-green: #16a34a;
   --f-grad: linear-gradient(100deg, var(--f-accent) 0%, var(--f-ink) 110%);
-  --f-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --f-sans: "Inter", "Google Sans Regular", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --f-sans: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, -apple-system, sans-serif;
   margin-top: 60px;
   color: var(--f-ink);
   font-family: var(--f-sans);

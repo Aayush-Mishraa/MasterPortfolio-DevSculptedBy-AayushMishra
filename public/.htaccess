@@ -1,64 +1,86 @@
-# Enable Rewrite Engine
-RewriteEngine On
+# aayushmishra.engineer on Hostinger (LiteSpeed, Apache-compatible .htaccess).
+#
+# Every page is prerendered at build time (scripts/prerender): "/" is
+# index.html, every other route is _pages/<route>.html. A URL that is neither a
+# file nor one of those pages gets a real 404 (404.html). /api and /admin
+# answer for themselves (their own .htaccess).
+#
+# After changing this file: flush the Hostinger CDN cache (hPanel → Performance
+# → CDN) and check with ?v=<random>.
 
-# Favicon caching control - Force refresh
-<FilesMatch "\.(ico|png)$">
-    Header set Cache-Control "no-cache, must-revalidate"
-    Header set Pragma "no-cache"
-    Header set Expires "0"
-</FilesMatch>
-
-# Set base directory
-RewriteBase /
-
-# The PHP API and the admin area answer for themselves (each has its own
-# .htaccess); they never fall through to the React app below.
-RewriteRule ^(api|admin)(/|$) - [L]
-
-# Handle Angular and React Router (History API) - Hostinger Optimized
-# Don't rewrite files or directories that exist
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-
-# Rewrite everything else to index.html to allow HTML5 state links
-RewriteRule ^ index.html [L]
-
-# Additional fallback for specific hosting environments
-<IfModule mod_rewrite.c>
-  Options -MultiViews
-  RewriteEngine On
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ index.html [QSA,L]
-</IfModule>
-
-# Fallback for servers that don't support mod_rewrite
+Options -Indexes -MultiViews
+DirectoryIndex index.html
 ErrorDocument 404 /404.html
 
-# Enable compression
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # One host: www → apex (http → https is done by the CDN)
+  RewriteCond %{HTTP_HOST} ^www\.aayushmishra\.engineer$ [NC]
+  RewriteRule ^ https://aayushmishra.engineer%{REQUEST_URI} [R=301,L]
+
+  # The PHP API and the admin area
+  RewriteRule ^(api|admin)(/|$) - [L]
+
+  # Prerendered files are only reachable through their clean URLs
+  RewriteCond %{THE_REQUEST} \s/+_pages/ [NC]
+  RewriteRule ^ - [F]
+
+  # One home page: /home → /
+  RewriteRule ^home/?$ https://aayushmishra.engineer/ [R=301,L]
+
+  # Old channel name
+  RewriteRule ^universe/radio/?$ https://aayushmishra.engineer/universe/music [R=301,L]
+
+  # No trailing slash on pages: /contact/ → /contact
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.+)/$ https://aayushmishra.engineer/$1 [R=301,L]
+
+  # Real files (scripts, styles, images, data, robots.txt, the tool guides)
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # Prerendered pages. A name with no file (an unknown repo or channel) is a 404.
+  RewriteRule ^(experience|education|automation-arsenal|projects|opensource|contact|universe)$ _pages/$1.html [L]
+  RewriteRule ^projects/([A-Za-z0-9._-]+)$ _pages/projects/$1.html [L]
+  RewriteRule ^universe/([a-z0-9-]+)$ _pages/universe/$1.html [L]
+
+  # The intro replay is a client-side route on top of the home page
+  RewriteRule ^splash$ index.html [L]
+
+  # Anything else: no rewrite, so the server answers 404 with /404.html
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Pages revalidate on every visit, so a deploy shows up at once
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  # The GitHub snapshot is refreshed by the scheduled build
+  <FilesMatch "\.json$">
+    Header set Cache-Control "public, max-age=300"
+  </FilesMatch>
+  # Favicons: always revalidate (they were stuck in caches before)
+  <FilesMatch "^(favicon.*|apple-icon.*|android-icon.*|ms-icon.*)\.(ico|png)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/plain
-    AddOutputFilterByType DEFLATE text/html
-    AddOutputFilterByType DEFLATE text/xml
-    AddOutputFilterByType DEFLATE text/css
-    AddOutputFilterByType DEFLATE application/xml
-    AddOutputFilterByType DEFLATE application/xhtml+xml
-    AddOutputFilterByType DEFLATE application/rss+xml
-    AddOutputFilterByType DEFLATE application/javascript
-    AddOutputFilterByType DEFLATE application/x-javascript
+  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json image/svg+xml
 </IfModule>
 
-# Set cache headers
 <IfModule mod_expires.c>
-    ExpiresActive on
-    ExpiresByType text/css "access plus 1 year"
-    ExpiresByType application/javascript "access plus 1 year"
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/jpg "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresActive on
+  # Hashed file names (static/js, static/css, static/media) never change
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/jpg "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
-
-# Force HTTPS (optional)
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

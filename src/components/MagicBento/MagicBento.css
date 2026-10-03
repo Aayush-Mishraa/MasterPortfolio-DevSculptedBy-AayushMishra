@@ -24,8 +24,8 @@
   --ov-green: #16a34a;
   --ov-grad: linear-gradient(100deg, var(--ov-accent) 0%, var(--ov-text) 110%);
   --ov-radius: 22px;
-  --ov-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --ov-sans: "Inter", "Google Sans Regular", system-ui, -apple-system, sans-serif;
+  --ov-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ov-sans: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, -apple-system, sans-serif;
 
   position: relative;
   width: 100vw;

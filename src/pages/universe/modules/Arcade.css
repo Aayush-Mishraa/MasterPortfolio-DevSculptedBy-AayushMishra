@@ -168,7 +168,7 @@
   padding: 22px;
   min-height: 170px;
   align-content: center;
-  font: 500 0.9rem "Inter", system-ui, sans-serif;
+  font: 500 0.9rem "Inter", "Inter Fallback", system-ui, sans-serif;
 }
 
 .ar-sandbox .btn,
@@ -178,7 +178,7 @@
   border: 1px solid #cbd5e1;
   background: #fff;
   color: #0f172a;
-  font: 600 0.84rem "Inter", system-ui, sans-serif;
+  font: 600 0.84rem "Inter", "Inter Fallback", system-ui, sans-serif;
   cursor: default;
 }
 
@@ -227,7 +227,7 @@
   border-radius: 8px;
   border: 1px solid #cbd5e1;
   background: #fff;
-  font: 0.84rem "Inter", system-ui, sans-serif;
+  font: 0.84rem "Inter", "Inter Fallback", system-ui, sans-serif;
   pointer-events: none;
 }
 
