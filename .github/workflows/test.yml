@@ -68,12 +68,13 @@ jobs:
               'db' => ['host' => '127.0.0.1', 'port' => 3306, 'name' => 'portfolio_test', 'user' => 'tester', 'pass' => 'tester'],
               'smtp' => ['host' => '127.0.0.1', 'port' => 1025, 'secure' => '', 'user' => '', 'pass' => '', 'from' => 'contact@aayushmishra.engineer'],
               'mail_to' => 'contact@aayushmishra.engineer',
-              'buttondown' => ['api_key' => '', 'webhook_secret' => 'ci-buttondown-webhook-secret'],
+              'buttondown' => ['api_key' => 'test-buttondown-key', 'webhook_secret' => 'ci-buttondown-webhook-secret', 'api_base' => 'http://127.0.0.1:8090/v1'],
               'client_ip_header' => 'HTTP_X_FORWARDED_FOR',
               'state_dir' => '/tmp/site-api-state',
           ];
           PHP
           SITE_API_CONFIG="$RUNNER_TEMP/api-config.php" nohup php -S 127.0.0.1:8099 -t . > "$RUNNER_TEMP/php-server.log" 2>&1 &
+          nohup php -S 127.0.0.1:8090 api/tests/fake-buttondown/router.php > "$RUNNER_TEMP/fake-buttondown.log" 2>&1 &
           sleep 1
           curl -sS --fail http://127.0.0.1:8099/api/health.php
 
@@ -89,6 +90,8 @@ jobs:
           MAILPIT_URL: http://127.0.0.1:8025
           TEST_APP_SECRET: ci-test-secret-0123456789abcdef0123456789
           TEST_ORIGIN: http://127.0.0.1:8099
+          FAKE_BUTTONDOWN_URL: http://127.0.0.1:8090
+          TEST_BUTTONDOWN_WEBHOOK_SECRET: ci-buttondown-webhook-secret
         run: vendor/bin/phpunit
 
       - name: Server log

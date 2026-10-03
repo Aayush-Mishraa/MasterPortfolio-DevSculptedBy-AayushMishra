@@ -13,7 +13,7 @@ Status values: todo · in progress · done · blocked (needs Aayush).
 | F08 | Bot access review | Googlebot, Bingbot and approved AI crawlers get 200; /api reachable by servers; settings documented; CI check by user agent | S | — | done in code; blocked on hPanel AI Audit (GPTBot 429) |
 | F02 | Backend foundation | /api (PHP 8), config from secrets, migrations, helpers, /api/health; deploy uploads api/; no-store + noindex; PHP tests in CI | M | F08 | done in code; needs DB + secrets in hPanel/GitHub |
 | F03 | Contact form → backend | leads table + email via Hostinger SMTP; honeypot, rate limit, validation, real states, mailto fallback; Cal.com button; footer uses the same flow | M | F02 | done in code; live after secrets; Cal.com link pending |
-| F04 | Newsletter → backend | no fake success; subscribe.php → Buttondown; webhook mirrors status; box "coming soon" until issue #1 | S | F02 | todo |
+| F04 | Newsletter → backend | no fake success; subscribe.php → Buttondown; webhook mirrors status; box "coming soon" until issue #1 | S | F02 | done in code; Buttondown keys pending |
 | F05 | Intro without the wait | opt-in "Play intro", sound off, reduced motion respected, lands on the hero, mobile LCP < 2.5 s | S | — | todo |
 | F06 | Prerender + real 404 | per-route HTML with real title/meta/canonical/OG/body; real 404; OG images; llms.txt; sitemap; / canonical, /home 301; CI raw-HTML check | M | F05 | todo |
 | F07 | Static GitHub data | Projects/Open Source read only the build snapshot (refreshed on a schedule); no API counter; no ci/chore/fix in feeds; counters never 0 | S | — | todo |

@@ -4,6 +4,11 @@ All notable changes to aayushmishra.engineer. Newest first.
 
 ## 2026-10-03
 
+### F04 · Newsletter → backend
+- The footer no longer fakes a successful sign-up and drops the address: it says "Newsletter coming soon" until issue #1.
+- `/api/subscribe.php` sends sign-ups to Buttondown, which emails the confirmation link (double opt-in); `/api/buttondown-webhook.php` (HMAC-signed) keeps each subscriber's status in MySQL.
+- `?newsletter=preview` shows the working form ahead of launch; the privacy note mentions Buttondown.
+
 ### F03 · Contact form → backend
 - The contact form now sends from the page: `/api/contact.php` saves the lead and emails it through Hostinger SMTP with Reply-To set to the sender. No mail app needed.
 - Spam guards: a hidden honeypot field, a signed form token that must be a few seconds old, a per-IP rate limit and server-side validation.
