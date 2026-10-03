@@ -781,6 +781,8 @@ const contactPageData = {
     lead:
       "SDET building test automation frameworks, AI-powered testing, performance suites and CI/CD quality gates. Tell me what you're shipping, and I'll reply within 24 hours.",
     responseTime: "< 24h",
+    // "Book a 20-min call" (Cal.com). Hidden while url is empty, e.g. "https://cal.com/<you>/20min"
+    booking: { label: "Book a 20-min call", url: "" },
     timezone: "Asia/Kolkata",
     utcOffsetMinutes: 330,
     // Working window in local (IST) hours, used for the "sync window" planner

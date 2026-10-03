@@ -1,8 +1,10 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../../components/header/Header";
 import CreativeFooter from "../../components/CreativeFooter/CreativeFooter";
 import TopButton from "../../components/topButton/TopButton";
 import { greeting, socialMediaLinks, contactPageData } from "../../portfolio.js";
+import { prepareForm, submitForm } from "../../services/api/forms";
 import {
   mix,
   themeVars,
@@ -38,6 +40,8 @@ const INTENTS = [
 ];
 const TIMELINES = ["ASAP", "< 1 month", "1–3 months", "Flexible"];
 const PROCESS = info.process || [];
+// Cal.com (or any scheduler) link; the button stays hidden until it's set.
+const BOOKING = info.booking && info.booking.url ? info.booking : null;
 
 // Starter structures offered while the message box is empty
 const TEMPLATES = {
@@ -636,7 +640,10 @@ const jsonLines = (value, indent = 0, key, last = true) => {
   return [lead.concat(label, [{ t: type, v: JSON.stringify(value) }, { t: "punct", v: comma }])];
 };
 
-const STEPS = ["validating payload", "compressing signal", `routing → ${EMAIL}`, "handing off to your mail client"];
+// The inspector's log, one line per real step of the request.
+const STEP_VALIDATE = "validating payload";
+const STEP_SEND = "signing & transmitting → /api/contact";
+const STEP_DONE = `delivered → ${EMAIL}`;
 
 const Field = ({ id, label, optional, error, hideLabel, children }) => (
   <div className={`ct-field-row${error ? " has-error" : ""}`}>
@@ -653,17 +660,22 @@ const Field = ({ id, label, optional, error, hideLabel, children }) => (
   </div>
 );
 
+const FIELD_ORDER = ["intent", "topics", "name", "email", "company", "timeline", "message"];
+
 const Composer = memo(({ pendingTopic }) => {
   const [form, setForm] = useState(loadDraft);
   const [submitted, setSubmitted] = useState(false);
+  // idle | sending | sent | failed
   const [phase, setPhase] = useState("idle");
   const [log, setLog] = useState([]);
+  const [serverErrors, setServerErrors] = useState({});
+  const [failure, setFailure] = useState("");
+  const [sentTo, setSentTo] = useState(null);
+  const [trap, setTrap] = useState("");
   const [saved, setSaved] = useState(false);
   const [copied, copy] = useCopy();
-  const timers = useRef([]);
   const refs = { name: useRef(null), email: useRef(null), message: useRef(null) };
-
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const statusRef = useRef(null);
 
   // Topics picked elsewhere on the page land here
   useEffect(() => {
@@ -683,11 +695,23 @@ const Composer = memo(({ pendingTopic }) => {
     }
   }, [form]);
 
-  const errors = submitted ? validate(form) : {};
+  // The result panel takes focus so screen readers announce it. It covers the
+  // whole form, which is several screens tall on a phone, so its heading is
+  // brought to the middle of the screen rather than the panel's top.
+  useEffect(() => {
+    const panel = statusRef.current;
+    if ((phase !== "sent" && phase !== "failed") || !panel) return;
+    panel.focus({ preventScroll: true });
+    const heading = panel.querySelector("h3");
+    if (heading) heading.scrollIntoView({ block: "center", behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  }, [phase]);
+
+  const errors = { ...(submitted ? validate(form) : {}), ...serverErrors };
   const intent = intentOf(form.intent);
   const mail = buildMail(form);
   const bytes = new Blob([mail.subject, mail.body]).size;
   const message = form.message.trim();
+  const mailtoHref = `mailto:${EMAIL}?subject=${encodeURIComponent(mail.subject)}&body=${encodeURIComponent(mail.body)}`;
 
   const packet = {
     to: EMAIL,
@@ -700,13 +724,25 @@ const Composer = memo(({ pendingTopic }) => {
   packet.meta = { bytes, eta: info.responseTime };
   const lines = jsonLines(packet);
 
-  const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
+  const clearServerError = (key) => {
+    if (serverErrors[key]) {
+      const next = { ...serverErrors };
+      delete next[key];
+      setServerErrors(next);
+    }
+  };
+  const set = (key) => (e) => {
+    clearServerError(key);
+    setForm({ ...form, [key]: e.target.value });
+  };
   const toggleTopic = (id) =>
     setForm({ ...form, topics: form.topics.includes(id) ? form.topics.filter((t) => t !== id) : form.topics.concat(id) });
 
-  const transmit = (e) => {
+  const transmit = async (e) => {
     e.preventDefault();
+    if (phase === "sending") return;
     setSubmitted(true);
+    setServerErrors({});
     const errs = validate(form);
     const first = ["name", "email", "message"].find((k) => errs[k]);
     if (first) {
@@ -714,24 +750,55 @@ const Composer = memo(({ pendingTopic }) => {
       return;
     }
     setPhase("sending");
-    setLog([]);
-    const delay = prefersReducedMotion() ? 0 : 420;
-    STEPS.forEach((step, i) => {
-      timers.current.push(setTimeout(() => setLog((l) => l.concat(step)), delay * (i + 1)));
+    setLog([STEP_VALIDATE, STEP_SEND]);
+    const result = await submitForm("contact.php", "contact", {
+      website: trap,
+      intent: form.intent,
+      topics: form.topics,
+      name: form.name.trim(),
+      email: form.email.trim(),
+      company: form.company.trim(),
+      timeline: intent.scoped && form.timeline ? form.timeline : null,
+      message: form.message.trim(),
+      page: window.location.pathname,
+      source: "contact",
     });
-    timers.current.push(
-      setTimeout(() => {
-        window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(mail.subject)}&body=${encodeURIComponent(mail.body)}`;
-        setPhase("sent");
-      }, delay * (STEPS.length + 1))
+
+    if (result.ok) {
+      setLog([STEP_VALIDATE, STEP_SEND, STEP_DONE]);
+      setSentTo({ name: form.name.trim().split(/\s+/)[0], email: form.email.trim() });
+      setPhase("sent");
+      setForm(EMPTY);
+      setSubmitted(false);
+      notify("Message delivered", "fa-solid fa-paper-plane");
+      return;
+    }
+    if (result.status === 422 && result.data.fields) {
+      setServerErrors(result.data.fields);
+      setLog([STEP_VALIDATE, "✗ the server asked for a fix"]);
+      setPhase("idle");
+      const key = FIELD_ORDER.find((k) => result.data.fields[k]);
+      if (key && refs[key] && refs[key].current) refs[key].current.focus();
+      return;
+    }
+    setLog([STEP_VALIDATE, STEP_SEND, "✗ not delivered"]);
+    setFailure(
+      result.status === 429 && result.data.message
+        ? result.data.message
+        : result.status === 0
+        ? "Your connection dropped before the message got through."
+        : "The message couldn't be delivered from here."
     );
+    setPhase("failed");
   };
 
   const reset = () => {
     setForm(EMPTY);
     setSubmitted(false);
+    setServerErrors({});
     setPhase("idle");
     setLog([]);
+    setSentTo(null);
   };
 
   // Ctrl / Cmd + Enter sends from anywhere in the form
@@ -748,7 +815,14 @@ const Composer = memo(({ pendingTopic }) => {
 
   return (
     <div className="ct-composer">
-      <form className="ct-form" onSubmit={transmit} onKeyDown={onKeyDown} noValidate aria-busy={phase === "sending"}>
+      <form
+        className="ct-form"
+        onSubmit={transmit}
+        onKeyDown={onKeyDown}
+        onFocus={() => prepareForm("contact")}
+        noValidate
+        aria-busy={phase === "sending"}
+      >
         <div className="ct-form__head">
           <span className="ct-mono">new_transmission.msg</span>
           <span className={`ct-saved ct-mono${saved ? " is-on" : ""}`} aria-live="polite">
@@ -810,6 +884,7 @@ const Composer = memo(({ pendingTopic }) => {
                 onChange={set("name")}
                 autoComplete="name"
                 placeholder="Ada Lovelace"
+                maxLength={100}
                 aria-invalid={Boolean(errors.name)}
                 aria-describedby={describedBy("name")}
               />
@@ -823,13 +898,36 @@ const Composer = memo(({ pendingTopic }) => {
                 onChange={set("email")}
                 autoComplete="email"
                 placeholder="ada@company.com"
+                maxLength={254}
                 aria-invalid={Boolean(errors.email)}
                 aria-describedby={describedBy("email")}
               />
             </Field>
-            <Field id="ct-company" label="Company" optional>
-              <input id="ct-company" value={form.company} onChange={set("company")} autoComplete="organization" placeholder="Analytical Engines Ltd." />
+            <Field id="ct-company" label="Company" optional error={errors.company}>
+              <input
+                id="ct-company"
+                value={form.company}
+                onChange={set("company")}
+                autoComplete="organization"
+                placeholder="Analytical Engines Ltd."
+                maxLength={120}
+                aria-invalid={Boolean(errors.company)}
+                aria-describedby={describedBy("company")}
+              />
             </Field>
+          </div>
+          {/* Honeypot: hidden from people and screen readers; bots fill it in. */}
+          <div className="ct-hp" aria-hidden="true">
+            <label htmlFor="ct-website">Leave this field empty</label>
+            <input
+              id="ct-website"
+              name="website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={trap}
+              onChange={(e) => setTrap(e.target.value)}
+            />
           </div>
         </fieldset>
 
@@ -845,6 +943,7 @@ const Composer = memo(({ pendingTopic }) => {
               value={form.message}
               onChange={set("message")}
               placeholder={intent.hint}
+              maxLength={5000}
               aria-invalid={Boolean(errors.message)}
               aria-describedby={describedBy("message")}
             />
@@ -868,7 +967,7 @@ const Composer = memo(({ pendingTopic }) => {
 
         <div className="ct-form__foot">
           <p>
-            Opens your mail app with everything pre-filled. Nothing is stored on a server.
+            Goes straight to my inbox, no mail app needed. Your details are used only to reply.
             <span className="ct-kbd-hint">
               <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to send
             </span>
@@ -880,7 +979,7 @@ const Composer = memo(({ pendingTopic }) => {
         </div>
 
         {phase === "sent" && (
-          <div className="ct-sent" role="status">
+          <div className="ct-sent" role="status" tabIndex={-1} ref={statusRef}>
             <div className="ct-sent__ring">
               <i className="fa-solid fa-check" aria-hidden="true" />
               <span className="ct-burst" aria-hidden="true">
@@ -889,18 +988,45 @@ const Composer = memo(({ pendingTopic }) => {
                 ))}
               </span>
             </div>
-            <h3>Transmission handed off.</h3>
-            <p>Your mail app should be open with everything filled in. Just hit send. Didn't open? Copy it and paste it anywhere.</p>
+            <h3>Transmission received.</h3>
+            <p>
+              Thanks{sentTo && sentTo.name ? `, ${sentTo.name}` : ""}. It's in my inbox, and I'll reply to{" "}
+              {sentTo && sentTo.email ? <b>{sentTo.email}</b> : "you"} within 24 hours.
+            </p>
             <div className="ct-sent__actions">
-              <button type="button" className="ct-btn ct-btn--primary" onClick={() => copy(`To: ${EMAIL}\nSubject: ${mail.subject}\n\n${mail.body}`, "msg", "Message copied")}>
+              {BOOKING && (
+                <a className="ct-btn ct-btn--primary" href={BOOKING.url} target="_blank" rel="noopener noreferrer">
+                  <i className="fa-regular fa-calendar" aria-hidden="true" /> {BOOKING.label}
+                </a>
+              )}
+              <button type="button" className={`ct-btn ${BOOKING ? "ct-btn--ghost" : "ct-btn--primary"}`} onClick={reset}>
+                New transmission
+              </button>
+            </div>
+          </div>
+        )}
+
+        {phase === "failed" && (
+          <div className="ct-sent ct-sent--failed" role="alert" tabIndex={-1} ref={statusRef}>
+            <div className="ct-sent__ring">
+              <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />
+            </div>
+            <h3>Not sent yet.</h3>
+            <p>{failure} Your draft is safe: send it by email instead, or try again.</p>
+            <div className="ct-sent__actions">
+              <a className="ct-btn ct-btn--primary" href={mailtoHref}>
+                <i className="fa-solid fa-envelope" aria-hidden="true" /> Open in your mail app
+              </a>
+              <button
+                type="button"
+                className="ct-btn ct-btn--ghost"
+                onClick={() => copy(`To: ${EMAIL}\nSubject: ${mail.subject}\n\n${mail.body}`, "msg", "Message copied")}
+              >
                 <i className={copied === "msg" ? "fa-solid fa-check" : "fa-regular fa-copy"} aria-hidden="true" />
                 {copied === "msg" ? "Copied" : "Copy full message"}
               </button>
-              <button type="button" className="ct-btn ct-btn--ghost" onClick={reset}>
-                New transmission
-              </button>
               <button type="button" className="ct-btn ct-btn--ghost" onClick={() => setPhase("idle")}>
-                Edit message
+                Try again
               </button>
             </div>
           </div>
@@ -935,10 +1061,10 @@ const Composer = memo(({ pendingTopic }) => {
           ))}
         </div>
         <div className="ct-inspector__log ct-mono" aria-live="polite">
-          {phase === "idle" && <span className="is-dim">$ awaiting transmit…</span>}
-          {log.map((l, i) => (
-            <span key={l} className={i === STEPS.length - 1 && phase === "sent" ? "is-done" : ""}>
-              <b>✓</b> {l}
+          {phase === "idle" && !log.length && <span className="is-dim">$ awaiting transmit…</span>}
+          {log.map((l) => (
+            <span key={l} className={l === STEP_DONE ? "is-done" : l.startsWith("✗") ? "is-fail" : ""}>
+              {!l.startsWith("✗") && <b>✓</b>} {l}
             </span>
           ))}
           {phase === "sending" && <span className="is-dim ct-blink">…</span>}
@@ -1099,6 +1225,17 @@ const Contact = ({ theme }) => {
   const [copied, copy] = useCopy();
   const [pendingTopic, setPendingTopic] = useState(null);
   const spotlight = useSpotlight();
+  const location = useLocation();
+
+  // Arriving from "Get in touch" elsewhere (/contact#compose): bring the form into view.
+  useEffect(() => {
+    if (location.hash !== "#compose") return undefined;
+    const timer = setTimeout(() => {
+      const el = document.getElementById("compose");
+      if (el) el.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [location.hash, location.key]);
 
   const pickTopic = (topic) => (e) => {
     setPendingTopic({ id: topic.id, at: Date.now() });
@@ -1143,6 +1280,11 @@ const Contact = ({ theme }) => {
                 <a className="ct-btn ct-btn--primary" href="#compose" onClick={scrollToId("compose")}>
                   Start a transmission <i className="fa-solid fa-arrow-right" aria-hidden="true" />
                 </a>
+                {BOOKING && (
+                  <a className="ct-btn ct-btn--ghost" href={BOOKING.url} target="_blank" rel="noopener noreferrer">
+                    <i className="fa-regular fa-calendar" aria-hidden="true" /> {BOOKING.label}
+                  </a>
+                )}
                 <button type="button" className="ct-btn ct-btn--ghost" onClick={() => copy(EMAIL, "hero", "Email address copied")}>
                   <i className={copied === "hero" ? "fa-solid fa-check" : "fa-regular fa-copy"} aria-hidden="true" />
                   <span aria-live="polite">{copied === "hero" ? "Email copied!" : EMAIL}</span>

@@ -25,7 +25,8 @@ function test_config(array $overrides = []): array
     return array_replace_recursive([
         'env' => 'test',
         'allowed_origins' => ['https://aayushmishra.engineer'],
-        'app_secret' => str_repeat('t', 40),
+        // The server under test must share it, so tests can mint form tokens.
+        'app_secret' => test_env('TEST_APP_SECRET', str_repeat('t', 40)),
         'admin_token' => 'test-admin-token-0123456789abcdef',
         'db' => [
             'host' => test_env('TEST_DB_HOST', '127.0.0.1'),

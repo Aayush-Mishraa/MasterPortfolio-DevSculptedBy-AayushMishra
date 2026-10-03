@@ -47,6 +47,8 @@ Every push to `main` runs `.github/workflows/deploy.yml`: build, stage the PHP A
 | `SMTP_HOST` / `SMTP_PORT` | `smtp.hostinger.com` / `465` (defaults; set only to change) | mail |
 | `SMTP_USER`, `SMTP_PASS` | `contact@aayushmishra.engineer` and that mailbox's password | mail |
 | `MAIL_TO` | where contact-form leads go (default `contact@aayushmishra.engineer`) | F03 |
+
+The Cal.com link isn't a secret: set `contactSection.booking.url` in `src/portfolio.js`.
 | `BUTTONDOWN_API_KEY`, `BUTTONDOWN_WEBHOOK_SECRET` | Buttondown → Settings → API / Webhooks | F04 |
 | `API_CLIENT_IP_HEADER` | e.g. `HTTP_X_FORWARDED_FOR`, after checking health (below) | rate limits |
 
@@ -71,7 +73,7 @@ Fill these in once checked (plan v3.1 asks for them before the backend goes live
 
 | Item | Value |
 |---|---|
-| PHP version | _to confirm_ (the API needs ≥ 8.1; CI tests 8.1 and 8.3) |
+| PHP version | 8.4 (from /api/health.php, 3 Oct 2026); the API needs ≥ 8.1 and CI tests 8.1 and 8.4 |
 | MySQL limits | _to confirm_ |
 | SMTP host / port | smtp.hostinger.com, 465 (SSL) |
 | CDN | Hostinger CDN (`Server: hcdn`); flush in hPanel after changes to `.htaccess` or HTML |

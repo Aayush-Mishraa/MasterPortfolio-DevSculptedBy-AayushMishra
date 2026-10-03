@@ -35,9 +35,15 @@ if (is_file($autoload)) {
 
 Http::sendCommonHeaders();
 
+// Warnings become exceptions (caught below as a 500); deprecations, which a
+// newer PHP on the server can add to a dependency overnight, are only logged.
 set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
     if (!(error_reporting() & $severity)) {
         return false;
+    }
+    if ($severity & (E_DEPRECATED | E_USER_DEPRECATED | E_NOTICE | E_USER_NOTICE)) {
+        error_log("[api] notice: {$message} at {$file}:{$line}");
+        return true;
     }
     throw new ErrorException($message, 0, $severity, $file, $line);
 });
