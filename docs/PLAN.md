@@ -10,7 +10,7 @@ Status values: todo · in progress · done · blocked (needs Aayush).
 | ID | Goal | Acceptance criteria (short) | Effort | Depends on | Status |
 |---|---|---|---|---|---|
 | F01 | Data fixes | One job title + site title; clean JSON-LD; certificate links fixed; typos; Webority hidden on home | S | — | done |
-| F08 | Bot access review | Googlebot, Bingbot and approved AI crawlers get 200; /api reachable by servers; settings documented; CI check by user agent | S | — | todo |
+| F08 | Bot access review | Googlebot, Bingbot and approved AI crawlers get 200; /api reachable by servers; settings documented; CI check by user agent | S | — | done in code; blocked on hPanel AI Audit (GPTBot 429) |
 | F02 | Backend foundation | /api (PHP 8), config from secrets, migrations, helpers, /api/health; deploy uploads api/; no-store + noindex; PHP tests in CI | M | F08 | todo |
 | F03 | Contact form → backend | leads table + email via Hostinger SMTP; honeypot, rate limit, validation, real states, mailto fallback; Cal.com button; footer uses the same flow | M | F02 | todo |
 | F04 | Newsletter → backend | no fake success; subscribe.php → Buttondown; webhook mirrors status; box "coming soon" until issue #1 | S | F02 | todo |
