@@ -69,7 +69,8 @@ final class Config
             'db' => ['host' => 'localhost', 'port' => 3306, 'name' => '', 'user' => '', 'pass' => '', 'charset' => 'utf8mb4'],
             'smtp' => ['host' => 'smtp.hostinger.com', 'port' => 465, 'secure' => 'ssl', 'user' => '', 'pass' => '', 'from' => '', 'from_name' => 'aayushmishra.engineer'],
             'mail_to' => '',
-            'buttondown' => ['api_key' => '', 'webhook_secret' => ''],
+            // api_base: only tests change it (a fake Buttondown)
+            'buttondown' => ['api_key' => '', 'webhook_secret' => '', 'api_base' => ''],
             // The real client IP when a proxy/CDN sits in front: the name of the
             // $_SERVER key it fills (e.g. HTTP_X_FORWARDED_FOR), or '' for REMOTE_ADDR.
             'client_ip_header' => '',

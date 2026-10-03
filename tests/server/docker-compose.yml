@@ -17,6 +17,8 @@ services:
         condition: service_healthy
       mail:
         condition: service_started
+      buttondown:
+        condition: service_started
 
   db:
     image: mysql:8.0
@@ -38,3 +40,12 @@ services:
     ports:
       - "8025:8025"
       - "1025:1025"
+
+  # Stand-in for api.buttondown.com (see api/tests/fake-buttondown/router.php)
+  buttondown:
+    image: php:8.2-cli
+    command: ["php", "-S", "0.0.0.0:8090", "/fake/router.php"]
+    volumes:
+      - ../../api/tests/fake-buttondown:/fake:ro
+    ports:
+      - "8090:8090"

@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
 import "./CreativeFooter.css";
-import { greeting, socialMediaLinks, experience } from "../../portfolio";
+import { greeting, socialMediaLinks, experience, newsletter } from "../../portfolio";
+import { prepareForm, submitForm } from "../../services/api/forms";
 import ThemeSelector from "../themeSelector/ThemeSelector";
 import { MODULES, moduleById } from "../../pages/universe/modules";
 import { Glyph } from "../../pages/universe/icons";
 
-const buttondownEndpoint = process.env.REACT_APP_BUTTONDOWN_ENDPOINT;
 const CONTACT_EMAIL = "contact@aayushmishra.engineer";
 const currentRole = experience.sections[0].experiences[0];
 
@@ -107,11 +107,22 @@ function CopyEmail() {
   );
 }
 
-function FooterHero() {
+// The form shows once the newsletter is open (portfolio.js), or with ?newsletter=preview.
+const newsletterOpen = () => {
+  if (newsletter.status === "open") return true;
+  try {
+    return new URLSearchParams(window.location.search).get("newsletter") === "preview";
+  } catch (error) {
+    return false;
+  }
+};
+
+function NewsletterForm() {
   const [email, setEmail] = useState("");
+  const [trap, setTrap] = useState("");
+  // idle | loading | pending | error
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
-  const [ref, revealClass] = useReveal();
 
   const handleSubmit = async event => {
     event.preventDefault();
@@ -122,25 +133,63 @@ function FooterHero() {
     }
     setStatus("loading");
     setMessage("");
-    try {
-      if (buttondownEndpoint) {
-        const response = await fetch(buttondownEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email })
-        });
-        if (!response.ok) throw new Error("Subscription failed");
-      } else {
-        await new Promise(resolve => setTimeout(resolve, 700));
-      }
-      setStatus("success");
-      setMessage(buttondownEndpoint ? "You're in — check your inbox." : "Preview captured — connect Buttondown to send issues.");
+    const result = await submitForm("subscribe.php", "subscribe", {
+      email: email.trim(),
+      source: "footer",
+      page: window.location.pathname,
+      website: trap
+    });
+    if (result.ok) {
+      setStatus("pending");
+      setMessage(result.data.message || "Almost there: check your inbox for a confirmation link.");
       setEmail("");
-    } catch (error) {
-      setStatus("error");
-      setMessage("That did not go through. Please try again or email me directly.");
+      return;
     }
+    setStatus("error");
+    const field = result.data.fields && result.data.fields.email;
+    setMessage(field || (result.status === 0
+      ? "That didn't go through (connection lost). Please try again."
+      : result.data.message || "That didn't go through. Please try again, or email me directly."));
   };
+
+  return (
+    <form className="newsletter" onSubmit={handleSubmit} onFocus={() => prepareForm("subscribe")} noValidate>
+      <span className="footer-eyebrow"><i aria-hidden="true"></i>{newsletter.name}</span>
+      <p>{newsletter.blurb} Double opt-in: you get a confirmation link first.</p>
+      <label htmlFor="footer-email">Email address</label>
+      <div className={`newsletter-row ${status === "error" ? "has-error" : ""}`}>
+        <input id="footer-email" type="email" value={email} onChange={event => { setEmail(event.target.value); setStatus("idle"); setMessage(""); }} placeholder="you@example.com" autoComplete="email" maxLength={254} aria-invalid={status === "error"} aria-describedby="newsletter-status" />
+        <button type="submit" disabled={status === "loading"}>
+          {status === "loading" ? <span className="button-spinner" aria-hidden="true"></span> : null}
+          {status === "pending" ? "Check inbox" : "Subscribe"}
+        </button>
+      </div>
+      <div className="footer-hp" aria-hidden="true">
+        <label htmlFor="footer-website">Leave this field empty</label>
+        <input id="footer-website" type="text" tabIndex={-1} autoComplete="off" value={trap} onChange={event => setTrap(event.target.value)} />
+      </div>
+      <p id="newsletter-status" className={`newsletter-status ${status === "pending" ? "success" : status}`} role="status" aria-live="polite">
+        {status === "pending" ? <i className="fa-solid fa-envelope-circle-check" aria-hidden="true"></i> : null}{message}
+      </p>
+    </form>
+  );
+}
+
+// Until issue #1 is out there is nothing to subscribe to, so no form (and no fake "you're in").
+function NewsletterSoon() {
+  return (
+    <section className="newsletter newsletter--soon" aria-labelledby="newsletter-soon-title">
+      <span className="footer-eyebrow"><i aria-hidden="true"></i>{newsletter.name}</span>
+      <h3 id="newsletter-soon-title" className="newsletter-soon-title">Newsletter coming soon</h3>
+      <p>{newsletter.blurb} Issue #1 is being written and launches with the blog.</p>
+      <p className="newsletter-soon-note"><i className="fa-regular fa-clock" aria-hidden="true"></i>Sign-ups open with the first issue.</p>
+    </section>
+  );
+}
+
+function FooterHero() {
+  const [ref, revealClass] = useReveal();
+  const [open] = useState(newsletterOpen);
 
   return (
     <section ref={ref} className={`footer-hero footer-reveal ${revealClass}`} aria-labelledby="footer-hero-title">
@@ -156,21 +205,7 @@ function FooterHero() {
           <CopyEmail />
         </div>
       </div>
-      <form className="newsletter" onSubmit={handleSubmit} noValidate>
-        <span className="footer-eyebrow"><i aria-hidden="true"></i>QA &amp; Automation Insights</span>
-        <p>Release notes, testing tips, and tool breakdowns. Occasionally useful, never noisy.</p>
-        <label htmlFor="footer-email">Email address</label>
-        <div className={`newsletter-row ${status === "error" ? "has-error" : ""}`}>
-          <input id="footer-email" type="email" value={email} onChange={event => { setEmail(event.target.value); setStatus("idle"); setMessage(""); }} placeholder="you@example.com" aria-invalid={status === "error"} aria-describedby="newsletter-status" />
-          <button type="submit" disabled={status === "loading"}>
-            {status === "loading" ? <span className="button-spinner" aria-hidden="true"></span> : null}
-            {status === "success" ? "Subscribed" : "Subscribe"}
-          </button>
-        </div>
-        <p id="newsletter-status" className={`newsletter-status ${status}`} role="status" aria-live="polite">
-          {status === "success" ? <i className="fa-solid fa-check" aria-hidden="true"></i> : null}{message}
-        </p>
-      </form>
+      {open ? <NewsletterForm /> : <NewsletterSoon />}
     </section>
   );
 }
@@ -328,6 +363,7 @@ const legalNotes = {
       "This site runs no analytics, ads or tracking scripts, and sets no tracking cookies.",
       "Your theme choice, contact-form drafts and cached GitHub data are kept in your own browser's local storage and never sent to me.",
       "When you send the contact form, your name, email, company (if given) and message are stored on this site's server and emailed to me, only so I can reply. Your IP address is kept only as a one-way hash, to stop spam.",
+      "The newsletter, once it opens, runs on Buttondown: your address goes to them, they send a confirmation link first, and every issue has an unsubscribe link.",
       "Nothing you send is sold or shared. Email me to see or delete what's stored about you."
     ],
     link: ["Email me", `mailto:${CONTACT_EMAIL}`]

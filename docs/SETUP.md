@@ -49,7 +49,7 @@ Every push to `main` runs `.github/workflows/deploy.yml`: build, stage the PHP A
 | `MAIL_TO` | where contact-form leads go (default `contact@aayushmishra.engineer`) | F03 |
 
 The Cal.com link isn't a secret: set `contactSection.booking.url` in `src/portfolio.js`.
-| `BUTTONDOWN_API_KEY`, `BUTTONDOWN_WEBHOOK_SECRET` | Buttondown → Settings → API / Webhooks | F04 |
+| `BUTTONDOWN_API_KEY`, `BUTTONDOWN_WEBHOOK_SECRET` | Buttondown → Settings → API / Webhooks (steps in `docs/features/F04-newsletter-backend.md`) | F04 |
 | `API_CLIENT_IP_HEADER` | e.g. `HTTP_X_FORWARDED_FOR`, after checking health (below) | rate limits |
 
 Missing secrets don't break the deploy: the API reports what isn't configured and the contact form falls back to email.

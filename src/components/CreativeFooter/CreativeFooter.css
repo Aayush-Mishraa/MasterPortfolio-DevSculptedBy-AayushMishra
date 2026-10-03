@@ -396,6 +396,31 @@ body.dark-theme .creative-footer {
   margin-right: 5px;
 }
 
+.newsletter-soon-title {
+  margin: 6px 0 8px;
+  color: var(--f-ink);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.newsletter-soon-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0 !important;
+  color: var(--f-muted);
+  font-size: 0.82rem !important;
+}
+
+/* honeypot: off screen, out of the tab order and the accessibility tree */
+.footer-hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 /* ---------- Panels ---------- */
 
 .footer-link-grid {

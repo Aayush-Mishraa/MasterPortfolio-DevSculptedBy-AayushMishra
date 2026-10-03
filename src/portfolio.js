@@ -763,6 +763,15 @@ const publications = {
   ],
 };
 
+// Newsletter (footer box). "coming-soon" shows a note and no form; switch to
+// "open" once issue #1 is published (F18). Sign-ups go through /api/subscribe.php
+// to Buttondown, which sends the confirmation email. Preview the open form with ?newsletter=preview.
+const newsletter = {
+  status: "coming-soon",
+  name: "QA & Automation Insights",
+  blurb: "Release notes, testing tips, and tool breakdowns. Occasionally useful, never noisy.",
+};
+
 // Open Source Section
 const openSource = {
   showGithubProfile: "true", // Set true or false to show Contact profile using Github, defaults to true
@@ -848,5 +857,6 @@ export {
   publicationsHeader,
   publications,
   openSource,
+  newsletter,
   contactPageData,
 };

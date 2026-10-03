@@ -27,8 +27,9 @@ return [
     ],
     'mail_to' => 'contact@aayushmishra.engineer',
     'buttondown' => [
-        'api_key' => '',
+        'api_key' => 'test-buttondown-key',
         'webhook_secret' => 'local-buttondown-webhook-secret',
+        'api_base' => 'http://buttondown:8090/v1', // the fake in api/tests/fake-buttondown
     ],
     // Tests set X-Forwarded-For to act as different visitors.
     'client_ip_header' => 'HTTP_X_FORWARDED_FOR',
