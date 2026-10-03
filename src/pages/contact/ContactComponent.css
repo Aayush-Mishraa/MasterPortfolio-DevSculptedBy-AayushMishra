@@ -1246,6 +1246,21 @@
   line-height: 1.6;
 }
 
+.ct-sent:focus {
+  outline: none;
+}
+
+/* delivery failed: same panel, warning colours, no celebration */
+.ct-sent--failed .ct-sent__ring {
+  background: #b45309;
+  color: #fff;
+  box-shadow: 0 0 0 10px rgba(180, 83, 9, 0.16);
+}
+
+.ct-sent--failed .ct-sent__ring::after {
+  display: none;
+}
+
 .ct-sent__actions {
   display: flex;
   flex-wrap: wrap;
@@ -1397,6 +1412,10 @@
 
 .ct-inspector__log .is-done {
   color: #4ade80;
+}
+
+.ct-inspector__log .is-fail {
+  color: #fca5a5;
 }
 
 .ct-inspector__stats {
@@ -1955,6 +1974,16 @@
 }
 
 /* ---------- Utilities ---------- */
+
+/* honeypot: off screen, out of the tab order and the accessibility tree */
+.ct-hp {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
 
 .ct-sr {
   position: absolute !important;

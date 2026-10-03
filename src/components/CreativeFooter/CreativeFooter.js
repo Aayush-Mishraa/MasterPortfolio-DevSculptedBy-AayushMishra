@@ -149,9 +149,10 @@ function FooterHero() {
         <h2 id="footer-hero-title">Let&apos;s build something <span>reliable</span> together.</h2>
         <p>Open to remote and on-site opportunities where thoughtful engineering makes releases calmer.</p>
         <div className="footer-hero-actions">
-          <a className="footer-cta" href={`mailto:${CONTACT_EMAIL}`}>
+          {/* The same form as the Contact page: it reaches the inbox without a mail app */}
+          <Link className="footer-cta" to="/contact#compose">
             Get in touch <i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
-          </a>
+          </Link>
           <CopyEmail />
         </div>
       </div>
@@ -326,7 +327,8 @@ const legalNotes = {
     body: [
       "This site runs no analytics, ads or tracking scripts, and sets no tracking cookies.",
       "Your theme choice, contact-form drafts and cached GitHub data are kept in your own browser's local storage and never sent to me.",
-      "If you email me, subscribe or send the contact form, your address is used only to reply. It is never sold or shared."
+      "When you send the contact form, your name, email, company (if given) and message are stored on this site's server and emailed to me, only so I can reply. Your IP address is kept only as a one-way hash, to stop spam.",
+      "Nothing you send is sold or shared. Email me to see or delete what's stored about you."
     ],
     link: ["Email me", `mailto:${CONTACT_EMAIL}`]
   },

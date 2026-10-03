@@ -34,12 +34,22 @@ export const test = base.extend<Fixtures>({
     await use(page);
   },
   consoleErrors: [
-    async ({ page }, use, testInfo) => {
+    async ({ page, baseURL }, use, testInfo) => {
       const errors: string[] = [];
+      const ownHost = baseURL ? new URL(baseURL).host : "";
       page.on("console", (message) => {
         if (message.type() !== "error") return;
-        const text = `${message.text()} ${message.location().url || ""}`;
-        if (!IGNORED_CONSOLE.some((pattern) => pattern.test(text))) errors.push(text);
+        const url = message.location().url || "";
+        const text = `${message.text()} ${url}`;
+        if (IGNORED_CONSOLE.some((pattern) => pattern.test(text))) return;
+        if (/^Failed to load resource/.test(message.text()) && url) {
+          const resource = new URL(url, baseURL);
+          // A third-party feed or image being down is not this site's error,
+          if (resource.host !== ownHost) return;
+          // and an API error status is an outcome the page shows (tests assert it).
+          if (resource.pathname.startsWith("/api/")) return;
+        }
+        errors.push(text);
       });
       page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
       await use(errors);

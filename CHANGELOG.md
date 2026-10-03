@@ -4,6 +4,12 @@ All notable changes to aayushmishra.engineer. Newest first.
 
 ## 2026-10-03
 
+### F03 · Contact form → backend
+- The contact form now sends from the page: `/api/contact.php` saves the lead and emails it through Hostinger SMTP with Reply-To set to the sender. No mail app needed.
+- Spam guards: a hidden honeypot field, a signed form token that must be a few seconds old, a per-IP rate limit and server-side validation.
+- Real result states: "Transmission received", field errors from the server, and a fallback panel (open in mail app, copy, try again) if delivery fails.
+- The footer's "Get in touch" opens the same form; a "Book a 20-min call" button appears once a Cal.com link is set; the privacy note lists what the form stores.
+
 ### F02 · Backend foundation
 - New PHP 8 API in `api/`: health check, signed form tokens, admin-only migrate and mail-test endpoints, and shared helpers for the database (PDO), validation, rate limits, JSON responses and SMTP mail (PHPMailer).
 - MySQL schema in `api/migrations/001_init.sql` (leads, subscribers, rate limits, webhook events), applied by the deploy.

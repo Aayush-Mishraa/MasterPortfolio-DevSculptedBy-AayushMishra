@@ -16,7 +16,7 @@ As Aayush, I push to main and the API ships with the site; I add secrets in GitH
 - [x] Deploy: `composer install --no-dev`, `php -l`, `scripts/deploy/stage-api.mjs` copies `api/` (and `admin/` when it exists) into `build/` without tests or Composer files; migrations run after the upload.
 - [x] `.htaccess`: `/api` and `/admin` are handed to their own folders before the SPA fallback; `api/.htaccess` blocks `lib/`, `vendor/`, `migrations/`, `tests/`, dotfiles and config files.
 - [x] Every `/api` response: `Cache-Control: no-store, private`, `X-Robots-Tag: noindex, nofollow`, `nosniff`, no CORS grant.
-- [x] PHP tests in CI against MySQL 8 and Mailpit, on PHP 8.1 and 8.3 (`.github/workflows/test.yml`).
+- [x] PHP tests in CI against MySQL 8 and Mailpit, on PHP 8.1 and 8.4 — Hostinger runs 8.4 (`.github/workflows/test.yml`).
 - [ ] Live: `/api/health.php` shows `config`, `database`, `schema`, `mail` all true (after the secrets below).
 
 ## Security notes

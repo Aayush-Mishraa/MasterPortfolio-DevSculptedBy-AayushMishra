@@ -30,6 +30,7 @@ return [
         'api_key' => '',
         'webhook_secret' => 'local-buttondown-webhook-secret',
     ],
-    'client_ip_header' => '',
+    // Tests set X-Forwarded-For to act as different visitors.
+    'client_ip_header' => 'HTTP_X_FORWARDED_FOR',
     'state_dir' => '/tmp/site-api-state',
 ];

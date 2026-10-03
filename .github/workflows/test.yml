@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ["8.1", "8.3"]
+        php: ["8.1", "8.4"] # 8.4 is what Hostinger runs (3 Oct 2026)
     services:
       mysql:
         image: mysql:8.0
@@ -69,6 +69,7 @@ jobs:
               'smtp' => ['host' => '127.0.0.1', 'port' => 1025, 'secure' => '', 'user' => '', 'pass' => '', 'from' => 'contact@aayushmishra.engineer'],
               'mail_to' => 'contact@aayushmishra.engineer',
               'buttondown' => ['api_key' => '', 'webhook_secret' => 'ci-buttondown-webhook-secret'],
+              'client_ip_header' => 'HTTP_X_FORWARDED_FOR',
               'state_dir' => '/tmp/site-api-state',
           ];
           PHP
@@ -86,6 +87,8 @@ jobs:
           TEST_DB_PASS: tester
           API_BASE_URL: http://127.0.0.1:8099
           MAILPIT_URL: http://127.0.0.1:8025
+          TEST_APP_SECRET: ci-test-secret-0123456789abcdef0123456789
+          TEST_ORIGIN: http://127.0.0.1:8099
         run: vendor/bin/phpunit
 
       - name: Server log
