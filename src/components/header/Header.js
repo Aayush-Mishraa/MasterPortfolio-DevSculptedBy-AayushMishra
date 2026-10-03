@@ -16,7 +16,8 @@ const NAV_LINKS = [
     to: "/",
     label: "Home",
     icon: "fa-solid fa-house",
-    isActive: (match, location) => Boolean(match || location.pathname === "/")
+    // "/" would match every path: Home is active on the home page only.
+    isActive: (match, location) => location.pathname === "/" || location.pathname === "/home"
   },
   { to: "/education", label: "Education", icon: "fa-solid fa-graduation-cap" },
   { to: "/experience", label: "Experience", icon: "fa-solid fa-briefcase" },

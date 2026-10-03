@@ -76,3 +76,11 @@ test.describe("F05 intro without the wait", () => {
     await expect(page.locator(".intro")).toBeVisible();
   });
 });
+
+test("the header marks Home active on the home page only", async ({ page }) => {
+  const current = page.locator('.hud a[aria-current="page"] .nav-label');
+  await page.goto("/experience", { waitUntil: "domcontentloaded" });
+  await expect(current).toHaveText(["Experience"]);
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(current).toHaveText(["Home"]);
+});
