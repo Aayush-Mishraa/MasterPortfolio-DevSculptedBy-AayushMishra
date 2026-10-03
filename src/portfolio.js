@@ -1,4 +1,9 @@
-/* Change this file to get your personal Porfolio */
+/* Change this file to get your personal Portfolio */
+
+// The one job title used everywhere: hero, intro, contact card, JSON-LD and the
+// site title. The Experience page keeps each role's real title.
+const JOB_TITLE = "Senior SDET & QA Lead";
+const SITE_TITLE = `Aayush Mishra · ${JOB_TITLE}`;
 
 // Website related settings
 const settings = {
@@ -7,11 +12,11 @@ const settings = {
 
 //SEO Related settings
 const seo = {
-  title: "Aayush Mishra · SDET & QA Lead",
+  title: SITE_TITLE,
   description:
     "Aayush Mishra is a Senior Software Test Engineer and QA lead in India, building test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship.",
   og: {
-    title: "Aayush Mishra · SDET & QA Lead",
+    title: SITE_TITLE,
     type: "website",
     url: "https://aayushmishra.engineer/",
   },
@@ -33,7 +38,7 @@ const seo = {
         "The tools Aayush Mishra tests software with, from Selenium, Playwright, TestNG and Postman to AI testing agents and CI, with hands-on field guides.",
     },
     "/opensource": {
-      title: "Open Source · Aayush Mishra: building in public",
+      title: "Open Source · Aayush Mishra",
       description:
         "Aayush Mishra's open-source work on GitHub: contributions, pull requests, activity and the ecosystems behind them.",
     },
@@ -43,7 +48,7 @@ const seo = {
         "Get in touch with Aayush Mishra about SDET, QA lead and test automation roles, by email, LinkedIn or the contact form.",
     },
     "/projects": {
-      title: "Projects · Aayush Mishra — SDET & Automation Engineer",
+      title: "Projects · Aayush Mishra",
       description:
         "Aayush Mishra's projects, synced from GitHub: test automation frameworks, API suites and AI agents, with their commits and READMEs.",
     },
@@ -54,7 +59,8 @@ const seo = {
 const greeting = {
   title: "Aayush Mishra",
   logo_name: "AayushMishra",
-  nickname: "Software Development Engineer in Test 🚀",
+  nickname: JOB_TITLE,
+  jobTitle: JOB_TITLE,
   subTitle:
     "A passionate Software Development Engineer in Test who specializes in creating robust testing frameworks and ensuring quality in software products through innovative testing solutions.",
   resumeLink:
@@ -120,6 +126,7 @@ const socialMediaLinks = [
     link: "https://www.instagram.com/_aayush_mishraa/",
     fontAwesomeIcon: "fa-instagram", // Reference https://fontawesome.com/icons/instagram?style=brands
     backgroundColor: "#E4405F", // Reference https://simpleicons.org/?q=instagram
+    sameAs: false, // personal account: kept off the JSON-LD sameAs list
   },
   {
     name: "Gmail",
@@ -468,50 +475,51 @@ const degrees = {
       alt_name: "chandigarh-university.png",
       duration: "2022 - 2024",
       descriptions: [
-        "⚡ I have taken varity of courses related to Artificial Intelligence which correspond to Explainable AI, Graph Machine Learning, Computer Vision etc.",
+        "⚡ I have taken a variety of courses related to Artificial Intelligence which correspond to Explainable AI, Graph Machine Learning, Computer Vision etc.",
         "⚡ Apart from this, I have also done research assistantship. As part of it, I have worked on creating new algorithms in Graph ML and Network Science.",
-        "⚡ During my time at university, I was also associated with multimedia department. As part of it, I have worked on some documentry films and interviews.",
+        "⚡ During my time at university, I was also associated with multimedia department. As part of it, I have worked on some documentary films and interviews.",
       ],
       website_link: "https://www.cuchd.in/",
     },
   ],
 };
 
+// Certificates. certificate_link is set only where it opens this exact certificate
+// (checked against each PDF / verify page on 3 Oct 2026); an empty link shows the
+// card without a "verified" badge and leaves the url out of the JSON-LD.
 const certifications = {
   certifications: [
     {
-      title: "AWS Machine Learning",
-      subtitle: "- Andrew Ng",
+      title: "Getting Started with AWS Machine Learning",
+      subtitle: "- Amazon Web Services",
       logo_path: "aws-1.png",
       certificate_link:
         "https://coursera.org/share/3191ed2114b3502ba9b50e9bc3d425bc",
-      alt_name: "Stanford University",
+      alt_name: "Coursera",
       color_code: "#020202ff",
     },
     {
       title: "Python for Data Science, AI & Development",
       subtitle: "- Andrew Ng",
       logo_path: "deeplearning_ai_logo.png",
-      certificate_link:
-        "https://coursera.org/share/3191ed2114b3502ba9b50e9bc3d425bc",
+      certificate_link: "", // the old link opened the AWS certificate above
       alt_name: "deeplearning.ai",
       color_code: "#00000099",
     },
-      {
-      title: "Selenium",
-      subtitle: "- Saurabh Mukhopadhyay",
+    {
+      title: "Selenium WebDriver with Java: Basics to Advanced + Frameworks",
+      subtitle: "- Rahul Shetty",
       logo_path: "Selenium.jpg",
       certificate_link:
         "https://udemy-certificate.s3.amazonaws.com/pdf/UC-5eefb0ee-2a2d-4ed4-9784-07fbea2b314d.pdf",
-      alt_name: "NPTEL",
+      alt_name: "Udemy",
       color_code: "#ffffffff",
     },
     {
       title: "Data Science",
       subtitle: "- Alex Aklson",
       logo_path: "ibm_logo.png",
-      certificate_link:
-        "https://udemy-certificate.s3.amazonaws.com/pdf/UC-5eefb0ee-2a2d-4ed4-9784-07fbea2b314d.pdf",
+      certificate_link: "", // the old link opened the Selenium certificate
       alt_name: "IBM",
       color_code: "#1F70C199",
     },
@@ -519,9 +527,8 @@ const certifications = {
       title: "Playwright Testing",
       subtitle: "- Rahul Shetty",
       logo_path: "playwright.png",
-      certificate_link:
-        "https://udemy-certificate.s3.amazonaws.com/pdf/UC-5eefb0ee-2a2d-4ed4-9784-07fbea2b314d.pdf",
-      alt_name: "Microsoft",
+      certificate_link: "", // the old link opened the Selenium certificate
+      alt_name: "Udemy",
       color_code: "#D83B0199",
     },
     {
@@ -537,54 +544,50 @@ const certifications = {
       title: "Advanced ML on GCP",
       subtitle: "- Srikanth Varma Chekuri",
       logo_path: "Applied_Root2.png",
-      certificate_link:
-        "",
+      certificate_link: "",
       alt_name: "Google",
       color_code: "#0C9D5899",
     },
-      {
+    {
       title: "Rest Assured",
       subtitle: "- Rahul",
       logo_path: "rest-assured-1.webp",
-      certificate_link:
-        "", // the old Qwiklabs profile link was a 404; add the Udemy certificate URL here
+      certificate_link: "", // the old Qwiklabs profile link was a 404; add the Udemy certificate URL here
       alt_name: "Udemy",
       color_code: "#feffffff",
     },
     {
-      title: "Swift IOS Development",
+      title: "Swift 5 Programming for Beginners",
       subtitle: "- Nick Walter",
       logo_path: "Swift-Logo.png",
       certificate_link:
         "https://udemy-certificate.s3.amazonaws.com/pdf/UC-38add859-4573-4f77-a143-c0113923d90b.pdf",
-      alt_name: "Coursera",
+      alt_name: "Udemy",
       color_code: "#2A73CC",
     },
     {
-      title: "Postman API Testing",
-      subtitle: "- Qwiklabs",
+      title: "Postman: Learn API Testing from Scratch with Live Projects",
+      subtitle: "- Rahul Shetty Academy",
       logo_path: "Postman.png",
       certificate_link:
         "https://udemy-certificate.s3.amazonaws.com/pdf/UC-ce8a68f1-7c6a-485f-b2b9-8ef414f2e1aa.pdf",
-      alt_name: "GCP",
+      alt_name: "Udemy",
       color_code: "#4285F499",
     },
-   {
+    {
       title: "ML on GCP",
       subtitle: "- GCP Training",
       logo_path: "google_logo.png",
-      certificate_link:
-        "Link to your certificate",
+      certificate_link: "",
       alt_name: "Google",
       color_code: "#0C9D5899",
     },
-  {
+    {
       title: "DL on Tensorflow",
       subtitle: "- Nitish Singh",
       logo_path: "CampusX.png",
-      certificate_link:
-        "Link to your certificate",
-      alt_name: "deeplearning.ai",
+      certificate_link: "",
+      alt_name: "CampusX",
       color_code: "#00000099",
     },
   ],
@@ -593,7 +596,7 @@ const certifications = {
 // Experience Page
 const experience = {
   title: "Experience",
-  subtitle: "Work, Internship and Volunteership",
+  subtitle: "Work, Internships and Volunteering",
   description:
     "Experienced SDET specializing in test automation, AI-powered testing solutions, and quality assurance. I've built robust testing frameworks across banking, ecommerce, healthcare, and logistics industries while implementing CI/CD pipelines and performance testing strategies. Passionate about leveraging cutting-edge AI technologies to revolutionize testing methodologies.",
   header_image_path: "experience.svg",
@@ -651,7 +654,7 @@ const experience = {
           duration: "June 2021 - March 2022",
           location: "Hyderabad, Telangana",
           description:
-            "I am working on automating healthcare products. The projects involve automation for process improvements and for significantly enhancing the profits. I am currently working on Cancer Survival and Reoccurence Prediction. Our goal is to make AI system which scales and removes doctor dependency as much as possible.",
+            "I am working on automating healthcare products. The projects involve automation for process improvements and for significantly enhancing the profits. I am currently working on Cancer Survival and Recurrence Prediction. Our goal is to make AI system which scales and removes doctor dependency as much as possible.",
           color: "#000000",
         },
         {
@@ -665,11 +668,11 @@ const experience = {
             "I have worked on project of predicting freight rates based on previous data. There were two objectives: (1) To build a forecasting engine to predict daily freight rates. (2) To embed feature in the model which can explain the seasonal major changes in freight rate based on regions and locations. I have closely worked with deep learning models in combination with statistical methods to create solution for this. At the end of internship, I had created model deployed on AWS EC2 with the use of Kafka stream jobs, ElasticSearch and PostgreSQL.",
           color: "#ee3c26",
         },
-        // MOVED: Intel Indexer LLC moved to Volunteerships section
+        // MOVED: Intel Indexer LLC moved to the Volunteering section
       ],
     },
     {
-      title: "Volunteerships And Research Assistantships For Open Source",
+      title: "Volunteering and Open-Source Research Assistantships",
       experiences: [
         {
           title: "Google Explore ML Facilitator",
@@ -815,7 +818,7 @@ const contactPageData = {
     country: "India",
     region: "",
     postalCode: "",
-    streetAddress: " ",
+    streetAddress: "",
     avatar_image_path: "address_image.svg",
     location_map_link: "https://www.google.com/maps/place/India",
   },

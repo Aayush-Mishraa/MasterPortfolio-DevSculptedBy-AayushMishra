@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import portraitWebp from "../../../assets/images/ProfileImage.webp";
 import portraitPng from "../../../assets/images/ProfileImage.png";
-import { CAREER_START, CURRENT_ROLE, HIGHLIGHTS, PROFILE, availabilityAt, utcLabel, yearsSince } from "../homeData";
+import { CAREER_START, HIGHLIGHTS, PROFILE, availabilityAt, utcLabel, yearsSince } from "../homeData";
 import { EASE, gsap, hasFinePointer, prefersReducedMotion, useGsap, useNow, watchIntro } from "../lib/motion";
 import EvidenceLog from "../components/EvidenceLog";
 import { scrollToId } from "../lib/scroll";
@@ -129,7 +129,7 @@ export default function Hero({ onOpenBrief }) {
                 {" "}
                 ·{" "}
               </span>
-              <span className="hm-hero__role">{CURRENT_ROLE.title}, leading QA</span>
+              <span className="hm-hero__role">{PROFILE.role}</span>
             </span>
           </p>
 
