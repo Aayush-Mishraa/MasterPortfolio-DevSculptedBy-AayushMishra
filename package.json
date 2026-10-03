@@ -2,7 +2,7 @@
   "private": true,
   "name": "masterportfolio-devsculptedby-aayushmishra",
   "version": "1.0.0",
-  "description": "Professional portfolio of Aayush Mishra - QA Automation Engineer & Full Stack Developer",
+  "description": "Portfolio of Aayush Mishra, Senior SDET & QA Lead",
   "author": "Aayush Mishra",
   "license": "MIT",
   "homepage": "https://aayushmishra.engineer",
@@ -18,7 +18,8 @@
     "test": "react-scripts test",
     "fetch-github-data": "node scripts/automation/git_data_fetcher.mjs",
     "fetch-projects": "node scripts/automation/fetch_projects_snapshot.mjs",
-    "auto-refresh": "node scripts/automation/auto-refresh.mjs"
+    "auto-refresh": "node scripts/automation/auto-refresh.mjs",
+    "spell": "cspell --no-progress \"src/portfolio.js\" \"src/pages/**/*.js\" \"src/components/{CreativeFooter,header,seoHeader,topButton,themeSelector}/*.js\" \"public/index.html\" \"public/manifest.json\" \"public/robots.txt\" \"public/llms.txt\""
   },
   "dependencies": {
     "@studio-freight/lenis": "^1.0.19",
@@ -43,6 +44,9 @@
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "cspell": "^8.19.4",
     "dotenv": "^6.2.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",

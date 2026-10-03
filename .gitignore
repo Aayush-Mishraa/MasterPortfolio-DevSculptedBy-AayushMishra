@@ -50,3 +50,9 @@ hostinger-deployment-latest/
 
 # stray Windows cache folder created by tooling
 /%SystemDrive%/
+
+# test output
+/tests/.results/
+/tests/.report/
+/playwright-report/
+/test-results/

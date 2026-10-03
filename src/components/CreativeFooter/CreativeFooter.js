@@ -259,7 +259,7 @@ function Now() {
       <span className="footer-eyebrow"><i aria-hidden="true"></i>Right now</span><h3 id="now-title">Now</h3>
       <div className="now-role">
         <span className="status-dot" aria-hidden="true"></span>
-        <div><strong>{currentRole.title}</strong><span>Since {currentRole.duration.split(" - ")[0]}</span></div>
+        <div><strong>{greeting.jobTitle}</strong><span>Since {currentRole.duration.split(" - ")[0]}</span></div>
       </div>
       <span className="now-label">Exploring</span>
       <div className="now-tags">{exploring.map(tag => <span key={tag}>{tag}</span>)}</div>

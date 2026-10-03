@@ -28,7 +28,7 @@ const CHECKS = [
   { name: "bugs squashed", value: 600, suffix: "+" },
   { name: "test cases run", value: 5000, suffix: "+" }
 ];
-const ROLE = "Software Development Engineer in Test";
+const ROLE = greeting.jobTitle;
 const SCREENSHOT_CALL = "expect(signature).toHaveScreenshot()";
 const SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/{}#*+=";
 const ODOMETER_DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];

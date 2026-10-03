@@ -194,7 +194,7 @@ const socialLink = (name) => (socialMediaLinks.find((media) => media.name === na
 export const PROFILE = {
   name: greeting.title,
   firstName: greeting.title.split(" ")[0],
-  role: CURRENT_ROLE.title,
+  role: greeting.jobTitle,
   company: CURRENT_ROLE.company,
   companyUrl: CURRENT_ROLE.url,
   since: CURRENT_ROLE.start,

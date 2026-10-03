@@ -1,0 +1,59 @@
+{
+  "desktop /": {
+    "aria-prohibited-attr": 1,
+    "button-name": 1,
+    "color-contrast": 1
+  },
+  "desktop /automation-arsenal": {
+    "button-name": 1
+  },
+  "desktop /contact": {
+    "aria-prohibited-attr": 1,
+    "button-name": 1
+  },
+  "desktop /education": {
+    "button-name": 1
+  },
+  "desktop /experience": {
+    "button-name": 1
+  },
+  "desktop /opensource": {
+    "button-name": 1,
+    "color-contrast": 5
+  },
+  "desktop /projects": {
+    "button-name": 1,
+    "nested-interactive": 1
+  },
+  "desktop /universe": {},
+  "mobile /": {
+    "aria-prohibited-attr": 2,
+    "color-contrast": 1
+  },
+  "mobile /automation-arsenal": {
+    "aria-prohibited-attr": 1
+  },
+  "mobile /contact": {
+    "aria-prohibited-attr": 2
+  },
+  "mobile /education": {
+    "aria-prohibited-attr": 1
+  },
+  "mobile /experience": {
+    "aria-prohibited-attr": 1,
+    "scrollable-region-focusable": 1
+  },
+  "mobile /opensource": {
+    "aria-prohibited-attr": 1,
+    "color-contrast": 6,
+    "scrollable-region-focusable": 1
+  },
+  "mobile /projects": {
+    "aria-prohibited-attr": 1,
+    "nested-interactive": 1,
+    "scrollable-region-focusable": 1
+  },
+  "mobile /universe": {
+    "button-name": 1
+  }
+}
