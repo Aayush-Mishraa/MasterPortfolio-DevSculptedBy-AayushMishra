@@ -1,0 +1,138 @@
+name: Tests
+
+# Every push and pull request: the PHP API against MySQL + a mail catcher, and
+# the Playwright suite (desktop + mobile, axe, console errors) against the
+# production build. Deploys run separately (deploy.yml) on pushes to main.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: API on PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.1", "8.3"]
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: portfolio_test
+          MYSQL_USER: tester
+          MYSQL_PASSWORD: tester
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, mbstring
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        working-directory: api
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Syntax check
+        run: find api -path api/vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+
+      - name: Serve the API (PHP built-in server)
+        run: |
+          cat > "$RUNNER_TEMP/api-config.php" <<'PHP'
+          <?php
+          return [
+              'env' => 'test',
+              'allowed_origins' => ['http://127.0.0.1:8099', 'https://aayushmishra.engineer'],
+              'app_secret' => 'ci-test-secret-0123456789abcdef0123456789',
+              'admin_token' => 'test-admin-token-0123456789abcdef',
+              'db' => ['host' => '127.0.0.1', 'port' => 3306, 'name' => 'portfolio_test', 'user' => 'tester', 'pass' => 'tester'],
+              'smtp' => ['host' => '127.0.0.1', 'port' => 1025, 'secure' => '', 'user' => '', 'pass' => '', 'from' => 'contact@aayushmishra.engineer'],
+              'mail_to' => 'contact@aayushmishra.engineer',
+              'buttondown' => ['api_key' => '', 'webhook_secret' => 'ci-buttondown-webhook-secret'],
+              'state_dir' => '/tmp/site-api-state',
+          ];
+          PHP
+          SITE_API_CONFIG="$RUNNER_TEMP/api-config.php" nohup php -S 127.0.0.1:8099 -t . > "$RUNNER_TEMP/php-server.log" 2>&1 &
+          sleep 1
+          curl -sS --fail http://127.0.0.1:8099/api/health.php
+
+      - name: PHPUnit
+        working-directory: api
+        env:
+          TEST_DB_HOST: 127.0.0.1
+          TEST_DB_PORT: 3306
+          TEST_DB_NAME: portfolio_test
+          TEST_DB_USER: tester
+          TEST_DB_PASS: tester
+          API_BASE_URL: http://127.0.0.1:8099
+          MAILPIT_URL: http://127.0.0.1:8025
+        run: vendor/bin/phpunit
+
+      - name: Server log
+        if: failure()
+        run: cat "$RUNNER_TEMP/php-server.log"
+
+  web:
+    name: Site (Playwright, desktop + mobile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "16"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The committed GitHub snapshot, not a fresh fetch: tests stay deterministic.
+      - name: Build
+        run: npx react-scripts build
+        env:
+          CI: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Spell check
+        run: npm run spell
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright
+        run: npx playwright test
+        env:
+          CI: true
+
+      - name: Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            tests/.report
+            tests/.results
+          retention-days: 7

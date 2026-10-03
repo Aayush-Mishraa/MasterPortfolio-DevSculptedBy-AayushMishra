@@ -10,6 +10,9 @@ jobs:
   deploy:
     name: FTP Deploy to Hostinger
     runs-on: ubuntu-latest
+    env:
+      # Steps that need a secret check these (the secrets context can't be used in `if`).
+      HAS_API_ADMIN_TOKEN: ${{ secrets.API_ADMIN_TOKEN != '' }}
 
     steps:
       # Step 1: Checkout repository source code
@@ -34,6 +37,45 @@ jobs:
           CI: false
           # read-only token so the prebuild GitHub snapshot isn't rate-limited
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 4b: the PHP API (F02). Production dependencies only, a syntax check,
+      # then api/ is copied into build/ so the upload below carries it.
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install API dependencies
+        working-directory: api
+        run: composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Check PHP syntax
+        run: find api -path api/vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+
+      - name: Stage the API into the build
+        run: node scripts/deploy/stage-api.mjs
+
+      # Written outside the web root (domains/aayushmishra.engineer/private/); missing
+      # secrets leave those settings empty and /api/health.php reports them.
+      - name: Write the API config from secrets
+        env:
+          API_APP_SECRET: ${{ secrets.API_APP_SECRET }}
+          API_ADMIN_TOKEN: ${{ secrets.API_ADMIN_TOKEN }}
+          API_CLIENT_IP_HEADER: ${{ secrets.API_CLIENT_IP_HEADER }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
+          BUTTONDOWN_WEBHOOK_SECRET: ${{ secrets.BUTTONDOWN_WEBHOOK_SECRET }}
+        run: php scripts/deploy/write-api-config.php deploy-private/api-config.php
 
       # Step 5: Upload website files to Hostinger public_html via FTP
       # Uses incremental sync state to avoid unnecessary uploads where possible.
@@ -114,6 +156,31 @@ jobs:
             **/*.ps1
             **/*.bat
             **/hostinger-deployment*.zip
+
+      # Step 5b: the API config goes next to public_html, never inside it.
+      - name: Upload the API config (outside the web root)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ env.FTP_SERVER_IPV4 }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ env.FTP_PORT_EFFECTIVE }}
+          protocol: ftps
+          local-dir: ./deploy-private/
+          server-dir: /domains/aayushmishra.engineer/private/
+          dangerous-clean-slate: false
+          state-name: .ftp-private-sync-state.json
+
+      # Step 5c: create or update the database tables. Safe to repeat. A failure here
+      # (database not set up yet, CDN challenge) doesn't undo the deploy; see the log.
+      - name: Apply database migrations
+        if: ${{ env.HAS_API_ADMIN_TOKEN == 'true' }}
+        continue-on-error: true
+        env:
+          API_ADMIN_TOKEN: ${{ secrets.API_ADMIN_TOKEN }}
+        run: |
+          sleep 10
+          curl -sS --fail-with-body --max-time 60 -X POST             -A "aayushmishra-deploy/1.0"             -H "Authorization: Bearer $API_ADMIN_TOKEN"             https://aayushmishra.engineer/api/migrate.php
 
       # Step 6: Upload additional standalone apps that must also live under public_html
       - name: Deploy contentmanagementsystem folder
