@@ -28,7 +28,7 @@ test.describe("F07 static GitHub data", () => {
     test(`${path} makes no live GitHub calls`, async ({ page }) => {
       const hits = await watchRequests(page);
       await gotoReady(page, path);
-      await page.waitForLoadState("networkidle").catch(() => {});
+      await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
       await page.mouse.wheel(0, 1600);
       await page.waitForTimeout(800);
       expect(hits).toEqual([]);
@@ -77,7 +77,7 @@ test.describe("F07 static GitHub data", () => {
         }).observe({ type: "layout-shift", buffered: true });
       });
       await gotoReady(page, path);
-      await page.waitForLoadState("networkidle").catch(() => {});
+      await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
       await page.waitForTimeout(1200);
       const cls = await page.evaluate(() => (window as any).__shifts.reduce((sum: number, value: number) => sum + value, 0));
       expect(cls, "cumulative layout shift").toBeLessThan(0.02);

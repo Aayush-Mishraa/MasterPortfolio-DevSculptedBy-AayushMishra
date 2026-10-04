@@ -17,7 +17,7 @@ Status values: todo · in progress · done · blocked (needs Aayush).
 | F05 | Intro without the wait | opt-in "Play intro", sound off, reduced motion respected, lands on the hero, mobile LCP < 2.5 s | S | — | done (LCP needs F06) |
 | F06 | Prerender + real 404 | per-route HTML with real title/meta/canonical/OG/body; real 404; OG images; llms.txt; sitemap; / canonical, /home 301; CI raw-HTML check | M | F05 | done (code); CDN flush after deploy; LCP gate still open |
 | F07 | Static GitHub data | Projects/Open Source read only the build snapshot (refreshed on a schedule); no API counter; no ci/chore/fix in feeds; counters never 0 | S | — | done (code) |
-| F09 | Hygiene | /resume.pdf on the domain; scroll reveals visible by default; favicon/manifest; CLS 0 | S | Aayush's new PDF | todo |
+| F09 | Hygiene | /resume.pdf on the domain; scroll reveals visible by default; favicon/manifest; CLS 0 | S | Aayush's new PDF | done, except /resume.pdf (waiting for the PDF) |
 
 ## Stages 2–4
 Unchanged from the plan: F10–F19 (offers, proof, admin), F20–F26 (lead magnets, F25 dropped), F27–F31 (passive revenue). Not started.

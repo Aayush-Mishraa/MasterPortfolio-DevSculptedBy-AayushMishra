@@ -407,16 +407,13 @@
   animation-delay: var(--d, 0ms);
 }
 
+/* F09: from a visible state (fading in from opacity 0 hid the content) */
 @keyframes os-rise {
   from {
-    opacity: 0;
     transform: translateY(22px);
-    filter: blur(6px);
   }
   to {
-    opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 
@@ -1472,14 +1469,13 @@
   border: 1px solid var(--pj-line);
   backdrop-filter: blur(14px);
   box-shadow: var(--pj-shadow);
-  opacity: 0;
+  /* F09: visible by default; only the slide waits for the scroll */
   transform: translateY(24px);
-  transition: opacity 0.7s var(--os-ease), transform 0.7s var(--os-ease), border-color 0.3s;
-  transition-delay: calc(var(--i) * 90ms);
+  transition: transform 0.7s var(--os-ease), border-color 0.3s;
+  transition-delay: calc(var(--i) * 90ms), 0s;
 }
 
 .os-gauge.is-in {
-  opacity: 1;
   transform: none;
 }
 

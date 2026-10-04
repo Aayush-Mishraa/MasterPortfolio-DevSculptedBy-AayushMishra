@@ -240,14 +240,15 @@
 }
 
 /* reveal on scroll */
+/* F09: visible by default. Only a short slide plays when it scrolls in, so the
+   content is never hidden if that never happens (screenshots, crawlers, the
+   prerendered HTML, a background tab). */
 .ct-reveal {
-  opacity: 0;
   transform: translateY(28px);
-  transition: opacity 0.8s var(--c-ease), transform 0.8s var(--c-ease);
+  transition: transform 0.8s var(--c-ease);
 }
 
 .ct-reveal.is-in {
-  opacity: 1;
   transform: none;
 }
 
@@ -446,6 +447,21 @@
   font-size: 0.8rem;
   color: var(--c-muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* Phones: the status text changes length with the time ("Online now" /
+   "Away · back in 13h 7m"), which wrapped the clock onto a second line and
+   pushed the hero down. The clock is also on the beacon card below, so the
+   pill keeps to one line here. */
+@media (max-width: 480px) {
+  .ct-status {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+  .ct-status__sep,
+  .ct-status .ct-mono {
+    display: none;
+  }
 }
 
 .ct-hero .ct-actions {

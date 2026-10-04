@@ -198,21 +198,20 @@
   animation-play-state: paused;
 }
 
-/* entrance used on above-the-fold content */
+/* entrance used on above-the-fold content: it slides in from a visible state
+   (F09: fading in from opacity 0 hid the hero, and delayed its paint) */
 .pj-reveal {
   display: block;
-  opacity: 0;
-  transform: translateY(18px);
-  filter: blur(6px);
-  animation: pj-rise 0.9s var(--pj-ease) forwards;
+  animation: pj-rise 0.9s var(--pj-ease) both;
   animation-delay: var(--d, 0ms);
 }
 
 @keyframes pj-rise {
+  from {
+    transform: translateY(18px);
+  }
   to {
-    opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 
@@ -1202,13 +1201,12 @@
   background: var(--pj-surface);
   backdrop-filter: blur(12px);
   box-shadow: var(--pj-shadow);
-  opacity: 0;
+  /* F09: visible by default; only the slide waits for the scroll */
   transform: translateY(20px);
-  transition: opacity 0.8s var(--pj-ease), transform 0.8s var(--pj-ease);
+  transition: transform 0.8s var(--pj-ease);
 }
 
 .pj-panel.is-in {
-  opacity: 1;
   transform: none;
 }
 
@@ -2094,13 +2092,12 @@
   backdrop-filter: blur(14px);
   box-shadow: var(--pj-shadow);
   overflow: hidden;
-  opacity: 0;
+  /* F09: visible by default; only the slide waits for the scroll */
   transform: translateY(30px);
-  transition: opacity 0.9s var(--pj-ease), transform 0.9s var(--pj-ease);
+  transition: transform 0.9s var(--pj-ease);
 }
 
 .pj-brief.is-in {
-  opacity: 1;
   transform: none;
 }
 
@@ -2185,7 +2182,12 @@
   font: 500 11px var(--pj-font-mono);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #16a34a;
+  /* WCAG AA for 11px text: #16a34a was 3.3:1 on the white card */
+  color: #15803d;
+}
+
+.pj-dark .pj-brief-card-label {
+  color: #4ade80;
 }
 
 .pj-brief-card p {

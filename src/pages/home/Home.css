@@ -523,18 +523,19 @@ a.hm-card:hover {
 
 /* ---------- Reveal ---------- */
 
-/* Blocks fade up as they enter (useReveal sets data-in). */
+/* Blocks slide up as they enter (useReveal sets data-in). */
+/* F09: visible by default. Only a short slide plays when it scrolls in, so the
+   content is never hidden if that never happens (screenshots, crawlers, the
+   prerendered HTML, a background tab). */
 .hm-js [data-reveal] {
-  opacity: 0;
   transform: translate3d(0, 28px, 0);
 }
 
 .hm-js [data-reveal][data-in] {
-  opacity: 1;
   transform: none;
-  transition: opacity var(--hm-slow) var(--hm-ease), transform var(--hm-slow) var(--hm-ease),
-    border-color var(--hm-fast) ease, box-shadow var(--hm-base) var(--hm-ease);
-  transition-delay: var(--d, 0ms), var(--d, 0ms), 0ms, 0ms;
+  transition: transform var(--hm-slow) var(--hm-ease), border-color var(--hm-fast) ease,
+    box-shadow var(--hm-base) var(--hm-ease);
+  transition-delay: var(--d, 0ms), 0ms, 0ms;
 }
 
 /* ---------- Icons ---------- */

@@ -69,6 +69,8 @@ const greeting = {
   jobTitle: JOB_TITLE,
   subTitle:
     "A passionate Software Development Engineer in Test who specializes in creating robust testing frameworks and ensuring quality in software products through innovative testing solutions.",
+  // F09: switch to "/resume.pdf" once the new PDF is in public/resume.pdf (a test
+  // fails if the link points at a file that isn't there).
   resumeLink:
     "https://drive.google.com/file/d/1oKsp7o5ZmpJbwP-Vs4wjnENlV_czoPFY/view",
   portfolio_repository: "https://github.com/Aayush-Mishraa",

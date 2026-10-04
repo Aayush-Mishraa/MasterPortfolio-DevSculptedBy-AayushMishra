@@ -95,7 +95,7 @@ test.describe("F06 prerender and real 404", () => {
       const prerenderedH1 = visibleText((html.match(/<h1[\s\S]*?<\/h1>/) || [""])[0]).trim();
 
       await gotoReady(page, path);
-      await page.waitForLoadState("networkidle").catch(() => {});
+      await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
       await page.waitForTimeout(1000);
 
       const h1 = (await page.locator("h1").first().innerText()).replace(/\s+/g, " ").trim();

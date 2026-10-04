@@ -1,52 +1,55 @@
 {
-  "short_name": "Aayush Mishra",
+  "id": "/",
   "name": "Aayush Mishra · Senior SDET & QA Lead",
+  "short_name": "Aayush Mishra",
+  "description": "Aayush Mishra, Senior SDET & QA Lead: test automation, CI quality gates and AI-assisted testing.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#EDF9FE",
+  "background_color": "#EDF9FE",
   "icons": [
     {
       "src": "/icons/android-icon-36x36.png",
       "sizes": "36x36",
       "type": "image/png",
-      "density": "0.75"
+      "purpose": "any"
     },
     {
       "src": "/icons/android-icon-48x48.png",
       "sizes": "48x48",
       "type": "image/png",
-      "density": "1.0"
+      "purpose": "any"
     },
     {
       "src": "/icons/android-icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
-      "density": "1.5"
+      "purpose": "any"
     },
     {
       "src": "/icons/android-icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
-      "density": "2.0"
+      "purpose": "any"
     },
     {
       "src": "/icons/android-icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
-      "density": "3.0"
+      "purpose": "any"
     },
     {
       "src": "/icons/android-icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "density": "4.0"
+      "purpose": "any"
     },
     {
       "src": "/icons/android-icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#EDF9FE",
-  "background_color": "#ffffff"
+  ]
 }

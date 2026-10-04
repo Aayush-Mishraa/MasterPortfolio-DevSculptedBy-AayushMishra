@@ -36,7 +36,7 @@ test.describe("F01 data fixes", () => {
 
   test("home: Webority stays off the page", async ({ page }) => {
     await gotoReady(page, "/");
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
     const text = await page.locator("#root").innerText();
     expect(text).not.toMatch(/webority/i);
   });

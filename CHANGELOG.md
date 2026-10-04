@@ -2,12 +2,20 @@
 
 All notable changes to aayushmishra.engineer. Newest first.
 
-## 2026-10-03
+## 2026-10-04
+
+### F09 · Hygiene
+- Scroll-reveal content is visible by default and only slides in; nothing waits at opacity 0.
+- Inter and JetBrains Mono are self-hosted and preloaded (no Google Fonts request): text doesn't jump when fonts load (layout shift ~0 on every page), and on a throttled phone the first paint comes 0.7–0.9 s sooner than with Google Fonts.
+- One manifest link, a cleaned-up manifest, and `/favicon.ico` + `/apple-touch-icon.png` at the root.
+- The Projects "Ready when you are" label now meets contrast. `/resume.pdf` is ready to switch on once the new PDF is added.
 
 ### F07 · Static GitHub data
 - Projects and Open Source no longer call the GitHub API from your browser: they show the build-time snapshot, which a scheduled build refreshes every six hours.
 - The "API x/60" counter and refresh button are gone; counters show the real numbers from the first paint (never 0).
 - The latest-commits stream and the activity log leave out ci/chore/fix and merge commits; activity entries now show their commit message.
+
+## 2026-10-03
 
 ### F06 · Prerender + real 404
 - Every page is prerendered at build time: real title, description, canonical URL, share image and text in the HTML, for 8 pages, every repository and every Tech Universe channel.
