@@ -28,10 +28,10 @@ html.uv-standalone body {
 /* ---------- Tokens ---------- */
 
 .uv-app {
-  --uv-font-display: "Geist", "Inter", system-ui, -apple-system, sans-serif;
-  --uv-font-ui: "Geist", "Inter", system-ui, -apple-system, sans-serif;
+  --uv-font-display: "Geist", "Inter", "Inter Fallback", system-ui, -apple-system, sans-serif;
+  --uv-font-ui: "Geist", "Inter", "Inter Fallback", system-ui, -apple-system, sans-serif;
   --uv-font-serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
-  --uv-font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --uv-font-mono: "Geist Mono", "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", Consolas, monospace;
   --uv-radius: 20px;
   --uv-radius-sm: 14px;
   --uv-radius-xs: 10px;

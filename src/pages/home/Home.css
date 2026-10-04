@@ -40,8 +40,8 @@
   --hm-pass-soft: rgba(var(--hm-pass-rgb), 0.12);
   --hm-warn: #b45309;
 
-  --hm-sans: "Inter", "Google Sans Regular", system-ui, -apple-system, sans-serif;
-  --hm-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --hm-sans: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, -apple-system, sans-serif;
+  --hm-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --hm-script: "Agustina Regular", "Segoe Script", cursive;
 
   --hm-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -523,18 +523,19 @@ a.hm-card:hover {
 
 /* ---------- Reveal ---------- */
 
-/* Blocks fade up as they enter (useReveal sets data-in). */
+/* Blocks slide up as they enter (useReveal sets data-in). */
+/* F09: visible by default. Only a short slide plays when it scrolls in, so the
+   content is never hidden if that never happens (screenshots, crawlers, the
+   prerendered HTML, a background tab). */
 .hm-js [data-reveal] {
-  opacity: 0;
   transform: translate3d(0, 28px, 0);
 }
 
 .hm-js [data-reveal][data-in] {
-  opacity: 1;
   transform: none;
-  transition: opacity var(--hm-slow) var(--hm-ease), transform var(--hm-slow) var(--hm-ease),
-    border-color var(--hm-fast) ease, box-shadow var(--hm-base) var(--hm-ease);
-  transition-delay: var(--d, 0ms), var(--d, 0ms), 0ms, 0ms;
+  transition: transform var(--hm-slow) var(--hm-ease), border-color var(--hm-fast) ease,
+    box-shadow var(--hm-base) var(--hm-ease);
+  transition-delay: var(--d, 0ms), 0ms, 0ms;
 }
 
 /* ---------- Icons ---------- */
@@ -1138,7 +1139,7 @@ body.dark-theme .hm.hm-brief {
   border-radius: 12px;
   background: var(--theme-text, #001c55);
   color: var(--theme-body, #ffffff);
-  font: 600 0.9rem/1 "Inter", system-ui, sans-serif;
+  font: 600 0.9rem/1 "Inter", "Inter Fallback", system-ui, sans-serif;
   text-decoration: none;
   transform: translateY(-160%);
   transition: transform 200ms ease;

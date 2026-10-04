@@ -10,7 +10,7 @@
   min-height: 60vh;
   padding: clamp(120px, 20vh, 190px) 20px 96px;
   text-align: center;
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Inter", "Inter Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--theme-text, #001c55);
 }
 
@@ -24,7 +24,7 @@
   border: 1px solid rgba(var(--theme-text-rgb, 0, 28, 85), 0.14);
   border-radius: 999px;
   background: rgba(var(--theme-text-rgb, 0, 28, 85), 0.04);
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.8rem;
   color: var(--theme-secondaryText, #5b6d92);
   overflow-wrap: anywhere;

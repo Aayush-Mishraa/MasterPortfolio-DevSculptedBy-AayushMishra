@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "../../components/header/Header";
@@ -9,20 +9,14 @@ import {
   categoryById,
   commitKind,
   enrichRepo,
-  fetchReadmeHtml,
-  fetchRepo,
-  fetchRepoCommits,
-  fetchRepoLanguages,
-  fetchRepoTree,
   formatBytes,
   formatDate,
   loadRepoSnapshot,
   loadSnapshot,
   mergeRepos,
-  summarizeTree,
   timeAgo,
 } from "../../services/github/githubData";
-import { onRateLimitChange, rateLimit as initialRateLimit } from "../../services/github/githubClient";
+import { snapshotIndex, snapshotRepo } from "../../services/github/snapshotStore";
 import { AreaChart, BarList, Donut, PunchCard } from "./components/Charts";
 import RepoCard, { LanguageBar } from "./components/RepoCard";
 import SyncPill from "./components/SyncPill";
@@ -79,103 +73,64 @@ const sanitizeReadme = (html, repo, branch) => {
 /* Data hook                                                           */
 /* ------------------------------------------------------------------ */
 
+// The repository's page, from the build-time snapshot only (F07): its entry in
+// the index plus its own file (commits, languages, README, file tree).
 const useRepoDetail = (name) => {
-  const [index, setIndex] = useState(null);
-  const [snap, setSnap] = useState(undefined); // undefined = loading, null = none
-  const [live, setLive] = useState({});
-  const [status, setStatus] = useState({ state: "loading", syncedAt: null, message: "" });
-  const [limit, setLimit] = useState(initialRateLimit);
-  const [missing, setMissing] = useState(false);
-
-  useEffect(() => onRateLimitChange(setLimit), []);
-
-  const load = useCallback(
-    async (force = false) => {
-      setStatus((previous) => ({ ...previous, state: previous.syncedAt ? "syncing" : "loading" }));
-      const [base, detail] = await Promise.all([loadSnapshot(), loadRepoSnapshot(name)]);
-      setIndex(base);
-      setSnap(detail);
-
-      const [repoRes, commitsRes, langRes, readmeRes] = await Promise.allSettled([
-        fetchRepo(name, { force }),
-        fetchRepoCommits(name, 100, { force }),
-        fetchRepoLanguages(name),
-        fetchReadmeHtml(name),
-      ]);
-      const value = (result) => (result.status === "fulfilled" ? result.value.data : undefined);
-      const repo = value(repoRes);
-      const branch = repo?.default_branch || base?.repos.find((item) => item.name === name)?.default_branch || "main";
-      const treeRes = await Promise.allSettled([fetchRepoTree(name, branch)]).then(([result]) => result);
-
-      setLive({
-        repo,
-        commits: value(commitsRes),
-        languages: value(langRes),
-        readmeHtml: value(readmeRes),
-        tree: value(treeRes),
-      });
-
-      const knownInSnapshot = Boolean(base?.repos.some((item) => item.name === name));
-      if (repoRes.status === "rejected" && repoRes.reason?.status === 404 && !knownInSnapshot) {
-        setMissing(true);
-      }
-
-      if (repoRes.status === "fulfilled") {
-        setStatus({
-          state: repoRes.value.stale ? "stale" : "live",
-          syncedAt: repoRes.value.fetchedAt,
-          message: repoRes.value.stale ? "GitHub is rate-limiting this browser; showing the last good sync." : "",
-        });
-      } else {
-        setStatus({
-          state: detail ? "snapshot" : "error",
-          syncedAt: detail ? new Date(detail.generatedAt).getTime() : null,
-          message: repoRes.reason?.rateLimited
-            ? "GitHub's hourly limit for this browser is used up — showing the build snapshot until it resets."
-            : detail
-            ? "Couldn't reach GitHub — showing the build snapshot."
-            : "",
-        });
-      }
-    },
-    [name]
-  );
+  const [index, setIndex] = useState(snapshotIndex); // undefined = loading, null = unavailable
+  const [snap, setSnap] = useState(() => snapshotRepo(name)); // undefined = loading, null = none
 
   useEffect(() => {
-    setLive({});
-    setSnap(undefined);
-    setMissing(false);
-    load();
-    const id = setInterval(() => document.visibilityState === "visible" && load(), 3 * 60 * 1000);
-    return () => clearInterval(id);
-  }, [load]);
+    let alive = true;
+    setSnap(snapshotRepo(name));
+    if (snapshotIndex() === undefined) {
+      loadSnapshot().then((data) => {
+        if (alive) setIndex(data || null);
+      });
+    }
+    if (snapshotRepo(name) === undefined) {
+      loadRepoSnapshot(name).then((data) => {
+        if (alive) setSnap(data || null);
+      });
+    }
+    return () => {
+      alive = false;
+    };
+  }, [name]);
+
+  const baseRepo = index ? index.repos.find((item) => item.name === name) : null;
 
   const model = useMemo(() => {
-    const baseRepo = live.repo || index?.repos.find((item) => item.name === name);
     if (!baseRepo) return null;
-    const snapCommits = snap?.commits || [];
-    const commits = live.commits && live.commits.length ? live.commits : snapCommits;
-    const newest = snapCommits[0]?.date;
-    const newer = newest ? commits.filter((commit) => commit.date > newest).length : 0;
-    const commitTotal = snap?.commitTotal ? snap.commitTotal + newer : commits.length;
+    const commits = (snap && snap.commits) || [];
     const repo = enrichRepo(baseRepo, {
-      languages: live.languages || snap?.languages || {},
+      languages: (snap && snap.languages) || (baseRepo.snapshot && baseRepo.snapshot.languages) || {},
       commitDates: commits.map((commit) => commit.date),
-      commitTotal,
+      commitTotal: (snap && snap.commitTotal) || commits.length,
       lastCommit: commits[0] || null,
     });
     return {
       repo,
       commits,
-      commitsCapped: !snap?.commitTotal && commits.length >= 100,
-      readme: sanitizeReadme(live.readmeHtml || snap?.readmeHtml, name, repo.defaultBranch),
-      tree: summarizeTree(live.tree) || snap?.tree || null,
+      commitsCapped: !(snap && snap.commitTotal) && commits.length >= 100,
+      readme: sanitizeReadme(snap && snap.readmeHtml, name, repo.defaultBranch),
+      tree: (snap && snap.tree) || null,
     };
-  }, [live, snap, index, name]);
+  }, [snap, baseRepo, name]);
 
-  const siblings = useMemo(() => (index ? mergeRepos(index.repos, null) : []), [index]);
+  const siblings = useMemo(() => (index ? mergeRepos(index.repos) : []), [index]);
+  const status =
+    index === undefined
+      ? { state: "loading", syncedAt: null }
+      : { state: index ? "snapshot" : "error", syncedAt: index ? new Date((snap && snap.generatedAt) || index.generatedAt).getTime() : null };
 
-  return { model, siblings, status, limit, reload: load, missing, loading: snap === undefined && !live.repo };
+  return {
+    model,
+    siblings,
+    status,
+    // Not in the snapshot: renamed, private or deleted (the server answers 404 for a direct visit).
+    missing: index !== undefined && !baseRepo,
+    loading: snap === undefined || index === undefined,
+  };
 };
 
 /* ------------------------------------------------------------------ */
@@ -433,7 +388,7 @@ export default function ProjectDetail({ theme }) {
   const name = decodeURIComponent(params.name || "");
   const now = useNow(30000);
   const { dark, style } = useMemo(() => themeVars(theme), [theme]);
-  const { model, siblings, status, limit, reload, missing, loading } = useRepoDetail(name);
+  const { model, siblings, status, missing, loading } = useRepoDetail(name);
   const [statsRef, statsIn] = useInView();
   const [chartsRef, chartsIn] = useInView({ threshold: 0.05 });
 
@@ -442,7 +397,7 @@ export default function ProjectDetail({ theme }) {
   // No scroll-to-top here: ScrollToTop (Main.js) already starts each new
   // project at the top. A refresh returns to the old position once the
   // repository data (or the snapshot fallback) has rendered.
-  useReloadScroll(Boolean(model) && !["loading", "syncing"].includes(status.state));
+  useReloadScroll(Boolean(model) && status.state !== "loading");
 
   // Honour #commits deep links once the timeline exists.
   useEffect(() => {
@@ -532,7 +487,7 @@ export default function ProjectDetail({ theme }) {
             )}
             {repo?.fork && <span className="pj-chip pj-chip--muted">Fork</span>}
             {repo?.archived && <span className="pj-chip pj-chip--muted">Archived</span>}
-            <SyncPill status={status} limit={limit} onRefresh={reload} now={now} />
+            <SyncPill status={status} now={now} />
           </div>
           <h1 className="pd-title" aria-label={repo?.title || name}>
             {words.map((word, index) => (
@@ -571,12 +526,6 @@ export default function ProjectDetail({ theme }) {
             </div>
           )}
         </section>
-
-        {status.message && (
-          <div className="pj-notice" role="status">
-            <i className="fa-solid fa-circle-info" aria-hidden="true" /> {status.message}
-          </div>
-        )}
 
         {/* ------------------------------- STATS ------------------------------ */}
         <section className="pd-stats" ref={statsRef} aria-label="Repository statistics">

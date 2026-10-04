@@ -7,14 +7,15 @@ const SITE_TITLE = `Aayush Mishra · ${JOB_TITLE}`;
 
 // Website related settings
 const settings = {
-  isSplash: true, // Play the intro on the first visit to / in a browser session (the logo always replays it).
+  // The intro is opt-in: "Play intro" on the home page and the header logo play it (see introPolicy.js).
+  isSplash: false,
 };
 
 //SEO Related settings
 const seo = {
   title: SITE_TITLE,
   description:
-    "Aayush Mishra is a Senior Software Test Engineer and QA lead in India, building test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship.",
+    "Aayush Mishra is a Senior SDET and QA lead in India, building test automation frameworks, CI quality gates and AI-assisted testing that make software safe to ship.",
   og: {
     title: SITE_TITLE,
     type: "website",
@@ -47,6 +48,11 @@ const seo = {
       description:
         "Get in touch with Aayush Mishra about SDET, QA lead and test automation roles, by email, LinkedIn or the contact form.",
     },
+    "/universe": {
+      title: "Tech Universe · Aayush Mishra",
+      description:
+        "Tech Universe by Aayush Mishra: free live channels for the tech world, from AI models, research and launches to dev tools, music and games.",
+    },
     "/projects": {
       title: "Projects · Aayush Mishra",
       description:
@@ -63,6 +69,8 @@ const greeting = {
   jobTitle: JOB_TITLE,
   subTitle:
     "A passionate Software Development Engineer in Test who specializes in creating robust testing frameworks and ensuring quality in software products through innovative testing solutions.",
+  // F09: switch to "/resume.pdf" once the new PDF is in public/resume.pdf (a test
+  // fails if the link points at a file that isn't there).
   resumeLink:
     "https://drive.google.com/file/d/1oKsp7o5ZmpJbwP-Vs4wjnENlV_czoPFY/view",
   portfolio_repository: "https://github.com/Aayush-Mishraa",

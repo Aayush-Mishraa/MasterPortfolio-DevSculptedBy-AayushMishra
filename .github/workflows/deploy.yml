@@ -5,6 +5,15 @@ on:
   push:
     branches:
       - main
+  # F07: the Projects and Open Source pages show the GitHub snapshot taken at
+  # build time, so a scheduled build keeps it fresh (prebuild re-fetches it).
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -37,6 +46,22 @@ jobs:
           CI: false
           # read-only token so the prebuild GitHub snapshot isn't rate-limited
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 4a: prerender every route into real HTML (F06), then check the raw HTML
+      # (unique titles, canonicals, contact text, 404 page) before anything ships.
+      - name: Set up Node 20 for the prerender
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Chromium for the prerender
+        run: npx playwright install --with-deps chromium
+
+      - name: Prerender pages, sitemap, llms.txt and share images
+        run: node scripts/prerender/prerender.mjs
+
+      - name: Check the prerendered HTML
+        run: node scripts/prerender/check-html.mjs
 
       # Step 4b: the PHP API (F02). Production dependencies only, a syntax check,
       # then api/ is copied into build/ so the upload below carries it.

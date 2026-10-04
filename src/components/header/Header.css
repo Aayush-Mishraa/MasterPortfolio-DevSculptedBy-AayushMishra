@@ -29,8 +29,8 @@
   --hud-status: color-mix(in srgb, #10b981 60%, var(--nav-text));
   --hud-grad: var(--nav-accent);
   --hud-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --font-ui: "Inter", "Google Sans Regular", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --font-ui: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", Consolas, monospace;
 
   /* Fixed, not sticky: page wrappers set overflow-x: hidden, which breaks sticky. */
   position: fixed;

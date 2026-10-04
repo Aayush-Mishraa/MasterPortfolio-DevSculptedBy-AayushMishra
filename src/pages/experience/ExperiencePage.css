@@ -20,8 +20,8 @@
   --x-line: rgba(var(--x-text-rgb), 0.1);
   --x-line-strong: rgba(var(--x-text-rgb), 0.2);
   --x-grad: linear-gradient(100deg, var(--x-accent) 0%, var(--x-text) 110%);
-  --x-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --x-sans: "Inter", "Google Sans Regular", system-ui, -apple-system, sans-serif;
+  --x-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --x-sans: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, -apple-system, sans-serif;
   --x-radius: 22px;
   --c-work: var(--x-accent);
   --c-intern: #d97706;

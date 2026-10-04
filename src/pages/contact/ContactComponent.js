@@ -91,9 +91,25 @@ const channels = [
       blurb: BLURBS[s.name.toLowerCase()] || "Say hello",
     })),
   { id: "blog", name: "Blog", href: blog.link, icon: "fa-brands fa-medium", color: "#12100E", handle: handleOf(blog.link), blurb: "Long-form engineering notes" },
-  { id: "resume", name: "Resume", href: greeting.resumeLink, icon: "fa-solid fa-file-lines", color: "#0E6BA8", handle: "Google Drive · PDF", blurb: "One-page career summary" },
+  {
+    id: "resume",
+    name: "Resume",
+    href: greeting.resumeLink,
+    icon: "fa-solid fa-file-lines",
+    color: "#0E6BA8",
+    handle: greeting.resumeLink.startsWith("/") ? "aayushmishra.engineer · PDF" : "Google Drive · PDF",
+    blurb: "One-page career summary",
+  },
 ];
 const orbiters = channels.filter((c) => c.id !== "resume");
+
+const profileImageWebp = (() => {
+  try {
+    return require(`../../assets/images/${info.profile_image_path.replace(/\.png$/i, ".webp")}`);
+  } catch (e) {
+    return null;
+  }
+})();
 
 const profileImage = (() => {
   try {
@@ -543,7 +559,12 @@ const Beacon = ({ clock, status }) => {
             ))}
           </div>
           <div className="ct-avatar">
-            {profileImage && <img src={profileImage} alt={greeting.title} />}
+            {profileImage && (
+              <picture>
+                {profileImageWebp && <source srcSet={profileImageWebp} type="image/webp" />}
+                <img src={profileImage} alt={greeting.title} width="160" height="160" />
+              </picture>
+            )}
             <span className="ct-avatar__scan" />
           </div>
         </div>

@@ -6,9 +6,9 @@
    ========================================================================== */
 
 .aa-root {
-  --aa-font-display: "Google Sans Bold", "Inter", system-ui, sans-serif;
-  --aa-font-ui: "Inter", "Google Sans Regular", system-ui, sans-serif;
-  --aa-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --aa-font-display: "Google Sans Bold", "Inter", "Inter Fallback", system-ui, sans-serif;
+  --aa-font-ui: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, sans-serif;
+  --aa-font-mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", Consolas, monospace;
   --aa-radius: 22px;
   --aa-radius-sm: 12px;
   --aa-ease: cubic-bezier(0.22, 1, 0.36, 1);

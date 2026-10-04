@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/header/Header";
 import CreativeFooter from "../../components/CreativeFooter/CreativeFooter";
@@ -7,14 +7,12 @@ import { greeting } from "../../portfolio.js";
 import {
   GITHUB_USERNAME,
   aggregateStats,
-  fetchAuthoredPullRequests,
-  fetchContributions,
-  fetchLiveRepos,
-  fetchPublicEvents,
+  isInternalCommit,
   loadSnapshot,
   mergeRepos,
   timeAgo,
 } from "../../services/github/githubData";
+import { snapshotIndex } from "../../services/github/snapshotStore";
 import { prefersReducedMotion, themeVars, useCountUp, useInView, useNow } from "../projects/lib/ui";
 import Skyline from "./components/Skyline";
 import TechPulse from "./components/TechPulse";
@@ -25,12 +23,10 @@ import { MODULES as UNIVERSE } from "../universe/modules";
 import { Glyph } from "../universe/icons";
 import "./Opensource.css";
 
-const REFRESH_MS = 3 * 60 * 1000;
-
 const SECTIONS = [
   { id: "os-overview", label: "Overview" },
   { id: "os-skyline", label: "Skyline" },
-  { id: "os-transmission", label: "Live" },
+  { id: "os-transmission", label: "Activity" },
   { id: "os-dna", label: "DNA" },
   { id: "os-pulse", label: "Tech Pulse" },
   { id: "os-universe", label: "Universe" },
@@ -41,76 +37,64 @@ const SECTIONS = [
 /* Data                                                                */
 /* ------------------------------------------------------------------ */
 
+// From the build-time snapshot only (F07): repositories, contributions, the
+// public activity feed and authored pull requests, refreshed by the scheduled build.
 const useOpenSourceData = () => {
-  const [snapshot, setSnapshot] = useState(null);
-  const [live, setLive] = useState(null);
-  const [contributions, setContributions] = useState(null);
-  const [events, setEvents] = useState(null);
-  const [eventSource, setEventSource] = useState("live");
-  const [prs, setPrs] = useState(null);
-  const busy = useRef(false);
-
-  const refresh = useCallback(async () => {
-    if (busy.current) return;
-    busy.current = true;
-    const base = await loadSnapshot();
-    if (base) setSnapshot(base);
-
-    const [repos, contrib, feed, pulls] = await Promise.allSettled([
-      fetchLiveRepos(),
-      fetchContributions(),
-      fetchPublicEvents(),
-      fetchAuthoredPullRequests(),
-    ]);
-
-    if (repos.status === "fulfilled") setLive(repos.value.data);
-    if (contrib.status === "fulfilled") setContributions(contrib.value);
-
-    if (feed.status === "fulfilled" && Array.isArray(feed.value.data)) {
-      setEvents(feed.value.data.map(describeEvent).slice(0, 14));
-      setEventSource(feed.value.stale ? "cached" : "live");
-    } else if (base) {
-      // Rate-limited: rebuild a feed from the build-time snapshot's last commits.
-      setEvents(
-        base.repos
-          .filter((repo) => repo.snapshot?.lastCommit)
-          .map((repo) => ({
-            id: repo.snapshot.lastCommit.sha,
-            date: repo.snapshot.lastCommit.date,
-            repo: repo.full_name || `${GITHUB_USERNAME}/${repo.name}`,
-            verb: "commit",
-            tone: "push",
-            text: repo.snapshot.lastCommit.message.split("\n")[0],
-            href: repo.snapshot.lastCommit.url || repo.html_url,
-          }))
-          .sort((a, b) => (a.date < b.date ? 1 : -1))
-          .slice(0, 14)
-      );
-      setEventSource("snapshot");
-    } else {
-      setEvents([]);
-    }
-
-    if (pulls.status === "fulfilled" && Array.isArray(pulls.value.data?.items) && pulls.value.data.items.length) {
-      setPrs(pulls.value.data.items.map(normalizeSearchPR));
-    } else {
-      setPrs((legacyPullRequests.data || []).map(normalizeLegacyPR));
-    }
-    busy.current = false;
-  }, []);
+  const [snapshot, setSnapshot] = useState(snapshotIndex);
 
   useEffect(() => {
-    refresh();
-    const tick = () => document.visibilityState === "visible" && refresh();
-    const id = setInterval(tick, REFRESH_MS);
-    return () => clearInterval(id);
-  }, [refresh]);
+    if (snapshot) return undefined;
+    let alive = true;
+    loadSnapshot().then((data) => {
+      if (alive) setSnapshot(data || null);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [snapshot]);
 
-  const repos = useMemo(() => mergeRepos(snapshot?.repos || [], live), [snapshot, live]);
-  const contributionData = contributions || snapshot?.contributions || null;
+  const repos = useMemo(() => mergeRepos(snapshot ? snapshot.repos : []), [snapshot]);
+  const contributionData = (snapshot && snapshot.contributions) || null;
   const stats = useMemo(() => aggregateStats(repos, contributionData), [repos, contributionData]);
 
-  return { repos, stats, days: contributionData?.contributions || [], events, eventSource, prs, user: snapshot?.user };
+  const events = useMemo(() => {
+    if (snapshot === undefined) return null;
+    if (!snapshot) return [];
+    if (Array.isArray(snapshot.events)) return snapshot.events.map(describeEvent).slice(0, 14);
+    // Older snapshots: each repository's last commit, housekeeping left out.
+    return snapshot.repos
+      .filter((repo) => repo.snapshot && repo.snapshot.lastCommit && !isInternalCommit(repo.snapshot.lastCommit.message))
+      .map((repo) => ({
+        id: repo.snapshot.lastCommit.sha,
+        date: repo.snapshot.lastCommit.date,
+        repo: repo.full_name || `${GITHUB_USERNAME}/${repo.name}`,
+        verb: "commit",
+        tone: "push",
+        text: repo.snapshot.lastCommit.message.split("\n")[0],
+        href: repo.snapshot.lastCommit.url || repo.html_url,
+      }))
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+      .slice(0, 14);
+  }, [snapshot]);
+
+  const prs = useMemo(() => {
+    if (snapshot === undefined) return null;
+    if (snapshot && Array.isArray(snapshot.pullRequests) && snapshot.pullRequests.length) {
+      return snapshot.pullRequests.map(normalizeSearchPR);
+    }
+    return (legacyPullRequests.data || []).map(normalizeLegacyPR);
+  }, [snapshot]);
+
+  return {
+    repos,
+    stats,
+    days: (contributionData && contributionData.contributions) || [],
+    events,
+    eventSource: "snapshot",
+    prs,
+    user: snapshot ? snapshot.user : undefined,
+    loading: snapshot === undefined,
+  };
 };
 
 /* ------------------------------------------------------------------ */
@@ -142,15 +126,16 @@ const useTypewriter = (text, start, speed = 38) => {
 };
 
 const Hud = ({ label, value, suffix = "", caption, icon, start }) => {
-  const animated = useCountUp(value || 0, start);
+  const shown = useCountUp(value || 0, start);
   return (
     <div className="os-hud">
       <span className="os-hud-label">
         <i className={icon} aria-hidden="true" /> {label}
       </span>
       <strong className="os-hud-value">
-        {Math.round(animated).toLocaleString("en-US")}
-        {suffix && <small>{suffix}</small>}
+        {/* undefined while the data loads: a dash, never a fake 0 */}
+        {value == null ? "—" : Math.round(shown).toLocaleString("en-US")}
+        {suffix && value != null && <small>{suffix}</small>}
       </strong>
       {caption && <span className="os-hud-caption">{caption}</span>}
     </div>
@@ -401,8 +386,8 @@ export default function Opensource({ theme }) {
               </span>
             </h1>
             <p className="os-hero-sub os-reveal" style={{ "--d": "280ms" }}>
-              Test frameworks, API suites and AI test agents, all built in the open and synced live from GitHub. This page is
-              a live view of my public work: what I shipped, when I shipped it, and how.
+              Test frameworks, API suites and AI test agents, all built in the open and synced from GitHub several times a
+              day. This page is a view of my public work: what I shipped, when I shipped it, and how.
             </p>
 
             <div className="os-cli os-reveal" style={{ "--d": "380ms" }} aria-label={`${stats.contributions} contributions in the last year`}>
@@ -459,11 +444,11 @@ export default function Opensource({ theme }) {
 
         {/* ------------------------------ HUD ------------------------------- */}
         <section className="os-huds" ref={hudRef} aria-label="Open source metrics">
-          <Hud label="Contributions" value={stats.contributions} start={hudIn} icon="fa-solid fa-chart-simple" caption="last 12 months" />
-          <Hud label="Public repos" value={stats.ownCount} start={hudIn} icon="fa-solid fa-cubes" caption={`${stats.forkCount} forks excluded`} />
-          <Hud label="Commits" value={stats.commits} start={hudIn} icon="fa-solid fa-code-commit" caption="across my repos" />
-          <Hud label="Pull requests" value={prs ? prs.length : 0} start={hudIn && Boolean(prs)} icon="fa-solid fa-code-pull-request" caption={`${mergedPrs} merged`} />
-          <Hud label="Active streak" value={stats.streaks.current} suffix="d" start={hudIn} icon="fa-solid fa-fire" caption={`best ${stats.streaks.longest} days`} />
+          <Hud label="Contributions" value={loading ? null : stats.contributions} start={hudIn} icon="fa-solid fa-chart-simple" caption="last 12 months" />
+          <Hud label="Public repos" value={loading ? null : stats.ownCount} start={hudIn} icon="fa-solid fa-cubes" caption={`${stats.forkCount} forks excluded`} />
+          <Hud label="Commits" value={loading ? null : stats.commits} start={hudIn} icon="fa-solid fa-code-commit" caption="across my repos" />
+          <Hud label="Pull requests" value={prs ? prs.length : null} start={hudIn && Boolean(prs)} icon="fa-solid fa-code-pull-request" caption={`${mergedPrs} merged`} />
+          <Hud label="Active streak" value={loading ? null : stats.streaks.current} suffix="d" start={hudIn} icon="fa-solid fa-fire" caption={`best ${stats.streaks.longest} days`} />
         </section>
 
         {/* ---------------------------- SKYLINE ----------------------------- */}
@@ -510,8 +495,9 @@ export default function Opensource({ theme }) {
 
         {/* -------------------------- TRANSMISSION -------------------------- */}
         <section className="os-section" id="os-transmission" ref={txRef}>
-          <SectionHead index="02" kicker="Live transmission" title="What I'm shipping right now">
-            My public GitHub activity as it happens, next to every pull request I've opened. Refreshes every few minutes.
+          <SectionHead index="02" kicker="Activity log" title="What I'm shipping right now">
+            My recent public GitHub activity (housekeeping commits left out), next to every pull request I've opened.
+            Re-synced every six hours.
           </SectionHead>
           <div className={`os-tx ${txIn ? "is-in" : ""}`}>
             <Terminal lines={events} now={now} source={eventSource} />
@@ -625,10 +611,10 @@ export default function Opensource({ theme }) {
               <b>06</b> For hiring teams
             </span>
             <h2>
-              The short version, <span className="os-gradient-text">generated live.</span>
+              The short version, <span className="os-gradient-text">generated from the data.</span>
             </h2>
             <p>
-              This brief is built from the same live data as the rest of the page. Copy it into your ATS notes or send it to a
+              This brief is built from the same GitHub data as the rest of the page. Copy it into your ATS notes or send it to a
               hiring manager.
             </p>
             <div className="os-brief-actions">

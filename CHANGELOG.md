@@ -2,7 +2,33 @@
 
 All notable changes to aayushmishra.engineer. Newest first.
 
+## 2026-10-04
+
+### F09 · Hygiene
+- Scroll-reveal content is visible by default and only slides in; nothing waits at opacity 0.
+- Inter and JetBrains Mono are self-hosted and preloaded (no Google Fonts request): text doesn't jump when fonts load (layout shift ~0 on every page), and on a throttled phone the first paint comes 0.7–0.9 s sooner than with Google Fonts.
+- One manifest link, a cleaned-up manifest, and `/favicon.ico` + `/apple-touch-icon.png` at the root.
+- The Projects "Ready when you are" label now meets contrast. `/resume.pdf` is ready to switch on once the new PDF is added.
+
+### F07 · Static GitHub data
+- Projects and Open Source no longer call the GitHub API from your browser: they show the build-time snapshot, which a scheduled build refreshes every six hours.
+- The "API x/60" counter and refresh button are gone; counters show the real numbers from the first paint (never 0).
+- The latest-commits stream and the activity log leave out ci/chore/fix and merge commits; activity entries now show their commit message.
+- If a page's HTML and its GitHub data come from different builds (CDN or browser cache), the page is rendered fresh instead of mixing old links with new text.
+
 ## 2026-10-03
+
+### F06 · Prerender + real 404
+- Every page is prerendered at build time: real title, description, canonical URL, share image and text in the HTML, for 8 pages, every repository and every Tech Universe channel.
+- Unknown URLs now return a real 404 with the site's 404 page; `/home` redirects to `/`, `www.` to the bare domain.
+- Generated `sitemap.xml`, `llms.txt` and a 1200×630 share image per page; Tech Universe pages get proper titles and descriptions.
+- The app adopts the prerendered HTML instead of rebuilding it, fonts no longer shift text when they load, Google Fonts no longer block the first paint, and the contact photo is 24 KB instead of 262 KB.
+- CI checks the raw HTML of every page before deploying, and the live site after.
+
+### F05 · Intro without the wait
+- The intro no longer plays on its own: every visit lands on the hero. "Play intro" (hero) and the header logo play it.
+- Sound is off by default, with a remembered on/off toggle in the intro; the "Enter" screen is gone.
+- The intro ends on `/`, which is now where the Home links point.
 
 ### F04 · Newsletter → backend
 - The footer no longer fakes a successful sign-up and drops the address: it says "Newsletter coming soon" until issue #1.

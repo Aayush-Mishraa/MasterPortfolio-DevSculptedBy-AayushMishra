@@ -91,7 +91,8 @@ const server = http.createServer((req, res) => {
 
   const route = pathname.replace(/\/+$/, "");
   if (route === "/home") {
-    res.writeHead(301, { Location: "/" });
+    // Like public/.htaccess: one home URL, query string kept.
+    res.writeHead(301, { Location: `/${new URL(req.url, "http://localhost").search}` });
     res.end();
     return;
   }

@@ -152,17 +152,73 @@ async function snapshotRepo(repo) {
   return detail;
 }
 
+// Public feeds (Projects' latest commits, Open Source's activity log) show what
+// was built, not housekeeping: ci/chore/fix commits and merges stay out.
+const INTERNAL_COMMIT = /^(?:(?:ci|chore|fix)(?:\([^)]*\))?!?:|merge\b|fix(?:e[sd])?\b)/i;
+const isInternalCommit = (message = "") => INTERNAL_COMMIT.test(String(message).trim());
+
+const firstLine = (text = "") => String(text).split("\n")[0].trim();
+
+// The fields Transmission.js's describeEvent() reads, nothing more.
+const pickEvent = (event) => {
+  const p = event.payload || {};
+  const commits = Array.isArray(p.commits) ? p.commits.map((commit) => ({ message: firstLine(commit.message) })) : undefined;
+  return {
+    id: event.id,
+    type: event.type,
+    created_at: event.created_at,
+    repo: { name: event.repo && event.repo.name },
+    payload: {
+      ref: p.ref,
+      ref_type: p.ref_type,
+      size: p.size,
+      before: p.before,
+      head: p.head,
+      action: p.action,
+      number: p.number,
+      commits,
+      pull_request: p.pull_request && {
+        number: p.pull_request.number,
+        title: p.pull_request.title,
+        html_url: p.pull_request.html_url,
+        merged: p.pull_request.merged,
+      },
+      issue: p.issue && { number: p.issue.number, title: p.issue.title, html_url: p.issue.html_url },
+      comment: p.comment && { html_url: p.comment.html_url },
+      review: p.review && { html_url: p.review.html_url },
+      forkee: p.forkee && { full_name: p.forkee.full_name, html_url: p.forkee.html_url },
+      release: p.release && { tag_name: p.release.tag_name, html_url: p.release.html_url },
+    },
+  };
+};
+
+const pickPullRequest = (item) => ({
+  id: item.id,
+  number: item.number,
+  title: item.title,
+  html_url: item.html_url,
+  repository_url: item.repository_url,
+  state: item.state,
+  draft: Boolean(item.draft),
+  created_at: item.created_at,
+  closed_at: item.closed_at,
+  comments: item.comments || 0,
+  pull_request: { merged_at: item.pull_request && item.pull_request.merged_at },
+});
+
 async function main() {
   if (!TOKEN) {
     console.warn("[snapshot] No GITHUB_TOKEN; running unauthenticated (60 req/h).");
   }
 
-  const [user, repos, contributions] = await Promise.all([
+  const [user, repos, contributions, events, pulls] = await Promise.all([
     ghJSON(`/users/${USERNAME}`),
     ghJSON(`/users/${USERNAME}/repos?per_page=100&sort=pushed&type=owner`),
     fetch(`https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=last`)
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null),
+    ghJSON(`/users/${USERNAME}/events/public?per_page=60`).catch(() => null),
+    ghJSON(`/search/issues?q=author:${USERNAME}+type:pr&sort=created&order=desc&per_page=50`).catch(() => null),
   ]);
 
   if (!Array.isArray(repos)) throw new Error("Could not list repositories");
@@ -212,6 +268,33 @@ async function main() {
       };
     }),
     contributions,
+    // The latest real work across my own repositories (Projects' commit stream).
+    recentCommits: repos
+      .filter((repo) => !repo.fork && byName[repo.name])
+      .flatMap((repo) => byName[repo.name].commits.map((commit) => ({ ...commit, repo: repo.name })))
+      .filter((commit) => !isInternalCommit(commit.message))
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+      .slice(0, 12),
+    // Open Source's activity log; pushes whose newest commit is housekeeping are left out.
+    // The events API no longer sends commit messages, so a push's head commit is
+    // looked up in that repository's snapshot (own repositories only).
+    events: Array.isArray(events)
+      ? events
+          .map(pickEvent)
+          .map((event) => {
+            if (event.type !== "PushEvent" || (event.payload.commits && event.payload.commits.length) || !event.payload.head) return event;
+            const detail = byName[String(event.repo.name || "").split("/").pop()];
+            const head = detail && detail.commits.find((commit) => commit.sha === event.payload.head);
+            return head ? { ...event, payload: { ...event.payload, commits: [{ message: firstLine(head.message) }] } } : event;
+          })
+          .filter((event) => {
+            if (event.type !== "PushEvent") return true;
+            const commits = event.payload.commits || [];
+            return !commits.length || !isInternalCommit(commits[commits.length - 1].message);
+          })
+          .slice(0, 20)
+      : null,
+    pullRequests: pulls && Array.isArray(pulls.items) ? pulls.items.map(pickPullRequest) : null,
   };
 
   fs.writeFileSync(path.join(OUT_DIR, "index.json"), JSON.stringify(index));

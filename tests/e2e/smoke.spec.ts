@@ -19,7 +19,7 @@ for (const path of PAGES) {
     expect(response && response.status()).toBe(200);
     await expect(page.locator("h1").first()).toBeVisible();
     // Let lazy sections and data settle before the audit.
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
     await expectNoNewA11yIssues(page, `${testInfo.project.name} ${path}`);
   });
 }

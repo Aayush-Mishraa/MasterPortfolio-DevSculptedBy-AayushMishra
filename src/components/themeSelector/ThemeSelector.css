@@ -93,7 +93,7 @@
     0 28px 64px -24px color-mix(in srgb, var(--ts-ink) 40%, transparent),
     0 8px 20px -12px color-mix(in srgb, var(--ts-ink) 25%, transparent);
   color: var(--ts-ink);
-  font-family: "Inter", "Google Sans Regular", system-ui, sans-serif;
+  font-family: "Inter", "Inter Fallback", "Google Sans Regular", system-ui, sans-serif;
   text-align: left;
   transform-origin: top right;
   animation: tsPopIn 220ms cubic-bezier(0.22, 1, 0.36, 1);

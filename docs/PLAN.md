@@ -14,10 +14,10 @@ Status values: todo · in progress · done · blocked (needs Aayush).
 | F02 | Backend foundation | /api (PHP 8), config from secrets, migrations, helpers, /api/health; deploy uploads api/; no-store + noindex; PHP tests in CI | M | F08 | done in code; needs DB + secrets in hPanel/GitHub |
 | F03 | Contact form → backend | leads table + email via Hostinger SMTP; honeypot, rate limit, validation, real states, mailto fallback; Cal.com button; footer uses the same flow | M | F02 | done in code; live after secrets; Cal.com link pending |
 | F04 | Newsletter → backend | no fake success; subscribe.php → Buttondown; webhook mirrors status; box "coming soon" until issue #1 | S | F02 | done in code; Buttondown keys pending |
-| F05 | Intro without the wait | opt-in "Play intro", sound off, reduced motion respected, lands on the hero, mobile LCP < 2.5 s | S | — | todo |
-| F06 | Prerender + real 404 | per-route HTML with real title/meta/canonical/OG/body; real 404; OG images; llms.txt; sitemap; / canonical, /home 301; CI raw-HTML check | M | F05 | todo |
-| F07 | Static GitHub data | Projects/Open Source read only the build snapshot (refreshed on a schedule); no API counter; no ci/chore/fix in feeds; counters never 0 | S | — | todo |
-| F09 | Hygiene | /resume.pdf on the domain; scroll reveals visible by default; favicon/manifest; CLS 0 | S | Aayush's new PDF | todo |
+| F05 | Intro without the wait | opt-in "Play intro", sound off, reduced motion respected, lands on the hero, mobile LCP < 2.5 s | S | — | done (LCP needs F06) |
+| F06 | Prerender + real 404 | per-route HTML with real title/meta/canonical/OG/body; real 404; OG images; llms.txt; sitemap; / canonical, /home 301; CI raw-HTML check | M | F05 | done (code); CDN flush after deploy; LCP gate still open |
+| F07 | Static GitHub data | Projects/Open Source read only the build snapshot (refreshed on a schedule); no API counter; no ci/chore/fix in feeds; counters never 0 | S | — | done (code) |
+| F09 | Hygiene | /resume.pdf on the domain; scroll reveals visible by default; favicon/manifest; CLS 0 | S | Aayush's new PDF | done, except /resume.pdf (waiting for the PDF) |
 
 ## Stages 2–4
 Unchanged from the plan: F10–F19 (offers, proof, admin), F20–F26 (lead magnets, F25 dropped), F27–F31 (passive revenue). Not started.

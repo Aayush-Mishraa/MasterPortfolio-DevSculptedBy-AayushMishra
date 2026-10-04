@@ -8,6 +8,7 @@ import { MusicProvider, useMusic } from "./music/MusicContext";
 import MusicDock from "./music/Dock";
 import { prefersReducedMotion } from "../projects/lib/ui";
 import Hub from "./Hub";
+import SeoHeader from "../../components/seoHeader/SeoHeader";
 import "./Universe.css";
 
 const FONT_HREF =
@@ -386,13 +387,6 @@ function Shell({ id }) {
     };
   }, [theme]);
 
-  useEffect(() => {
-    const previous = document.title;
-    document.title = current ? `${current.title} · Tech Universe` : "Tech Universe · the tech world, live";
-    return () => {
-      document.title = previous;
-    };
-  }, [current]);
 
   useEffect(() => {
     if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true });
@@ -480,6 +474,8 @@ function Shell({ id }) {
         data-theme={theme}
         style={{ "--gh": current ? current.hue : 74 }}
       >
+        {/* The rest of the site gets this from its Header: title, description, canonical, share image */}
+        <SeoHeader />
         <Sky theme={theme} />
         <div className="uv-aurora" key={current ? current.id : "hub"} aria-hidden="true" />
         <div className="uv-grain" aria-hidden="true" />

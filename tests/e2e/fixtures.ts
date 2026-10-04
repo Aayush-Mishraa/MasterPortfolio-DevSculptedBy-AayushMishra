@@ -46,8 +46,10 @@ export const test = base.extend<Fixtures>({
           const resource = new URL(url, baseURL);
           // A third-party feed or image being down is not this site's error,
           if (resource.host !== ownHost) return;
-          // and an API error status is an outcome the page shows (tests assert it).
+          // and an API error status is an outcome the page shows (tests assert it),
           if (resource.pathname.startsWith("/api/")) return;
+          // as is a 404 page's own document (a real 404 is the point).
+          if (resource.href.split("#")[0] === page.url().split("#")[0]) return;
         }
         errors.push(text);
       });
