@@ -75,7 +75,7 @@ export function Terminal({ lines, now, source }) {
       </div>
       <div className="os-terminal-body">
         <p className="os-term-cmd">
-          <span className="os-prompt">❯</span> gh api users/Aayush-Mishraa/events --watch
+          <span className="os-prompt">❯</span> gh api users/Aayush-Mishraa/events
         </p>
         {!lines ? (
           <div className="os-term-loading">

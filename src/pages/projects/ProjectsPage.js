@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import Header from "../../components/header/Header";
 import CreativeFooter from "../../components/CreativeFooter/CreativeFooter";
@@ -9,16 +9,14 @@ import {
   GITHUB_USERNAME,
   aggregateStats,
   categoryById,
-  fetchContributions,
-  fetchLiveRepos,
-  fetchRepoCommits,
   formatDate,
+  isInternalCommit,
   loadSnapshot,
   mergeRepos,
   searchScore,
   timeAgo,
 } from "../../services/github/githubData";
-import { onRateLimitChange, rateLimit as initialRateLimit } from "../../services/github/githubClient";
+import { snapshotIndex } from "../../services/github/snapshotStore";
 import { AreaChart, BarList, Donut, Heatmap, PunchCard, Radar } from "./components/Charts";
 import RepoCard from "./components/RepoCard";
 import SyncPill from "./components/SyncPill";
@@ -26,7 +24,6 @@ import { themeVars, useCountUp, useInView, useNow, useOffScreenClass } from "./l
 import useReloadScroll from "./lib/useReloadScroll";
 import "./ProjectsPage.css";
 
-const REFRESH_MS = 3 * 60 * 1000;
 const SORTS = [
   { id: "recent", label: "Recently pushed" },
   { id: "signal", label: "Most notable" },
@@ -40,91 +37,45 @@ const SORTS = [
 /* Data hook                                                           */
 /* ------------------------------------------------------------------ */
 
+// Everything comes from the build-time snapshot (F07). It is usually loaded
+// before the first render (src/index.js), so the page renders complete.
 const useGithubPortfolio = () => {
-  const [snapshot, setSnapshot] = useState(null);
-  const [live, setLive] = useState(null);
-  const [contributions, setContributions] = useState(null);
-  const [stream, setStream] = useState(null);
-  const [status, setStatus] = useState({ state: "loading", syncedAt: null, message: "" });
-  const [limit, setLimit] = useState(initialRateLimit);
-  const busy = useRef(false);
-
-  useEffect(() => onRateLimitChange(setLimit), []);
-
-  const refresh = useCallback(async (force = false) => {
-    if (busy.current) return;
-    busy.current = true;
-    setStatus((previous) => ({ ...previous, state: previous.syncedAt ? "syncing" : "loading" }));
-
-    const base = await loadSnapshot();
-    if (base) setSnapshot(base);
-
-    const [reposResult, contributionResult] = await Promise.allSettled([
-      fetchLiveRepos({ force }),
-      fetchContributions(),
-    ]);
-
-    if (contributionResult.status === "fulfilled") setContributions(contributionResult.value);
-
-    let liveRepos = null;
-    if (reposResult.status === "fulfilled") {
-      liveRepos = reposResult.value.data;
-      setLive(liveRepos);
-      setStatus({
-        state: reposResult.value.stale ? "stale" : "live",
-        syncedAt: reposResult.value.fetchedAt,
-        message: reposResult.value.stale ? "GitHub is rate-limiting this browser; showing the last good sync." : "",
-      });
-    } else {
-      const error = reposResult.reason;
-      setStatus({
-        state: base ? "snapshot" : "error",
-        syncedAt: base ? new Date(base.generatedAt).getTime() : null,
-        message: error?.rateLimited
-          ? "GitHub's hourly limit for this browser is used up. Showing the build snapshot until it resets."
-          : "Couldn't reach GitHub. Showing the build snapshot.",
-      });
-    }
-
-    // Latest commits from the repos pushed most recently.
-    const source = (liveRepos || base?.repos || []).filter((repo) => !repo.fork);
-    const recent = [...source].sort((a, b) => (a.pushed_at < b.pushed_at ? 1 : -1)).slice(0, 4);
-    const commitResults = await Promise.allSettled(recent.map((repo) => fetchRepoCommits(repo.name, 6, { force })));
-    const commits = commitResults.flatMap((result, index) =>
-      result.status === "fulfilled" ? result.value.data.map((commit) => ({ ...commit, repo: recent[index].name })) : []
-    );
-    if (commits.length) {
-      setStream(commits.sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 12));
-    } else if (base) {
-      setStream(
-        base.repos
-          .filter((repo) => repo.snapshot?.lastCommit)
-          .map((repo) => ({ ...repo.snapshot.lastCommit, repo: repo.name }))
-          .sort((a, b) => (a.date < b.date ? 1 : -1))
-          .slice(0, 12)
-      );
-    }
-
-    busy.current = false;
-  }, []);
+  const [snapshot, setSnapshot] = useState(snapshotIndex);
 
   useEffect(() => {
-    refresh();
-    const tick = () => document.visibilityState === "visible" && refresh();
-    const id = setInterval(tick, REFRESH_MS);
-    document.addEventListener("visibilitychange", tick);
+    if (snapshot) return undefined;
+    let alive = true;
+    loadSnapshot().then((data) => {
+      if (alive) setSnapshot(data || null);
+    });
     return () => {
-      clearInterval(id);
-      document.removeEventListener("visibilitychange", tick);
+      alive = false;
     };
-  }, [refresh]);
+  }, [snapshot]);
 
-  const repos = useMemo(() => mergeRepos(snapshot?.repos || [], live), [snapshot, live]);
-  const contributionData = contributions || snapshot?.contributions || null;
+  const repos = useMemo(() => mergeRepos(snapshot ? snapshot.repos : []), [snapshot]);
+  const contributionData = (snapshot && snapshot.contributions) || null;
   const stats = useMemo(() => aggregateStats(repos, contributionData), [repos, contributionData]);
   const allCommitDates = useMemo(() => repos.filter((repo) => !repo.fork).flatMap((repo) => repo.commitDates), [repos]);
+  // The latest real work, housekeeping left out (older snapshots: each repo's last commit).
+  const stream = useMemo(() => {
+    if (!snapshot) return null;
+    const commits = snapshot.recentCommits
+      ? snapshot.recentCommits
+      : snapshot.repos.filter((repo) => repo.snapshot && repo.snapshot.lastCommit).map((repo) => ({ ...repo.snapshot.lastCommit, repo: repo.name }));
+    return commits
+      .filter((commit) => !isInternalCommit(commit.message))
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+      .slice(0, 12);
+  }, [snapshot]);
+  const status =
+    snapshot === undefined
+      ? { state: "loading", syncedAt: null }
+      : snapshot === null
+      ? { state: "error", syncedAt: null }
+      : { state: "snapshot", syncedAt: new Date(snapshot.generatedAt).getTime() };
 
-  return { repos, stats, contributionData, stream, status, limit, refresh, snapshot, allCommitDates };
+  return { repos, stats, contributionData, stream, status, snapshot, allCommitDates };
 };
 
 /* ------------------------------------------------------------------ */
@@ -132,15 +83,16 @@ const useGithubPortfolio = () => {
 /* ------------------------------------------------------------------ */
 
 const Kpi = ({ label, value, suffix = "", caption, icon, start, decimals = 0 }) => {
-  const animated = useCountUp(value || 0, start);
+  const shown = useCountUp(value || 0, start);
   return (
     <div className="pj-kpi">
       <span className="pj-kpi-icon" aria-hidden="true">
         <i className={icon} />
       </span>
       <strong className="pj-kpi-value">
-        {animated.toLocaleString("en-US", { maximumFractionDigits: decimals, minimumFractionDigits: decimals })}
-        <small>{suffix}</small>
+        {/* null while the data loads: a dash, never a fake 0 */}
+        {value == null ? "—" : shown.toLocaleString("en-US", { maximumFractionDigits: decimals, minimumFractionDigits: decimals })}
+        {value != null && <small>{suffix}</small>}
       </strong>
       <span className="pj-kpi-label">{label}</span>
       {caption && <span className="pj-kpi-caption">{caption}</span>}
@@ -214,7 +166,7 @@ export default function ProjectsPage({ theme }) {
   const location = useLocation();
   const now = useNow(30000);
   const { dark, style } = useMemo(() => themeVars(theme), [theme]);
-  const { repos, stats, contributionData, stream, status, limit, refresh, allCommitDates } = useGithubPortfolio();
+  const { repos, stats, contributionData, stream, status, allCommitDates } = useGithubPortfolio();
   const [filters, setFilters] = useState(() => readQuery(location.search));
   const [copied, setCopied] = useState(false);
   const searchRef = useRef(null);
@@ -300,7 +252,7 @@ export default function ProjectsPage({ theme }) {
   const days = contributionData?.contributions || [];
   const loading = !repos.length;
   // A refresh returns to the old position once the repositories have rendered
-  useReloadScroll(!loading && !["loading", "syncing"].includes(status.state));
+  useReloadScroll(!loading && status.state !== "loading");
 
   const peakHour = useMemo(() => {
     const hours = new Array(24).fill(0);
@@ -345,15 +297,15 @@ export default function ProjectsPage({ theme }) {
         {/* ------------------------------- HERO ------------------------------- */}
         <section className="pj-hero" ref={heroRef}>
           <div className="pj-hero-copy">
-            <SyncPill status={status} limit={limit} onRefresh={refresh} now={now} />
+            <SyncPill status={status} now={now} />
             <span className="pj-kicker pj-kicker--hero">Projects · Live engineering log</span>
             <h1 className="pj-hero-title">
               <span className="pj-reveal" style={{ "--d": "0ms" }}>Quality engineering,</span>
               <span className="pj-reveal pj-gradient-text" style={{ "--d": "120ms" }}>shipped in public.</span>
             </h1>
             <p className="pj-hero-sub pj-reveal" style={{ "--d": "240ms" }}>
-              Test frameworks, API suites and AI-driven agents — {loading ? "every repository" : `${stats.ownCount} repositories`} streamed
-              straight from GitHub. When I push a commit, it lands on this page within minutes. No screenshots, no stale lists.
+              Test frameworks, API suites and AI-driven agents — {loading ? "every repository" : `${stats.ownCount} repositories`} synced
+              from GitHub several times a day. No screenshots, no stale lists.
             </p>
             <div className="pj-hero-actions pj-reveal" style={{ "--d": "360ms" }}>
               <Link to="/contact" className="pj-btn pj-btn--primary">
@@ -395,20 +347,14 @@ export default function ProjectsPage({ theme }) {
           </div>
         </section>
 
-        {status.message && (
-          <div className="pj-notice" role="status">
-            <i className="fa-solid fa-circle-info" aria-hidden="true" /> {status.message}
-          </div>
-        )}
-
         {/* ------------------------------- KPIs ------------------------------- */}
         <section className="pj-kpis" ref={kpiRef} aria-label="GitHub metrics">
-          <Kpi label="Repositories" value={stats.ownCount} start={kpiIn} icon="fa-solid fa-cubes" caption={`${stats.forkCount} forks not counted`} />
-          <Kpi label="Commits" value={stats.commits} start={kpiIn} icon="fa-solid fa-code-commit" caption="across my own repos" />
-          <Kpi label="Contributions" value={stats.contributions} start={kpiIn} icon="fa-solid fa-chart-simple" caption="last 12 months" />
-          <Kpi label="Current streak" value={stats.streaks.current} suffix=" d" start={kpiIn} icon="fa-solid fa-fire" caption={`longest ${stats.streaks.longest} days`} />
-          <Kpi label="Active days" value={stats.activeDays} start={kpiIn} icon="fa-solid fa-calendar-check" caption="of the last 365" />
-          <Kpi label="Stars earned" value={stats.stars} start={kpiIn} icon="fa-solid fa-star" caption={`${stats.languages.length} languages in use`} />
+          <Kpi label="Repositories" value={loading ? null : stats.ownCount} start={kpiIn} icon="fa-solid fa-cubes" caption={`${stats.forkCount} forks not counted`} />
+          <Kpi label="Commits" value={loading ? null : stats.commits} start={kpiIn} icon="fa-solid fa-code-commit" caption="across my own repos" />
+          <Kpi label="Contributions" value={loading ? null : stats.contributions} start={kpiIn} icon="fa-solid fa-chart-simple" caption="last 12 months" />
+          <Kpi label="Current streak" value={loading ? null : stats.streaks.current} suffix=" d" start={kpiIn} icon="fa-solid fa-fire" caption={`longest ${stats.streaks.longest} days`} />
+          <Kpi label="Active days" value={loading ? null : stats.activeDays} start={kpiIn} icon="fa-solid fa-calendar-check" caption="of the last 365" />
+          <Kpi label="Stars earned" value={loading ? null : stats.stars} start={kpiIn} icon="fa-solid fa-star" caption={`${stats.languages.length} languages in use`} />
         </section>
 
         {/* ----------------------------- FEATURED ----------------------------- */}
@@ -426,7 +372,7 @@ export default function ProjectsPage({ theme }) {
         {/* ----------------------------- TELEMETRY ---------------------------- */}
         <section className="pj-section" ref={telRef}>
           <SectionHead kicker="02 — Telemetry" title="How I work, in numbers">
-            Pulled live from GitHub on every visit and re-synced every few minutes.
+            Straight from GitHub, re-synced every six hours by a scheduled build.
           </SectionHead>
           <div className="pj-bento">
             <Panel

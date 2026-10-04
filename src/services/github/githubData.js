@@ -1,8 +1,6 @@
-import { githubFetch, cachedJSON } from "./githubClient";
+import { loadSnapshotIndex, loadSnapshotRepo } from "./snapshotStore";
 
 export const GITHUB_USERNAME = "Aayush-Mishraa";
-const API = "https://api.github.com";
-const SNAPSHOT_BASE = `${process.env.PUBLIC_URL || ""}/data/github`;
 const DAY = 24 * 60 * 60 * 1000;
 const WEEK = 7 * DAY;
 
@@ -285,39 +283,16 @@ export const enrichRepo = (repo, snapshotExtras) => {
 /* Loaders                                                             */
 /* ------------------------------------------------------------------ */
 
-export const loadSnapshot = () =>
-  fetch(`${SNAPSHOT_BASE}/index.json`, { cache: "no-cache" })
-    .then((response) => (response.ok ? response.json() : null))
-    .catch(() => null);
+// The build-time snapshot is the only GitHub data the pages use (F07): no
+// browser calls to api.github.com, so no rate limit to hit or show.
+export const loadSnapshot = () => loadSnapshotIndex();
 
-export const loadRepoSnapshot = (name) =>
-  fetch(`${SNAPSHOT_BASE}/repos/${encodeURIComponent(name)}.json`, { cache: "no-cache" })
-    .then((response) => (response.ok ? response.json() : null))
-    .catch(() => null);
+export const loadRepoSnapshot = (name) => loadSnapshotRepo(name);
 
-export const fetchLiveRepos = (options) =>
-  githubFetch(`${API}/users/${GITHUB_USERNAME}/repos?per_page=100&sort=pushed&type=owner`, {
-    ttl: 2 * 60 * 1000,
-    ...options,
-  });
-
-export const fetchLiveUser = () =>
-  githubFetch(`${API}/users/${GITHUB_USERNAME}`, { ttl: 30 * 60 * 1000 });
-
-export const fetchContributions = () =>
-  cachedJSON(`https://github-contributions-api.jogruber.de/v4/${GITHUB_USERNAME}?y=last`, {
-    ttl: 30 * 60 * 1000,
-  });
-
-export const fetchPublicEvents = (options) =>
-  githubFetch(`${API}/users/${GITHUB_USERNAME}/events/public?per_page=40`, { ttl: 2 * 60 * 1000, ...options });
-
-/** Every pull request I've opened, anywhere on GitHub (search API has its own rate limit). */
-export const fetchAuthoredPullRequests = (options) =>
-  githubFetch(`${API}/search/issues?q=author:${GITHUB_USERNAME}+type:pr&sort=created&order=desc&per_page=50`, {
-    ttl: 10 * 60 * 1000,
-    ...options,
-  });
+// Housekeeping commits stay out of the public feeds (mirrors isInternalCommit in
+// scripts/automation/fetch_projects_snapshot.mjs).
+const INTERNAL_COMMIT = /^(?:(?:ci|chore|fix)(?:\([^)]*\))?!?:|merge\b|fix(?:e[sd])?\b)/i;
+export const isInternalCommit = (message = "") => INTERNAL_COMMIT.test(String(message).trim());
 
 export const normalizeCommit = (item) => ({
   sha: item.sha,
@@ -330,36 +305,8 @@ export const normalizeCommit = (item) => ({
   url: item.html_url,
 });
 
-export const fetchRepoCommits = (name, perPage = 100, options) =>
-  githubFetch(`${API}/repos/${GITHUB_USERNAME}/${name}/commits?per_page=${perPage}`, {
-    ttl: 2 * 60 * 1000,
-    ...options,
-  }).then((result) => ({
-    ...result,
-    data: Array.isArray(result.data) ? result.data.map(normalizeCommit) : [],
-  }));
-
-/**
- * Merge the live repo list over the snapshot. Live data always wins for
- * metadata; the snapshot contributes what the live API is too expensive for.
- */
-export const mergeRepos = (snapshotRepos = [], liveRepos = null) => {
-  const extrasByName = {};
-  snapshotRepos.forEach((repo) => {
-    extrasByName[repo.name] = repo.snapshot;
-  });
-  const source = Array.isArray(liveRepos) && liveRepos.length ? liveRepos : snapshotRepos;
-  return source.map((repo) => {
-    const extras = extrasByName[repo.name];
-    const enriched = enrichRepo(repo, extras);
-    // A push newer than the snapshot means the commit count is out of date.
-    enriched.snapshotBehind = Boolean(
-      extras?.lastCommit?.date &&
-        new Date(enriched.pushedAt) - new Date(extras.lastCommit.date) > 60 * 1000
-    );
-    return enriched;
-  });
-};
+/** The snapshot's repositories, each enriched with its build-time extras. */
+export const mergeRepos = (snapshotRepos = []) => snapshotRepos.map((repo) => enrichRepo(repo, repo.snapshot));
 
 /* ------------------------------------------------------------------ */
 /* Aggregates                                                          */
@@ -479,22 +426,6 @@ export const searchScore = (repo, query) => {
 /* ------------------------------------------------------------------ */
 /* Single repository                                                   */
 /* ------------------------------------------------------------------ */
-
-const repoPath = (name) => `${API}/repos/${GITHUB_USERNAME}/${encodeURIComponent(name)}`;
-
-export const fetchRepo = (name, options) => githubFetch(repoPath(name), { ttl: 2 * 60 * 1000, ...options });
-
-export const fetchRepoLanguages = (name) => githubFetch(`${repoPath(name)}/languages`, { ttl: 30 * 60 * 1000 });
-
-export const fetchReadmeHtml = (name) =>
-  githubFetch(`${repoPath(name)}/readme`, {
-    ttl: 10 * 60 * 1000,
-    accept: "application/vnd.github.html+json",
-    text: true,
-  });
-
-export const fetchRepoTree = (name, branch) =>
-  githubFetch(`${repoPath(name)}/git/trees/${encodeURIComponent(branch)}?recursive=1`, { ttl: 30 * 60 * 1000 });
 
 /** Mirrors summarizeTree() in scripts/automation/fetch_projects_snapshot.mjs. */
 export const summarizeTree = (tree) => {

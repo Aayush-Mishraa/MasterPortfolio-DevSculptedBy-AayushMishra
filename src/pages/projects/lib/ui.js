@@ -184,34 +184,14 @@ export const useOffScreenClass = (className = "is-off", margin = "120px") => {
   return ref;
 };
 
-/** Eased count-up that starts when `start` flips true and re-runs when `target` changes. */
-export const useCountUp = (target, start = true, duration = 1400) => {
-  const [value, setValue] = useState(0);
-  const fromRef = useRef(0);
-
-  useEffect(() => {
-    if (!start || !Number.isFinite(target)) return undefined;
-    if (prefersReducedMotion()) {
-      setValue(target);
-      return undefined;
-    }
-    const from = fromRef.current;
-    const began = performance.now();
-    let frame;
-    const tick = (now) => {
-      const progress = Math.min(1, (now - began) / duration);
-      const eased = 1 - Math.pow(1 - progress, 4);
-      const current = from + (target - from) * eased;
-      fromRef.current = current;
-      setValue(current);
-      if (progress < 1) frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [target, start, duration]);
-
-  return value;
-};
+/**
+ * A counter's value. It used to count up from 0 when scrolled into view, which
+ * showed 0 to anyone who hadn't scrolled (screenshots, crawlers, the
+ * prerendered HTML). Counters now always render the real number (F07); the
+ * arguments stay so callers don't change.
+ */
+// eslint-disable-next-line no-unused-vars
+export const useCountUp = (target, start = true, duration = 1400) => (Number.isFinite(target) ? target : 0);
 
 /** Re-renders every `interval` ms so relative timestamps stay honest. */
 export const useNow = (interval = 30000) => {

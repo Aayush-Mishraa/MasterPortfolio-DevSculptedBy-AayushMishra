@@ -4,6 +4,11 @@ All notable changes to aayushmishra.engineer. Newest first.
 
 ## 2026-10-03
 
+### F07 · Static GitHub data
+- Projects and Open Source no longer call the GitHub API from your browser: they show the build-time snapshot, which a scheduled build refreshes every six hours.
+- The "API x/60" counter and refresh button are gone; counters show the real numbers from the first paint (never 0).
+- The latest-commits stream and the activity log leave out ci/chore/fix and merge commits; activity entries now show their commit message.
+
 ### F06 · Prerender + real 404
 - Every page is prerendered at build time: real title, description, canonical URL, share image and text in the HTML, for 8 pages, every repository and every Tech Universe channel.
 - Unknown URLs now return a real 404 with the site's 404 page; `/home` redirects to `/`, `www.` to the bare domain.

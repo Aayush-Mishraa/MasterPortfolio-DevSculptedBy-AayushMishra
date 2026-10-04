@@ -7,6 +7,7 @@ import { Client as Styletron } from "styletron-engine-atomic";
 import "./index.css";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import App from "./App";
+import { preloadForPath } from "./services/github/snapshotStore";
 import * as serviceWorker from "./serviceWorker";
 
 const engine = new Styletron();
@@ -30,11 +31,14 @@ const html = document.documentElement;
 const path = window.location.pathname.replace(/\/+$/, "") || "/";
 const adopt = html.getAttribute("data-prerendered") === path && !html.classList.contains("theme-pending");
 const start = () => (adopt ? ReactDOM.hydrate(app, root) : ReactDOM.render(app, root));
+// Pages built from the GitHub snapshot render complete only with it in hand,
+// so it loads first (the HTML preloads it; capped at 4 s).
+const ready = adopt ? preloadForPath(path) : Promise.resolve();
 
 if (root.hasChildNodes() && typeof window.requestAnimationFrame === "function") {
-  window.requestAnimationFrame(() => setTimeout(start, 0));
+  window.requestAnimationFrame(() => setTimeout(() => ready.then(start), 0));
 } else {
-  start();
+  ready.then(start);
 }
 
 // If you want your app to work offline and load faster, you can change

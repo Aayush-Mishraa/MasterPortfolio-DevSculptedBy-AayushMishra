@@ -5,6 +5,15 @@ on:
   push:
     branches:
       - main
+  # F07: the Projects and Open Source pages show the GitHub snapshot taken at
+  # build time, so a scheduled build keeps it fresh (prebuild re-fetches it).
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:

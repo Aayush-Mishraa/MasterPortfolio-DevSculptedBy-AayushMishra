@@ -94,6 +94,19 @@ function serializeDocument(templateScripts) {
   const html = document.documentElement;
   html.classList.remove("intro-active", "intro-cover", "intro-gated", "lenis", "lenis-smooth", "lenis-stopped", "theme-pending");
   if (!html.className.trim()) html.removeAttribute("class");
+  // Data the page renders from starts loading with the HTML (src/index.js waits for it).
+  const path = location.pathname.replace(/\/+$/, "") || "/";
+  const preload = (href) => {
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "fetch";
+    link.crossOrigin = "anonymous";
+    link.href = href;
+    document.head.appendChild(link);
+  };
+  if (/^\/(projects|opensource)(\/|$)/.test(path)) preload("/data/github/index.json");
+  const project = path.match(/^\/projects\/([^/]+)$/);
+  if (project) preload(`/data/github/repos/${project[1]}.json`);
   // Which URL this HTML is: src/index.js hydrates only on a match.
   html.setAttribute("data-prerendered", location.pathname.replace(/\/+$/, "") || "/");
   html.style.removeProperty("--page-bg");
