@@ -14,10 +14,11 @@ const REVEALS = [
   ".pj-reveal",
   ".os-gauge",
   ".os-reveal",
+  ".pd-title-word",
 ];
 
 test.describe("F09 hygiene", () => {
-  for (const path of ["/", "/contact", "/projects", "/opensource"]) {
+  for (const path of ["/", "/contact", "/projects", "/opensource", "/projects/AutoCart-Engine-FW-"]) {
     test(`${path}: reveal blocks are visible before they scroll into view`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion: "no-preference" });
       await gotoReady(page, path);
@@ -31,7 +32,9 @@ test.describe("F09 hygiene", () => {
         });
         document.querySelectorAll(selectors.join(",")).forEach((element) => {
           const style = getComputedStyle(element);
-          if (Number(style.opacity) < 1 || style.visibility === "hidden") out.push(`${element.className} opacity=${style.opacity}`);
+          if (Number(style.opacity) < 1 || style.visibility === "hidden" || /blur\(/.test(style.filter)) {
+            out.push(`${element.className} opacity=${style.opacity} filter=${style.filter}`);
+          }
         });
         return out;
       }, REVEALS);
