@@ -23,6 +23,30 @@ async function snapshot(page: Page) {
   return (await page.request.get("/data/github/index.json")).json();
 }
 
+// Init script: tags the first commit link of the prerendered HTML as the parser
+// creates it, before any script runs. A hydrated page keeps that node.
+function markPrerenderedLink() {
+  new MutationObserver((_, observer) => {
+    const link = document.querySelector(".pj-stream-msg");
+    if (link) {
+      (link as any).__fromHtml = true;
+      observer.disconnect();
+    }
+  }).observe(document, { childList: true, subtree: true });
+}
+
+/** The first commit link once React manages it (adopted or rendered). */
+async function bootedStreamLink(page: Page) {
+  await page.waitForFunction(() => {
+    const link = document.querySelector(".pj-stream-msg");
+    return Boolean(link && Object.keys(link).some((key) => /^__react(InternalInstance|Fiber)\$/.test(key)));
+  });
+  return page.evaluate(() => {
+    const link = document.querySelector(".pj-stream-msg") as any;
+    return { fromHtml: Boolean(link.__fromHtml), text: link.textContent, href: link.getAttribute("href") };
+  });
+}
+
 test.describe("F07 static GitHub data", () => {
   for (const path of ["/projects", "/opensource", "/projects/AutoCart-Engine-FW-"]) {
     test(`${path} makes no live GitHub calls`, async ({ page }) => {
@@ -64,6 +88,43 @@ test.describe("F07 static GitHub data", () => {
     await gotoReady(page, "/opensource");
     const details = await page.locator(".os-term-text em").allInnerTexts();
     for (const detail of details) expect(detail.trim()).not.toMatch(HOUSEKEEPING);
+  });
+
+  test("data pages name the snapshot they were built from", async ({ page }) => {
+    const data = await snapshot(page);
+    const repo = await (await page.request.get("/data/github/repos/AutoCart-Engine-FW-.json")).json();
+    const stamp = async (path: string) => ((await (await page.request.get(path)).text()).match(/data-snapshot="([^"]*)"/) || [])[1];
+    expect(await stamp("/projects")).toBe(data.generatedAt);
+    expect(await stamp("/opensource")).toBe(data.generatedAt);
+    expect(await stamp("/projects/AutoCart-Engine-FW-")).toBe(`${data.generatedAt} ${repo.generatedAt}`);
+    expect(await stamp("/contact")).toBeUndefined();
+  });
+
+  test("/projects is adopted as it is when the snapshot matches", async ({ page }) => {
+    await page.addInitScript(markPrerenderedLink);
+    await gotoReady(page, "/projects");
+    const link = await bootedStreamLink(page);
+    expect(link.fromHtml, "the prerendered node is kept (hydrated)").toBe(true);
+  });
+
+  test("/projects with the next build's snapshot is rendered fresh, links included", async ({ page }) => {
+    // What a CDN or browser cache can serve: this build's HTML, the next build's JSON.
+    const data = await snapshot(page);
+    const next = {
+      ...data,
+      generatedAt: new Date(Date.parse(data.generatedAt) + 6 * 3600 * 1000).toISOString(),
+      recentCommits: [
+        { ...data.recentCommits[0], sha: "f".repeat(40), message: "feat: from the next build", repo: "Next-Build-Repo" },
+        ...data.recentCommits.slice(1),
+      ],
+    };
+    await page.route("**/data/github/index.json", (route) => route.fulfill({ json: next }));
+    await page.addInitScript(markPrerenderedLink);
+    await gotoReady(page, "/projects");
+    const link = await bootedStreamLink(page);
+    expect(link.fromHtml, "the prerendered node is replaced (rendered)").toBe(false);
+    expect(link.text).toBe("feat: from the next build");
+    expect(link.href).toBe("/projects/Next-Build-Repo#commits");
   });
 
   for (const path of ["/projects", "/opensource"]) {

@@ -7,7 +7,7 @@ import { Client as Styletron } from "styletron-engine-atomic";
 import "./index.css";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import App from "./App";
-import { preloadForPath } from "./services/github/snapshotStore";
+import { preloadForPath, snapshotVersion } from "./services/github/snapshotStore";
 import * as serviceWorker from "./serviceWorker";
 
 const engine = new Styletron();
@@ -30,7 +30,12 @@ const app = (
 const html = document.documentElement;
 const path = window.location.pathname.replace(/\/+$/, "") || "/";
 const adopt = html.getAttribute("data-prerendered") === path && !html.classList.contains("theme-pending");
-const start = () => (adopt ? ReactDOM.hydrate(app, root) : ReactDOM.render(app, root));
+// A page built from the GitHub snapshot is adopted only with that same
+// snapshot: the CDN or the browser cache can pair the HTML of one scheduled
+// build with the JSON of the next, and hydrating would keep the old links
+// under the new text.
+const sameData = () => (html.getAttribute("data-snapshot") || "") === snapshotVersion(path);
+const start = () => (adopt && sameData() ? ReactDOM.hydrate(app, root) : ReactDOM.render(app, root));
 // Pages built from the GitHub snapshot render complete only with it in hand,
 // so it loads first (the HTML preloads it; capped at 4 s).
 const ready = adopt ? preloadForPath(path) : Promise.resolve();

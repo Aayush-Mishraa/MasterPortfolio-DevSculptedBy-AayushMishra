@@ -14,6 +14,7 @@ All notable changes to aayushmishra.engineer. Newest first.
 - Projects and Open Source no longer call the GitHub API from your browser: they show the build-time snapshot, which a scheduled build refreshes every six hours.
 - The "API x/60" counter and refresh button are gone; counters show the real numbers from the first paint (never 0).
 - The latest-commits stream and the activity log leave out ci/chore/fix and merge commits; activity entries now show their commit message.
+- If a page's HTML and its GitHub data come from different builds (CDN or browser cache), the page is rendered fresh instead of mixing old links with new text.
 
 ## 2026-10-03
 

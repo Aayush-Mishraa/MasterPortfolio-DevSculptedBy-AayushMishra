@@ -10,9 +10,11 @@
  * real 404 on the server (public/.htaccess). Also writes build/404.html,
  * sitemap.xml, llms.txt and a 1200x630 Open Graph image per route.
  *
- * The browser app still boots from scratch on top of this HTML (it renders,
- * it doesn't hydrate); the prerendered HTML is what crawlers, link previews
- * and the first paint see.
+ * The prerendered HTML is what crawlers, link previews and the first paint
+ * see. The app adopts it (hydrates) when it is the HTML of the URL being
+ * opened, in the default theme and, for pages built from the GitHub snapshot,
+ * with the same snapshot (data-snapshot); otherwise it renders over it
+ * (src/index.js).
  */
 import { chromium } from "playwright-core";
 import { spawn } from "child_process";
@@ -69,7 +71,7 @@ function startServer() {
  * - transient state on <html> (intro, Lenis) is dropped; the theme's CSS
  *   variables stay, so the page paints in the default theme.
  */
-function serializeDocument(templateScripts) {
+function serializeDocument({ templateScripts, snapshot }) {
   document.querySelectorAll("style").forEach((style) => {
     try {
       const rules = style.sheet ? Array.from(style.sheet.cssRules) : [];
@@ -107,8 +109,9 @@ function serializeDocument(templateScripts) {
   if (/^\/(projects|opensource)(\/|$)/.test(path)) preload("/data/github/index.json");
   const project = path.match(/^\/projects\/([^/]+)$/);
   if (project) preload(`/data/github/repos/${project[1]}.json`);
-  // Which URL this HTML is: src/index.js hydrates only on a match.
+  // Which URL this HTML is, and which snapshot it shows: src/index.js hydrates only on a match.
   html.setAttribute("data-prerendered", location.pathname.replace(/\/+$/, "") || "/");
+  if (snapshot) html.setAttribute("data-snapshot", snapshot);
   html.style.removeProperty("--page-bg");
   return "<!DOCTYPE html>\n" + html.outerHTML;
 }
@@ -138,6 +141,22 @@ async function waitForContent(page, route) {
   await page.waitForTimeout(400);
 }
 
+/** The snapshot files a route renders from, as src/services/github/snapshotStore.js snapshotVersion() reports them. */
+function snapshotStamp(route) {
+  const stamp = (file) => {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(BUILD, "data", "github", file), "utf8")).generatedAt || "none";
+    } catch (error) {
+      return "none";
+    }
+  };
+  const parts = [];
+  if (/^\/(projects|opensource)(\/|$)/.test(route)) parts.push(stamp("index.json"));
+  const project = route.match(/^\/projects\/([^/]+)$/);
+  if (project) parts.push(stamp(`repos/${decodeURIComponent(project[1])}.json`));
+  return parts.join(" ");
+}
+
 async function prerenderRoute(context, route, templateScripts) {
   const page = await context.newPage();
   const errors = [];
@@ -146,7 +165,7 @@ async function prerenderRoute(context, route, templateScripts) {
     const response = await page.goto(ORIGIN + route, { waitUntil: "load", timeout: 30000 });
     if (!response || response.status() >= 400) throw new Error(`HTTP ${response && response.status()}`);
     await waitForContent(page, route);
-    const html = await page.evaluate(serializeDocument, templateScripts);
+    const html = await page.evaluate(serializeDocument, { templateScripts, snapshot: snapshotStamp(route) });
     const title = await page.title();
     return { html, title, errors };
   } finally {

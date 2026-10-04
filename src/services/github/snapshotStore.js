@@ -9,6 +9,8 @@
 */
 
 const BASE = `${process.env.PUBLIC_URL || ""}/data/github`;
+const DATA_PAGE = /^\/(projects|opensource)(\/|$)/;
+const PROJECT_PAGE = /^\/projects\/([^/]+)\/?$/;
 
 let index;
 let indexRequest = null;
@@ -56,9 +58,23 @@ export function loadSnapshotRepo(name) {
  */
 export function preloadForPath(pathname, timeout = 4000) {
   const loads = [];
-  if (/^\/(projects|opensource)(\/|$)/.test(pathname)) loads.push(loadSnapshotIndex());
-  const project = pathname.match(/^\/projects\/([^/]+)\/?$/);
+  if (DATA_PAGE.test(pathname)) loads.push(loadSnapshotIndex());
+  const project = pathname.match(PROJECT_PAGE);
   if (project) loads.push(loadSnapshotRepo(decodeURIComponent(project[1])));
   if (!loads.length) return Promise.resolve();
   return Promise.race([Promise.all(loads), new Promise((resolve) => setTimeout(resolve, timeout))]);
+}
+
+/**
+ * Which snapshot files a URL renders from: their generatedAt, space separated
+ * ("none" for one that isn't loaded); "" for a page that uses none.
+ * scripts/prerender stamps the same string on the HTML it writes.
+ */
+export function snapshotVersion(pathname) {
+  const stamp = (data) => (data && data.generatedAt) || "none";
+  const parts = [];
+  if (DATA_PAGE.test(pathname)) parts.push(stamp(index));
+  const project = pathname.match(PROJECT_PAGE);
+  if (project) parts.push(stamp(repos[decodeURIComponent(project[1])]));
+  return parts.join(" ");
 }
