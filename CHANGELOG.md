@@ -8,6 +8,7 @@ All notable changes to aayushmishra.engineer. Newest first.
 - Scroll-reveal content is visible by default and only slides in; nothing waits at opacity 0.
 - Inter and JetBrains Mono are self-hosted and preloaded (no Google Fonts request): text doesn't jump when fonts load (layout shift ~0 on every page), and on a throttled phone the first paint comes 0.7–0.9 s sooner than with Google Fonts.
 - One manifest link, a cleaned-up manifest, and `/favicon.ico` + `/apple-touch-icon.png` at the root.
+- Project page titles are visible again (the slide-only animation had left them at opacity 0 and blurred); the reveal test now covers project pages.
 - The Projects "Ready when you are" label now meets contrast. `/resume.pdf` is ready to switch on once the new PDF is added.
 
 ### F07 · Static GitHub data

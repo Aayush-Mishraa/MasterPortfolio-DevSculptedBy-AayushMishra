@@ -75,12 +75,11 @@
   overflow-wrap: anywhere;
 }
 
+/* F09: pj-rise only slides now, so the words start visible (an opacity 0 here
+   was never brought back and hid the title) */
 .pd-title-word {
   display: inline-block;
-  opacity: 0;
-  transform: translateY(0.45em) rotate(2deg);
-  filter: blur(10px);
-  animation: pj-rise 0.9s var(--pj-ease) forwards;
+  animation: pj-rise 0.9s var(--pj-ease) both;
   animation-delay: var(--d);
 }
 
