@@ -7,8 +7,6 @@
     "php": ">=8.1",
     "ext-json": "*",
     "ext-pdo": "*",
-    "anthropic-ai/sdk": "^0.54.0",
-    "guzzlehttp/guzzle": "^7.9",
     "phpmailer/phpmailer": "^6.9"
   },
   "require-dev": {
@@ -31,7 +29,6 @@
       "php": "8.1.0"
     },
     "allow-plugins": {
-      "php-http/discovery": false
     }
   },
   "scripts": {

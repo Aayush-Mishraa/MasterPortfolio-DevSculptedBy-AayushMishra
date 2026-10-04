@@ -8,7 +8,7 @@ declare(strict_types=1);
  * 1. Guards: origin, honeypot, form token, 10 questions an hour / 30 a day per IP.
  * 2. Retrieval: the best passages from this site (Retriever, BM25 over the
  *    build's ask-corpus.json). Too weak a match → a polite "not covered".
- * 3. Answer: Claude Haiku 4.5 writes a short answer from those passages only,
+ * 3. Answer: Claude Haiku 4.5 (Messages API) writes a short answer from those passages only,
  *    citing them as [1], [2]… Without an API key, or past the daily cap
  *    (anthropic.daily_cap), the passages themselves are the answer.
  * 4. Evals, shown with every answer: grounded (share of sentences backed by
@@ -17,12 +17,10 @@ declare(strict_types=1);
  * Every question is logged in ask_log (no IP, only its keyed hash).
  */
 
-use Anthropic\Client;
-use Anthropic\Core\Exceptions\APIConnectionException;
-use Anthropic\Core\Exceptions\APIStatusException;
 use Site\Db;
 use Site\FormToken;
 use Site\Http;
+use Site\HttpClient;
 use Site\RateLimit;
 use Site\Retriever;
 use Site\Validator;
@@ -151,36 +149,41 @@ foreach ($passages as $index => $passage) {
 }
 $userMessage = "<sources>\n" . implode("\n", $numbered) . "\n</sources>\n\n<question>" . $question . "</question>";
 
-try {
-    $client = new Client(
-        apiKey: $apiKey,
-        baseUrl: $config->string('anthropic.api_base') ?: null,
-        requestOptions: ['timeout' => 25.0, 'maxRetries' => 1],
-    );
-    $message = $client->messages->create(
-        model: $config->string('anthropic.model') ?: 'claude-haiku-4-5',
-        maxTokens: 600,
-        system: $system,
-        messages: [['role' => 'user', 'content' => $userMessage]],
-    );
+// Messages API over plain HTTPS (HttpClient): the official PHP SDK is ~3,000
+// files, too many for the FTP deploy to Hostinger. One retry on 429/5xx/network.
+$base = rtrim($config->string('anthropic.api_base') ?: 'https://api.anthropic.com', '/');
+$request = json_encode([
+    'model' => $config->string('anthropic.model') ?: 'claude-haiku-4-5',
+    'max_tokens' => 600,
+    'system' => $system,
+    'messages' => [['role' => 'user', 'content' => $userMessage]],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+$headers = ['x-api-key' => $apiKey, 'anthropic-version' => '2023-06-01', 'content-type' => 'application/json'];
+for ($attempt = 1; $attempt <= 2; $attempt++) {
+    $response = HttpClient::request('POST', $base . '/v1/messages', $headers, $request, 25);
+    if ($response['status'] === 200 || !in_array($response['status'], [0, 429, 500, 502, 503, 504, 529], true)) {
+        break;
+    }
+    usleep(800000);
+}
+$message = is_array($response['json']) ? $response['json'] : [];
+if ($response['status'] !== 200) {
+    error_log('[api] ask: Claude API HTTP ' . $response['status'] . ': ' . mb_substr($response['body'], 0, 300));
+} else {
     $answer = '';
-    foreach ($message->content as $block) {
-        if ($block->type === 'text') {
-            $answer .= $block->text;
+    foreach (is_array($message['content'] ?? null) ? $message['content'] : [] as $block) {
+        if (($block['type'] ?? '') === 'text') {
+            $answer .= (string) ($block['text'] ?? '');
         }
     }
     $answer = trim($answer);
-    if ($answer === '' || $message->stopReason === 'refusal') {
-        throw new RuntimeException('empty or refused answer (' . (string) $message->stopReason . ')');
+    $stop = (string) ($message['stop_reason'] ?? '');
+    if ($answer === '' || $stop === 'refusal') {
+        error_log('[api] ask: empty or refused answer (' . $stop . ')');
+    } else {
+        $usage = [(int) ($message['usage']['input_tokens'] ?? 0), (int) ($message['usage']['output_tokens'] ?? 0)];
+        $generated = $answer;
     }
-    $usage = [$message->usage->inputTokens, $message->usage->outputTokens];
-    $generated = $answer;
-} catch (APIStatusException $error) {
-    error_log('[api] ask: Claude API HTTP ' . $error->status . ': ' . mb_substr($error->getMessage(), 0, 300));
-} catch (APIConnectionException $error) {
-    error_log('[api] ask: Claude API unreachable: ' . $error->getMessage());
-} catch (Throwable $error) {
-    error_log('[api] ask: ' . get_class($error) . ': ' . $error->getMessage());
 }
 
 if (isset($generated)) {
