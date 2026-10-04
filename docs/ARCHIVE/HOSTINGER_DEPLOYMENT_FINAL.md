@@ -55,7 +55,7 @@ Your portfolio has been successfully built and packaged for Hostinger deployment
 ## 🔧 **Important Configuration**
 
 ### **Domain Setup**
-Your site is configured for: `https://aayushmishra.tech`
+Your site is configured for: `https://aayushmishra.engineer`
 
 If using a different domain, update `package.json`:
 ```json
@@ -158,7 +158,7 @@ serve -s build
 ### **Build Information**
 - ✅ Built: October 24, 2025
 - ✅ React Version: Latest with legacy OpenSSL support
-- ✅ Homepage: https://aayushmishra.tech
+- ✅ Homepage: https://aayushmishra.engineer
 - ✅ Status: Production Ready
 
 ### **Deployment Files Location**

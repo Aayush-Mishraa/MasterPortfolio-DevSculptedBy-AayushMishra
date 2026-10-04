@@ -4,7 +4,7 @@
 
 ![Portfolio Banner](https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=30&duration=3000&pause=1000&color=667EEA&center=true&vCenter=true&width=600&lines=QA+Automation+Engineer;Full+Stack+Developer;SDET+%7C+Test+Automation+Expert;DevOps+%26+CI%2FCD+Enthusiast)
 
-[![Portfolio](https://img.shields.io/badge/🌐_Portfolio-Live-667EEA?style=for-the-badge&logo=vercel)](https://aayushmishra.tech)
+[![Portfolio](https://img.shields.io/badge/🌐_Portfolio-Live-667EEA?style=for-the-badge&logo=vercel)](https://aayushmishra.engineer)
 [![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github)](https://github.com/Aayush-Mishraa)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/aayush-mishra)
 [![Email](https://img.shields.io/badge/Email-Contact-EA4335?style=for-the-badge&logo=gmail)](mailto:aayush.mishra@example.com)
@@ -216,7 +216,7 @@ Features: Automated testing, error handling, rollback capability
 
 ### **Ready to collaborate on your next project?**
 
-[![Portfolio](https://img.shields.io/badge/🌐_Visit_Portfolio-aayushmishra.tech-667EEA?style=for-the-badge)](https://aayushmishra.tech)
+[![Portfolio](https://img.shields.io/badge/🌐_Visit_Portfolio-aayushmishra.engineer-667EEA?style=for-the-badge)](https://aayushmishra.engineer)
 
 [![Email](https://img.shields.io/badge/📧_Email-aayush.mishra@example.com-EA4335?style=for-the-badge)](mailto:aayush.mishra@example.com)
 [![LinkedIn](https://img.shields.io/badge/💼_LinkedIn-Connect-0A66C2?style=for-the-badge)](https://linkedin.com/in/aayush-mishra)

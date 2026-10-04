@@ -25,7 +25,7 @@ File sizes after gzip:
   785 B      build\static\js\runtime-main.c8a71612.js
 
 Total deployment files: 136 files
-Target domain: https://aayushmishra.tech
+Target domain: https://aayushmishra.engineer
 ```
 
 ### ✅ HTML Validation Results:
@@ -54,7 +54,7 @@ Target domain: https://aayushmishra.tech
 3. **Clear existing files** (if updating)
 4. **Upload ALL files** from `hostinger-deployment` folder
 5. **Verify** `index.html` is in root of `public_html`
-6. **Test** website at https://aayushmishra.tech
+6. **Test** website at https://aayushmishra.engineer
 
 ### 🔍 Post-Upload Verification:
 - **✅ Homepage loads** without errors

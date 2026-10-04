@@ -55,7 +55,7 @@ All files in the `hostinger-deployment` folder are production-ready and optimize
    └── skills/
    ```
 
-2. **Website Access**: https://aayushmishra.tech
+2. **Website Access**: https://aayushmishra.engineer
 3. **Mobile Testing**: Check position swapping works
 4. **Animation Testing**: Verify falling text and ProfileCard effects
 
@@ -80,6 +80,6 @@ All files in the `hostinger-deployment` folder are production-ready and optimize
 
 ---
 **Ready for Upload:** ✅ YES  
-**Domain:** https://aayushmishra.tech  
+**Domain:** https://aayushmishra.engineer  
 **Last Updated:** August 15, 2025  
 **Build Status:** Production Ready with latest fixes

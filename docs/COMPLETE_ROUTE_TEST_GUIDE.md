@@ -5,16 +5,16 @@
 Based on your React Router configuration in `src/containers/Main.js`, here are **ALL** the routes that need testing:
 
 ### ✅ **Primary Routes:**
-1. **`https://aayushmishra.tech/`** (Root - Homepage)
-2. **`https://aayushmishra.tech/home`** (Home page)
-3. **`https://aayushmishra.tech/experience`** (Experience page)
-4. **`https://aayushmishra.tech/education`** (Education page) 
-5. **`https://aayushmishra.tech/opensource`** (Open Source page)
-6. **`https://aayushmishra.tech/projects`** (All Projects page)
-7. **`https://aayushmishra.tech/contact`** (Contact page)
+1. **`https://aayushmishra.engineer/`** (Root - Homepage)
+2. **`https://aayushmishra.engineer/home`** (Home page)
+3. **`https://aayushmishra.engineer/experience`** (Experience page)
+4. **`https://aayushmishra.engineer/education`** (Education page) 
+5. **`https://aayushmishra.engineer/opensource`** (Open Source page)
+6. **`https://aayushmishra.engineer/projects`** (All Projects page)
+7. **`https://aayushmishra.engineer/contact`** (Contact page)
 
 ### 🎯 **Conditional Routes:**
-8. **`https://aayushmishra.tech/splash`** (Splash screen - if enabled)
+8. **`https://aayushmishra.engineer/splash`** (Splash screen - if enabled)
 
 ### 🚫 **Error Handling:**
 9. **Any invalid route** → Should show 404 error page
@@ -26,14 +26,14 @@ Based on your React Router configuration in `src/containers/Main.js`, here are *
 ### **Direct URL Access Test:**
 Copy each URL below and paste directly into browser address bar:
 
-- [ ] `https://aayushmishra.tech/`
-- [ ] `https://aayushmishra.tech/home`
-- [ ] `https://aayushmishra.tech/experience` 
-- [ ] `https://aayushmishra.tech/education`
-- [ ] `https://aayushmishra.tech/opensource`
-- [ ] `https://aayushmishra.tech/projects`
-- [ ] `https://aayushmishra.tech/contact`
-- [ ] `https://aayushmishra.tech/splash`
+- [ ] `https://aayushmishra.engineer/`
+- [ ] `https://aayushmishra.engineer/home`
+- [ ] `https://aayushmishra.engineer/experience` 
+- [ ] `https://aayushmishra.engineer/education`
+- [ ] `https://aayushmishra.engineer/opensource`
+- [ ] `https://aayushmishra.engineer/projects`
+- [ ] `https://aayushmishra.engineer/contact`
+- [ ] `https://aayushmishra.engineer/splash`
 
 ### **Page Refresh Test:**
 Navigate to each page normally, then press **F5** or **Ctrl+R**:

@@ -74,12 +74,12 @@ public_html/
 
 ### **Step 3: Test All Routes**
 After upload, test:
-- ✅ `https://aayushmishra.tech/` (Homepage)
-- ✅ `https://aayushmishra.tech/home`
-- ✅ `https://aayushmishra.tech/contact`
-- ✅ `https://aayushmishra.tech/experience`
-- ✅ `https://aayushmishra.tech/education`
-- ✅ `https://aayushmishra.tech/projects`
+- ✅ `https://aayushmishra.engineer/` (Homepage)
+- ✅ `https://aayushmishra.engineer/home`
+- ✅ `https://aayushmishra.engineer/contact`
+- ✅ `https://aayushmishra.engineer/experience`
+- ✅ `https://aayushmishra.engineer/education`
+- ✅ `https://aayushmishra.engineer/projects`
 
 ---
 

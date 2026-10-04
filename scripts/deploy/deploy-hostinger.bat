@@ -34,7 +34,7 @@ echo.
 echo [4/4] Deployment package created successfully!
 echo.
 echo ====================================
-echo   DEPLOYMENT READY FOR AAYUSHMISHRA.TECH
+echo   DEPLOYMENT READY FOR aayushmishra.engineer
 echo ====================================
 echo.
 echo 1. Extract 'hostinger-deployment.zip' to your computer

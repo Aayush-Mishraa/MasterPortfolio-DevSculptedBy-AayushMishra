@@ -53,15 +53,15 @@ npm run build
 ### Update package.json (CONFIGURED FOR YOUR DOMAIN)
 Your current homepage setting:
 ```json
-"homepage": "https://aayushmishra.tech"
+"homepage": "https://aayushmishra.engineer"
 ```
 
-✅ **Already configured for your domain: aayushmishra.tech**
+✅ **Already configured for your domain: aayushmishra.engineer**
 
 ### For Subdirectory Deployment (if needed)
-If deploying to a subdirectory (e.g., aayushmishra.tech/portfolio):
+If deploying to a subdirectory (e.g., aayushmishra.engineer/portfolio):
 ```json
-"homepage": "https://aayushmishra.tech/portfolio"
+"homepage": "https://aayushmishra.engineer/portfolio"
 ```
 
 ## 🔧 Troubleshooting
@@ -99,7 +99,7 @@ public_html/
 ```
 
 ## 🎉 Final Steps
-1. **Test your website** at https://aayushmishra.tech
+1. **Test your website** at https://aayushmishra.engineer
 2. **Check mobile responsiveness**
 3. **Verify all pages work** (if using React Router)
 4. **Test contact forms** and external links
@@ -110,4 +110,4 @@ public_html/
 - **React Deployment**: Refer to Create React App deployment docs
 
 ---
-**Your portfolio will be live at https://aayushmishra.tech! 🚀**
+**Your portfolio will be live at https://aayushmishra.engineer! 🚀**

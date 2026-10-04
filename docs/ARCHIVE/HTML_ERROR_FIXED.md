@@ -40,7 +40,7 @@
 1. **Source Folder**: `C:\Users\aayus\OneDrive\Desktop\Webpage\masterPortfolio\hostinger-deployment`
 2. **Destination**: Hostinger `public_html` folder
 3. **Method**: File Manager or FTP upload
-4. **Verification**: https://aayushmishra.tech
+4. **Verification**: https://aayushmishra.engineer
 
 ### File Validation:
 - **✅ HTML Structure**: Valid and error-free

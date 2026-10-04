@@ -15,7 +15,7 @@
 ### Step 1: Access Hostinger Control Panel
 1. **Login** to your Hostinger account at [hostinger.com](https://hostinger.com)
 2. Navigate to **hPanel** (hosting control panel)
-3. Select your domain: **aayushmishra.tech**
+3. Select your domain: **aayushmishra.engineer**
 
 ### Step 2: File Manager Access
 1. Click on **File Manager** in hPanel
@@ -43,7 +43,7 @@
 ### Step 4: Domain Configuration
 1. **Check** that your domain points to the hosting
 2. **SSL Certificate** should be automatically configured
-3. **Website URL:** https://aayushmishra.tech
+3. **Website URL:** https://aayushmishra.engineer
 
 ## 🔧 Portfolio Features Included
 - ✅ Enhanced ProfileCard with 3D animations
@@ -60,7 +60,7 @@
 - **Performance optimizations** for mobile browsers
 
 ## 🎯 Post-Deployment Verification
-1. **Visit** https://aayushmishra.tech
+1. **Visit** https://aayushmishra.engineer
 2. **Test** on desktop and mobile devices
 3. **Verify** all animations work smoothly
 4. **Check** ProfileCard 3D effects
@@ -80,4 +80,4 @@
 ---
 **Last Updated:** August 15, 2025
 **Build Status:** ✅ Production Ready
-**Domain:** https://aayushmishra.tech
+**Domain:** https://aayushmishra.engineer

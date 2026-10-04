@@ -21,7 +21,7 @@ Build artifacts are created by the deployment scripts in `/scripts/deploy/` dire
    - Extract the `.zip` file to a temporary folder
    - Login to Hostinger File Manager (hPanel)
    - Upload all files to `public_html/`
-   - Verify deployment at https://aayushmishra.tech
+   - Verify deployment at https://aayushmishra.engineer
 
 ## 📊 File Size
 
