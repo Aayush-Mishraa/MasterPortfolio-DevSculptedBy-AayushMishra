@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "name": "site-scanner",
+  "description": "F24: the job behind 'Test my site' (run by .github/workflows/site-scan.yml)",
+  "type": "module"
+}

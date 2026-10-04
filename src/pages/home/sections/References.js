@@ -82,7 +82,7 @@ export default function References() {
       <div className="hm-shell">
         <div className="hm-refs__inner" data-reveal>
           <p className="hm-eyebrow">
-            <b>05</b> Kind words
+            <b>06</b> Kind words
           </p>
           <h2 className="hm-sr" id="hm-references-title">
             Recommendations

@@ -30,6 +30,10 @@ ErrorDocument 404 /404.html
   # One home page: /home → /
   RewriteRule ^home/?$ https://aayushmishra.engineer/ [R=301,L]
 
+  # F10: Projects and Open Source moved under Work (query string kept)
+  RewriteRule ^projects/?$ https://aayushmishra.engineer/work [R=301,L]
+  RewriteRule ^opensource/?$ https://aayushmishra.engineer/work/open-source [R=301,L]
+
   # Old channel name
   RewriteRule ^universe/radio/?$ https://aayushmishra.engineer/universe/music [R=301,L]
 
@@ -42,7 +46,12 @@ ErrorDocument 404 /404.html
   RewriteRule ^ - [L]
 
   # Prerendered pages. A name with no file (an unknown repo or channel) is a 404.
-  RewriteRule ^(experience|education|automation-arsenal|projects|opensource|contact|universe)$ _pages/$1.html [L]
+  RewriteRule ^(experience|education|automation-arsenal|work|services|about|hire-me|contact|universe|products|free-tools|starter-kit|mentoring|ask)$ _pages/$1.html [L]
+  RewriteRule ^hire-me/(kit)$ _pages/hire-me/$1.html [L]
+  RewriteRule ^free-tools/([a-z0-9-]+)$ _pages/free-tools/$1.html [L]
+  RewriteRule ^free-tools/site-scanner/(report)$ _pages/free-tools/site-scanner/$1.html [L]
+  RewriteRule ^services/([a-z0-9-]+)$ _pages/services/$1.html [L]
+  RewriteRule ^work/(open-source)$ _pages/work/$1.html [L]
   RewriteRule ^projects/([A-Za-z0-9._-]+)$ _pages/projects/$1.html [L]
   RewriteRule ^universe/([a-z0-9-]+)$ _pages/universe/$1.html [L]
 

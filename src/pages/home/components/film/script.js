@@ -101,7 +101,7 @@ export const SHOTS = [
   {
     id: "skyline",
     at: 16.6,
-    path: "/opensource",
+    path: "/work/open-source",
     video: { webm: siteSkylineWebm, mp4: siteSkylineMp4 },
     poster: siteSkylinePoster,
     boxes: [{ x: 9.5, y: 23.5, w: 81, h: 37, label: "Contribution skyline · a year of commits" }],
@@ -124,7 +124,7 @@ export const SHOTS = [
   {
     id: "projects",
     at: 19.7,
-    path: "/projects",
+    path: "/work",
     image: siteProjects,
     boxes: [{ x: 54.5, y: 28, w: 36, h: 59, label: "Repo radar · live from GitHub" }],
   },

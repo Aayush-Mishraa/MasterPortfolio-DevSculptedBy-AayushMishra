@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 📥 Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
 
     - name: 📦 Deploy manually edited files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
       with:
         server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USERNAME }}

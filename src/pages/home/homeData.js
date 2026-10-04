@@ -208,6 +208,7 @@ export const PROFILE = {
   workingHours: contact.workingHours,
   responseTime: contact.responseTime,
   status: availability.status,
+  servicesStatus: availability.services,
   openTo: availability.roles,
   workModes: availability.workModes,
 };

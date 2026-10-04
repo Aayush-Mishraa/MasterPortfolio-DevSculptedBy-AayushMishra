@@ -8,11 +8,14 @@ import EvidenceLog from "../components/EvidenceLog";
 import { scrollToId } from "../lib/scroll";
 import { introSoundOn } from "../../splash/introPolicy";
 import { unlockIntroSound } from "../../splash/introSound";
+import { HIRE_ME_WITH_FILM, startHireFilm } from "../../hire/hireFilm";
 import "./Hero.css";
 
 /*
   The verdict. Above the fold, in five seconds: who (byline), what (headline
-  and lead), proof (the evidence log) and the next step (two buttons).
+  and lead), proof (the evidence log) and the next step. Services-first
+  (F10): the main button goes to /services; hiring teams have their own path
+  at /hire-me.
 
   The intro signs the name; this page is the release report that follows.
   When the intro plays over the page, the hero rises as its curtain lifts, and
@@ -20,7 +23,7 @@ import "./Hero.css";
   the log passes. On a plain visit the same handshake runs 0.7s after load.
 */
 
-export default function Hero({ onOpenBrief }) {
+export default function Hero() {
   const rootRef = useRef(null);
   const [landed, setLanded] = useState(prefersReducedMotion);
   const now = useNow(30000);
@@ -113,7 +116,7 @@ export default function Hero({ onOpenBrief }) {
         <div className="hm-hero__copy">
           <p className="hm-pill hm-hero__status" data-rise>
             <span className="hm-live" aria-hidden="true" />
-            <span>{PROFILE.status}</span>
+            <span>{PROFILE.servicesStatus}</span>
             <span className="hm-pill__sep" aria-hidden="true" />
             <span className="hm-mono" aria-hidden="true">
               {PROFILE.country} · {status.time} IST
@@ -151,20 +154,20 @@ export default function Hero({ onOpenBrief }) {
           </h1>
 
           <p className="hm-lead hm-hero__lead" data-rise>
-            I make software safe to ship: the frameworks, CI quality gates and AI-assisted tests that decide when a
-            release is ready, and the QA team that runs them.
+            I make software safe to ship. I help teams with release reviews, QA health checks, Playwright frameworks
+            and AI-feature evals: the same work I do every day as a QA lead.
           </p>
 
           <div className="hm-hero__actions" data-rise>
-            <Link to="/contact" className="hm-btn hm-btn--primary">
+            <Link to="/services" className="hm-btn hm-btn--primary">
+              See services <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+            </Link>
+            <Link to="/contact" className="hm-btn hm-btn--ghost">
               Let&apos;s talk <i className="fa-solid fa-arrow-right" aria-hidden="true" />
             </Link>
-            <a href={PROFILE.resume} target="_blank" rel="noopener noreferrer" className="hm-btn hm-btn--ghost">
-              Résumé <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
-            </a>
-            <button type="button" className="hm-btn hm-btn--link" onClick={onOpenBrief}>
-              <i className="fa-solid fa-circle-play" aria-hidden="true" /> 30-second brief
-            </button>
+            <Link to={HIRE_ME_WITH_FILM} className="hm-btn hm-btn--link" onClick={startHireFilm}>
+              <i className="fa-solid fa-user-tie" aria-hidden="true" /> Hiring full-time?
+            </Link>
             {/* The intro is opt-in (F05): it plays over this page on /splash. */}
             <Link
               to="/splash"

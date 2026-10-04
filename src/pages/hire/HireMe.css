@@ -1,0 +1,249 @@
+/* F10 · /hire-me. Built on the home page's tokens (.hm, PageShell). */
+
+.hr-hero {
+  padding-top: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+}
+
+.hr-hero__status {
+  margin: 0 0 1.4rem;
+}
+
+/* The pill and the eyebrow are both inline-flex: keep the eyebrow on its own line */
+.hr-hero__status + .hm-eyebrow {
+  display: flex;
+}
+
+.hr-hero__title {
+  margin: 0.9rem 0 0;
+  max-width: 18ch;
+  font-size: clamp(2.4rem, 1.4rem + 4.4vw, 4.6rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  color: var(--hm-text);
+  text-wrap: balance;
+}
+
+.hr-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-top: 2rem;
+}
+
+/* ---------- Brief + snapshot ---------- */
+
+.hr-brief {
+  padding-top: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+}
+
+.hr-brief__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+  align-items: start;
+}
+
+.hr-card {
+  overflow: hidden;
+}
+
+.hr-card__body {
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.hr-h3 {
+  margin: 0 0 1.2rem;
+  font-size: clamp(1.4rem, 1.1rem + 1vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--hm-text);
+}
+
+.hr-facts {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.hr-facts > div {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--hm-line);
+}
+
+.hr-facts dt {
+  font-family: var(--hm-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+  padding-top: 0.2rem;
+}
+
+.hr-facts dd {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+}
+
+.hr-facts strong {
+  font-weight: 600;
+  color: var(--hm-text);
+}
+
+.hr-facts span {
+  font-size: 0.9rem;
+  color: var(--hm-muted);
+}
+
+.hr-proof {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1.2rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--hm-line);
+  list-style: none;
+}
+
+.hr-proof li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  color: var(--hm-text);
+}
+
+.hr-proof i {
+  color: var(--hm-pass);
+}
+
+/* ---------- What I'd bring ---------- */
+
+.hr-bring__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hr-bring__item {
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.hr-bring__item h3 {
+  margin: 0 0 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--hm-text);
+}
+
+.hr-bring__item ul {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0 0 0 1.1rem;
+  color: var(--hm-muted);
+  font-size: 0.95rem;
+}
+
+/* ---------- Next step ---------- */
+
+.hr-next {
+  padding-bottom: var(--hm-section);
+}
+
+.hr-next__card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.hr-next__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.4rem;
+}
+
+@media (max-width: 900px) {
+  .hr-brief__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .hr-facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+  }
+}
+
+/* F26: the easter-egg hint and the 60-second video */
+.hr-egg {
+  margin: 1.25rem 0 0;
+  font-size: 0.86rem;
+  color: var(--hm-muted);
+}
+
+.hr-egg kbd {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--hm-line-strong);
+  border-radius: 4px;
+  font-family: var(--hm-mono);
+  font-size: 0.82rem;
+  color: var(--hm-text);
+}
+
+.hr-video__frame {
+  display: block;
+  width: 100%;
+  max-width: 56rem;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--hm-line);
+  border-radius: var(--hm-radius);
+  background: #0d1117;
+}
+
+.hr-video__play {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  overflow: hidden;
+  color: #fff;
+  font: 600 1.05rem var(--hm-sans);
+  cursor: pointer;
+}
+
+.hr-video__play img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+}
+
+.hr-video__play span {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.hr-video__play:focus-visible {
+  outline: 2px solid var(--hm-accent-ink);
+  outline-offset: 3px;
+}

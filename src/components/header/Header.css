@@ -583,6 +583,23 @@
     font-size: 1.1rem;
   }
 
+  /* The checkbox behind the menu icon stays focusable (it was display: none,
+     so the menu couldn't be opened from a keyboard); the icon shows its focus. */
+  .hud .menu-btn {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hud .menu-btn:focus-visible ~ .menu-icon {
+    outline: 2px solid var(--nav-accent, currentColor);
+    outline-offset: 2px;
+  }
+
   .hud .hud-icon-btn.hud-search-compact,
   .hud .menu-icon {
     position: relative;

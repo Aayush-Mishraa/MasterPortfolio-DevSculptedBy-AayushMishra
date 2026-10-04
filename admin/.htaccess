@@ -1,0 +1,27 @@
+# /admin/ (F13): one PHP front controller, server-rendered, never cached or indexed.
+# These rules replace the site's SPA rules for this folder.
+
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Hand the Basic-auth header to PHP (Apache/LiteSpeed keep it otherwise).
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+  # Internals and dotfiles are never served.
+  RewriteRule ^lib(/|$) - [F,L]
+  RewriteRule (^|/)\. - [F,L]
+  # The stylesheet is a real file; the front controller itself stops here.
+  RewriteRule ^assets/[a-z0-9.-]+\.css$ - [L]
+  RewriteRule ^index\.php$ - [L]
+  # Every other admin URL goes to the front controller.
+  RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # "set" replaces the copies PHP sends rather than doubling them.
+  Header set Cache-Control "no-store, private, max-age=0"
+  Header set X-Robots-Tag "noindex, nofollow"
+  Header set X-Frame-Options "DENY"
+</IfModule>

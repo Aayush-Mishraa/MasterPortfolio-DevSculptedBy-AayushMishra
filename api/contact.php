@@ -17,6 +17,7 @@ use Site\FormToken;
 use Site\Http;
 use Site\Mailer;
 use Site\RateLimit;
+use Site\Settings;
 use Site\Validator;
 
 $config = require __DIR__ . '/lib/bootstrap.php';
@@ -121,7 +122,7 @@ $lines[] = 'Reply to this email to answer ' . $name . ' directly.';
 
 $subject = "[{$intentLabel}] {$name}" . ($company !== '' ? " · {$company}" : '');
 $mailer = new Mailer($config);
-$mailed = $mailer->configured() && $mailer->send($config->string('mail_to'), $subject, implode("\n", $lines), [
+$mailed = $mailer->configured() && $mailer->send(Settings::notificationEmail($config, $pdo), $subject, implode("\n", $lines), [
     'reply_to' => $email,
     'reply_name' => $name,
     'headers' => ['X-Site-Lead' => $leadId ? (string) $leadId : 'unsaved'],

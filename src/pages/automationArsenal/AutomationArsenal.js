@@ -814,7 +814,7 @@ const HireBand = () => (
         <a href={greeting.resumeLink} target="_blank" rel="noopener noreferrer" className="aa-btn aa-btn--ghost">
           <i className="fa-regular fa-file-lines" aria-hidden="true" /> View resume
         </a>
-        <Link to="/projects" className="aa-btn aa-btn--ghost">
+        <Link to="/work" className="aa-btn aa-btn--ghost">
           <i className="fa-solid fa-code" aria-hidden="true" /> See live projects
         </Link>
       </div>

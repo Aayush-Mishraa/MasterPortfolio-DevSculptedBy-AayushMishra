@@ -1,59 +1,50 @@
 {
   "desktop /": {
     "aria-prohibited-attr": 1,
-    "button-name": 1,
     "color-contrast": 1
   },
-  "desktop /automation-arsenal": {
-    "button-name": 1
-  },
+  "desktop /about": {},
+  "desktop /automation-arsenal": {},
   "desktop /contact": {
-    "aria-prohibited-attr": 1,
-    "button-name": 1
+    "aria-prohibited-attr": 1
   },
-  "desktop /education": {
-    "button-name": 1
-  },
-  "desktop /experience": {
-    "button-name": 1
-  },
-  "desktop /opensource": {
-    "button-name": 1,
-    "color-contrast": 5
-  },
-  "desktop /projects": {
-    "button-name": 1,
+  "desktop /education": {},
+  "desktop /experience": {},
+  "desktop /hire-me": {},
+  "desktop /services": {},
+  "desktop /services/release-review": {},
+  "desktop /universe": {},
+  "desktop /work": {
     "nested-interactive": 1
   },
-  "desktop /universe": {},
+  "desktop /work/open-source": {
+    "color-contrast": 5
+  },
   "mobile /": {
-    "aria-prohibited-attr": 2,
+    "aria-prohibited-attr": 1,
     "color-contrast": 1
   },
-  "mobile /automation-arsenal": {
-    "aria-prohibited-attr": 1
-  },
+  "mobile /about": {},
+  "mobile /automation-arsenal": {},
   "mobile /contact": {
-    "aria-prohibited-attr": 2
-  },
-  "mobile /education": {
     "aria-prohibited-attr": 1
   },
+  "mobile /education": {},
   "mobile /experience": {
-    "aria-prohibited-attr": 1,
     "scrollable-region-focusable": 1
   },
-  "mobile /opensource": {
-    "aria-prohibited-attr": 1,
-    "color-contrast": 6,
-    "scrollable-region-focusable": 1
+  "mobile /hire-me": {},
+  "mobile /services": {},
+  "mobile /services/release-review": {},
+  "mobile /universe": {
+    "button-name": 1
   },
-  "mobile /projects": {
-    "aria-prohibited-attr": 1,
+  "mobile /work": {
     "nested-interactive": 1,
     "scrollable-region-focusable": 1
   },
-  "mobile /universe": {
-    "button-name": 1
+  "mobile /work/open-source": {
+    "color-contrast": 6,
+    "scrollable-region-focusable": 1
   }
 }

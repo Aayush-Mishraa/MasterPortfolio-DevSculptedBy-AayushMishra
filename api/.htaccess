@@ -11,7 +11,7 @@ DirectoryIndex health.php
   RewriteCond %{HTTP:Authorization} .
   RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
   # Internals: code, migrations, tests, dependencies and any config file.
-  RewriteRule ^(lib|migrations|tests|vendor)(/|$) - [F,L]
+  RewriteRule ^(lib|migrations|tests|vendor|assets|data)(/|$) - [F,L]
   RewriteRule (^|/)\. - [F,L]
   RewriteRule \.(sql|md|json|lock|xml|dist|log|ini|txt|cnt)$ - [F,L]
   RewriteRule ^config(\.example)?\.php$ - [F,L]

@@ -18,7 +18,7 @@ const REVEALS = [
 ];
 
 test.describe("F09 hygiene", () => {
-  for (const path of ["/", "/contact", "/projects", "/opensource", "/projects/AutoCart-Engine-FW-"]) {
+  for (const path of ["/", "/contact", "/work", "/work/open-source", "/projects/AutoCart-Engine-FW-"]) {
     test(`${path}: reveal blocks are visible before they scroll into view`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion: "no-preference" });
       await gotoReady(page, path);
@@ -63,8 +63,9 @@ test.describe("F09 hygiene", () => {
   });
 
   test("the résumé link opens a PDF", async ({ page, request }) => {
-    await gotoReady(page, "/");
-    const href = await page.locator(".hm-hero__actions a", { hasText: "Résumé" }).getAttribute("href");
+    // F10: the home page is services-first; the résumé lives on /hire-me.
+    await gotoReady(page, "/hire-me");
+    const href = await page.locator(".hr-hero__actions a", { hasText: "Résumé" }).getAttribute("href");
     expect(href).toBeTruthy();
     if (href!.startsWith("/")) {
       const response = await request.get(href!);
@@ -76,7 +77,7 @@ test.describe("F09 hygiene", () => {
     }
   });
 
-  for (const path of ["/", "/experience", "/education", "/automation-arsenal", "/projects", "/opensource", "/contact", "/universe"]) {
+  for (const path of ["/", "/experience", "/education", "/automation-arsenal", "/work", "/work/open-source", "/about", "/hire-me", "/services", "/services/release-review", "/contact", "/universe"]) {
     test(`${path}: no layout shift on load`, async ({ page }) => {
       await page.addInitScript(() => {
         (window as any).__shifts = [];

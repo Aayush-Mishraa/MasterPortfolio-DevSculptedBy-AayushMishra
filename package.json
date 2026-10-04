@@ -19,7 +19,7 @@
     "fetch-github-data": "node scripts/automation/git_data_fetcher.mjs",
     "fetch-projects": "node scripts/automation/fetch_projects_snapshot.mjs",
     "auto-refresh": "node scripts/automation/auto-refresh.mjs",
-    "spell": "cspell --no-progress \"src/portfolio.js\" \"src/pages/**/*.js\" \"src/components/{CreativeFooter,header,seoHeader,topButton,themeSelector}/*.js\" \"public/index.html\" \"public/manifest.json\" \"public/robots.txt\" \"public/llms.txt\""
+    "spell": "cspell --no-progress \"src/portfolio.js\" \"src/pages/**/*.js\" \"src/data/*.js\" \"src/components/{CreativeFooter,header,seoHeader,topButton,themeSelector}/*.js\" \"public/index.html\" \"public/manifest.json\" \"public/robots.txt\" \"public/llms.txt\""
   },
   "dependencies": {
     "@studio-freight/lenis": "^1.0.19",

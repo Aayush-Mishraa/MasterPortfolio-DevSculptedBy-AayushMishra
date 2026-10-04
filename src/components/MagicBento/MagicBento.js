@@ -517,7 +517,7 @@ const MagicBento = () => {
             </ul>
           </Tile>
 
-          <Tile to="/projects" className="ov-span-7" tag="Projects" index="06">
+          <Tile to="/work" className="ov-span-7" tag="Projects" index="06">
             <h3 className="ov-tile__title">Solutions built</h3>
             <div className="ov-metrics">
               {projects.map((p) => (

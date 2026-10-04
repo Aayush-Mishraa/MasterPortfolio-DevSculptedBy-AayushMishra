@@ -414,7 +414,7 @@ function Shell({ id }) {
       ...(music.track ? [{ id: "next", group: "Actions", label: "Next track", icon: "next", keywords: "skip music", run: music.next }] : []),
       { id: "theme", group: "Actions", label: theme === "dark" ? "Switch to Daylight theme" : "Switch to Deep Space theme", icon: theme === "dark" ? "sun" : "moon", keywords: "theme light dark", run: toggleTheme },
       { id: "rail", group: "Actions", label: railOpen ? "Collapse sidebar" : "Expand sidebar", icon: "sidebar", run: () => setRailOpen((value) => !value) },
-      { id: "portfolio", group: "Actions", label: "Back to Aayush's portfolio", icon: "arrowLeft", keywords: "home portfolio", run: () => go("/opensource") },
+      { id: "portfolio", group: "Actions", label: "Back to Aayush's portfolio", icon: "arrowLeft", keywords: "home portfolio", run: () => go("/work/open-source") },
     ],
     [go, music, theme, toggleTheme, railOpen, setRailOpen]
   );
@@ -502,7 +502,7 @@ function Shell({ id }) {
             <button type="button" className="uv-ghost-btn" onClick={() => setRailOpen((value) => !value)} aria-label={railOpen ? "Collapse sidebar" : "Expand sidebar"}>
               <Icon name="sidebar" size={18} />
             </button>
-            <Link to="/opensource" className="uv-ghost-btn uv-rail-exit" title="Back to the portfolio">
+            <Link to="/work/open-source" className="uv-ghost-btn uv-rail-exit" title="Back to the portfolio">
               <Icon name="arrowLeft" size={18} />
               <span>Portfolio</span>
             </Link>
@@ -573,7 +573,7 @@ function Shell({ id }) {
             <footer className="uv-footer">
               <span>
                 Tech Universe is part of{" "}
-                <Link to="/opensource" className="uv-link">
+                <Link to="/work/open-source" className="uv-link">
                   Aayush Mishra's open-source work
                 </Link>
                 . Built in the open on free, public APIs.
@@ -610,7 +610,7 @@ function Shell({ id }) {
               <button type="button" className="uv-btn uv-btn--ghost" onClick={toggleTheme}>
                 <Icon name={theme === "dark" ? "sun" : "moon"} size={16} /> {theme === "dark" ? "Daylight" : "Deep Space"}
               </button>
-              <Link to="/opensource" className="uv-btn uv-btn--ghost">
+              <Link to="/work/open-source" className="uv-btn uv-btn--ghost">
                 <Icon name="arrowLeft" size={16} /> Portfolio
               </Link>
             </div>

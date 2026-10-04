@@ -1,17 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import {
-  AI_AGENTS,
-  CAREER_START,
-  CORE_STACK,
-  EDUCATION,
-  HIGHLIGHTS,
-  PROFILE,
-  formatMonth,
-  utcLabel,
-  yearsSince,
-} from "../homeData";
+import { CAREER_START, PROFILE, yearsSince } from "../homeData";
+import { briefFacts, briefPlainText, briefProof } from "./briefData";
 import { prefersReducedMotion } from "../lib/motion";
 import bugLog from "../../../shared/opensource/bug_log.json";
 import SignedOffFilm from "./film/SignedOffFilm";
@@ -30,12 +21,13 @@ import { runAudit, summarize } from "./film/liveAudit";
   Two things on the card are live rather than written: the bug log (real fix
   commits, curated at build time) and the audit of this page, run in the
   visitor's browser (by the film, or here when the film didn't play).
+
+  With filmOnly (the "Hire me" buttons) there is no card: the film fades out
+  to the page underneath and the brief closes.
 */
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-const coreStack = CORE_STACK;
-const aiTools = AI_AGENTS;
 const filmFirst = () => !prefersReducedMotion();
 const FIXES = bugLog.fixes.slice(0, 3);
 const shortRepo = (name) => name.replace(/-+$/, "").replace(/-DevSculptedBy-AayushMishra$/i, "");
@@ -43,7 +35,7 @@ const shortDate = (iso) =>
   new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 const githubUser = (PROFILE.github || "").split("/").filter(Boolean).pop();
 
-export default function RecruiterBrief({ open, onClose, github, style }) {
+export default function RecruiterBrief({ open, onClose, github, style, filmOnly = false }) {
   const panelRef = useRef(null);
   const [copied, setCopied] = useState(false);
   // "playing" -> "leaving" (the card mounts under the fading film) -> "off"
@@ -51,71 +43,15 @@ export default function RecruiterBrief({ open, onClose, github, style }) {
   const [take, setTake] = useState(0);
   const [credits, setCredits] = useState(false);
   const [audit, setAudit] = useState(null);
-  const showCard = film !== "playing";
+  const showCard = film !== "playing" && !filmOnly;
   // Whatever opened the brief, noted while rendering: the film takes focus in
   // its own effects, which run before this component's.
   const opener = useRef(null);
   if (open && !opener.current) opener.current = document.activeElement;
   const years = yearsSince(CAREER_START);
-  const contributions = github && github.stats ? github.stats.contributions : null;
-
-  const facts = useMemo(
-    () => [
-      {
-        label: "Now",
-        value: PROFILE.role,
-        note: `Leading the QA team since ${formatMonth(PROFILE.since)}`,
-      },
-      {
-        label: "Experience",
-        value: `${years}+ years in QA automation`,
-        note: `Full-time since ${formatMonth(CAREER_START)}`,
-      },
-      {
-        label: "Open to",
-        value: PROFILE.openTo.join(" · "),
-        note: PROFILE.workModes,
-      },
-      {
-        label: "Location",
-        value: PROFILE.country,
-        note: `IST (${utcLabel()}) · replies in ${PROFILE.responseTime}`,
-      },
-      {
-        label: "Core stack",
-        value: coreStack.slice(0, 6).join(" · "),
-        note: coreStack.slice(6).join(" · "),
-      },
-      {
-        label: "AI testing",
-        value: aiTools.join(" · "),
-        note: "Agentic test authoring, with a human reviewing every test",
-      },
-      {
-        label: "Education",
-        value: EDUCATION.map((item) => item.degree.replace(/\s*\(AI\)/, "")).join(" · "),
-        note: EDUCATION.map((item) => item.school).join(" · "),
-      },
-    ],
-    [years]
-  );
-
-  const proof = [HIGHLIGHTS.testCases, HIGHLIGHTS.bugs, HIGHLIGHTS.suites]
-    .map((item) => `${item.value} ${item.label}`)
-    .concat(contributions ? [`${contributions.toLocaleString("en-US")} GitHub contributions in the last year`] : []);
-
-  const plainText = () =>
-    [`${PROFILE.name} — ${PROFILE.role}`]
-      .concat(facts.map((fact) => `${fact.label}: ${fact.value}${fact.note ? ` (${fact.note})` : ""}`))
-      .concat([
-        `Highlights: ${proof.join(" · ")}`,
-        `Résumé: ${PROFILE.resume}`,
-        `Email: ${PROFILE.email}`,
-        `LinkedIn: ${PROFILE.linkedin}`,
-        `GitHub: ${PROFILE.github}`,
-        `Portfolio: ${window.location.origin}`,
-      ])
-      .join("\n");
+  const facts = useMemo(() => briefFacts(years), [years]);
+  const proof = briefProof(github);
+  const plainText = () => briefPlainText(facts, proof, window.location.origin);
 
   const copy = () => {
     const done = () => {
@@ -195,20 +131,31 @@ export default function RecruiterBrief({ open, onClose, github, style }) {
     setCredits(true);
     setFilm("leaving");
   }, []);
-  const filmGone = useCallback(() => setFilm("off"), []);
+  const filmGone = useCallback(() => {
+    setFilm("off");
+    if (filmOnly) onClose();
+  }, [filmOnly, onClose]);
   const filmAudit = useCallback((result) => setAudit(result), []);
 
   if (!open) return null;
 
   return createPortal(
     <div
-      className="hm hm-brief"
+      className={`hm hm-brief${filmOnly ? " hm-brief--film-only" : ""}`}
       style={style}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      {film !== "off" && <SignedOffFilm key={take} onLeave={filmLeaving} onGone={filmGone} onAudit={filmAudit} />}
+      {film !== "off" && (
+        <SignedOffFilm
+          key={take}
+          next={filmOnly ? "page" : "brief"}
+          onLeave={filmLeaving}
+          onGone={filmGone}
+          onAudit={filmAudit}
+        />
+      )}
       {showCard && (
         <div
           className={`hm-brief__panel${credits ? " hm-brief__panel--credits" : ""}`}

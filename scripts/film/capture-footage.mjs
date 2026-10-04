@@ -160,7 +160,7 @@ async function film(page, name, seconds, trigger) {
   await page.context().close();
 
   // The skyline rises when it scrolls into view: film from that moment.
-  page = await open(browser, "/opensource");
+  page = await open(browser, "/work/open-source");
   await film(page, "site-skyline", 2.6, () => jumpTo(page, "#os-skyline", 40));
   await page.context().close();
 
@@ -172,7 +172,7 @@ async function film(page, name, seconds, trigger) {
   await shot(page, "site-universe");
   await page.context().close();
 
-  page = await open(browser, "/projects");
+  page = await open(browser, "/work");
   await shot(page, "site-projects");
   await page.context().close();
 

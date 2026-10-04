@@ -1,0 +1,130 @@
+/* F26 · the "sudo hire aayush" terminal. Always dark, like a real terminal. */
+
+.sudo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(2, 6, 23, 0.6);
+  backdrop-filter: blur(3px);
+}
+
+.sudo {
+  width: min(100%, 38rem);
+  overflow: hidden;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  background: #0d1117;
+  color: #e6edf3;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  font: 0.88rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.sudo:focus {
+  outline: none;
+}
+
+.sudo__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid #30363d;
+  background: #161b22;
+}
+
+.sudo__bar > span {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: #f85149;
+}
+
+.sudo__bar > span:nth-child(2) {
+  background: #d29922;
+}
+
+.sudo__bar > span:nth-child(3) {
+  background: #3fb950;
+}
+
+.sudo__bar em {
+  flex: 1;
+  margin-left: 0.5rem;
+  font-style: normal;
+  color: #8b949e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sudo__close {
+  min-width: 36px;
+  min-height: 36px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #e6edf3;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.sudo__close:focus-visible,
+.sudo__btn:focus-visible {
+  outline: 2px solid #79c0ff;
+  outline-offset: 2px;
+}
+
+.sudo__body {
+  margin: 0;
+  padding: 1rem 1.1rem 0.5rem;
+  list-style: none;
+  min-height: 12rem;
+}
+
+.sudo__body li {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sudo__body .is-cmd {
+  color: #79c0ff;
+}
+
+.sudo__body .is-dim {
+  color: #8b949e;
+}
+
+.sudo__body .is-ok {
+  color: #56d364;
+}
+
+.sudo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.5rem 1.1rem 1.2rem;
+}
+
+.sudo__btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #e6edf3;
+  text-decoration: none;
+}
+
+.sudo__btn:hover {
+  border-color: #79c0ff;
+}
+
+.sudo__btn--primary {
+  border-color: #238636;
+  background: #238636;
+  color: #fff;
+}

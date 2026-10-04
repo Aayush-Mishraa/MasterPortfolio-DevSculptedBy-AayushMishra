@@ -1,0 +1,167 @@
+/* F31 · /ask: the site assistant. Shares the tool pages' styles (Tools.css). */
+
+.ask-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: start;
+}
+
+.ask-thread {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ask-thread:not(:empty) {
+  margin-bottom: 1.5rem;
+}
+
+.ask-item {
+  padding: 1.1rem 1.25rem;
+}
+
+.ask-q {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+  color: var(--hm-text);
+}
+
+.ask-q i {
+  margin-right: 0.35rem;
+  color: var(--hm-accent-ink);
+}
+
+.ask-answer:focus {
+  outline: none;
+}
+
+.ask-answer .ft-hint {
+  margin: 0 0 0.4rem;
+}
+
+.ask-answer__text {
+  margin: 0;
+  color: var(--hm-text);
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.ask-cite {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.3rem;
+  height: 1.3rem;
+  margin: 0 0.1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: rgba(var(--hm-accent-rgb), 0.14);
+  color: var(--hm-accent-ink);
+  font: 600 0.72rem var(--hm-mono);
+  text-decoration: none;
+  vertical-align: 0.1em;
+}
+
+.ask-evals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.9rem 0 0;
+}
+
+.ask-evals > div {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--hm-line);
+  border-radius: var(--hm-radius-sm);
+  background: var(--hm-raised);
+}
+
+.ask-evals dt {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+}
+
+.ask-evals dd {
+  margin: 0;
+  font: 700 0.95rem var(--hm-mono);
+}
+
+.ask-sources {
+  margin-top: 0.9rem;
+}
+
+.ask-sources summary {
+  font-weight: 600;
+  color: var(--hm-accent-ink);
+  cursor: pointer;
+}
+
+.ask-sources ol {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.6rem 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+}
+
+.ask-sources li a {
+  display: block;
+  font-weight: 600;
+  color: var(--hm-text);
+}
+
+.ask-sources li span {
+  color: var(--hm-muted);
+}
+
+.ask-form {
+  margin-top: 0;
+}
+
+.ask-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.ask-chip {
+  min-height: 40px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.ask-chip:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.ask-side {
+  position: sticky;
+  top: 6rem;
+}
+
+.ask-how {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--hm-text);
+  line-height: 1.55;
+}
+
+@media (max-width: 860px) {
+  .ask-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ask-side {
+    position: static;
+  }
+}

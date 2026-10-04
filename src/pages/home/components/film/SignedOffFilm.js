@@ -52,7 +52,8 @@ const AUDIT_AT = 15.6;
 const AUDIT_STEP = 0.4;
 const EQ_BARS = 5;
 
-export default function SignedOffFilm({ onLeave, onGone, onAudit }) {
+// next: what the film hands off to, "brief" (the card) or "page" (/hire-me).
+export default function SignedOffFilm({ onLeave, onGone, onAudit, next = "brief" }) {
   const rootRef = useRef(null);
   const canvasRef = useRef(null);
   const timecodeRef = useRef(null);
@@ -311,7 +312,7 @@ export default function SignedOffFilm({ onLeave, onGone, onAudit }) {
       className={`sf${leaving ? " sf--leaving" : ""}`}
       role="dialog"
       aria-modal="true"
-      aria-label={`Signed Off: a 30-second film about ${PROFILE.name}. Press Escape to skip to the brief.`}
+      aria-label={`Signed Off: a 30-second film about ${PROFILE.name}. Press Escape to skip to the ${next}.`}
       ref={rootRef}
       tabIndex={-1}
       data-lenis-prevent
@@ -391,7 +392,7 @@ export default function SignedOffFilm({ onLeave, onGone, onAudit }) {
             {done ? (
               <span className="sf-runner__pass">
                 <i className="fa-solid fa-check" aria-hidden="true" /> {SCENES.length} passing ({RUNTIME}s)
-                <em> · opening the brief</em>
+                <em> · opening the {next}</em>
               </span>
             ) : (
               <>
@@ -420,7 +421,7 @@ export default function SignedOffFilm({ onLeave, onGone, onAudit }) {
         </div>
 
         <button type="button" className="sf-skip" onClick={api("leave")}>
-          Skip to brief <i className="fa-solid fa-forward" aria-hidden="true" />
+          Skip to {next} <i className="fa-solid fa-forward" aria-hidden="true" />
         </button>
       </footer>
     </div>

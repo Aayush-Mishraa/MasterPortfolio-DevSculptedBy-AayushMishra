@@ -23,6 +23,7 @@ import SyncPill from "./components/SyncPill";
 import { themeVars, useCountUp, useInView, useNow, useOffScreenClass } from "./lib/ui";
 import useReloadScroll from "./lib/useReloadScroll";
 import "./ProjectsPage.css";
+import WorkTabs from "../work/WorkTabs";
 
 const SORTS = [
   { id: "recent", label: "Recently pushed" },
@@ -273,7 +274,7 @@ export default function ProjectsPage({ theme }) {
       `Stack: ${stats.languages.slice(0, 5).map((language) => language.name).join(", ")}`,
       topSkills.length ? `Focus: ${topSkills.join(", ")}` : "",
       `Top projects: ${featured.map((repo) => `${repo.title} (${repo.url})`).join("; ")}`,
-      `Portfolio: ${window.location.origin}/projects · GitHub: ${greeting.githubProfile}`,
+      `Portfolio: ${window.location.origin}/work · GitHub: ${greeting.githubProfile}`,
     ]
       .filter(Boolean)
       .join("\n");
@@ -294,11 +295,13 @@ export default function ProjectsPage({ theme }) {
       </div>
 
       <main className="pj-main">
+        <WorkTabs counts={loading ? {} : { "/work": stats.ownCount, "/work/open-source": stats.contributions }}>
+          <SyncPill status={status} now={now} />
+        </WorkTabs>
         {/* ------------------------------- HERO ------------------------------- */}
         <section className="pj-hero" ref={heroRef}>
           <div className="pj-hero-copy">
-            <SyncPill status={status} now={now} />
-            <span className="pj-kicker pj-kicker--hero">Projects · Live engineering log</span>
+            <span className="pj-kicker pj-kicker--hero">Work · Projects, live from GitHub</span>
             <h1 className="pj-hero-title">
               <span className="pj-reveal" style={{ "--d": "0ms" }}>Quality engineering,</span>
               <span className="pj-reveal pj-gradient-text" style={{ "--d": "120ms" }}>shipped in public.</span>

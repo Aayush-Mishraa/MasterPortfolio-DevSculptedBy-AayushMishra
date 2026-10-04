@@ -393,10 +393,11 @@
   }
 }
 
-/* While the rail shows, keep the content gutter clear of it. */
+/* While the rail shows, keep the content clear of it. Right side only, so the
+   left edge lines up with the Projects page (the two share the Work switch). */
 @media (min-width: 1321px) {
-  .os-root {
-    --os-pad: 68px;
+  .os-main {
+    padding-right: 68px;
   }
 }
 

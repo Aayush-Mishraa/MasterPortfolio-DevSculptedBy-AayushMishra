@@ -22,6 +22,7 @@ import ecosystem from "../../shared/opensource/contributed_organizations.json";
 import { MODULES as UNIVERSE } from "../universe/modules";
 import { Glyph } from "../universe/icons";
 import "./Opensource.css";
+import WorkTabs from "../work/WorkTabs";
 
 const SECTIONS = [
   { id: "os-overview", label: "Overview" },
@@ -367,16 +368,18 @@ export default function Opensource({ theme }) {
       </nav>
 
       <main className="os-main">
+        <WorkTabs counts={loading ? {} : { "/work": stats.ownCount, "/work/open-source": stats.contributions }}>
+          <span className="os-status-pill os-reveal" style={{ "--d": "0ms" }}>
+            <span className="os-live-dot">
+              <i />
+            </span>
+            {stats.lastPush ? `Last commit ${timeAgo(stats.lastPush, now)}` : "Connecting to GitHub…"}
+            <em>Open to SDET roles</em>
+          </span>
+        </WorkTabs>
         {/* ------------------------------ HERO ------------------------------ */}
         <section className="os-hero" id="os-overview">
           <div className="os-hero-copy">
-            <span className="os-status-pill os-reveal" style={{ "--d": "0ms" }}>
-              <span className="os-live-dot">
-                <i />
-              </span>
-              {stats.lastPush ? `Last commit ${timeAgo(stats.lastPush, now)}` : "Connecting to GitHub…"}
-              <em>Open to SDET roles</em>
-            </span>
             <h1 className="os-hero-title">
               <span className="os-reveal" style={{ "--d": "80ms" }}>
                 Open source,
@@ -410,7 +413,7 @@ export default function Opensource({ theme }) {
               <a href={`https://github.com/${GITHUB_USERNAME}`} target="_blank" rel="noopener noreferrer" className="os-btn os-btn--ghost">
                 <i className="fa-brands fa-github" aria-hidden="true" /> Follow on GitHub
               </a>
-              <Link to="/projects" className="os-btn os-btn--link">
+              <Link to="/work" className="os-btn os-btn--link">
                 All projects <i className="fa-solid fa-arrow-right" aria-hidden="true" />
               </Link>
             </div>

@@ -9,7 +9,8 @@
 */
 
 const BASE = `${process.env.PUBLIC_URL || ""}/data/github`;
-const DATA_PAGE = /^\/(projects|opensource)(\/|$)/;
+// The pages that render from the snapshot: Work, Open Source and each repo.
+const DATA_PAGE = /^\/(work|work\/open-source|projects\/[^/]+)\/?$/;
 const PROJECT_PAGE = /^\/projects\/([^/]+)\/?$/;
 
 let index;

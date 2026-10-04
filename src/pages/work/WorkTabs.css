@@ -1,0 +1,242 @@
+/*
+  F10: the Work switch (Projects · Open source), first thing in both pages'
+  <main>, above the hero, so it sits in exactly the same spot on both. A quiet segmented control: it shouldn't outshout the headline or
+  the primary button, it should just be obviously clickable. Uses --pj-* tokens.
+*/
+.wk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  position: relative;
+  z-index: 2;
+}
+
+/* The status pill that sits beside the switch keeps its own look, minus spacing */
+.wk-bar > :not(.wk-tabs) {
+  margin: 0;
+}
+
+.wk-tabs ul {
+  display: inline-flex;
+  gap: 2px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border: 1px solid var(--pj-line);
+  border-radius: 14px;
+  background: var(--pj-bg-deep);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.wk-tabs__link {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 0 14px 0 13px;
+  border-radius: 10px;
+  color: var(--pj-ink-soft);
+  font-family: var(--pj-font-ui, inherit);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.wk-tabs__link > i {
+  display: inline-block;
+  color: var(--pj-muted);
+  font-size: 0.9em;
+  transition: color 0.2s ease;
+}
+
+.wk-tabs__link:hover {
+  color: var(--pj-ink);
+  background: var(--pj-accent-soft);
+}
+
+.wk-tabs__link:hover > i {
+  color: var(--pj-accent-ink);
+}
+
+.wk-tabs__count {
+  min-width: 26px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--pj-line);
+  color: var(--pj-muted);
+  font-family: var(--pj-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  text-align: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* The page you're on: a raised segment */
+.wk-tabs__link.is-active {
+  color: var(--pj-ink);
+  background: transparent;
+}
+
+.wk-tabs__link.is-active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--pj-surface-raised);
+  box-shadow: 0 0 0 1px var(--pj-line), 0 1px 2px rgba(0, 0, 0, 0.06), 0 6px 16px -8px var(--pj-accent-glow);
+}
+
+.wk-tabs__link.is-active > i {
+  color: var(--pj-accent-ink);
+}
+
+.wk-tabs__link.is-active .wk-tabs__count {
+  background: var(--pj-accent-soft);
+  color: var(--pj-accent-ink);
+}
+
+.wk-tabs__link:focus-visible {
+  outline: 2px solid var(--pj-accent-ink);
+  outline-offset: 2px;
+}
+
+.wk-tabs__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Arriving from the other tab: the raised segment slides in from its side */
+@media (prefers-reduced-motion: no-preference) {
+  .wk-tabs__link--start.is-active::before {
+    animation: wk-slide-from-end 0.45s var(--pj-ease, ease) both;
+  }
+
+  .wk-tabs__link--end.is-active::before {
+    animation: wk-slide-from-start 0.45s var(--pj-ease, ease) both;
+  }
+}
+
+@keyframes wk-slide-from-end {
+  from {
+    transform: translateX(70%);
+    opacity: 0;
+  }
+}
+
+@keyframes wk-slide-from-start {
+  from {
+    transform: translateX(-70%);
+    opacity: 0;
+  }
+}
+
+/*
+  Motion, all of it skipped with reduced motion:
+  - the tab you're not on gets a light sweep every few seconds (an invitation),
+  - icons give a small nudge on hover,
+  - count chips pop in when the data arrives (the number rolls up in JS).
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .wk-tabs__link:not(.is-active) {
+    overflow: hidden;
+  }
+
+  .wk-tabs__link:not(.is-active)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      105deg,
+      transparent 25%,
+      var(--pj-accent-soft) 40%,
+      var(--pj-accent-glow) 50%,
+      var(--pj-accent-soft) 60%,
+      transparent 75%
+    );
+    transform: translateX(-110%);
+    animation: wk-sheen 6s ease-in-out 1.6s infinite;
+    pointer-events: none;
+  }
+
+  .wk-tabs__link:not(.is-active):hover::after {
+    animation-play-state: paused;
+    opacity: 0;
+  }
+
+  .wk-tabs__link:hover > i {
+    animation: wk-nudge 0.6s var(--pj-ease, ease);
+  }
+
+  .wk-tabs__count {
+    animation: wk-pop 0.5s var(--pj-ease, ease) 0.15s both;
+  }
+}
+
+@keyframes wk-sheen {
+  0% {
+    transform: translateX(-110%);
+  }
+  22%,
+  100% {
+    transform: translateX(110%);
+  }
+}
+
+@keyframes wk-nudge {
+  0% {
+    transform: none;
+  }
+  30% {
+    transform: rotate(-14deg) scale(1.18);
+  }
+  60% {
+    transform: rotate(8deg) scale(1.08);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes wk-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+/* Phones: the switch spans the column, two equal halves */
+@media (max-width: 560px) {
+  .wk-tabs {
+    width: 100%;
+  }
+
+  .wk-tabs ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .wk-tabs__link {
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 10px;
+  }
+}

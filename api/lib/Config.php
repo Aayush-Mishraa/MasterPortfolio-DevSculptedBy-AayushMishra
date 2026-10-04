@@ -32,7 +32,7 @@ final class Config
         }
         $candidates = array_filter([
             getenv('SITE_API_CONFIG') ?: null,
-            dirname(__DIR__, 3) . '/private/api-config.php',
+            self::privateDir() . '/' . self::prefix() . 'api-config.php',
             dirname(__DIR__) . '/config.php',
         ]);
         foreach ($candidates as $file) {
@@ -44,6 +44,33 @@ final class Config
             }
         }
         return self::$instance = new self(self::withDefaults([]), 'missing');
+    }
+
+    /**
+     * The web root this copy of the API is deployed in: public_html (the site)
+     * or a folder inside it that a subdomain points at (public_html/staging).
+     */
+    private static function webRoot(): string
+    {
+        return dirname(__DIR__, 2);
+    }
+
+    /** "staging-" for a copy in public_html/staging, "" for the site itself. */
+    private static function prefix(): string
+    {
+        $root = self::webRoot();
+        return basename(dirname($root)) === 'public_html' ? basename($root) . '-' : '';
+    }
+
+    /**
+     * domains/aayushmishra.engineer/private: next to public_html, outside every
+     * web root. The staging copy keeps its own files there (staging-api-config.php).
+     */
+    private static function privateDir(): string
+    {
+        $root = self::webRoot();
+        $domain = self::prefix() === '' ? dirname($root) : dirname($root, 2);
+        return $domain . '/private';
     }
 
     /** For tests: use these values instead of a file. */
@@ -71,6 +98,23 @@ final class Config
             'mail_to' => '',
             // api_base: only tests change it (a fake Buttondown)
             'buttondown' => ['api_key' => '', 'webhook_secret' => '', 'api_base' => ''],
+            // F12: signs Cal.com's booking webhooks
+            'cal' => ['webhook_secret' => ''],
+            // F13: the HTTP Basic gate in front of /admin (the password only as a password_hash)
+            'admin' => ['basic_user' => '', 'basic_pass_hash' => ''],
+            // F24: the scanner starts a GitHub Actions job (repository_dispatch) and
+            // the job reports back signed with callback_secret.
+            'scanner' => [
+                'github_token' => '',
+                'repo' => 'Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra',
+                'callback_secret' => '',
+                'daily_cap' => 30,
+                'api_base' => '',
+            ],
+            // F31: the site assistant. Off while api_key is empty; api_base only for tests.
+            'anthropic' => ['api_key' => '', 'model' => 'claude-haiku-4-5', 'daily_cap' => 200, 'api_base' => ''],
+            // F30: where NeuralForge lives (the sign-in links point here).
+            'neuralforge' => ['url' => 'https://neuralforge.aayushmishra.engineer'],
             // The real client IP when a proxy/CDN sits in front: the name of the
             // $_SERVER key it fills (e.g. HTTP_X_FORWARDED_FOR), or '' for REMOTE_ADDR.
             'client_ip_header' => '',
@@ -89,7 +133,7 @@ final class Config
 
     private static function label(string $file): string
     {
-        if (str_ends_with($file, '/private/api-config.php')) {
+        if (str_ends_with($file, 'api-config.php') && str_contains($file, '/private/')) {
             return 'private';
         }
         if (getenv('SITE_API_CONFIG') && $file === getenv('SITE_API_CONFIG')) {
@@ -153,7 +197,7 @@ final class Config
     {
         $dir = $this->string('state_dir');
         if ($dir === '') {
-            $dir = dirname(__DIR__, 3) . '/private/api-state';
+            $dir = self::privateDir() . '/' . self::prefix() . 'api-state';
         }
         return rtrim($dir, '/');
     }

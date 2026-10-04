@@ -175,7 +175,9 @@ final class Http
                 }
             }
         }
-        if ($header === '' && self::header('X-Admin-Token') !== '') {
+        // X-Admin-Token also works when Authorization is taken by a Basic login
+        // (the password-protected staging site).
+        if (!preg_match('/^Bearer\s/i', $header) && self::header('X-Admin-Token') !== '') {
             $header = 'Bearer ' . self::header('X-Admin-Token');
         }
         return preg_match('/^Bearer\s+(\S+)$/i', $header, $match) ? $match[1] : '';

@@ -90,9 +90,10 @@ const server = http.createServer((req, res) => {
   if (pathname === "/" && isFile(path.join(ROOT, "index.html"))) return send(res, 200, path.join(ROOT, "index.html"));
 
   const route = pathname.replace(/\/+$/, "");
-  if (route === "/home") {
-    // Like public/.htaccess: one home URL, query string kept.
-    res.writeHead(301, { Location: `/${new URL(req.url, "http://localhost").search}` });
+  // Like public/.htaccess: one home URL, and the pages that moved under Work (query string kept).
+  const moved = { "/home": "/", "/projects": "/work", "/opensource": "/work/open-source" }[route];
+  if (moved) {
+    res.writeHead(301, { Location: `${moved}${new URL(req.url, "http://localhost").search}` });
     res.end();
     return;
   }

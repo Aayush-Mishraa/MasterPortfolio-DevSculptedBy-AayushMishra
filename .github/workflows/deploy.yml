@@ -26,11 +26,11 @@ jobs:
     steps:
       # Step 1: Checkout repository source code
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Step 2: Set up Node.js
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '16'
           cache: 'npm'
@@ -50,7 +50,7 @@ jobs:
       # Step 4a: prerender every route into real HTML (F06), then check the raw HTML
       # (unique titles, canonicals, contact text, 404 page) before anything ships.
       - name: Set up Node 20 for the prerender
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20'
 
@@ -82,6 +82,18 @@ jobs:
       - name: Stage the API into the build
         run: node scripts/deploy/stage-api.mjs
 
+      # Stage 3 + 4: the files that need the staged build (build/api is new after stage-api).
+      - name: Build the downloadable PDFs (checklist, recruiter kit)
+        run: node scripts/magnets/build-pdfs.mjs
+
+      - name: Build the site assistant's knowledge (F31)
+        run: node scripts/ask/build-corpus.mjs
+
+      - name: Build NeuralForge for its subdomain (F30)
+        env:
+          NEURALFORGE_LIVE: ${{ vars.NEURALFORGE_LIVE }}
+        run: node scripts/neuralforge/build.mjs
+
       # Written outside the web root (domains/aayushmishra.engineer/private/); missing
       # secrets leave those settings empty and /api/health.php reports them.
       - name: Write the API config from secrets
@@ -100,6 +112,14 @@ jobs:
           MAIL_TO: ${{ secrets.MAIL_TO }}
           BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
           BUTTONDOWN_WEBHOOK_SECRET: ${{ secrets.BUTTONDOWN_WEBHOOK_SECRET }}
+          CAL_WEBHOOK_SECRET: ${{ secrets.CAL_WEBHOOK_SECRET }}
+          ADMIN_BASIC_USER: ${{ secrets.ADMIN_BASIC_USER }}
+          ADMIN_BASIC_PASS: ${{ secrets.ADMIN_BASIC_PASS }}
+          SCANNER_GITHUB_TOKEN: ${{ secrets.SCANNER_GITHUB_TOKEN }}
+          SCAN_CALLBACK_SECRET: ${{ secrets.SCAN_CALLBACK_SECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ASK_DAILY_CAP: ${{ vars.ASK_DAILY_CAP }}
+          NEURALFORGE_URL: ${{ vars.NEURALFORGE_URL }}
         run: php scripts/deploy/write-api-config.php deploy-private/api-config.php
 
       # Step 5: Upload website files to Hostinger public_html via FTP
@@ -146,7 +166,7 @@ jobs:
           echo "FTP_PORT_EFFECTIVE=$FTP_PORT_EFFECTIVE" >> $GITHUB_ENV
 
       - name: Deploy files via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -184,7 +204,7 @@ jobs:
 
       # Step 5b: the API config goes next to public_html, never inside it.
       - name: Upload the API config (outside the web root)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -210,7 +230,7 @@ jobs:
       # Step 6: Upload additional standalone apps that must also live under public_html
       - name: Deploy contentmanagementsystem folder
         if: ${{ hashFiles('contentmanagementsystem/**') != '' }}
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -224,7 +244,7 @@ jobs:
 
       - name: Deploy prestashopecommerce folder
         if: ${{ hashFiles('prestashopecommerce/**') != '' }}
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -238,7 +258,7 @@ jobs:
 
       - name: Deploy ecommerceautomation folder
         if: ${{ hashFiles('ecommerceautomation/**') != '' }}
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}

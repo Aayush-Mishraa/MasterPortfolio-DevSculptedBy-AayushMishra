@@ -445,7 +445,7 @@ export default function ProjectDetail({ theme }) {
           <span className="pj-kicker">404 — repository not found</span>
           <h1 className="pj-hero-title">“{name}” isn't on GitHub.</h1>
           <p className="pj-hero-sub">It may have been renamed, made private or deleted.</p>
-          <Link to="/projects" className="pj-btn pj-btn--primary">
+          <Link to="/work" className="pj-btn pj-btn--primary">
             <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Back to all projects
           </Link>
         </main>
@@ -469,7 +469,7 @@ export default function ProjectDetail({ theme }) {
 
       <main className="pj-main pd-main">
         <nav className="pd-crumbs" aria-label="Breadcrumb">
-          <Link to="/projects">
+          <Link to="/work">
             <i className="fa-solid fa-arrow-left" aria-hidden="true" /> All projects
           </Link>
           <span aria-hidden="true">/</span>
@@ -503,7 +503,7 @@ export default function ProjectDetail({ theme }) {
             <ul className="pj-card-topics pd-topics pj-reveal" style={{ "--d": "380ms" }}>
               {repo.topics.map((topic) => (
                 <li key={topic}>
-                  <Link to={`/projects?q=${encodeURIComponent(topic)}`}>{topic}</Link>
+                  <Link to={`/work?q=${encodeURIComponent(topic)}`}>{topic}</Link>
                 </li>
               ))}
             </ul>

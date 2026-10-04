@@ -10,6 +10,13 @@ import { automationTools } from "../../pages/automationArsenal/arsenalData";
 import { loadSnapshot, prettyName } from "../../services/github/githubData";
 import { unlockIntroSound } from "../../pages/splash/introSound";
 import { introSoundOn } from "../../pages/splash/introPolicy";
+import { HIRE_ME_WITH_FILM, startHireFilm } from "../../pages/hire/hireFilm";
+
+// F10: services-first. Work holds Projects and Open Source (and, later, case
+// studies); About holds Experience, Education and the Automation Arsenal.
+// "Writing" joins when /blog ships (F18). Hire me is the accent button.
+const startsWith = (...prefixes) => (match, location) =>
+  Boolean(match || prefixes.some((prefix) => location.pathname === prefix || location.pathname.startsWith(`${prefix}/`)));
 
 const NAV_LINKS = [
   {
@@ -19,17 +26,43 @@ const NAV_LINKS = [
     // "/" would match every path: Home is active on the home page only.
     isActive: (match, location) => location.pathname === "/" || location.pathname === "/home"
   },
-  { to: "/education", label: "Education", icon: "fa-solid fa-graduation-cap" },
-  { to: "/experience", label: "Experience", icon: "fa-solid fa-briefcase" },
-  { to: "/projects", label: "Projects", icon: "fa-solid fa-diagram-project" },
-  { to: "/automation-arsenal", label: "Automation Arsenal", icon: "fa-solid fa-robot" },
   {
-    to: "/opensource",
-    label: "Open Source",
-    icon: "fa-solid fa-code-branch",
-    // The Tech Universe lives under Open Source.
-    isActive: (match, location) => Boolean(match || location.pathname.startsWith("/universe"))
-  }
+    to: "/work",
+    label: "Work",
+    icon: "fa-solid fa-diagram-project",
+    // Repo pages and the Tech Universe live under Work.
+    isActive: startsWith("/work", "/projects", "/universe")
+  },
+  { to: "/services", label: "Services", icon: "fa-solid fa-list-check", isActive: startsWith("/services") },
+  // Stage 3 + 4: the products, free tools and the site's AI, all from one page.
+  {
+    to: "/products",
+    label: "Products",
+    icon: "fa-solid fa-box-open",
+    isActive: startsWith("/products", "/free-tools", "/starter-kit", "/mentoring", "/ask")
+  },
+  {
+    to: "/about",
+    label: "About",
+    icon: "fa-solid fa-user",
+    isActive: startsWith("/about", "/experience", "/education", "/automation-arsenal")
+  },
+  { to: "/contact", label: "Contact", icon: "fa-solid fa-paper-plane" }
+];
+
+// Not in the menu, still one search away in the command palette.
+const PALETTE_PAGES = [
+  { to: "/hire-me", label: "Hire me (recruiter brief)", icon: "fa-solid fa-user-tie" },
+  { to: "/work/open-source", label: "Open Source", icon: "fa-solid fa-code-branch" },
+  { to: "/experience", label: "Experience", icon: "fa-solid fa-briefcase" },
+  { to: "/education", label: "Education", icon: "fa-solid fa-graduation-cap" },
+  { to: "/automation-arsenal", label: "Automation Arsenal", icon: "fa-solid fa-robot" },
+  { to: "/free-tools", label: "Free tools", icon: "fa-solid fa-toolbox" },
+  { to: "/free-tools/flaky-test-doctor", label: "Flaky Test Doctor", icon: "fa-solid fa-stethoscope" },
+  { to: "/starter-kit", label: "Playwright + AI Starter Kit", icon: "fa-solid fa-box-open" },
+  { to: "/mentoring", label: "Mentoring & mock interviews", icon: "fa-solid fa-user-tie" },
+  { to: "/ask", label: "Ask my AI", icon: "fa-solid fa-comments" },
+  { to: "/hire-me/kit", label: "Recruiter kit", icon: "fa-solid fa-file-pdf" }
 ];
 
 const IS_MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
@@ -230,11 +263,7 @@ class Header extends Component {
     const path = location ? location.pathname : "";
     const go = (to) => () => history.push(to);
 
-    const pages = NAV_LINKS.concat({
-      to: "/contact",
-      label: "Contact",
-      icon: "fa-solid fa-paper-plane"
-    }).map((link, index) => ({
+    const pages = NAV_LINKS.concat(PALETTE_PAGES).map((link, index) => ({
       id: `page-${link.to}`,
       group: "Navigate",
       label: link.label,
@@ -330,7 +359,7 @@ class Header extends Component {
               Available
             </span>
 
-            <input className="menu-btn" type="checkbox" id="menu-btn" />
+            <input className="menu-btn" type="checkbox" id="menu-btn" aria-label="Toggle navigation" />
             <button
               type="button"
               className="hud-icon-btn hud-search-compact"
@@ -339,7 +368,7 @@ class Header extends Component {
             >
               <i className="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
             </button>
-            <label className="menu-icon" htmlFor="menu-btn" aria-label="Toggle navigation">
+            <label className="menu-icon" htmlFor="menu-btn" aria-hidden="true">
               <span className="navicon"></span>
             </label>
 
@@ -374,7 +403,7 @@ class Header extends Component {
               </ul>
 
               <div className="nav-actions">
-                <button type="button" className="hud-search" onClick={this.togglePalette}>
+                <button type="button" className="hud-search" onClick={this.togglePalette} aria-label="Search">
                   <i className="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                   <span className="hud-search-label">Search</span>
                   <kbd>{shortcut}</kbd>
@@ -382,8 +411,15 @@ class Header extends Component {
                 <div className="theme-selector-nav">
                   <ThemeSelector />
                 </div>
-                <NavLink to="/contact" className="cta-link" onClick={this.closeMobileMenu}>
-                  <span>Let's Talk</span>
+                <NavLink
+                  to={HIRE_ME_WITH_FILM}
+                  className="cta-link"
+                  onClick={() => {
+                    startHireFilm();
+                    this.closeMobileMenu();
+                  }}
+                >
+                  <span>Hire me</span>
                   <i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
                 </NavLink>
               </div>

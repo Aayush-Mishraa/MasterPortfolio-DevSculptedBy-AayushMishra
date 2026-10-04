@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { PROFILE } from "../homeData";
 
 /*
   Phones only: once the hero's buttons have scrolled away, the two actions
-  that matter most stay one tap away. It steps aside for the footer, which
+  that matter most (services first, F10) stay one tap away. It steps aside for the footer, which
   has its own contact block. Replaces the back-to-top button on the home page.
 */
 
@@ -36,15 +35,9 @@ export default function MobileBar() {
 
   return (
     <div className={`hm-mobilebar ${visible ? "is-visible" : ""}`} aria-hidden={visible ? undefined : "true"}>
-      <a
-        href={PROFILE.resume}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hm-btn hm-btn--ghost"
-        tabIndex={visible ? 0 : -1}
-      >
-        Résumé <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
-      </a>
+      <Link to="/services" className="hm-btn hm-btn--ghost" tabIndex={visible ? 0 : -1}>
+        Services <i className="fa-solid fa-list-check" aria-hidden="true" />
+      </Link>
       <Link to="/contact" className="hm-btn hm-btn--primary" tabIndex={visible ? 0 : -1}>
         Let&apos;s talk <i className="fa-solid fa-arrow-right" aria-hidden="true" />
       </Link>

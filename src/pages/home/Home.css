@@ -601,6 +601,14 @@ body.dark-theme .hm.hm-brief {
   background: rgba(0, 0, 0, 0.55);
 }
 
+/* Film only: as the film fades, the page shows through, not a dimmed scrim */
+.hm.hm-brief--film-only,
+body.dark-theme .hm.hm-brief--film-only {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
 .hm-brief__panel {
   position: relative;
   display: flex;

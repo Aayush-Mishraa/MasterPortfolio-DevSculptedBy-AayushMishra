@@ -1,0 +1,57 @@
+/* F10/F11: the services strip on the home page. */
+
+.hm-offers__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hm-offer {
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+  height: 100%;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  color: var(--hm-text);
+  text-decoration: none;
+}
+
+.hm-offer__id {
+  font-size: 0.75rem;
+  color: var(--hm-pass);
+}
+
+.hm-offer__icon {
+  margin-top: 0.4rem;
+  font-size: 1.4rem;
+  color: var(--hm-accent-ink);
+}
+
+.hm-offer__title {
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.hm-offer__tagline {
+  color: var(--hm-muted);
+  line-height: 1.55;
+}
+
+.hm-offer__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-top: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hm-line);
+  font-size: 0.9rem;
+  color: var(--hm-muted);
+}
+
+.hm-offer__meta b {
+  color: var(--hm-text);
+}

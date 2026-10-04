@@ -32,8 +32,11 @@ export default class Error extends Component {
               Back to home
               <i className="fa-solid fa-arrow-right" aria-hidden="true" />
             </Link>
-            <Link className="error-btn" to="/projects">
-              Projects
+            <Link className="error-btn" to="/services">
+              Services
+            </Link>
+            <Link className="error-btn" to="/work">
+              Work
             </Link>
             <Link className="error-btn" to="/contact">
               Contact

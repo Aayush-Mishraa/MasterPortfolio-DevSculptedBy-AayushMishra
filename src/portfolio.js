@@ -38,8 +38,8 @@ const seo = {
       description:
         "The tools Aayush Mishra tests software with, from Selenium, Playwright, TestNG and Postman to AI testing agents and CI, with hands-on field guides.",
     },
-    "/opensource": {
-      title: "Open Source · Aayush Mishra",
+    "/work/open-source": {
+      title: "Open Source · Work · Aayush Mishra",
       description:
         "Aayush Mishra's open-source work on GitHub: contributions, pull requests, activity and the ecosystems behind them.",
     },
@@ -53,10 +53,58 @@ const seo = {
       description:
         "Tech Universe by Aayush Mishra: free live channels for the tech world, from AI models, research and launches to dev tools, music and games.",
     },
-    "/projects": {
-      title: "Projects · Aayush Mishra",
+    "/work": {
+      title: "Work · Projects · Aayush Mishra",
       description:
-        "Aayush Mishra's projects, synced from GitHub: test automation frameworks, API suites and AI agents, with their commits and READMEs.",
+        "Aayush Mishra's work: test automation frameworks, API suites and AI agents synced from GitHub, with their commits and READMEs, plus his open-source activity.",
+    },
+    "/services": {
+      title: "QA Services · Aayush Mishra",
+      description:
+        "QA services by Aayush Mishra: release reviews, QA health checks, Playwright framework sprints, AI feature evals, WCAG audits, a release retainer and a fractional QA lead.",
+    },
+    "/about": {
+      title: "About · Aayush Mishra",
+      description:
+        "About Aayush Mishra, a Senior SDET and QA lead in India: how he works, his career in QA automation, his education and the tools he tests with.",
+    },
+    "/products": {
+      title: "Products, Free Tools & AI · Aayush Mishra",
+      description:
+        "Everything Aayush Mishra has built for testing teams: the Playwright + AI Starter Kit, SDET mentoring, the NeuralForge learning path, free QA tools and an AI that answers from this site.",
+    },
+    "/free-tools": {
+      title: "Free QA Tools · Aayush Mishra",
+      description:
+        "Free QA tools by Aayush Mishra: a flaky test finder, a QA ROI calculator, a release readiness checklist, an AI-agent readiness quiz, a website test scanner and an AI eval playground.",
+    },
+    "/free-tools/site-scanner/report": {
+      title: "Scan report · Test my site · Aayush Mishra",
+      description: "A website scan report: Playwright, axe-core and Lighthouse checks with pass/fail results and runnable tests.",
+    },
+    "/starter-kit": {
+      title: "Playwright + AI Starter Kit · Aayush Mishra",
+      description:
+        "The Playwright + AI Starter Kit by Aayush Mishra: a TypeScript test framework template with API tests, CI, accessibility checks and AI eval helpers. Join the waitlist.",
+    },
+    "/mentoring": {
+      title: "SDET Mentoring & Mock Interviews · Aayush Mishra",
+      description:
+        "One-to-one SDET mock interviews, career calls and framework reviews with Aayush Mishra, Senior SDET & QA Lead. Book and pay online in INR or by card.",
+    },
+    "/ask": {
+      title: "Ask Aayush's AI · Aayush Mishra",
+      description:
+        "Ask questions about Aayush Mishra's work, services and experience. Answers come only from this site, with sources and their own eval scores.",
+    },
+    "/hire-me/kit": {
+      title: "Recruiter kit · Aayush Mishra",
+      description: "A one-page recruiter kit for Aayush Mishra, Senior SDET & QA Lead: role fit, highlights, references and how to book a call.",
+    },
+    "/hire-me": {
+      title: "Hire me · Recruiter brief · Aayush Mishra",
+      description:
+        "The recruiter brief for Aayush Mishra, Senior SDET & QA Lead: roles he's open to, experience, core stack, highlights, résumé and how to reach him.",
     },
   },
 };
@@ -80,6 +128,8 @@ const greeting = {
 // Home page: what I'm open to, shown in the hero and the recruiter brief
 const availability = {
   status: "Open to Senior SDET & QA Lead roles",
+  // F10: the home page is services-first; the roles status lives on /hire-me.
+  services: "Available for QA engagements",
   roles: ["Senior SDET", "QA Lead", "Test Architect"],
   workModes: "Remote · Hybrid",
 };

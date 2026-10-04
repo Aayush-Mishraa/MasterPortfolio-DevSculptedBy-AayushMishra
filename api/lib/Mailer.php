@@ -31,7 +31,7 @@ final class Mailer
     }
 
     /**
-     * @param array{reply_to?: string, reply_name?: string, headers?: array<string, string>} $options
+     * @param array{reply_to?: string, reply_name?: string, headers?: array<string, string>, attachments?: list<array{name: string, content: string, type?: string}>} $options
      */
     public function send(string $to, string $subject, string $body, array $options = []): bool
     {
@@ -71,6 +71,9 @@ final class Mailer
             }
             foreach ($options['headers'] ?? [] as $name => $value) {
                 $mail->addCustomHeader($name, $value);
+            }
+            foreach ($options['attachments'] ?? [] as $file) {
+                $mail->addStringAttachment($file['content'], $file['name'], PHPMailer::ENCODING_BASE64, $file['type'] ?? 'text/plain');
             }
             $mail->Subject = self::headerSafe($subject);
             $mail->isHTML(false);

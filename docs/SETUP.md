@@ -48,11 +48,27 @@ Every push to `main` runs `.github/workflows/deploy.yml`: build, stage the PHP A
 | `SMTP_USER`, `SMTP_PASS` | `contact@aayushmishra.engineer` and that mailbox's password | mail |
 | `MAIL_TO` | where contact-form leads go (default `contact@aayushmishra.engineer`) | F03 |
 
-The Cal.com link isn't a secret: set `contactSection.booking.url` in `src/portfolio.js`.
+The Cal.com links aren't secrets: the 20-min call is `contactSection.booking.url` in `src/portfolio.js`; the paid Release Review is `BOOKING["release-review"].url` in `src/data/pricing.js`. Service prices and currencies are all in `src/data/pricing.js`.
 | `BUTTONDOWN_API_KEY`, `BUTTONDOWN_WEBHOOK_SECRET` | Buttondown → Settings → API / Webhooks (steps in `docs/features/F04-newsletter-backend.md`) | F04 |
+| `CAL_WEBHOOK_SECRET` | the secret of the Cal.com webhook (steps in `docs/features/F12-service-enquiry.md`) | F12 |
+| `ADMIN_BASIC_USER`, `ADMIN_BASIC_PASS` | the HTTP Basic gate in front of `/admin` (long random password; only its hash is deployed). Without them `/admin` stays locked | F13 |
 | `API_CLIENT_IP_HEADER` | e.g. `HTTP_X_FORWARDED_FOR`, after checking health (below) | rate limits |
+| `SCANNER_GITHUB_TOKEN` | fine-grained token, this repo only, Contents: read and write (`docs/features/F24-site-scanner.md`) | F24 |
+| `SCAN_CALLBACK_SECRET` | `openssl rand -hex 32` (the API and `site-scan.yml` both read it) | F24 |
+| `ANTHROPIC_API_KEY` | Anthropic Console API key, with a spend limit set there | F31 |
+
+Actions **variables** (not secrets): `NEURALFORGE_LIVE=1` once the subdomain answers (F30), `NEURALFORGE_URL` to override where sign-in links point, `ASK_DAILY_CAP` (default 200 AI answers a day).
+
+Stage 3/4 build steps (in `deploy.yml`, after "Stage the API"): `node scripts/magnets/build-pdfs.mjs` (checklist + recruiter PDFs), `node scripts/ask/build-corpus.mjs` (the assistant's knowledge), `node scripts/neuralforge/build.mjs` (the subdomain). Run the same three locally after `stage-api.mjs`, then restart `web`. Migration `004_stage3_4.sql` adds `scans`, `magnet_requests`, `nf_users`, `nf_tokens`, `ask_log`.
 
 Missing secrets don't break the deploy: the API reports what isn't configured and the contact form falls back to email.
+
+### Staging (staging.aayushmishra.engineer)
+`.github/workflows/deploy-staging.yml` builds the same site and uploads it to `public_html/staging` (hPanel subdomain → that folder). It runs on a push to any branch except `main` whose commit message contains `[staging]`, on any push to the `staging` branch, or by hand (Actions → Deploy staging). `main` keeps deploying production only.
+- Password prompt on everything (`STAGING_GATE_USER` / `STAGING_GATE_PASS`; the `.htpasswd` goes to `private/staging.htpasswd`), `noindex` + a blocking robots.txt, and a 403 when opened as `aayushmishra.engineer/staging/` (`scripts/deploy/staging-site.mjs`).
+- Its own database and config: `private/staging-api-config.php` (the API finds it because it runs from `public_html/staging`), its own state folder, migrations on every deploy. Newsletter, Cal.com, scanner and AI are off; mail uses the shared `SMTP_*` secrets.
+- Secrets: `STAGING_DB_NAME` (`u778141320_StagingEnv`), `STAGING_DB_USER` (`u778141320_staging`), `STAGING_DB_PASS`, `STAGING_APP_SECRET` and `STAGING_ADMIN_TOKEN` (`openssl rand -hex 32` each), `STAGING_GATE_USER`, `STAGING_GATE_PASS`.
+- First admin on staging: `/admin/setup` with the `STAGING_ADMIN_TOKEN`.
 
 ### First backend deploy (one time)
 1. hPanel → Websites → aayushmishra.engineer → **Databases → Management**: create a database and user (all privileges on it). Host is `localhost`.
@@ -78,6 +94,13 @@ Fill these in once checked (plan v3.1 asks for them before the backend goes live
 | SMTP host / port | smtp.hostinger.com, 465 (SSL) |
 | CDN | Hostinger CDN (`Server: hcdn`); flush in hPanel after changes to `.htaccess` or HTML |
 
+## Run the site and the admin locally (Docker)
+1. Build and stage: `NODE_OPTIONS=--openssl-legacy-provider npx react-scripts build && node scripts/prerender/prerender.mjs && node scripts/deploy/stage-api.mjs`
+2. Start the stack: `docker compose -f tests/server/docker-compose.yml up -d --build` (after a later build: `docker compose -f tests/server/docker-compose.yml restart web`)
+3. Migrate once: `curl -X POST -H "Authorization: Bearer test-admin-token-0123456789abcdef" http://localhost:8080/api/migrate.php`
+4. Site: http://localhost:8080 · Admin: http://localhost:8080/admin/ (Basic gate: `gate` / `local-gate-password`; the first visit creates your admin with the token `test-admin-token-0123456789abcdef`) · Mail sent by the forms: http://localhost:8025
+These are local test values from `tests/server/api-config.php`, never the real secrets. The F13 E2E test resets the local admin users.
+
 ## Local backend
 ```bash
 # PHP dependencies (Docker, no local PHP needed)
@@ -89,7 +112,7 @@ NODE_OPTIONS=--openssl-legacy-provider npx react-scripts build && node scripts/d
 docker compose -f tests/server/docker-compose.yml up -d --build
 
 # PHPUnit against that stack
-docker compose -f tests/server/docker-compose.yml run --rm --no-deps -v "$PWD/api:/app" -w /app   -e TEST_DB_HOST=db -e TEST_DB_NAME=portfolio -e TEST_DB_USER=portfolio -e TEST_DB_PASS=portfolio   -e API_BASE_URL=http://web -e API_SERVER=apache -e MAILPIT_URL=http://mail:8025 web vendor/bin/phpunit
+docker compose -f tests/server/docker-compose.yml run --rm --no-deps -v "$PWD/api:/app" -w /app   -e TEST_DB_HOST=db -e TEST_DB_NAME=portfolio -e TEST_DB_USER=portfolio -e TEST_DB_PASS=portfolio   -e API_BASE_URL=http://web -e API_SERVER=apache -e MAILPIT_URL=http://mail:8025 -e TEST_APP_SECRET=local-test-secret-0123456789abcdef0123456789 web vendor/bin/phpunit
 ```
 On Windows Git Bash, prefix docker commands with `MSYS_NO_PATHCONV=1` and use `$(pwd -W)`.
 

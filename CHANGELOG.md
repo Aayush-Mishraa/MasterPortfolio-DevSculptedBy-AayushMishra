@@ -2,6 +2,45 @@
 
 All notable changes to aayushmishra.engineer. Newest first.
 
+## Unreleased (Stages 3 and 4, not deployed)
+
+### Products page
+- New `/products`, in the main menu after Services: the Starter Kit, mentoring, NeuralForge, every free tool, the site's AI and the recruiter kit on one page, with live status and prices from the same config as each page.
+
+### Free tools (F20–F24, F29)
+- New `/free-tools` hub. Release Readiness Checklist (50 checks, PDF by email), QA ROI & flaky-test cost calculator, Flaky Test Doctor (JUnit XML / CI logs, in the browser), AI-Agent Readiness quiz (score, full report by email), "Test my site" scanner beta (Playwright, axe and Lighthouse on a GitHub Actions runner; emailed report with a runnable `.spec.ts` and a badge) and an AI Eval Playground.
+- Lead magnets, scans and AI questions show up in `/admin` (new Scans, Magnets, AI questions and NeuralForge tabs; "Qualified leads this month" on the overview).
+
+### Recruiter kit (F26)
+- Type "sudo hire aayush" anywhere for the recruiter kit: a one-page PDF and `/hire-me/kit`. `/hire-me` gets a kit link and a slot for a 60-second video.
+
+### Revenue pages (F27, F28, F31)
+- `/starter-kit` (waitlist until checkout opens), `/mentoring` (sessions in INR with Cal.com / Razorpay / Topmate booking) and `/ask`, an assistant that answers only from this site, with sources and its own eval scores.
+
+### NeuralForge (F30)
+- Built for its own subdomain, with free email sign-in (magic link) and progress sync across devices.
+
+## Unreleased (Stage 2, not deployed)
+
+### F13 · Admin dashboard
+- `/admin`: a private, server-rendered dashboard behind a Basic-auth gate and a sign-in with lockout and optional two-factor codes.
+- Overview of leads, enquiries, subscribers, bookings, conversion by source and the weekly metrics; a leads pipeline with notes, CSV export and delete-on-request; subscribers with Buttondown resync and deletion; bookings; settings (password, notification email, two-factor); an audit log of every action.
+
+### F12 · Service enquiry
+- Each offer page has an enquiry form (service pre-selected, company, budget, timeline, message). Enquiries are saved as leads tagged `service:<slug>` and emailed, with the same spam and abuse guards as the contact form, and an "email it instead" fallback.
+- Cal.com paid booking for the Release Review (the button appears once the event link is set) and a signed Cal.com webhook that stores bookings for the admin.
+
+### F11 · Services page
+- New `/services`, written as a test plan: eight offers as test cases with who it's for, deliverables, timeline, expected result and price, plus the process and an FAQ. One page per offer at `/services/<slug>`.
+- Prices and currencies live in one config file; offers carry Service/Offer structured data for search.
+- The home page shows three featured offers right after the hero.
+
+### F10 · Audience split
+- The home page is services-first ("See services"); recruiters have `/hire-me` with the résumé, the recruiter brief, the 30-second film and the hiring snapshot.
+- New `/about` page. The menu is now Home · Work · Services · About · Contact, with a "Hire me" button.
+- Projects and Open Source are one Work area: `/work` and `/work/open-source`, with the old URLs redirecting (301).
+- The phone menu can now be opened from the keyboard, and the Search button has an accessible name.
+
 ## 2026-10-04
 
 ### F09 · Hygiene

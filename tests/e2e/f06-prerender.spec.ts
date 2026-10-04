@@ -36,13 +36,14 @@ test.describe("F06 prerender and real 404", () => {
 
   test("each top-level page has its own title in raw HTML", async ({ request }) => {
     const titles = new Set<string>();
-    for (const path of ["/", "/experience", "/education", "/automation-arsenal", "/projects", "/opensource", "/contact", "/universe"]) {
+    const paths = ["/", "/experience", "/education", "/automation-arsenal", "/work", "/work/open-source", "/about", "/hire-me", "/contact", "/universe"];
+    for (const path of paths) {
       const html = await (await request.get(path)).text();
       const title = (html.match(/<title[^>]*>([^<]*)<\/title>/) || [])[1];
       expect(title, path).toBeTruthy();
       titles.add(title);
     }
-    expect(titles.size).toBe(8);
+    expect(titles.size).toBe(paths.length);
   });
 
   test("unknown URLs are real 404s with the site's 404 page", async ({ page, request }) => {
@@ -80,8 +81,8 @@ test.describe("F06 prerender and real 404", () => {
     expect(image.headers()["content-type"]).toContain("image/jpeg");
   });
 
-  // (/projects and /opensource load the GitHub snapshot: f07-static-github covers them.)
-  for (const path of ["/", "/contact", "/experience", "/education"]) {
+  // (/work and /work/open-source load the GitHub snapshot: f07-static-github covers them.)
+  for (const path of ["/", "/contact", "/experience", "/education", "/about", "/hire-me"]) {
     test(`${path}: the app boots on the prerendered page without layout shift`, async ({ page }) => {
       await page.addInitScript(() => {
         (window as any).__shifts = [];

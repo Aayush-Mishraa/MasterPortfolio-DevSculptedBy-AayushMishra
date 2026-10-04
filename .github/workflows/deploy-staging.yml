@@ -1,0 +1,219 @@
+name: Deploy staging
+
+# staging.aayushmishra.engineer (public_html/staging), password-protected and never indexed.
+#
+# Runs when:
+#   - a push to any branch except main has "[staging]" in its commit message,
+#   - anything is pushed to the "staging" branch,
+#   - or by hand: Actions → Deploy staging → Run workflow (pick the branch).
+# main still deploys production only (deploy.yml); this workflow never touches it.
+#
+# Secrets: STAGING_DB_NAME, STAGING_DB_USER, STAGING_DB_PASS, STAGING_APP_SECRET,
+# STAGING_ADMIN_TOKEN, STAGING_GATE_USER, STAGING_GATE_PASS, plus the shared
+# FTP_* and SMTP_* ones. The newsletter, Cal.com, the scanner and the AI stay off
+# on staging (no real subscribers, bookings or API costs from test clicks).
+
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  staging:
+    name: Build and deploy staging
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/staging' || contains(github.event.head_commit.message, '[staging]')
+    runs-on: ubuntu-latest
+    env:
+      STAGING_URL: https://staging.aayushmishra.engineer
+    steps:
+      - name: Check the staging secrets
+        env:
+          STAGING_DB_NAME: ${{ secrets.STAGING_DB_NAME }}
+          STAGING_DB_USER: ${{ secrets.STAGING_DB_USER }}
+          STAGING_DB_PASS: ${{ secrets.STAGING_DB_PASS }}
+          STAGING_APP_SECRET: ${{ secrets.STAGING_APP_SECRET }}
+          STAGING_ADMIN_TOKEN: ${{ secrets.STAGING_ADMIN_TOKEN }}
+          STAGING_GATE_USER: ${{ secrets.STAGING_GATE_USER }}
+          STAGING_GATE_PASS: ${{ secrets.STAGING_GATE_PASS }}
+        run: |
+          missing=""
+          for name in STAGING_DB_NAME STAGING_DB_USER STAGING_DB_PASS STAGING_APP_SECRET STAGING_ADMIN_TOKEN STAGING_GATE_USER STAGING_GATE_PASS; do
+            if [ -z "${!name}" ]; then missing="$missing $name"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing staging secrets:$missing (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React app
+        run: npm run build
+        env:
+          CI: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install Chromium for the prerender
+        run: npx playwright install --with-deps chromium
+
+      - name: Prerender pages
+        run: node scripts/prerender/prerender.mjs
+
+      - name: Check the prerendered HTML
+        run: node scripts/prerender/check-html.mjs
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install API dependencies
+        working-directory: api
+        run: composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Check PHP syntax
+        run: find api -path api/vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+
+      - name: Stage the API into the build
+        run: node scripts/deploy/stage-api.mjs
+
+      - name: PDFs, the assistant's knowledge and NeuralForge
+        run: |
+          node scripts/magnets/build-pdfs.mjs
+          node scripts/ask/build-corpus.mjs
+          node scripts/neuralforge/build.mjs
+
+      - name: Make it the staging site (login, noindex, staging host only)
+        run: node scripts/deploy/staging-site.mjs
+
+      - name: Write the staging config and login file
+        env:
+          SITE_ENV: staging
+          SITE_URL: ${{ env.STAGING_URL }}
+          ALLOWED_ORIGINS: ${{ env.STAGING_URL }}
+          NEURALFORGE_URL: ${{ env.STAGING_URL }}/neuralforge
+          API_APP_SECRET: ${{ secrets.STAGING_APP_SECRET }}
+          API_ADMIN_TOKEN: ${{ secrets.STAGING_ADMIN_TOKEN }}
+          DB_HOST: localhost
+          DB_NAME: ${{ secrets.STAGING_DB_NAME }}
+          DB_USER: ${{ secrets.STAGING_DB_USER }}
+          DB_PASS: ${{ secrets.STAGING_DB_PASS }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          API_CLIENT_IP_HEADER: ${{ secrets.API_CLIENT_IP_HEADER }}
+          STAGING_GATE_USER: ${{ secrets.STAGING_GATE_USER }}
+          STAGING_GATE_PASS: ${{ secrets.STAGING_GATE_PASS }}
+        run: |
+          mkdir -p deploy-staging-private
+          php scripts/deploy/write-api-config.php deploy-staging-private/staging-api-config.php
+          printf '%s:%s\n' "$STAGING_GATE_USER" "$(openssl passwd -apr1 "$STAGING_GATE_PASS")" > deploy-staging-private/staging.htpasswd
+          chmod 600 deploy-staging-private/*
+
+      - name: Resolve FTP host to IPv4
+        run: |
+          FTP_SERVER_RAW="${{ secrets.FTP_HOST }}"
+          if [ -z "$FTP_SERVER_RAW" ]; then FTP_SERVER_RAW="${{ secrets.FTP_SERVER }}"; fi
+          if [ -z "$FTP_SERVER_RAW" ]; then echo "::error::Set FTP_HOST or FTP_SERVER."; exit 1; fi
+          FTP_PORT_EFFECTIVE="${{ secrets.FTP_PORT }}"
+          if [ -z "$FTP_PORT_EFFECTIVE" ]; then FTP_PORT_EFFECTIVE="21"; fi
+          if echo "$FTP_SERVER_RAW" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+            FTP_SERVER_IPV4="$FTP_SERVER_RAW"
+          else
+            FTP_SERVER_IPV4=$(getent ahostsv4 "$FTP_SERVER_RAW" | awk '{print $1; exit}')
+          fi
+          if [ -z "$FTP_SERVER_IPV4" ]; then echo "::error::Can't resolve $FTP_SERVER_RAW"; exit 1; fi
+          if ! timeout 8 bash -c "cat < /dev/null > /dev/tcp/$FTP_SERVER_IPV4/$FTP_PORT_EFFECTIVE"; then
+            echo "::error::Can't reach FTP $FTP_SERVER_IPV4:$FTP_PORT_EFFECTIVE"; exit 1
+          fi
+          echo "FTP_SERVER_IPV4=$FTP_SERVER_IPV4" >> $GITHUB_ENV
+          echo "FTP_PORT_EFFECTIVE=$FTP_PORT_EFFECTIVE" >> $GITHUB_ENV
+
+      # The login file and config first, so the site is never up without its password.
+      - name: Upload the staging config and login file (outside the web root)
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ env.FTP_SERVER_IPV4 }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ env.FTP_PORT_EFFECTIVE }}
+          protocol: ftps
+          local-dir: ./deploy-staging-private/
+          server-dir: /domains/aayushmishra.engineer/private/
+          dangerous-clean-slate: false
+          state-name: .ftp-staging-private-sync-state.json
+
+      - name: Upload the site to public_html/staging
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ env.FTP_SERVER_IPV4 }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ env.FTP_PORT_EFFECTIVE }}
+          protocol: ftps
+          local-dir: ./build/
+          server-dir: /domains/aayushmishra.engineer/public_html/staging/
+          dangerous-clean-slate: false
+          state-name: .ftp-staging-sync-state.json
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/.env*
+            **/*.md
+
+      - name: Apply database migrations (staging database)
+        env:
+          STAGING_ADMIN_TOKEN: ${{ secrets.STAGING_ADMIN_TOKEN }}
+          STAGING_GATE_USER: ${{ secrets.STAGING_GATE_USER }}
+          STAGING_GATE_PASS: ${{ secrets.STAGING_GATE_PASS }}
+        run: |
+          sleep 10
+          curl -sS --fail-with-body --max-time 60 -X POST -A "aayushmishra-deploy/1.0" \
+            -u "$STAGING_GATE_USER:$STAGING_GATE_PASS" \
+            -H "X-Admin-Token: $STAGING_ADMIN_TOKEN" \
+            "$STAGING_URL/api/migrate.php"
+
+      - name: Smoke check
+        env:
+          STAGING_GATE_USER: ${{ secrets.STAGING_GATE_USER }}
+          STAGING_GATE_PASS: ${{ secrets.STAGING_GATE_PASS }}
+        run: |
+          fail=0
+          check() {
+            code=$(curl -s -o /dev/null -w '%{http_code}' -A "aayushmishra-deploy/1.0" $3 "$STAGING_URL$1")
+            echo "$1 → $code (expected $2)"
+            [ "$code" = "$2" ] || fail=1
+          }
+          AUTH="-u $STAGING_GATE_USER:$STAGING_GATE_PASS"
+          check / 401 ""
+          check / 200 "$AUTH"
+          check /products 200 "$AUTH"
+          check /free-tools/flaky-test-doctor 200 "$AUTH"
+          check /api/health.php 200 "$AUTH"
+          check /this-page-does-not-exist 404 "$AUTH"
+          curl -s -A "aayushmishra-deploy/1.0" $AUTH "$STAGING_URL/robots.txt" | grep -q "Disallow: /" || { echo "robots.txt doesn't block crawlers"; fail=1; }
+          if [ "$fail" = 1 ]; then
+            echo "::warning::Some staging checks failed (Hostinger's CDN or bot check can answer for a few minutes after the first upload)."
+          fi
+          echo "Staging: $STAGING_URL (login: the STAGING_GATE_* secrets)"

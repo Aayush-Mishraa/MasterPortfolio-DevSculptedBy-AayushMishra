@@ -4,7 +4,9 @@
  * A stand-in for api.buttondown.com in tests (php -S ... router.php).
  *   POST /v1/subscribers     201, or 400 when the address contains "exists" /
  *                            "reject", or 503 when it contains "down"
- *   GET  /v1/subscribers/ID  an "ext-..." id resolves to an address
+ *   GET  /v1/subscribers/ID  an "ext-..." id resolves to an address; a "sub-..."
+ *                            id (made by POST) is a confirmed ("regular") subscriber
+ *   DELETE /v1/subscribers/ID  204
  *   GET  /__requests         every request received so far (JSON)
  * Requires "Authorization: Token test-buttondown-key".
  */
@@ -46,6 +48,16 @@ if ($method === 'POST' && $path === '/v1/subscribers') {
         http_response_code(201);
         echo json_encode(['id' => 'sub-' . substr(hash('sha256', $email), 0, 24), 'email_address' => $email, 'type' => 'unactivated']);
     }
+    return true;
+}
+
+if ($method === 'GET' && preg_match('#^/v1/subscribers/(sub-[A-Za-z0-9-]+)$#', $path, $match)) {
+    echo json_encode(['id' => $match[1], 'email_address' => null, 'type' => 'regular']);
+    return true;
+}
+
+if ($method === 'DELETE' && preg_match('#^/v1/subscribers/([A-Za-z0-9-]+)$#', $path)) {
+    http_response_code(204);
     return true;
 }
 

@@ -93,6 +93,9 @@ function serializeDocument({ templateScripts, snapshot }) {
   // (The inline webpack runtime still runs first and picks the chunks up.)
   document.querySelectorAll('body script[src^="/static/js/"]').forEach((script) => script.setAttribute("defer", ""));
   document.querySelectorAll(".intro, [data-prerender-skip]").forEach((node) => node.remove());
+  // React sets a select's choice as a property, which outerHTML leaves out:
+  // write it as an attribute so the HTML shows the same choice (F12).
+  document.querySelectorAll("select option").forEach((option) => option.toggleAttribute("selected", option.selected));
   const html = document.documentElement;
   html.classList.remove("intro-active", "intro-cover", "intro-gated", "lenis", "lenis-smooth", "lenis-stopped", "theme-pending");
   if (!html.className.trim()) html.removeAttribute("class");
@@ -106,7 +109,7 @@ function serializeDocument({ templateScripts, snapshot }) {
     link.href = href;
     document.head.appendChild(link);
   };
-  if (/^\/(projects|opensource)(\/|$)/.test(path)) preload("/data/github/index.json");
+  if (/^\/(work|work\/open-source|projects\/[^/]+)$/.test(path)) preload("/data/github/index.json");
   const project = path.match(/^\/projects\/([^/]+)$/);
   if (project) preload(`/data/github/repos/${project[1]}.json`);
   // Which URL this HTML is, and which snapshot it shows: src/index.js hydrates only on a match.
@@ -120,12 +123,12 @@ function serializeDocument({ templateScripts, snapshot }) {
 async function waitForContent(page, route) {
   await page.waitForSelector("#root > *", { timeout: 20000 });
   await page.waitForFunction(() => document.fonts && document.fonts.status === "loaded", null, { timeout: 15000 }).catch(() => {});
-  if (route === "/projects") {
+  if (route === "/work") {
     await page.waitForSelector(".pj-card:not(.pj-card--skeleton)", { timeout: 15000 });
   } else if (route.startsWith("/projects/")) {
     await page.waitForSelector(".pd-hero:not(.is-loading), .pd-missing", { timeout: 15000 });
     await page.waitForSelector("#commits .pd-commit, #commits .pj-empty-note", { timeout: 15000 }).catch(() => {});
-  } else if (route === "/opensource") {
+  } else if (route === "/work/open-source") {
     await page.waitForSelector(".os-hud-value", { timeout: 15000 }).catch(() => {});
   }
   // Scroll the whole page once so sections that load near the viewport do.
@@ -151,7 +154,7 @@ function snapshotStamp(route) {
     }
   };
   const parts = [];
-  if (/^\/(projects|opensource)(\/|$)/.test(route)) parts.push(stamp("index.json"));
+  if (/^\/(work|work\/open-source|projects\/[^/]+)$/.test(route)) parts.push(stamp("index.json"));
   const project = route.match(/^\/projects\/([^/]+)$/);
   if (project) parts.push(stamp(`repos/${decodeURIComponent(project[1])}.json`));
   return parts.join(" ");

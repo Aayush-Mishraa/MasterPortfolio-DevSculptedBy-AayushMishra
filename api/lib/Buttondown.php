@@ -77,6 +77,30 @@ final class Buttondown
         return $response['status'] === 200 && is_array($response['json']) ? $response['json'] : null;
     }
 
+    /**
+     * Deletes the subscriber from Buttondown (a data-deletion request, F13).
+     * True when it's gone, including when Buttondown no longer knew it.
+     */
+    public function delete(string $id): bool
+    {
+        if (!$this->configured() || !preg_match('/^[A-Za-z0-9-]{8,64}$/', $id)) {
+            return false;
+        }
+        $response = HttpClient::request('DELETE', $this->base() . '/subscribers/' . rawurlencode($id), $this->headers());
+        return in_array($response['status'], [200, 204, 404], true);
+    }
+
+    /** Buttondown's subscriber type, as our status (null: leave the status as it is). */
+    public static function statusFromType(string $type): ?string
+    {
+        return match ($type) {
+            'unactivated' => 'pending',
+            'regular', 'premium', 'gifted', 'churning', 'trialed', 'paused', 'past_due' => 'confirmed',
+            'unsubscribed', 'removed' => 'unsubscribed',
+            default => null,
+        };
+    }
+
     /** X-Buttondown-Signature: sha256=<hex HMAC-SHA256 of the raw body, keyed with the webhook signing key>. */
     public function validSignature(string $rawBody, string $header): bool
     {

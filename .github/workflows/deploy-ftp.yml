@@ -17,18 +17,18 @@ jobs:
     
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: 🛠️ Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: 📋 Cache Dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -71,7 +71,7 @@ jobs:
           echo "- **Timestamp:** $(date)" >> $GITHUB_STEP_SUMMARY
 
       - name: 📤 Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: production-build-${{ github.sha }}
           path: build
@@ -87,7 +87,7 @@ jobs:
     
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Resolve FTP host to IPv4
         run: |
@@ -108,7 +108,7 @@ jobs:
           echo "FTP_SERVER_IPV4=$FTP_SERVER_IPV4" >> $GITHUB_ENV
 
       - name: 📥 Download Build Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: production-build-${{ github.sha }}
           path: build
@@ -120,7 +120,7 @@ jobs:
           echo "📄 Index.html exists: $(test -f build/index.html && echo 'Yes' || echo 'No')"
 
       - name: 🚀 Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -140,7 +140,7 @@ jobs:
 
       - name: 🚀 Deploy contentmanagementsystem folder
         if: ${{ hashFiles('contentmanagementsystem/**') != '' }}
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -154,7 +154,7 @@ jobs:
 
       - name: 🚀 Deploy prestashopecommerce folder
         if: ${{ hashFiles('prestashopecommerce/**') != '' }}
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -168,7 +168,7 @@ jobs:
 
       - name: 🚀 Deploy ecommerceautomation folder
         if: ${{ hashFiles('ecommerceautomation/**') != '' }}
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ env.FTP_SERVER_IPV4 }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -189,7 +189,7 @@ jobs:
           echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
       - name: 🧹 Cleanup Old Artifacts
-        uses: geekyeggo/delete-artifact@v2
+        uses: geekyeggo/delete-artifact@v6
         with:
           name: production-build-${{ github.sha }}
           failOnError: false

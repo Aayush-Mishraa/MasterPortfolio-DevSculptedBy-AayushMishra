@@ -11,6 +11,8 @@ import {
 } from "../../portfolio.js";
 import { prettyName } from "../../services/github/githubData";
 import { MODULES } from "../../pages/universe/modules";
+import { formatPrice, serviceBySlug } from "../../data/services";
+import { toolBySlug } from "../../data/tools";
 
 const SITE = "https://aayushmishra.engineer";
 
@@ -43,6 +45,24 @@ export function routeMeta(pathname) {
       },
       `/projects/${name}`
     );
+  }
+  const offer = path.match(/^\/services\/([^/]+)$/);
+  const service = offer && serviceBySlug(offer[1]);
+  if (service) {
+    const price = formatPrice(service.slug);
+    return withImage(
+      {
+        title: `${service.title} · Services · Aayush Mishra`,
+        description: `${service.tagline} ${service.outcome}${price ? ` ${price}.` : ""}`,
+        url: `${SITE}/services/${service.slug}`,
+      },
+      `/services/${service.slug}`
+    );
+  }
+  const freeTool = path.match(/^\/free-tools\/([^/]+)$/);
+  const tool = freeTool && toolBySlug(freeTool[1]);
+  if (tool) {
+    return withImage({ title: tool.seoTitle, description: tool.seoDescription, url: `${SITE}/free-tools/${tool.slug}` }, `/free-tools/${tool.slug}`);
   }
   const channel = path.match(/^\/universe\/([^/]+)$/);
   const module = channel && MODULES.find((item) => item.id === channel[1]);

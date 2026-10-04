@@ -1,0 +1,83 @@
+name: Site scan
+
+# F24 "Test my site": api/scan.php sends a repository_dispatch ("site-scan")
+# with { scan_id, url, callback }. This job scans the URL with Playwright,
+# axe-core and Lighthouse, then POSTs report.json + failing-checks.spec.ts back
+# to api/scan-callback.php, signed with SCAN_CALLBACK_SECRET.
+#
+# Secrets: SCAN_CALLBACK_SECRET (same value as the API's scanner.callback_secret).
+# Manual run (Actions → Site scan → Run workflow) scans without a callback.
+
+on:
+  repository_dispatch:
+    types: [site-scan]
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "URL to scan (no callback, report kept as an artifact)"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-scan-${{ github.event.client_payload.scan_id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SCAN_ID: ${{ github.event.client_payload.scan_id }}
+      SCAN_URL: ${{ github.event.client_payload.url || github.event.inputs.url }}
+      CALLBACK_URL: ${{ github.event.client_payload.callback }}
+      SCAN_CALLBACK_SECRET: ${{ secrets.SCAN_CALLBACK_SECRET }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts/scanner
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      # Only our own site may call back: anything else in the payload is ignored.
+      - name: Check the callback address
+        if: env.CALLBACK_URL != ''
+        run: |
+          case "$CALLBACK_URL" in
+            https://aayushmishra.engineer/api/scan-callback.php) ;;
+            *) echo "::error::unexpected callback $CALLBACK_URL"; exit 1 ;;
+          esac
+
+      - name: Install the scanner
+        working-directory: scripts/scanner
+        run: |
+          npm install --no-audit --no-fund --no-save @playwright/test@1 @axe-core/playwright@4 lighthouse@12
+          npx playwright install --with-deps chromium
+
+      # Defence in depth against SSRF: the runner can't reach private
+      # networks or the cloud metadata service, whatever the page links to.
+      - name: Block private networks
+        run: |
+          for net in 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 169.254.0.0/16 100.64.0.0/10 0.0.0.0/8; do
+            sudo iptables -A OUTPUT -d "$net" -j REJECT
+          done
+          sudo ip6tables -A OUTPUT -d fc00::/7 -j REJECT
+          sudo ip6tables -A OUTPUT -d fe80::/10 -j REJECT
+
+      - name: Scan
+        working-directory: scripts/scanner
+        run: node run-scan.mjs
+
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: scan-${{ env.SCAN_ID || github.run_id }}
+          path: scripts/scanner/scan-out/
+          retention-days: 14
+          if-no-files-found: ignore

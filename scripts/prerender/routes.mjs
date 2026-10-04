@@ -11,12 +11,24 @@ import path from "path";
 export const STATIC_ROUTES = [
   { path: "/", priority: 1.0, changefreq: "weekly" },
   { path: "/experience", priority: 0.9, changefreq: "monthly" },
-  { path: "/projects", priority: 0.9, changefreq: "daily" },
+  { path: "/work", priority: 0.9, changefreq: "daily" },
+  { path: "/services", priority: 1.0, changefreq: "monthly" },
+  { path: "/hire-me", priority: 0.8, changefreq: "monthly" },
+  { path: "/about", priority: 0.7, changefreq: "monthly" },
   { path: "/contact", priority: 0.8, changefreq: "yearly" },
   { path: "/automation-arsenal", priority: 0.8, changefreq: "monthly" },
-  { path: "/opensource", priority: 0.7, changefreq: "daily" },
+  { path: "/work/open-source", priority: 0.7, changefreq: "daily" },
   { path: "/education", priority: 0.7, changefreq: "monthly" },
   { path: "/universe", priority: 0.5, changefreq: "daily" },
+  // Stage 3 + 4
+  { path: "/products", priority: 0.9, changefreq: "monthly" },
+  { path: "/free-tools", priority: 0.8, changefreq: "monthly" },
+  { path: "/starter-kit", priority: 0.7, changefreq: "monthly" },
+  { path: "/mentoring", priority: 0.7, changefreq: "monthly" },
+  { path: "/ask", priority: 0.5, changefreq: "monthly" },
+  // Reachable, not advertised: a printable one-pager and the report shell (?id=…).
+  { path: "/hire-me/kit", priority: 0.1, changefreq: "monthly", sitemap: false, llms: false, noindex: true },
+  { path: "/free-tools/site-scanner/report", priority: 0.1, changefreq: "yearly", sitemap: false, llms: false, noindex: true },
 ];
 
 /** Repository names from the snapshot that the build ships (build/data/github/index.json). */
@@ -31,6 +43,27 @@ export function projectRoutes(build) {
     lastmod: repo.pushed_at || repo.updated_at || null,
     // Forks are other people's code: reachable, not advertised.
     sitemap: !repo.fork,
+  }));
+}
+
+/** One page per offer (F11), read from src/data/services.js. */
+export function serviceRoutes(root) {
+  const source = fs.readFileSync(path.join(root, "src", "data", "services.js"), "utf8");
+  const block = source.slice(source.indexOf("export const SERVICES"), source.indexOf("export const PROCESS"));
+  return [...block.matchAll(/^\s{4}slug: "([a-z0-9-]+)",$/gm)].map((match) => ({
+    path: `/services/${match[1]}`,
+    priority: 0.8,
+    changefreq: "monthly",
+  }));
+}
+
+/** One page per free tool (Stage 3 + 4), read from src/data/tools.js. */
+export function toolRoutes(root) {
+  const source = fs.readFileSync(path.join(root, "src", "data", "tools.js"), "utf8");
+  return [...source.matchAll(/^\s{4}slug: "([a-z0-9-]+)",$/gm)].map((match) => ({
+    path: `/free-tools/${match[1]}`,
+    priority: 0.8,
+    changefreq: "monthly",
   }));
 }
 
@@ -58,7 +91,7 @@ export function blockedTerms(root) {
 
 export function allRoutes(root, build) {
   const blocked = blockedTerms(root).map((term) => term.toLowerCase());
-  const routes = [...STATIC_ROUTES, ...projectRoutes(build), ...universeRoutes(root)];
+  const routes = [...STATIC_ROUTES, ...serviceRoutes(root), ...toolRoutes(root), ...projectRoutes(build), ...universeRoutes(root)];
   return routes.map((route) => {
     // Still reachable (the page exists), never listed in sitemap.xml or llms.txt.
     const hidden = blocked.some((term) => route.path.toLowerCase().includes(term));

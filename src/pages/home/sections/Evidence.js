@@ -255,7 +255,7 @@ export default function Evidence() {
         <header className="hm-head">
           <div data-reveal>
             <p className="hm-eyebrow">
-              <b>01</b> Evidence
+              <b>02</b> Evidence
             </p>
             <h2 className="hm-h2" id="hm-evidence-title">
               What I&apos;m hired for. <span className="hm-grad">With receipts.</span>

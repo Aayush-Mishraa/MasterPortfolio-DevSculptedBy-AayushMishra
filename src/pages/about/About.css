@@ -1,0 +1,164 @@
+/* F10 · /about. Built on the home page's tokens (.hm, PageShell). */
+
+.ab-hero {
+  padding-top: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+}
+
+.ab-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: center;
+}
+
+.ab-hero__title {
+  margin: 0.9rem 0 0;
+  font-size: clamp(2.3rem, 1.4rem + 4vw, 4.4rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  color: var(--hm-text);
+  text-wrap: balance;
+}
+
+.ab-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 2rem;
+  margin: 2rem 0 0;
+}
+
+.ab-facts dt {
+  font-family: var(--hm-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+}
+
+.ab-facts dd {
+  margin: 0.25rem 0 0;
+  font-weight: 600;
+  color: var(--hm-text);
+}
+
+.ab-portrait {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 760 / 653;
+}
+
+.ab-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Career ---------- */
+
+.ab-log {
+  margin: 0;
+  padding: clamp(0.5rem, 1.5vw, 1rem) clamp(1rem, 3vw, 2rem);
+  list-style: none;
+  font-family: var(--hm-mono);
+  font-size: 0.9rem;
+}
+
+.ab-log__row {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--hm-line);
+}
+
+.ab-log__row:first-child {
+  border-top: 0;
+}
+
+.ab-log__date {
+  color: var(--hm-accent-ink);
+}
+
+.ab-log__title {
+  color: var(--hm-text);
+  font-weight: 600;
+}
+
+.ab-log__org {
+  color: var(--hm-muted);
+  font-weight: 400;
+}
+
+.ab-log__row--education .ab-log__title,
+.ab-log__row--community .ab-log__title {
+  font-weight: 500;
+}
+
+/* ---------- More ---------- */
+
+.ab-more {
+  padding-bottom: var(--hm-section);
+}
+
+.ab-more__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ab-more__card {
+  display: grid;
+  gap: 0.6rem;
+  height: 100%;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  color: var(--hm-text);
+  text-decoration: none;
+}
+
+.ab-more__card i {
+  font-size: 1.2rem;
+  color: var(--hm-accent-ink);
+}
+
+.ab-more__card strong {
+  font-size: 1.1rem;
+}
+
+.ab-more__card span {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--hm-muted);
+}
+
+.ab-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+@media (max-width: 900px) {
+  .ab-hero__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ab-portrait {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 560px) {
+  .ab-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ab-log__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+}

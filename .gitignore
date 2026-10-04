@@ -62,3 +62,7 @@ hostinger-deployment-latest/
 /api/config.php
 /api/.phpunit.cache/
 /api/vendor-dist/
+
+# F24: the scanner job installs its own packages and writes its report here
+/scripts/scanner/node_modules/
+/scripts/scanner/scan-out/

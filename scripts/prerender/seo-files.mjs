@@ -42,7 +42,9 @@ export function writeLlms(build, site, routes) {
     return `- [${name}](${site}${route.path === "/" ? "/" : route.path})${meta.description ? `: ${meta.description}` : ""}`;
   };
   const listed = routes.filter((route) => route.llms !== false);
-  const top = listed.filter((route) => !route.path.slice(1).includes("/") && route.path !== "/");
+  // Top-level pages and the pages under Work (Open Source, case studies); repos and channels get their own lists.
+  const top = listed.filter((route) => route.path !== "/" && !/^\/(projects|universe|services)\//.test(route.path));
+  const services = listed.filter((route) => route.path.startsWith("/services/"));
   const projects = listed.filter((route) => route.path.startsWith("/projects/") && route.sitemap !== false);
   const universe = listed.filter((route) => route.path.startsWith("/universe/"));
 
@@ -56,6 +58,9 @@ export function writeLlms(build, site, routes) {
     "## Pages",
     line({ path: "/" }),
     ...top.map(line),
+    "",
+    "## Services (QA offers, with prices)",
+    ...services.map(line),
     "",
     "## Projects (public GitHub repositories)",
     ...projects.map(line),

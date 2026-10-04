@@ -128,7 +128,7 @@ function Graph() {
   );
 }
 
-function Snapshot({ onOpenBrief }) {
+export function Snapshot({ onOpenBrief }) {
   const now = useNow(30000);
   const status = availabilityAt(now);
   const overlap = workingHoursForVisitor(now);
@@ -218,7 +218,7 @@ export default function Trajectory({ onOpenBrief }) {
         <header className="hm-head">
           <div data-reveal>
             <p className="hm-eyebrow">
-              <b>04</b> Trajectory
+              <b>05</b> Trajectory
             </p>
             <h2 className="hm-h2" id="hm-journey-title">
               The branch <span className="hm-grad">that merged.</span>

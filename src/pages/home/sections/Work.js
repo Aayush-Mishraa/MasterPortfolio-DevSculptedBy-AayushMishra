@@ -195,7 +195,7 @@ export default function Work({ github, onNear }) {
         <header className="hm-head">
           <div data-reveal>
             <p className="hm-eyebrow">
-              <b>03</b> Work
+              <b>04</b> Work
             </p>
             <h2 className="hm-h2" id="hm-work-title">
               Work you can open and <span className="hm-grad">inspect.</span>
@@ -260,13 +260,13 @@ export default function Work({ github, onNear }) {
               <div className="hm-activity__map">
                 <Heatmap days={github.days} />
                 <p className="hm-activity__note hm-mono">
-                  Snapshot · updated {timeAgo(github.generatedAt)} · <Link to="/opensource">full activity</Link>
+                  Snapshot · updated {timeAgo(github.generatedAt)} · <Link to="/work/open-source">full activity</Link>
                 </p>
               </div>
             </div>
 
             <div className="hm-work__more" data-reveal>
-              <Link to="/projects" className="hm-link">
+              <Link to="/work" className="hm-link">
                 All {stats.ownCount} projects <i className="fa-solid fa-arrow-right" aria-hidden="true" />
               </Link>
             </div>

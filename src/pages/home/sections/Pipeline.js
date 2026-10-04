@@ -153,7 +153,7 @@ export default function Pipeline() {
         <header className="hm-head">
           <div data-reveal>
             <p className="hm-eyebrow">
-              <b>02</b> Pipeline
+              <b>03</b> Pipeline
             </p>
             <h2 className="hm-h2" id="hm-pipeline-title">
               From user story to <span className="hm-grad">signed-off release.</span>

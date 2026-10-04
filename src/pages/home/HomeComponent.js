@@ -1,12 +1,13 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 // Base tokens first, so each section's stylesheet can override them
 import "./Home.css";
 import Header from "../../components/header/Header";
 import CreativeFooter from "../../components/CreativeFooter/CreativeFooter";
 import TopButton from "../../components/topButton/TopButton";
-import { readableAccent, readableOn } from "../../contexts/ThemeContext";
+import { usePassVars } from "../shared/PageShell";
 import Hero from "./sections/Hero";
 import Logos from "./sections/Logos";
+import Offers from "./sections/Offers";
 import Evidence from "./sections/Evidence";
 import Pipeline from "./sections/Pipeline";
 import Work from "./sections/Work";
@@ -21,25 +22,19 @@ import { prefersReducedMotion } from "./lib/motion";
 
 /*
   Home, as a release report: the verdict (hero), who and what it's built on
-  (logos), the evidence, the process (pipeline), the work, the history
+  (logos), the services (F10: services-first), the evidence, the process (pipeline), the work, the history
   (trajectory) and, when there are real ones, kind words. The footer carries
   the final invitation.
 */
 
 const SECTIONS = [
   { id: "hm-top", label: "Verdict" },
+  { id: "hm-services", label: "Services" },
   { id: "hm-evidence", label: "Evidence" },
   { id: "hm-pipeline", label: "Pipeline" },
   { id: "hm-work", label: "Work" },
   { id: "hm-journey", label: "Trajectory" },
 ].concat(RECOMMENDATIONS.length ? [{ id: "hm-references", label: "References" }] : []);
-
-const PASS_GREEN = "#22c55e";
-
-const rgbTriple = (hex) => {
-  const value = parseInt(String(hex).replace("#", "").slice(0, 6), 16);
-  return Number.isNaN(value) ? "21, 128, 61" : `${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}`;
-};
 
 function Home({ theme }) {
   // The GitHub snapshot (57KB) loads only once the Work section is near, or
@@ -58,10 +53,7 @@ function Home({ theme }) {
   const closeBrief = useCallback(() => setBriefOpen(false), []);
 
   // A pass green that clears WCAG AA on this theme's background
-  const passVars = useMemo(() => {
-    const pass = readableAccent(PASS_GREEN, (theme && theme.body) || "#EDF9FE");
-    return { "--hm-pass": pass, "--hm-pass-rgb": rgbTriple(pass), "--hm-on-pass": readableOn(pass) };
-  }, [theme]);
+  const passVars = usePassVars(theme);
 
   return (
     <div className="hm-page">
@@ -77,8 +69,9 @@ function Home({ theme }) {
         </div>
 
         <SpecRail sections={SECTIONS} />
-        <Hero onOpenBrief={openBrief} />
+        <Hero />
         <Logos />
+        <Offers />
         <Evidence />
         <Pipeline />
         <Work github={github} onNear={loadGithub} />

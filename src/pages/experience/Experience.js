@@ -557,9 +557,11 @@ const CvTerminal = ({ onOpenRole }) => {
       case "hire":
         out = [
           { t: "dim", s: "[sudo] verifying recruiter privileges… ok" },
-          { t: "ok", s: "permission granted. opening a line to Aayush →" },
+          { t: "ok", s: "permission granted. packing the recruiter kit →" },
+          { t: "out", s: "role fit · highlights · references · calendar (one page, PDF)" },
         ];
-        setTimeout(() => history.push("/contact"), 1400);
+        // F26: the recruiter one-pager (its PDF downloads from there).
+        setTimeout(() => history.push("/hire-me/kit"), 1400);
         break;
       case "clear":
         setLines([]);

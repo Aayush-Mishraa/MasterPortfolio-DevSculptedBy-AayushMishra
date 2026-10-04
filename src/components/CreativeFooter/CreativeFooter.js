@@ -34,11 +34,16 @@ const CHANNEL_SWAP_MS = 2200;
 
 const sitemap = [
   ["Home", "/"],
-  ["Experience", "/experience"],
-  ["Education", "/education"],
-  ["Projects", "/projects"],
+  ["Work", "/work"],
+  ["Services", "/services"],
+  ["About", "/about"],
+  ["Hire me", "/hire-me"],
+  ["Products", "/products"],
+  ["Free tools", "/free-tools"],
+  ["Mentoring", "/mentoring"],
+  ["Ask my AI", "/ask"],
+  ["Open Source", "/work/open-source"],
   ["Tech Universe", "/universe"],
-  ["Open Source", "/opensource"],
   ["Contact", "/contact"]
 ];
 
@@ -364,6 +369,9 @@ const legalNotes = {
       "Your theme choice, contact-form drafts and cached GitHub data are kept in your own browser's local storage and never sent to me.",
       "When you send the contact form, your name, email, company (if given) and message are stored on this site's server and emailed to me, only so I can reply. Your IP address is kept only as a one-way hash, to stop spam.",
       "The newsletter, once it opens, runs on Buttondown: your address goes to them, they send a confirmation link first, and every issue has an unsubscribe link.",
+      "The free tools: the calculator, Flaky Test Doctor and AI Eval Playground run only in your browser; nothing you enter or upload is sent. For the checklist, quiz report or Starter Kit waitlist, your email (and first name, if given) is stored to send what you asked for.",
+      "\"Test my site\" stores the address you scan and your email; the scan runs on a GitHub Actions machine and the report is kept at its private link. \"Ask my AI\" logs each question and answer (with no personal details) to improve it; answers are written by Anthropic's Claude from this site's pages.",
+      "NeuralForge sign-in stores your email and your learning progress, so it can sync between devices. You can delete the account from NeuralForge itself.",
       "Nothing you send is sold or shared. Email me to see or delete what's stored about you."
     ],
     link: ["Email me", `mailto:${CONTACT_EMAIL}`]

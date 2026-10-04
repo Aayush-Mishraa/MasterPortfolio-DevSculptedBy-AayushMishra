@@ -93,7 +93,10 @@ async function main() {
     if (meta(html, "property", "og:url") !== expectedUrl) fail(where, `og:url is ${meta(html, "property", "og:url")}`);
     const image = meta(html, "property", "og:image");
     if (image && !LIVE && !fs.existsSync(path.join(BUILD, image.replace(SITE, "")))) fail(where, `og:image file missing: ${image}`);
-    if (/name="robots"[^>]+noindex/i.test(html)) fail(where, "noindex on a real page");
+    // A few reachable pages are noindex on purpose (routes.mjs `noindex: true`).
+    const noindex = /name="robots"[^>]+noindex/i.test(html);
+    if (noindex && !route.noindex) fail(where, "noindex on a real page");
+    if (!noindex && route.noindex) fail(where, "should be noindex");
 
     const text = bodyText(html);
     if (text.length < 300) fail(where, `only ${text.length} characters of body text`);

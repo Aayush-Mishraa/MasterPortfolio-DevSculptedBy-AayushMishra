@@ -16,7 +16,7 @@ Http::requireMethod('GET');
 Http::requireAllowedOrigin($config);
 
 $form = (string) ($_GET['form'] ?? '');
-if (!in_array($form, ['contact', 'subscribe'], true)) {
+if (!in_array($form, ['contact', 'subscribe', 'enquiry', 'magnet', 'scan', 'ask'], true)) {
     Http::error(400, 'unknown_form', 'Unknown form.');
 }
 

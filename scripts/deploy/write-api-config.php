@@ -19,9 +19,13 @@ if ($out === '') {
 $env = static fn (string $name, string $default = ''): string => trim((string) (getenv($name) === false ? $default : getenv($name)));
 
 $config = [
-    'env' => 'production',
-    'site_url' => 'https://aayushmishra.engineer',
-    'allowed_origins' => ['https://aayushmishra.engineer', 'https://www.aayushmishra.engineer'],
+    // The staging deploy sets SITE_ENV=staging, SITE_URL and ALLOWED_ORIGINS.
+    'env' => $env('SITE_ENV', 'production'),
+    'site_url' => $env('SITE_URL', 'https://aayushmishra.engineer'),
+    // F30: NeuralForge's subdomain calls the sync API same-origin, so it's an allowed origin too.
+    'allowed_origins' => $env('ALLOWED_ORIGINS') !== ''
+        ? array_values(array_filter(array_map('trim', explode(',', $env('ALLOWED_ORIGINS')))))
+        : ['https://aayushmishra.engineer', 'https://www.aayushmishra.engineer', 'https://neuralforge.aayushmishra.engineer'],
     'app_secret' => $env('API_APP_SECRET'),
     'admin_token' => $env('API_ADMIN_TOKEN'),
     'db' => [
@@ -46,6 +50,30 @@ $config = [
         'api_key' => $env('BUTTONDOWN_API_KEY'),
         'webhook_secret' => $env('BUTTONDOWN_WEBHOOK_SECRET'),
     ],
+    'cal' => [
+        'webhook_secret' => $env('CAL_WEBHOOK_SECRET'),
+    ],
+    // F13: the Basic gate in front of /admin. Only the hash leaves this script.
+    'admin' => [
+        'basic_user' => $env('ADMIN_BASIC_USER'),
+        'basic_pass_hash' => $env('ADMIN_BASIC_PASS') === '' ? '' : password_hash($env('ADMIN_BASIC_PASS'), PASSWORD_DEFAULT),
+    ],
+    // F24: a fine-grained token for this repository with "Contents: read and write" (repository_dispatch).
+    'scanner' => [
+        'github_token' => $env('SCANNER_GITHUB_TOKEN'),
+        'repo' => $env('SCANNER_REPO', 'Aayush-Mishraa/MasterPortfolio-DevSculptedBy-AayushMishra'),
+        'callback_secret' => $env('SCAN_CALLBACK_SECRET'),
+        'daily_cap' => (int) $env('SCAN_DAILY_CAP', '30'),
+    ],
+    // F31: the site assistant; off while the key is empty.
+    'anthropic' => [
+        'api_key' => $env('ANTHROPIC_API_KEY'),
+        'model' => $env('ASK_MODEL', 'claude-haiku-4-5'),
+        'daily_cap' => (int) ($env('ASK_DAILY_CAP') ?: '200'),
+    ],
+    'neuralforge' => [
+        'url' => $env('NEURALFORGE_URL') ?: 'https://neuralforge.aayushmishra.engineer',
+    ],
     'client_ip_header' => $env('API_CLIENT_IP_HEADER'),
     'state_dir' => '',
 ];
@@ -60,7 +88,7 @@ file_put_contents($out, $php);
 chmod($out, 0600);
 
 $present = static fn (string $value): string => $value === '' ? 'missing' : 'set';
-echo "API config written to {$out}\n";
+echo "API config written to {$out} (env {$config['env']}, {$config['site_url']})\n";
 foreach ([
     'API_APP_SECRET' => $config['app_secret'],
     'API_ADMIN_TOKEN' => $config['admin_token'],
@@ -72,6 +100,12 @@ foreach ([
     'MAIL_TO' => $config['mail_to'],
     'BUTTONDOWN_API_KEY' => $config['buttondown']['api_key'],
     'BUTTONDOWN_WEBHOOK_SECRET' => $config['buttondown']['webhook_secret'],
+    'CAL_WEBHOOK_SECRET' => $config['cal']['webhook_secret'],
+    'ADMIN_BASIC_USER' => $config['admin']['basic_user'],
+    'ADMIN_BASIC_PASS' => $config['admin']['basic_pass_hash'],
+    'SCANNER_GITHUB_TOKEN' => $config['scanner']['github_token'],
+    'SCAN_CALLBACK_SECRET' => $config['scanner']['callback_secret'],
+    'ANTHROPIC_API_KEY' => $config['anthropic']['api_key'],
 ] as $name => $value) {
     echo str_pad($name, 28) . $present($value) . "\n";
 }
