@@ -9,7 +9,6 @@ import { MODULES as UNIVERSE_PAGES } from "../../pages/universe/modules";
 import { automationTools } from "../../pages/automationArsenal/arsenalData";
 import { loadSnapshot, prettyName } from "../../services/github/githubData";
 import { unlockIntroSound } from "../../pages/splash/introSound";
-import { introSoundOn } from "../../pages/splash/introPolicy";
 import { HIRE_ME_WITH_FILM, startHireFilm } from "../../pages/hire/hireFilm";
 
 // F10: services-first. Work holds Projects and Open Source (and, later, case
@@ -111,8 +110,7 @@ class Header extends Component {
   // The logo replays the intro; unlocking audio inside this click is what lets
   // browsers (Safari especially) play its sound.
   replayIntro = () => {
-    // Inside the click, so the intro may play sound (only if it's turned on).
-    if (introSoundOn()) unlockIntroSound();
+    unlockIntroSound();
     this.closeMobileMenu();
   }
 
