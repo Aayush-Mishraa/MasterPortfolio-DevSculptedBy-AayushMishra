@@ -5,7 +5,6 @@
 // intro that isn't coming.
 
 const SEEN_KEY = "portfolio:intro-seen";
-const SOUND_KEY = "portfolio:intro-sound";
 
 export function introPlaysAt(pathname) {
   return pathname === "/splash";
@@ -16,22 +15,5 @@ export function markIntroSeen() {
     window.sessionStorage.setItem(SEEN_KEY, "1");
   } catch (error) {
     // Storage blocked: nothing depends on it.
-  }
-}
-
-// Sound is off unless the visitor turned it on in the intro (remembered).
-export function introSoundOn() {
-  try {
-    return window.localStorage.getItem(SOUND_KEY) === "on";
-  } catch (error) {
-    return false;
-  }
-}
-
-export function setIntroSound(on) {
-  try {
-    window.localStorage.setItem(SOUND_KEY, on ? "on" : "off");
-  } catch (error) {
-    // Storage blocked: the choice lasts for this intro only.
   }
 }

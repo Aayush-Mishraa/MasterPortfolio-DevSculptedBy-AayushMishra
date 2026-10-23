@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 /*
   F05: the intro never holds the page. A plain visit (first or not, from a
   campaign link or not) lands on the hero; "Play intro" and the header logo
-  play it, silently unless sound is turned on, and it ends on / at the hero.
+  play it with sound (no off switch), and it ends on / at the hero.
 
   These tests use a fresh context without the shared fixture, which marks the
   intro as seen: here nothing may depend on that flag.
@@ -22,7 +22,7 @@ test.describe("F05 intro without the wait", () => {
     });
   }
 
-  test("Play intro plays it with sound off, and it ends on / at the hero", async ({ page }) => {
+  test("Play intro plays it with sound, and it ends on / at the hero", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await page.getByRole("link", { name: "Play intro", exact: true }).click();
@@ -30,34 +30,15 @@ test.describe("F05 intro without the wait", () => {
     await expect(page).toHaveURL(/\/splash$/);
     const intro = page.getByRole("dialog", { name: /Intro/ });
     await expect(intro).toBeVisible();
-    const sound = page.locator(".intro-sound");
-    await expect(sound).toHaveAttribute("aria-pressed", "false");
-    await expect(sound).toHaveText(/Sound off/);
+    // Sound is always on: no off switch, and the click already unlocked the
+    // audio, so the Enter screen stays hidden.
+    await expect(page.locator(".intro-sound")).toHaveCount(0);
+    await expect(page.locator(".intro-gate")).toBeHidden();
 
     await page.keyboard.press("Escape"); // skip: fast-forwards to the handoff
     await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
     await expect(page.locator(".intro")).toHaveCount(0, { timeout: 15_000 });
     await expect(page.locator("#hm-hero-title")).toBeInViewport();
-  });
-
-  test("the sound toggle doesn't skip the intro and is remembered", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "no-preference" });
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.getByRole("link", { name: "Play intro", exact: true }).click();
-    const sound = page.locator(".intro-sound");
-    await sound.click();
-    await expect(sound).toHaveAttribute("aria-pressed", "true");
-    await expect(sound).toHaveText(/Sound on/);
-    await expect(page.locator(".intro")).toBeVisible();
-    await expect(page).toHaveURL(/\/splash$/);
-    expect(await page.evaluate(() => window.localStorage.getItem("portfolio:intro-sound"))).toBe("on");
-
-    // Keyboard on the toggle toggles; it doesn't skip either.
-    await sound.focus();
-    await page.keyboard.press("Enter");
-    await expect(sound).toHaveAttribute("aria-pressed", "false");
-    await expect(page.locator(".intro")).toBeVisible();
-    expect(await page.evaluate(() => window.localStorage.getItem("portfolio:intro-sound"))).toBe("off");
   });
 
   test("with reduced motion it shows the finished frame and fades out", async ({ page }) => {
