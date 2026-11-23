@@ -28,6 +28,19 @@
             }, 4000);
           }
         } catch (e) {}
+        // First visit to /: the intro will cover the page (introPolicy.js makes
+        // the same call), so don't flash the prerendered hero before it. Splash
+        // removes the class; the timeout is a safety net if the app never loads.
+        try {
+          var ua = navigator.userAgent || "";
+          var bot = /bot|crawl|spider|slurp|lighthouse|pagespeed|prerender|facebookexternalhit|embedly|preview/i.test(ua);
+          if (location.pathname === "/" && !bot && localStorage.getItem("portfolio:intro-seen") !== "1") {
+            document.documentElement.classList.add("intro-boot");
+            setTimeout(function () {
+              document.documentElement.classList.remove("intro-boot");
+            }, 8000);
+          }
+        } catch (e) {}
       })();
     </script>
     <!-- A variable, not an inline background, so page rules like Tech Universe's html.uv-standalone still win -->
@@ -36,6 +49,12 @@
         background-color: var(--page-bg, transparent);
       }
       html.theme-pending #root {
+        visibility: hidden;
+      }
+      html.intro-boot {
+        background-color: #06070a;
+      }
+      html.intro-boot #root {
         visibility: hidden;
       }
     </style>

@@ -94,7 +94,7 @@ function serializeDocument({ templateScripts, snapshot }) {
   document.querySelectorAll('body script[src^="/static/js/"]').forEach((script) => script.setAttribute("defer", ""));
   document.querySelectorAll(".intro, [data-prerender-skip]").forEach((node) => node.remove());
   const html = document.documentElement;
-  html.classList.remove("intro-active", "intro-cover", "intro-gated", "lenis", "lenis-smooth", "lenis-stopped", "theme-pending");
+  html.classList.remove("intro-active", "intro-cover", "intro-gated", "intro-boot", "lenis", "lenis-smooth", "lenis-stopped", "theme-pending");
   if (!html.className.trim()) html.removeAttribute("class");
   // Data the page renders from starts loading with the HTML (src/index.js waits for it).
   const path = location.pathname.replace(/\/+$/, "") || "/";

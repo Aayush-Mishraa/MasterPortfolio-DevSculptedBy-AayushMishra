@@ -4,11 +4,13 @@
 
 **Decision (3 Oct 2026):** opt-in "Play intro" (not an auto-play capped at 1.5 s).
 
+**Changed 23 Nov 2026 (owner's call):** the intro auto-plays again on a browser's **first** visit to `/`, opening on the Enter screen (sound needs a click). Once seen (played, skipped or left) it is remembered in `localStorage` (`portfolio:intro-seen`) and `/` goes straight to the hero. Crawlers, Lighthouse and the prerender never get it. `public/index.html` adds `html.intro-boot` on that first visit so the prerendered hero doesn't flash before the Enter screen.
+
 ## Goal
 Nobody waits for the intro. Every visit lands on the hero; the intro is something a visitor chooses to watch.
 
 ## Acceptance criteria
-- [x] The intro never auto-plays: `/` (first visit or not, with or without `utm_*`/`ref` parameters, bots included) renders the hero directly. `introPolicy.introPlaysAt()` is true only for `/splash`.
+- [x] ~~The intro never auto-plays: `/` (first visit or not, with or without `utm_*`/`ref` parameters, bots included) renders the hero directly. `introPolicy.introPlaysAt()` is true only for `/splash`.~~ Changed 23 Nov 2026: first visit to `/` plays it (see above).
 - [x] "Play intro" in the hero actions (and the header logo, as before) opens `/splash`, where the intro plays over the home page.
 - [x] ~~Sound is off by default, with a remembered on/off toggle.~~ Changed 23 Oct 2026 (owner's call): sound is always on and there is no toggle; the Play intro / logo click unlocks the audio.
 - [x] ~~The "Enter" gate is gone.~~ Restored 23 Oct 2026: it shows only when the browser still blocks audio (e.g. `/splash` opened directly), as before F05.

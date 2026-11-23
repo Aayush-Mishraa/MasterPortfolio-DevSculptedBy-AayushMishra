@@ -210,6 +210,8 @@ function Splash({ history, theme }) {
     // intro-active hides the header logo until the signature lands on it;
     // intro-cover stops the page underneath painting while nobody can see it.
     html.classList.add("intro-active", "intro-cover");
+    // The first-visit guard from index.html: the intro covers the page now.
+    html.classList.remove("intro-boot");
     if (window.__lenis) window.__lenis.stop();
     // Focus the dialog itself: keyboard users land inside it (Esc/Enter skip,
     // Tab reaches the buttons) without a focus ring flashing on Skip.
@@ -218,6 +220,9 @@ function Splash({ history, theme }) {
     const finish = () => {
       if (finished) return;
       finished = true;
+      // Before leaving: on / the route asks introPlaysAt again, and an unseen
+      // intro would mount itself straight back.
+      markIntroSeen();
       history.replace("/");
     };
 
