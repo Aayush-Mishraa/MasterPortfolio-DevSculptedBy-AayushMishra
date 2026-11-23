@@ -8,6 +8,7 @@ import "./index.css";
 // import "bootstrap/dist/css/bootstrap.min.css";
 import App from "./App";
 import { preloadForPath, snapshotVersion } from "./services/github/snapshotStore";
+import { introPlaysAt } from "./pages/splash/introPolicy";
 import * as serviceWorker from "./serviceWorker";
 
 const engine = new Styletron();
@@ -29,7 +30,13 @@ const app = (
 // the first paint.
 const html = document.documentElement;
 const path = window.location.pathname.replace(/\/+$/, "") || "/";
-const adopt = html.getAttribute("data-prerendered") === path && !html.classList.contains("theme-pending");
+// Never when the intro plays over the page (a first visit to /): the HTML was
+// prerendered without it, and React 16 hydrating a tree with an extra node
+// pins the intro's elements onto the page's own, breaking both.
+const adopt =
+  html.getAttribute("data-prerendered") === path &&
+  !html.classList.contains("theme-pending") &&
+  !introPlaysAt(window.location.pathname);
 // A page built from the GitHub snapshot is adopted only with that same
 // snapshot: the CDN or the browser cache can pair the HTML of one scheduled
 // build with the JSON of the next, and hydrating would keep the old links
